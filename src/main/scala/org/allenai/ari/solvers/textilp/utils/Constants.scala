@@ -1,7 +1,8 @@
 package org.allenai.ari.solvers.textilp.utils
 
-object Constants {
-  val squadTrainingData = ""
-  val squadDevData = ""
+import java.io.File
 
+object Constants {
+  val squadTrainingDataFile = new File("/Users/daniel/Desktop/squad-train-v1.1.json")
+  val squadDevDataFile = new File("/Users/daniel/Desktop/squad-dev-v1.1.json")
 }

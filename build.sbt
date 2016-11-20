@@ -22,12 +22,17 @@ resolvers ++= Seq(
   "CogcompSoftware" at "http://cogcomp.cs.illinois.edu/m2repo/"
 )
 
+javaOptions ++= List("-Xmx11g")
+
 libraryDependencies ++= Seq(
   allenAiCommon,
   "commons-io" % "commons-io" % "2.4",
   "net.sf.opencsv" % "opencsv" % "2.1",
   allenAiTestkit % "test",
   "com.typesafe.play" % "play-json_2.11" % "2.5.9",
+  "org.rogach" %% "scallop" % "2.0.5",
   ccgGroupId % "illinois-core-utilities" % cogcompNLPVersion withSources,
-  ccgGroupId % "illinois-nlp-pipeline" % cogcompPipelineVersion withSources
+  ccgGroupId % "illinois-nlp-pipeline" % cogcompPipelineVersion withSources,
+  ccgGroupId % "illinois-quantifier" % "2.0.6" withSources,
+  ccgGroupId % "saul-examples_2.11" % "0.5.5"
 )
