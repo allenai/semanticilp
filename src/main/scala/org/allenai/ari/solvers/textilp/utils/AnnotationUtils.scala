@@ -8,7 +8,7 @@ import edu.illinois.cs.cogcomp.saulexamples.nlp.TextAnnotationFactory
 import org.allenai.ari.solvers.textilp.{Paragraph, Question, TopicGroup}
 
 object AnnotationUtils {
-  lazy val pipelineService = {
+  val pipelineService = {
     val settings = new Properties()
     TextAnnotationFactory.disableSettings(settings, USE_SRL_NOM, USE_SRL_VERB,
       USE_STANFORD_DEP, USE_STANFORD_PARSE)
