@@ -32,8 +32,7 @@ class SQuADReader(file: File, annotationServiceOpt: Option[AnnotatorService] = N
         val questionAnnotation = annotationServiceOpt match {
           case None => None
           case Some(service) =>
-            val ta = service.createAnnotatedTextAnnotation("", "", question)
-            AnnotationUtils.quantifierAnnotator.addView(ta)
+            val ta = AnnotationUtils.annotate(question)
             assert(ta.getAvailableViews.contains(ViewNames.QUANTITIES))
             Some(ta)
         }
@@ -42,8 +41,7 @@ class SQuADReader(file: File, annotationServiceOpt: Option[AnnotatorService] = N
       val contextAnnotation = annotationServiceOpt match {
         case None => None
         case Some(service) =>
-          val ta = service.createAnnotatedTextAnnotation("", "", context)
-          AnnotationUtils.quantifierAnnotator.addView(ta)
+          val ta = AnnotationUtils.annotate(context)
           assert(ta.getAvailableViews.contains(ViewNames.QUANTITIES))
           Some(ta)
       }

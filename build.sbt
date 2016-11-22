@@ -27,6 +27,7 @@ javaOptions ++= List("-Xmx11g")
 libraryDependencies ++= Seq(
 //  allenAiCommon,
 //  allenAiTestkit % "test",
+  "org.allenai.common" %% "common-cache" % "1.4.6",
   "commons-io" % "commons-io" % "2.4",
   "net.sf.opencsv" % "opencsv" % "2.1",
   "com.typesafe.play" % "play-json_2.11" % "2.5.9",
