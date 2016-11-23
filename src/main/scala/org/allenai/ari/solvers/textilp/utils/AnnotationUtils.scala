@@ -12,6 +12,8 @@ import org.allenai.ari.solvers.textilp.{Paragraph, Question, TopicGroup}
 import org.allenai.common.cache.JsonQueryCache
 import redis.clients.jedis.{JedisPool, Protocol}
 
+import spray.json.DefaultJsonProtocol._
+
 /** a dummy redis client for when redis is not supposed to be used */
 object DummyRedisClient extends JsonQueryCache[String]("", new JedisPool()) {
   override def get(key: String) = None
@@ -33,7 +35,7 @@ object AnnotationUtils {
   def annotate(string: String, withQuantifier: Boolean = true): TextAnnotation = {
     val cacheKey = "TextAnnotations:" + viewsToDisable.mkString("*") + withQuantifier + string
     val redisAnnotation = synchronizedRedisClient.get(cacheKey)
-    val annotation = if (redisAnnotation.isDefined) {
+    if (redisAnnotation.isDefined) {
       SerializationHelper.deserializeFromJson(redisAnnotation.get)
     } else {
       val textAnnotation = pipelineService.createAnnotatedTextAnnotation("", "", string)

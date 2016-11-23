@@ -39,7 +39,8 @@ object ExperimentsApp {
   def generateCandiateAnswers(reader: SQuADReader): Unit = {
     var found: Int = 0
     var notFound: Int = 0
-    reader.instances.foreach{ ins =>
+    reader.instances.zipWithIndex.foreach{ case (ins, idx) =>
+      println("Idx: " + idx + " / ratio: " + idx * 1.0 / reader.instances.size)
       ins.paragraphs.foreach{ p =>
         p.contextTAOpt match {
           case None => throw new Exception("The instance does not contain annotation . . . ")
@@ -67,20 +68,22 @@ object ExperimentsApp {
 
   def getCandidateAnswer(contextTA: TextAnnotation): Set[String] = {
     val nounPhrases = contextTA.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala.filter(_.getLabel.contains("N")).map(_.getSurfaceForm)
+    val quotationExtractionPattern = "([\"'])(?:(?=(\\\\?))\\2.)*?\\1".r
+    val stringsInsideQuotationMark = quotationExtractionPattern.findAllIn(contextTA.text)
     val ners = contextTA.getView(ViewNames.NER_CONLL).getConstituents.asScala.map(_.getSurfaceForm)
     val quant = contextTA.getView(ViewNames.QUANTITIES).getConstituents.asScala.map(_.getSurfaceForm)
     val p = "-?\\d+".r // regex for finding all the numbers
     val numbers = p.findAllIn(contextTA.text)
-    (nounPhrases ++ quant ++ ners ++ numbers).toSet
+    (nounPhrases ++ quant ++ ners ++ numbers ++ stringsInsideQuotationMark).toSet
   }
 
   def main(args: Array[String]): Unit = {
     val parser = new ArgumentParser(args)
     parser.experimentType() match {
       case 1 =>
-        val trainReader = new SQuADReader(Constants.squadTrainingDataFile, Some(AnnotationUtils.pipelineService))
-        //val devReader = new SQuADReader(Constants.squadDevDataFile, Some(AnnotationUtils.pipelineService))
-      generateCandiateAnswers(trainReader)
+       // val trainReader = new SQuADReader(Constants.squadTrainingDataFile, Some(AnnotationUtils.pipelineService))
+        val devReader = new SQuADReader(Constants.squadDevDataFile, Some(AnnotationUtils.pipelineService))
+        generateCandiateAnswers(devReader)
       case 2 => testQuantifier()
       case 3 => testPipelineAnnotation()
     }
