@@ -48,8 +48,8 @@ lazy val viz = (project in file("viz")).
     libraryDependencies ++= Seq(
       filters,
       "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % Test,
-      "com.typesafe.play" % "play_2.11" % "2.5.10",
-      "org.webjars" %% "webjars-play" % "2.4.0-1",
+//      "com.typesafe.play" % "play_2.11" % "2.5.10",
+//      "org.webjars" %% "webjars-play" % "2.4.0-1",
       "org.webjars" % "bootstrap" % "3.3.7",
       "org.webjars" % "jquery" % "3.1.1"
     ),
