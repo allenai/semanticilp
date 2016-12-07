@@ -13,11 +13,99 @@
         <title>@title</title>
         <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
-        <script src="@routes.Assets.versioned("javascripts/hello.js")" type="text/javascript"></script>
+        <script src="@routes.WebJarAssets.at(WebJarAssets.locate("jquery.min.js"))"></script>
+        <script src="@routes.WebJarAssets.at(WebJarAssets.locate("bootstrap.min.js"))"></script>
+        <link rel="stylesheet" media="screen" href="@routes.WebJarAssets.at(WebJarAssets.locate("bootstrap.min.css"))">
     </head>
     <body>
-        @* And here's where we render the `Html` object containing
-         * the page content. *@
+        <div style="padding:50px;">
+            <div class="page-header">
+                <h1>TextILP <small> Structured Question Answering on top of raw text</small></h1>
+            </div>
+            <nav class="navbar navbar-default">
+                <div class="container-fluid">
+                        <!-- Brand and toggle get grouped for better mobile display -->
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" href="#">TextILP</a>
+                    </div>
+                    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                        <ul class="nav navbar-nav">
+                            <li class="active"><a href="#">Link <span class="sr-only">(current)</span></a></li>
+                            <li><a href="#">Link</a></li>
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Solver <span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="#">TextILP</a></li>
+                                    <li role="separator" class="divider"></li>
+                                    <li><a href="#">Salience</a></li>
+                                    <li><a href="#">Lucene</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                        <ul class="nav navbar-nav navbar-right">
+                            <li><a href="#">Link</a></li>
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="#">Action</a></li>
+                                    <li><a href="#">Another action</a></li>
+                                    <li><a href="#">Something else here</a></li>
+                                    <li role="separator" class="divider"></li>
+                                    <li><a href="#">Separated link</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div><!-- /.navbar-collapse -->
+                </div><!-- /.container-fluid -->
+            </nav>
+            <div class="alert alert-success" role="alert">
+                <span class="input-group-addon">
+                    Pre-filled questions
+                    <select name="ready-questions" style="width: 90%" >
+                        <option disabled selected value> -- select one -- </option>
+                        <option value="volvo">Volvo</option>
+                        <option value="saab">Saab</option>
+                    </select>
+                </span>
+                <br>
+                <div class="form-group">
+                    <input type="text" class="form-control" placeholder="Raw question">
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Candidate Option</h3>
+                    </div>
+                    <div class="panel-body">
+                        <h5> Where to get candidate answers?  </h5>
+                        <form>
+                            <input type="radio" name="candidates" value="automatically" checked> Automatically extract candidate answers <br>
+                            <input type="radio" name="candidates" value="manual"> You manually enter the candidates<br>
+                        </form>
+                        <textarea rows="2" disabled=true style="width: 100%;">Separate the candidates with "//"</textarea>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">External Knowledge</h3>
+                    </div>
+                    <div class="panel-body">
+                        <h5> How to get the necessary knowledge? </h5>
+                        <form>
+                            <input type="radio" name="excerpt-extraction" value="lucene" checked> Automatic excerp extraction with Lucene<br>
+                            <input type="radio" name="excerpt-extraction" value="manual"> You manually enter a text<br>
+                        </form>
+                        <textarea rows="6" disabled=true style="width: 100%;"></textarea>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-default">Submit</button>
+            </div>
+        </div>
         @content
     </body>
 </html>
