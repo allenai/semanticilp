@@ -7,4 +7,6 @@ object Constants {
   val squadDevDataFile = new File("/Users/daniel/Desktop/squad-dev-v1.1.json")
 
   val useRedisCachingForAnnotation = true
+
+  val queryLink = "http://aristo-dev.dev.ai2:8080/ask?text="
 }

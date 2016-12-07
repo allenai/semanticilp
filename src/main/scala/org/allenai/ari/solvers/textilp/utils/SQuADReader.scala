@@ -16,7 +16,7 @@ import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
 class SQuADReader(file: File, annotationServiceOpt: Option[AnnotatorService] = None) {
   private val jsonString = Source.fromFile(file).getLines().mkString
   private val jsonObject = Json.parse(jsonString)
-  val instances = (jsonObject \\ "data" ).head.as[JsArray].value.map{ value =>
+  val instances = (jsonObject \\ "data" ).head.as[JsArray].value.slice(0, 30).map{ value =>
     val title = (value \ "title").as[String]
     val paragraphValues = (value \ "paragraphs").as[JsArray].value
     val paragraphs = paragraphValues.map{ paragraphValue =>
