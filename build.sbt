@@ -38,7 +38,7 @@ lazy val root = (project in file("."))
     )
 )
 
-lazy val viz = (project in file("visualization")).
+lazy val viz = (project in file("viz")).
   settings(commonSettings: _*).
   dependsOn(root).
   aggregate(root).
@@ -50,7 +50,8 @@ lazy val viz = (project in file("visualization")).
       "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % Test,
       "com.typesafe.play" % "play_2.11" % "2.5.10",
       "org.webjars" %% "webjars-play" % "2.4.0-1",
-      "org.webjars" % "bootstrap" % "3.3.6"
+      "org.webjars" % "bootstrap" % "3.3.7",
+      "org.webjars" % "jquery" % "3.1.1"
     ),
     resolvers ++= Seq("scalaz-bintray" at "http://dl.bintray.com/scalaz/releases")
   )

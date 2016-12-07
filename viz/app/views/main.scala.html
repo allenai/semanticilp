@@ -13,13 +13,11 @@
         <title>@title</title>
         <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("../../public/stylesheets/main.css")">
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("../../public/images/favicon.png")">
-
+        @*<script src="@routes.WebJarAssets.at(WebJarAssets.locate("js/jquery.min.js"))"></script>*@
+        @*<script src="@routes.WebJarAssets.at(WebJarAssets.locate("js/bootstrap.min.js"))"></script>*@
     </head>
     <body>
-        @* And here's where we render the `Html` object containing
-         * the page content. *@
         @content
-
-      <script src="@routes.Assets.versioned("../../public/javascripts/main.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.versioned("../../public/javascripts/main.js")" type="text/javascript"></script>
     </body>
 </html>
