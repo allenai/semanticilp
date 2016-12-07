@@ -1,9 +1,8 @@
 import sbt._
 import sbt.Keys._
 
-import org.allenai.plugins.CoreDependencies._
-
-import org.allenai.plugins.StylePlugin
+//import org.allenai.plugins.CoreDependencies._
+//import org.allenai.plugins.StylePlugin
 
 name := "TextILP"
 version := "1.0"
@@ -21,7 +20,7 @@ resolvers ++= Seq(
   "CogcompSoftware" at "http://cogcomp.cs.illinois.edu/m2repo/"
 )
 
-lazy val root = (project in file(".")).enablePlugins(StylePlugin).
+lazy val root = (project in file(".")).//.enablePlugins(StylePlugin).
   settings(
     name := "text-ilp",
     libraryDependencies ++= Seq(
