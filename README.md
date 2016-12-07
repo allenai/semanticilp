@@ -8,7 +8,7 @@ A structured question answering system on top of free-form text, and borrows ide
 ## Running the visual interface to the solver 
 ```
  > sbt 
- > project visualization 
+ > project viz 
  > run 
 ```
 

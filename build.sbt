@@ -1,26 +1,22 @@
 import sbt._
 import sbt.Keys._
 
-//import org.allenai.plugins.CoreDependencies._
-//import org.allenai.plugins.StylePlugin
-
-name := "TextILP"
-version := "1.0"
-
-scalaVersion := "2.11.8"
+import org.allenai.plugins.CoreDependencies._
+import org.allenai.plugins.StylePlugin
 
 val cogcompNLPVersion = "3.0.83"
 val cogcompPipelineVersion = "0.1.25"
 val ccgGroupId = "edu.illinois.cs.cogcomp"
 
-javaOptions ++= List("-Xmx11g")
-
-resolvers ++= Seq(
-  Resolver.mavenLocal,
-  "CogcompSoftware" at "http://cogcomp.cs.illinois.edu/m2repo/"
+lazy val commonSettings = Seq(
+  version := "1.0",
+  scalaVersion := "2.11.8",
+  javaOptions ++= List("-Xmx11g")
 )
 
-lazy val root = (project in file(".")).//.enablePlugins(StylePlugin).
+lazy val root = (project in file("."))
+  .enablePlugins(StylePlugin).
+  settings(commonSettings: _*).
   settings(
     name := "text-ilp",
     libraryDependencies ++= Seq(
@@ -35,19 +31,26 @@ lazy val root = (project in file(".")).//.enablePlugins(StylePlugin).
       ccgGroupId % "illinois-nlp-pipeline" % cogcompPipelineVersion withSources,
       ccgGroupId % "illinois-quantifier" % "2.0.8" withSources,
       ccgGroupId % "saul-examples_2.11" % "0.5.5"
+    ),
+    resolvers ++= Seq(
+      Resolver.mavenLocal,
+      "CogcompSoftware" at "http://cogcomp.cs.illinois.edu/m2repo/"
     )
-  )
+)
 
-lazy val visualization = (project in file("visualization")).
-  enablePlugins(PlayScala).
+lazy val viz = (project in file("visualization")).
+  settings(commonSettings: _*).
   dependsOn(root).
   aggregate(root).
+  enablePlugins(PlayScala).
   settings(
     name:= "text-ilp-visualization",
     libraryDependencies ++= Seq(
       filters,
       "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % Test,
+      "com.typesafe.play" % "play_2.11" % "2.5.10",
       "org.webjars" %% "webjars-play" % "2.4.0-1",
       "org.webjars" % "bootstrap" % "3.3.6"
-    )
+    ),
+    resolvers ++= Seq("scalaz-bintray" at "http://dl.bintray.com/scalaz/releases")
   )
