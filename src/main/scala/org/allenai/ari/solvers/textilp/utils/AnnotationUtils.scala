@@ -8,9 +8,9 @@ import edu.illinois.cs.cogcomp.core.utilities.configuration.Configurator
 import edu.illinois.cs.cogcomp.nlp.common.PipelineConfigurator._
 import edu.illinois.cs.cogcomp.quant.driver.Quantifier
 import edu.illinois.cs.cogcomp.saulexamples.nlp.TextAnnotationFactory
-import org.allenai.ari.solvers.textilp.{Paragraph, Question, TopicGroup}
+import org.allenai.ari.solvers.textilp.{ Paragraph, Question, TopicGroup }
 import org.allenai.common.cache.JsonQueryCache
-import redis.clients.jedis.{JedisPool, Protocol}
+import redis.clients.jedis.{ JedisPool, Protocol }
 
 import spray.json.DefaultJsonProtocol._
 
@@ -39,7 +39,7 @@ object AnnotationUtils {
       SerializationHelper.deserializeFromJson(redisAnnotation.get)
     } else {
       val textAnnotation = pipelineService.createAnnotatedTextAnnotation("", "", string)
-      if(withQuantifier) AnnotationUtils.quantifierAnnotator.addView(textAnnotation)
+      if (withQuantifier) AnnotationUtils.quantifierAnnotator.addView(textAnnotation)
       synchronizedRedisClient.put(cacheKey, SerializationHelper.serializeToJson(textAnnotation))
       textAnnotation
     }
@@ -47,16 +47,16 @@ object AnnotationUtils {
 
   val pipelineService = {
     val settings = new Properties()
-    viewsToDisable.foreach{v => settings.setProperty(v.key, Configurator.FALSE) }
+    viewsToDisable.foreach { v => settings.setProperty(v.key, Configurator.FALSE) }
     TextAnnotationFactory.createPipelineAnnotatorService(settings)
   }
 
   val quantifierAnnotator = new Quantifier()
 
   def annotateInstance(tg: TopicGroup): TopicGroup = {
-    val annotatedParagraphs = tg.paragraphs.map{ p =>
+    val annotatedParagraphs = tg.paragraphs.map { p =>
       val annotatedContext = pipelineService.createBasicTextAnnotation("", "", p.context)
-      val annotatedQuestions = p.questions.map{ q=>
+      val annotatedQuestions = p.questions.map { q =>
         val ta = pipelineService.createBasicTextAnnotation("", "", q.questionText)
         Question(q.questionText, q.questionId, q.answers, Some(ta))
       }

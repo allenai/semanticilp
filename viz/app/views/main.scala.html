@@ -65,14 +65,12 @@
                 </div><!-- /.container-fluid -->
             </nav>
             <div class="alert alert-success" role="alert">
-                <span class="input-group-addon">
-                    Pre-filled questions
-                    <select name="ready-questions" style="width: 90%" >
-                        <option disabled selected value> -- select one -- </option>
-                        <option value="volvo">Volvo</option>
-                        <option value="saab">Saab</option>
-                    </select>
-                </span>
+                <h4>Type a new question below or, or select one of the existing ones</h4>
+                <select class="form-control" name="ready-questions" >
+                    <option disabled selected value> -- select one -- </option>
+                    <option value="volvo">Volvo</option>
+                    <option value="saab">Saab</option>
+                </select>
                 <br>
                 <div class="form-group">
                     <input type="text" class="form-control" placeholder="Raw question">
@@ -104,6 +102,21 @@
                     </div>
                 </div>
                 <button type="submit" class="btn btn-default">Submit</button>
+            </div>
+            <div class="well">
+                visualization
+            </div>
+            <div class="panel-group">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" href="#collapse1">Solver Log</a>
+                        </h4>
+                    </div>
+                    <div id="collapse1" class="panel-collapse collapse">
+                        <div class="panel-body">Log</div>
+                    </div>
+                </div>
             </div>
         </div>
         @content

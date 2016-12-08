@@ -4,9 +4,9 @@ import java.net.URLEncoder
 
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation
-import org.allenai.ari.solvers.textilp.utils.{AnnotationUtils, Constants, SQuADReader}
+import org.allenai.ari.solvers.textilp.utils.{ AnnotationUtils, Constants, SQuADReader }
 import org.rogach.scallop._
-import play.api.libs.json.{JsArray, JsNumber, Json}
+import play.api.libs.json.{ JsArray, JsNumber, Json }
 
 import scala.collection.JavaConverters._
 import scala.io.Source
@@ -18,7 +18,7 @@ object ExperimentsApp {
     verify()
   }
 
-/*  def evaluateSquadWithAristo(inputData: Seq[TopicGroup]) = {
+  /*  def evaluateSquadWithAristo(inputData: Seq[TopicGroup]) = {
 
   }
 */
@@ -43,36 +43,36 @@ object ExperimentsApp {
   def generateCandiateAnswers(reader: SQuADReader): Unit = {
     var found: Int = 0
     var notFound: Int = 0
-    reader.instances.zipWithIndex.foreach{ case (ins, idx) =>
-      println("Idx: " + idx + " / ratio: " + idx * 1.0 / reader.instances.size)
-      ins.paragraphs.foreach{ p =>
-        p.contextTAOpt match {
-          case None => throw new Exception("The instance does not contain annotation . . . ")
-          case Some(annotation) =>
-            val candidateAnswers = getCandidateAnswer(annotation)
-            p.questions.foreach{ q =>
-              val goldAnswers = q.answers.map(_.answerText)
-              if(goldAnswers.exists(candidateAnswers.contains)) {
-                println(" --> found ")
-                found = found + 1
+    reader.instances.zipWithIndex.foreach {
+      case (ins, idx) =>
+        println("Idx: " + idx + " / ratio: " + idx * 1.0 / reader.instances.size)
+        ins.paragraphs.foreach { p =>
+          p.contextTAOpt match {
+            case None => throw new Exception("The instance does not contain annotation . . . ")
+            case Some(annotation) =>
+              val candidateAnswers = getCandidateAnswer(annotation)
+              p.questions.foreach { q =>
+                val goldAnswers = q.answers.map(_.answerText)
+                if (goldAnswers.exists(candidateAnswers.contains)) {
+                  println(" --> found ")
+                  found = found + 1
+                } else {
+                  notFound = notFound + 1
+                  println(" --> not found ")
+                  println("Question: " + q)
+                  println("CandidateAnswers: " + candidateAnswers)
+                  println("context = " + p.context)
+                }
               }
-              else{
-                notFound = notFound + 1
-                println(" --> not found ")
-                println("Question: " + q)
-                println("CandidateAnswers: " + candidateAnswers)
-                println("context = " + p.context)
-              }
-            }
+          }
         }
-      }
     }
     println("found: " + found + "\nnot-found: " + notFound)
   }
 
   def getCandidateAnswer(contextTA: TextAnnotation): Set[String] = {
     val nounPhrases = contextTA.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala.
-      filter{ch => ch.getLabel.contains("N") || ch.getLabel.contains("J") || ch.getLabel.contains("V") }.map(_.getSurfaceForm)
+      filter { ch => ch.getLabel.contains("N") || ch.getLabel.contains("J") || ch.getLabel.contains("V") }.map(_.getSurfaceForm)
     val quotationExtractionPattern = "([\"'])(?:(?=(\\\\?))\\2.)*?\\1".r
     val stringsInsideQuotationMark = quotationExtractionPattern.findAllIn(contextTA.text)
     val ners = contextTA.getView(ViewNames.NER_CONLL).getConstituents.asScala.map(_.getSurfaceForm)
@@ -85,7 +85,7 @@ object ExperimentsApp {
 
   /** query question against existing remote solvers
     * The question can have at most 6 options, A to F: "question text (A) option1 (B) option2 .... "
-    * */
+    */
   def evaluateASingleQuestion(q: String, solver: String): Seq[(String, Double)] = {
     val charset = "UTF-8"
     val query = Constants.queryLink + URLEncoder.encode(q, charset) + "&solvers=" + solver
@@ -102,32 +102,33 @@ object ExperimentsApp {
   }
 
   def handleQuestionWithManyCandidates(onlyQuestion: String, candidates: Set[String], solver: String): Seq[(String, Double)] = {
-    candidates.grouped(6).foldRight(Seq[(String, Double)]()){ (smallGroupOfCandidates, combinedScoreMap) =>
+    candidates.grouped(6).foldRight(Seq[(String, Double)]()) { (smallGroupOfCandidates, combinedScoreMap) =>
       assert(smallGroupOfCandidates.size <= 6)
-      val allOptions = smallGroupOfCandidates.zipWithIndex.map{ case (opt, idx) => s" (${(idx + 'A').toChar}) $opt " }.mkString
+      val allOptions = smallGroupOfCandidates.zipWithIndex.map { case (opt, idx) => s" (${(idx + 'A').toChar}) $opt " }.mkString
       val smallQuestion = onlyQuestion + allOptions
       combinedScoreMap ++ evaluateASingleQuestion(smallQuestion, solver)
     }
   }
 
   def evaluateDataSetWithRemoteSolver(reader: SQuADReader, solver: String): Unit = {
-    reader.instances.slice(0, 3).zipWithIndex.foreach{ case (ins, idx) =>
-      println("Idx: " + idx + " / ratio: " + idx * 1.0 / reader.instances.size)
-      ins.paragraphs.slice(0, 3).foreach{ p =>
-        p.contextTAOpt match {
-          case None => throw new Exception("The instance does not contain annotation . . . ")
-          case Some(annotation) =>
-            val candidateAnswers = getCandidateAnswer(annotation)
-            p.questions.foreach{ q =>
-              val goldAnswers = q.answers.map(_.answerText)
-              val perOptionScores = handleQuestionWithManyCandidates(q.questionText, candidateAnswers, solver)
-              println("q.questionText = " + q.questionText)
-              println("gold = " + goldAnswers)
-              println("predicted = " + perOptionScores.sortBy(-_._2))
-              println("---------")
-            }
+    reader.instances.slice(0, 3).zipWithIndex.foreach {
+      case (ins, idx) =>
+        println("Idx: " + idx + " / ratio: " + idx * 1.0 / reader.instances.size)
+        ins.paragraphs.slice(0, 3).foreach { p =>
+          p.contextTAOpt match {
+            case None => throw new Exception("The instance does not contain annotation . . . ")
+            case Some(annotation) =>
+              val candidateAnswers = getCandidateAnswer(annotation)
+              p.questions.foreach { q =>
+                val goldAnswers = q.answers.map(_.answerText)
+                val perOptionScores = handleQuestionWithManyCandidates(q.questionText, candidateAnswers, solver)
+                println("q.questionText = " + q.questionText)
+                println("gold = " + goldAnswers)
+                println("predicted = " + perOptionScores.sortBy(-_._2))
+                println("---------")
+              }
+          }
         }
-      }
     }
   }
 
