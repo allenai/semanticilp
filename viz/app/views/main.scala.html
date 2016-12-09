@@ -72,12 +72,13 @@
                             <li class="active"><a href="#">Link <span class="sr-only">(current)</span></a></li>
                             <li><a href="#">Link</a></li>
                             <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Solver: @formContent.solverType <span class="caret"></span></a>
+                                <a href="#" id="solver-dropdown" class="dropdown-toggle" data-toggle="dropdown"
+                                    role="button" aria-haspopup="true" aria-expanded="false">Solver: @formContent.solverType <span class="caret"></span></a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="#">TextILP</a></li>
+                                    <li id="selectTableILP"><a href="#">TextILP</a></li>
                                     <li role="separator" class="divider"></li>
-                                    <li><a href="#">Salience</a></li>
-                                    <li><a href="#">Lucene</a></li>
+                                    <li id="selectSalience"><a href="#">Salience</a></li>
+                                    <li id="selectLucene"><a href="#">Lucene</a></li>
                                 </ul>
                             </li>
                         </ul>

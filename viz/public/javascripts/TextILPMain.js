@@ -2,6 +2,7 @@ $(document).ready(function(){
     installSubmitClickEvent();
     answerCollectionRadioButton();
     knowledgeRadioButton();
+    solverTypeSelector();
 });
 
 // var installClickEvents = function(){
@@ -35,7 +36,6 @@ var answerCollectionRadioButton = function(){
     );
 };
 
-
 var knowledgeRadioButton = function(){
     $("#knowManual").change(function() {
             $("#knowTextArea").prop("disabled", false);
@@ -43,6 +43,23 @@ var knowledgeRadioButton = function(){
     );
     $("#knowLucene").change(function() {
             $("#knowTextArea").prop("disabled", true);
+        }
+    );
+};
+
+var solverTypeSelector = function(){
+    $("#selectTableILP").click(function() {
+            $("#solver-dropdown").text("Solver: TableILP ")
+        }
+    );
+
+    $("#selectSalience").click(function() {
+            $("#solver-dropdown").text("Solver: Salience ")
+        }
+    );
+
+    $("#selectLucene").click(function() {
+            $("#solver-dropdown").text("Solver: Lucene ")
         }
     );
 };
