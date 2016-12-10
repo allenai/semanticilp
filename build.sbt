@@ -27,15 +27,25 @@ lazy val root = (project in file("."))
       "net.sf.opencsv" % "opencsv" % "2.1",
       "com.typesafe.play" % "play-json_2.11" % "2.5.9",
       "org.rogach" %% "scallop" % "2.0.5",
+      "com.google.inject" % "guice" % "4.0",
       ccgGroupId % "illinois-core-utilities" % cogcompNLPVersion withSources,
       ccgGroupId % "illinois-nlp-pipeline" % cogcompPipelineVersion withSources,
       ccgGroupId % "illinois-quantifier" % "2.0.8" withSources,
-      ccgGroupId % "saul-examples_2.11" % "0.5.5"
+      ccgGroupId % "saul-examples_2.11" % "0.5.5",
+      ccgGroupId % "scip-jni" % "3.1.1"
     ),
     resolvers ++= Seq(
       Resolver.mavenLocal,
       "CogcompSoftware" at "http://cogcomp.cs.illinois.edu/m2repo/"
-    )
+    ),
+    // Make sure SCIP libraries are locatable.
+    javaOptions += s"-Djava.library.path=lib",
+    envVars ++= Map(
+      "LD_LIBRARY_PATH" -> "lib",
+      "DYLD_LIBRARY_PATH" -> "lib"
+    ),
+    includeFilter in unmanagedJars := "*.jar" || "*.so" || "*.dylib",
+    fork := true
 )
 
 lazy val viz = (project in file("viz")).
