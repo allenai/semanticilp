@@ -14,13 +14,24 @@ lazy val commonSettings = Seq(
   javaOptions ++= List("-Xmx11g")
 )
 
+// TODO(danm): This is used enough projects to be in allenai/sbt-plugins CoreDependencies.
+def nlpstack(component: String) = ("org.allenai.nlpstack" %% s"nlpstack-$component" % "1.6")
+  .exclude("commons-logging", "commons-logging")
+
+def textualEntailment(component: String) =
+  "org.allenai.textual-entailment" %% component % "1.0.6"
+
+val sprayVersion = "1.3.3"
+def sprayModule(id: String): ModuleID = "io.spray" %% s"spray-$id" % sprayVersion
+val sprayClient = sprayModule("client")
+
 lazy val root = (project in file("."))
   .enablePlugins(StylePlugin).
   settings(commonSettings: _*).
   settings(
     name := "text-ilp",
     libraryDependencies ++= Seq(
-      //  allenAiCommon,
+      allenAiCommon,
       //  allenAiTestkit % "test",
       "org.allenai.common" %% "common-cache" % "1.4.6",
       "commons-io" % "commons-io" % "2.4",
@@ -28,11 +39,21 @@ lazy val root = (project in file("."))
       "com.typesafe.play" % "play-json_2.11" % "2.5.9",
       "org.rogach" %% "scallop" % "2.0.5",
       "com.google.inject" % "guice" % "4.0",
+      "net.debasishg" %% "redisclient" % "3.0",
+      "com.medallia.word2vec" % "Word2VecJava" % "0.10.3",
       ccgGroupId % "illinois-core-utilities" % cogcompNLPVersion withSources,
       ccgGroupId % "illinois-nlp-pipeline" % cogcompPipelineVersion withSources,
       ccgGroupId % "illinois-quantifier" % "2.0.8" withSources,
       ccgGroupId % "saul-examples_2.11" % "0.5.5",
-      ccgGroupId % "scip-jni" % "3.1.1"
+      ccgGroupId % "scip-jni" % "3.1.1",
+      nlpstack("chunk") exclude("edu.stanford.nlp", "stanford-corenlp"),
+      nlpstack("lemmatize") exclude("edu.stanford.nlp", "stanford-corenlp"),
+      nlpstack("tokenize") exclude("edu.stanford.nlp", "stanford-corenlp"),
+      nlpstack("postag") exclude("edu.stanford.nlp", "stanford-corenlp"),
+      nlpstack("core") exclude("edu.stanford.nlp", "stanford-corenlp"),
+      textualEntailment("interface"),
+      textualEntailment("service"),
+      sprayClient
     ),
     resolvers ++= Seq(
       Resolver.mavenLocal,

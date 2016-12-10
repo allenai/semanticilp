@@ -2,7 +2,7 @@ package org.allenai.ari.solvers.textilp.utils
 
 import java.net.URLEncoder
 
-import play.api.libs.json.{JsArray, JsNumber, Json}
+import play.api.libs.json.{ JsArray, JsNumber, Json }
 
 import scala.io.Source
 

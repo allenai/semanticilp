@@ -4,9 +4,9 @@ import java.net.URLEncoder
 
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation
-import org.allenai.ari.solvers.textilp.utils.{AnnotationUtils, Constants, SQuADReader, SolverUtils}
+import org.allenai.ari.solvers.textilp.utils.{ AnnotationUtils, Constants, SQuADReader, SolverUtils }
 import org.rogach.scallop._
-import play.api.libs.json.{JsArray, JsNumber, Json}
+import play.api.libs.json.{ JsArray, JsNumber, Json }
 
 import scala.collection.JavaConverters._
 import scala.io.Source

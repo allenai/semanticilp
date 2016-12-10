@@ -3,7 +3,7 @@ package org.allenai.ari.solvers.textilp.ilpsolver
 import org.allenai.common.{ Enum, EnumCompanion }
 
 /** Various relevant status values after an ILP is solved */
-sealed abstract class IlpStatus(override val id: String) extends Enum[IlpStatus]
+sealed abstract class IlpStatus(override val id: String) extends Enum[IlpStatus]("0")
 object IlpStatus extends EnumCompanion[IlpStatus] {
   case object IlpStatusUnknown extends IlpStatus("Unknown")
   case object IlpStatusOptimal extends IlpStatus("Optimal")
