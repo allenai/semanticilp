@@ -51,8 +51,8 @@ lazy val viz = (project in file("viz")).
       "com.typesafe.play" % "play_2.11" % "2.5.10",
       "org.webjars" %% "webjars-play" % "2.4.0-1",
       "org.webjars" % "bootstrap" % "3.3.7",
-      "org.webjars" % "jquery" % "3.1.1"
-//      "org.webjars" % "jquery" % "2.2.4"
+      "org.webjars" % "jquery" % "3.1.1",
+      "org.webjars" % "headjs" % "1.0.3"
     ),
     resolvers ++= Seq("scalaz-bintray" at "http://dl.bintray.com/scalaz/releases")
   )

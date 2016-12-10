@@ -5,12 +5,12 @@ $(document).ready(function(){
     solverTypeSelector();
 });
 
-// var installClickEvents = function(){
-//
-// };
-
 var installSubmitClickEvent = function() {
     $("#submitBtn").click(function() {
+        var solverType = $("#solver-dropdown").prop("text");
+        var questionStr = $("#questionString").val();
+        var options = $("#candidateTextArea").val();
+        var snippet = $("#knowTextArea").val();
         $.ajax({
             type: 'POST',
             url: "/solve",
@@ -19,8 +19,17 @@ var installSubmitClickEvent = function() {
                 'Content-Type': 'application/json'
             },
             data: JSON.stringify({
-                "data": "someData"
-            })
+                "solverType": solverType,
+                "question": questionStr,
+                "options": options,
+                "snippet": snippet
+            }),
+            success: function(response) {
+                console.log("sent ... ");
+            },
+            error: function(xhr) {
+                console.log("failed ... ");
+            }
         });
     });
 };

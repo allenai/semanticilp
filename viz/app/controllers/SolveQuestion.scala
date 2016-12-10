@@ -3,9 +3,10 @@ package controllers
 import javax.inject._
 
 import models.StaticContent
+import org.allenai.ari.solvers.textilp.solvers.{SalienceSolver, TextILPSolver}
 import play.api._
 import play.api.data.Form
-import play.api.libs.json.JsNumber
+import play.api.libs.json.{JsNumber, JsString}
 import play.api.mvc._
 
 /** This controller creates an `Action` to handle HTTP requests to the
@@ -13,6 +14,9 @@ import play.api.mvc._
   */
 @Singleton
 class SolveQuestion @Inject() extends Controller {
+
+  lazy val salienceSolver = new SalienceSolver()
+  //lazy val textilpSolver = new TextILPSolver {}()
 
   /** Create an Action to render an HTML page with a welcome message.
     * The configuration in the `routes` file means that this method
@@ -24,34 +28,27 @@ class SolveQuestion @Inject() extends Controller {
     Ok(views.html.main("")(StaticContent.initialFormContent))
   }
 
-  //  def solver: Result = {
-  //    // Get the submitted form data from the request object, and run validation.
-  //    val formData: Form[StudentFormData] = Form.form(classOf[StudentFormData]).bindFromRequest
-  //    if (formData.hasErrors) {
-  //      // Don't call formData.get() when there are errors, pass 'null' to helpers instead.
-  //      flash("error", "Please correct errors above.")
-  //      badRequest(Index.render(formData, Hobby.makeHobbyMap(null), GradeLevel.getNameList, GradePointAverage.makeGPAMap(null), Major.makeMajorMap(null)))
-  //    }
-  //    else {
-  //      // Convert the formData into a Student model instance.
-  //      val student: Student = Student.makeInstance(formData.get)
-  //      flash("success", "Student instance created/edited: " + student)
-  //      ok(Index.render(formData, Hobby.makeHobbyMap(formData.get), GradeLevel.getNameList, GradePointAverage.makeGPAMap(formData.get), Major.makeMajorMap(formData.get)))
-  //    }
-//}
-  /// (parse.json)
   def solve = Action(parse.json) { implicit request =>
-    //val json = request.body.asJson.get
-    println("What?")
-    println(request)
     println(request.body)
-    Ok(views.html.main("")(StaticContent.initialFormContent)) // StaticContent.getContentWithPrefilled(0))
-  }
+    val solverType = (request.body \ "solverType").as[JsString].value
+    val question = (request.body \ "question").as[JsString].value
+    val options = (request.body \ "options").as[JsString].value
+    val snippet = (request.body \ "snippet").as[JsString].value
 
-//  def getPrefilledQuestion = Action(parse.json) { implicit request =>
-//    println(request.body.as[JsNumber].value)
-//    Ok(views.html.main("")(StaticContent.getContentWithPrefilled(request.body.as[JsNumber].value.toInt)))
-//  }
+    println("solver type : " + solverType)
+    val newPageContent = if(solverType.toLowerCase.contains("salience")) {
+      println("Calling salience . . . ")
+      val out = salienceSolver.solver(question, options.split("//").toSet, snippet)
+      println("Salience solver response ..... ")
+      println(out)
+      StaticContent.initialFormContent.copy(solverLog = out.toString)
+    }
+    else {
+      throw new Exception("the solver not found :/")
+    }
+
+    Ok(views.html.main("")(newPageContent))
+  }
 
   def getPrefilledQuestion(index: Int) = Action { request =>
     Ok(views.html.main("")(StaticContent.getContentWithPrefilled(index)))

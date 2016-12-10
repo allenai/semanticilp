@@ -12,11 +12,22 @@
         @* Here's where we render the page title `String`. *@
         <title>@title</title>
         <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
+        <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/brat-style-vis.css")">
         <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
         <link rel="stylesheet" media="screen" href="@routes.WebJarAssets.at(WebJarAssets.locate("bootstrap.min.css"))">
         <script src="@routes.WebJarAssets.at(WebJarAssets.locate("jquery.min.js"))"></script>
+        <script src="@routes.WebJarAssets.at(WebJarAssets.locate("head.js"))"></script>
         <script src="@routes.WebJarAssets.at(WebJarAssets.locate("bootstrap.min.js"))"></script>
         <script src="@routes.Assets.versioned("javascripts/TextILPMain.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.versioned("javascripts/util.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.versioned("javascripts/visualizer.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.versioned("javascripts/dispatcher.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.versioned("javascripts/url_monitor.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.versioned("javascripts/webfont.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.versioned("javascripts/annotation_log.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.versioned("javascripts/configuration.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.versioned("javascripts/jquery.svg.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.versioned("javascripts/jquery.svgdom.min.js")" type="text/javascript"></script>
         <script>
             // event for setting one of the pre-filled questions
             //var content = "@formContent";
@@ -47,6 +58,76 @@
                     $("#questionString").attr("value", "@{formContent.preFilledQuestions.questions(0).str}");
                     */
                 });
+
+                console.log("Embeding brat libraies ");
+                head.js(
+                    // External libraries
+                    'http://localhost:9000/assets/javascripts/jquery.svg.min.js',
+                    'http://localhost:9000/assets/javascripts/jquery.svgdom.min.js',
+                    // brat helper modules
+                    'http://localhost:9000/assets/javascripts/configuration.js',
+                    'http://localhost:9000/assets/javascripts/util.js',
+                    'http://localhost:9000/assets/javascripts/annotation_log.js',
+                    'http://localhost:9000/assets/javascripts/webfont.js',
+                    // brat modules
+                    'http://localhost:9000/assets/javascripts/dispatcher.js',
+                    'http://localhost:9000/assets/javascripts/url_monitor.js',
+                    'http://localhost:9000/assets/javascripts/visualizer.js'
+                );
+
+                var docData = {
+                    // Our text of choice
+                    text     : "Ed O'Kelley was the man who shot the man who shot Jesse James.",
+                    // The entities entry holds all entity annotations
+                    entities : [
+                        /* Format: [${ID}, ${TYPE}, [[${START}, ${END}]]]
+                         note that range of the offsets are [${START},${END}) */
+                        ['T1', 'Person', [[0, 11]]],
+                        ['T2', 'Person', [[20, 23]]],
+                        ['T3', 'Person', [[37, 40]]],
+                        ['T4', 'Person', [[50, 61]]]
+                    ]
+                };
+
+                var text = "Ed O'Kelley was the man who shot the man who shot Jesse James.";
+                var entities = [
+                    [
+                        "T1",
+                        "Person",
+                        [ [ 0, 11 ] ]
+                    ],
+                    [
+                        "T2",
+                        "Person",
+                        [ [ 20, 23 ] ]
+                    ],
+                    [
+                        "T3",
+                        "Person",
+                        [ [ 37, 40 ] ]
+                    ],
+                    [
+                        "T4",
+                        "Person",
+                        [ [ 50, 61 ] ]
+                    ]
+                ];
+
+                var relations = [
+                    [
+                        "R1",
+                        "Anaphora",
+                        [ [ "Anaphor", "T2" ], [ "Entity", "T1" ] ]
+                    ]
+                ];
+
+                console.log("Applying the embed method ");
+                // brat-visualization
+                Util.embed("brat-visualization",
+                        {entity_types: [], relation_types: []},
+                        {text: text, entities: entities, relations: relations}
+                );
+                console.log("done embedding");
             });
         </script>
     </head>
@@ -140,8 +221,9 @@
                     </div>
                 </fieldset>
             </div>
-            <div class="well">
-                visualization
+            <div class="well" >
+                    <svg width="100" height="100" id="brat-visualization">
+                    </svg>
             </div>
             <div class="panel-group">
                 <div class="panel panel-default">
