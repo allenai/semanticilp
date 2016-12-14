@@ -128,26 +128,28 @@ class TextILPSolver extends TextSolver {
 
 
     val questionString = "Question: " + qTokens.map(_.getSurfaceForm).mkString(" ")
-    val choiceString = "|Options: " + q.answers.map(_.answerText).mkString(" ")
+    val choiceString = "|Options: " + q.answers.zipWithIndex.map{case (ans, key) => s" (${key+1}) " + ans.answerText}.mkString(" ")
     val paragraphString = "|Paragraph: " + pTokens.map(_.getSurfaceForm).mkString(" ")
 
     val entities = ArrayBuffer[Entity]()
     val relations = ArrayBuffer[Relation]()
-    var erIter = 0
+    var eIter = 0
+    var rIter = 0
 
     questionParagraphAlignments.foreach {
       case (c1, c2, x) =>
         if (ilpSolver.getSolVal(x) > 1.0 - epsilon) {
-          val t1 = "T" + erIter
-          val t2 = "T" + (erIter + 1)
+          val t1 = "T" + eIter
+          val t2 = "T" + (eIter + 1)
           val qBeginIndex = questionString.indexOf(c1.getSurfaceForm)
           val qEndIndex = qBeginIndex + c1.getSurfaceForm.length
           val pBeginIndex = paragraphString.indexOf(c2.getSurfaceForm) + questionString.length + choiceString.length
           val pEndIndex = pBeginIndex + c2.getSurfaceForm.length
           entities += Entity(t1, c1.getSurfaceForm, Seq((qBeginIndex, qEndIndex)))
           entities += Entity(t2, c2.getSurfaceForm, Seq((pBeginIndex, pEndIndex)))
-          relations += Relation("R", t1, t2)
-          erIter = erIter + 2
+          relations += Relation("R" + rIter, t1, t2)
+          eIter = eIter + 2
+          rIter = rIter + 1
         }
     }
 
@@ -163,16 +165,17 @@ class TextILPSolver extends TextSolver {
     paragraphAnswerAlignments.foreach {
       case (c1, c2, x) =>
         if (ilpSolver.getSolVal(x) > 1.0 - epsilon) {
-          val t1 = "T" + erIter
-          val t2 = "T" + (erIter + 1)
+          val t1 = "T" + eIter
+          val t2 = "T" + (eIter + 1)
           val pBeginIndex = paragraphString.indexOf(c1.getSurfaceForm) + questionString.length + choiceString.length
-          val pEndIndex = pBeginIndex + c1.getSurfaceForm.length + 1
+          val pEndIndex = pBeginIndex + c1.getSurfaceForm.length
           val oBeginIndex = choiceString.indexOf(c2.answerText) + questionString.length
-          val oEndIndex = oBeginIndex + c2.answerText.length + 1
+          val oEndIndex = oBeginIndex + c2.answerText.length
           entities += Entity(t1, c1.getSurfaceForm, Seq((pBeginIndex, pEndIndex)))
           entities += Entity(t2, c2.answerText, Seq((oBeginIndex, oEndIndex)))
-          relations += Relation("R", t1, t2)
-          erIter = erIter + 2
+          relations += Relation("R" + rIter, t1, t2)
+          eIter = eIter + 2
+          rIter = rIter + 1
         }
     }
 

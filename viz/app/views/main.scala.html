@@ -120,6 +120,7 @@
                         success: function(response) {
                             console.log("sent ... ");
                             console.log(response);
+                            $("#solverResponseLog").text(response);
                             visualizationBratWithLog(JSON.parse(response));
                             $(".loader").hide();
                         },
@@ -248,7 +249,7 @@
                         </h4>
                     </div>
                     <div id="collapse1" class="panel-collapse collapse">
-                        <div class="panel-body">@solverResponse</div>
+                        <div class="panel-body" id="solverResponseLog">@solverResponse</div>
                     </div>
                 </div>
             </div>

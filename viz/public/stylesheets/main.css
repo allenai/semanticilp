@@ -22,3 +22,9 @@
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+#solverResponseLog {
+   font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+   text-align: left;
+   height:100%;
+}
