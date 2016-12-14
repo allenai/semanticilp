@@ -70,23 +70,31 @@ class ScipSolver(
 
   /** create a binary variable */
   def createBinaryVar(name: String, obj: Double): ScipVar = {
-    ScipVar(env.createVarBasic(scip, name, 0, 1, obj, JniScipVartype.SCIP_VARTYPE_BINARY))
+    val v = ScipVar(env.createVarBasic(scip, name, 0, 1, obj, JniScipVartype.SCIP_VARTYPE_BINARY))
+    this.addVar(v)
+    v
   }
 
   /** create a relaxed binary variable, that is, a continuous various with domain [0,1] */
   def createRelaxedBinaryVar(name: String, obj: Double): ScipVar = {
-    ScipVar(env.createVarBasic(scip, name, 0, 1, obj, JniScipVartype.SCIP_VARTYPE_CONTINUOUS))
+    val v = ScipVar(env.createVarBasic(scip, name, 0, 1, obj, JniScipVartype.SCIP_VARTYPE_CONTINUOUS))
+    this.addVar(v)
+    v
   }
 
   /** create an integer variable */
   def createIntegerVar(name: String, lb: Double, ub: Double, objCoeff: Double): ScipVar = {
-    ScipVar(env.createVarBasic(scip, name, lb, ub, objCoeff, JniScipVartype.SCIP_VARTYPE_INTEGER))
+    val v = ScipVar(env.createVarBasic(scip, name, lb, ub, objCoeff, JniScipVartype.SCIP_VARTYPE_INTEGER))
+    this.addVar(v)
+    v
   }
 
   /** create a continuous variable */
   def createContinuousVar(name: String, lb: Double, ub: Double, objCoeff: Double): ScipVar = {
-    ScipVar(env.createVarBasic(scip, name, lb, ub, objCoeff, JniScipVartype.
+    val v = ScipVar(env.createVarBasic(scip, name, lb, ub, objCoeff, JniScipVartype.
       SCIP_VARTYPE_CONTINUOUS))
+    this.addVar(v)
+    v
   }
 
   /** add variable to the environment */

@@ -18,8 +18,8 @@ class TextILPSolver extends TextSolver {
     useRedisCache = true, useContextInRedisCache = false)
 
   def solve(question: String, options: Set[String], snippet: String): (AlignmentResults, EntityRelationResult) = {
-    val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
-//    val ilpSolver = new IllinoisInference(new OJalgoHook)
+//    val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
+    val ilpSolver = new IllinoisInference(new OJalgoHook)
     val answers = options.map(o => Answer(o, -1))
     val qTA = AnnotationUtils.pipelineService.createBasicTextAnnotation("", "", question)
     val q = Question(question, "", answers, Some(qTA))
@@ -52,7 +52,6 @@ class TextILPSolver extends TextSolver {
       pCons <- pTokens
       score = alignmentFunction.scoreCellCell(qCons.getSurfaceForm, pCons.getSurfaceForm)
       x = ilpSolver.createBinaryVar("", score)
-      tmp = ilpSolver.addVar(x)
     } yield (qCons, pCons, x)
 
     // create paragraphToken-answerOption alignment edges
@@ -61,7 +60,6 @@ class TextILPSolver extends TextSolver {
       ans <- q.answers
       score = alignmentFunction.scoreCellCell(pCons.getSurfaceForm, ans.answerText)
       x = ilpSolver.createBinaryVar("", score)
-      tmp = ilpSolver.addVar(x)
     } yield (pCons, ans, x)
 
     // high-level variables
@@ -69,7 +67,6 @@ class TextILPSolver extends TextSolver {
     val activeAnswerOptions = for {
       ans <- q.answers
       x = ilpSolver.createBinaryVar("", 0.0)
-      tmp = ilpSolver.addVar(x)
     } yield (ans, x)
 
     def getVariablesConnectedToOption(ans: Answer): Seq[V] = {
@@ -101,10 +98,10 @@ class TextILPSolver extends TextSolver {
 
     println("created the ilp model. Now solving it  . . . ")
 
-    println("Number of binary variables: " + ilpSolver.getNBinVars)
-    println("Number of continuous variables: " + ilpSolver.getNContVars)
-    println("Number of integer variables: " + ilpSolver.getNIntVars)
-    println("Number of constraints: " + ilpSolver.getNConss)
+//    println("Number of binary variables: " + ilpSolver.getNBinVars)
+//    println("Number of continuous variables: " + ilpSolver.getNContVars)
+//    println("Number of integer variables: " + ilpSolver.getNIntVars)
+//    println("Number of constraints: " + ilpSolver.getNConss)
 
     // solving and extracting the answer
     ilpSolver.solve()
