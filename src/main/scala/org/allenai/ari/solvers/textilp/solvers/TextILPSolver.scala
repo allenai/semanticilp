@@ -153,7 +153,7 @@ class TextILPSolver extends TextSolver {
              entityMap(span1)
           }
 
-          val pBeginIndex = paragraphString.indexOf(c2.getSurfaceForm) + questionString.length + choiceString.length
+          val pBeginIndex = paragraphString.indexOf(c2.getSurfaceForm) + questionString.length
           val pEndIndex = pBeginIndex + c2.getSurfaceForm.length
           val span2 = (pBeginIndex, pEndIndex)
           val t2 = if(!entityMap.contains(span2)) {
@@ -183,7 +183,7 @@ class TextILPSolver extends TextSolver {
     paragraphAnswerAlignments.foreach {
       case (c1, c2, x) =>
         if (ilpSolver.getSolVal(x) > 1.0 - epsilon) {
-          val pBeginIndex = paragraphString.indexOf(c1.getSurfaceForm) + questionString.length + choiceString.length
+          val pBeginIndex = paragraphString.indexOf(c1.getSurfaceForm) + questionString.length
           val pEndIndex = pBeginIndex + c1.getSurfaceForm.length
           val span1 = (pBeginIndex, pEndIndex)
           val t1 = if(!entityMap.contains(span1)) {
@@ -196,7 +196,7 @@ class TextILPSolver extends TextSolver {
             entityMap(span1)
           }
 
-          val oBeginIndex = choiceString.indexOf(c2.answerText) + questionString.length
+          val oBeginIndex = choiceString.indexOf(c2.answerText) + questionString.length + paragraphString.length
           val oEndIndex = oBeginIndex + c2.answerText.length
           val span2 = (oBeginIndex, oEndIndex)
           val t2 = if(!entityMap.contains(span2)) {
@@ -223,7 +223,7 @@ class TextILPSolver extends TextSolver {
       paragraphAlignments.values.toList
     )
 
-    val erView = EntityRelationResult(questionString + choiceString + paragraphString, entities, relations)
+    val erView = EntityRelationResult(questionString + paragraphString + choiceString, entities, relations)
 
     alignmentResult -> erView
   }
