@@ -15,7 +15,7 @@ class TextILPSolver extends TextSolver {
 
   lazy val keywordTokenizer = KeywordTokenizer.Default
   lazy val aligner = new AlignmentFunction("Entailment", 0.1, keywordTokenizer,
-    useRedisCache = true, useContextInRedisCache = false)
+    useRedisCache = false, useContextInRedisCache = false)
 
   def solve(question: String, options: Set[String], snippet: String): (AlignmentResults, EntityRelationResult) = {
 //    val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
