@@ -134,6 +134,7 @@ class TextILPSolver extends TextSolver {
     var rIter = 0
 
     val entityMap = scala.collection.mutable.Map[(Int, Int), String]()
+    val relationSet = scala.collection.mutable.Set[(String, String)]()
 
     questionParagraphAlignments.foreach {
       case (c1, c2, x) =>
@@ -166,8 +167,12 @@ class TextILPSolver extends TextSolver {
           else {
             entityMap(span2)
           }
-          relations += Relation("R" + rIter, t1, t2)
-          rIter = rIter + 1
+
+          if(!relationSet.contains((t1, t2))) {
+            relations += Relation("R" + rIter, t1, t2)
+            rIter = rIter + 1
+            relationSet.add((t1, t2))
+          }
         }
     }
 
@@ -210,8 +215,11 @@ class TextILPSolver extends TextSolver {
             entityMap(span2)
           }
 
-          relations += Relation("R" + rIter, t1, t2)
-          rIter = rIter + 1
+          if(!relationSet.contains((t1, t2))) {
+            relations += Relation("R" + rIter, t1, t2)
+            rIter = rIter + 1
+            relationSet.add((t1, t2))
+          }
         }
     }
 
