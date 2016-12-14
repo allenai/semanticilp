@@ -2,43 +2,51 @@ $(document).ready(function(){
     answerCollectionRadioButton();
     knowledgeRadioButton();
     solverTypeSelector();
+    loadSquadQuestionSamples();
 });
 
+
+var loadSquadQuestionSamples = function () {
+
+    var questionParagraphPairs = [];
+
+    $.getJSON("/assets/squad-small.json", function (content) {
+        var questions = content.data[0].paragraphs.flatMap(function (i) {
+            return i.qas.map(function (j) {
+                return j.question
+            })
+        });
+
+        questionParagraphPairs = content.data[0].paragraphs.flatMap(function (i) {
+            return i.qas.map(function (j) {
+                return [j.question, i.context]
+            })
+        });
+
+        var selectContent = "<option disabled selected value> -- squad questions: select one -- </option>";
+        questions.forEach(function (q, i) {
+            selectContent = selectContent + "<option value=" + i + ">" + q + "</option>"
+        });
+
+        $('#squad-select').html(selectContent);
+    });
+
+    // set the select behavior
+    $("#squad-select").change(function () {
+        var selectedIndex = $(this).prop("selectedIndex") - 1;
+        var question = questionParagraphPairs[selectedIndex][0];
+        var snippet = questionParagraphPairs[selectedIndex][1];
+        $("#questionString").val(question);
+        $("#knowTextArea").val(snippet);
+    });
+};
+
+// [B](f: (A) ⇒ [B]): [B]  ; Although the types in the arrays aren't strict (:
+Array.prototype.flatMap = function(lambda) {
+    return Array.prototype.concat.apply([], this.map(lambda));
+};
+
 function visualizationBratWithLog(solverLogJson){
-
-    var data = {
-        "text": "Ed O'Kelley was the man who shot the man who shot Jesse James.",
-        "entities": [
-        [
-            "T1",
-            "Person",
-            [ [ 0, 11 ] ]
-        ],
-        [
-            "T2",
-            "Person",
-            [ [ 20, 23 ] ]
-        ],
-        [
-            "T3",
-            "Person",
-            [ [ 37, 40 ] ]
-        ],
-        [
-            "T4",
-            "Person",
-            [ [ 50, 61 ] ]
-        ]
-    ],
-        "relations": [
-        [
-            "R1",
-            " ",
-            [ [ "", "T2" ], [ "", "T1" ] ]
-        ]
-    ]
-    };
-
     var entity_types = [
         {
             "type": "  ",

@@ -35,11 +35,6 @@ object StaticContent {
   val preFilledQuestions = PreFilledQuestions(
     Seq(
       Question(
-        "What was Nikola Tesla's ethnicity?",
-        "Serbian // African // American // Asian",
-        TextSnippet("Nikola Tesla (Serbian Cyrillic: Никола Тесла; 10 July 1856 – 7 January 1943) was a Serbian American inventor, electrical engineer, mechanical engineer, physicist, and futurist best known for his contributions to the design of the modern alternating current (AC) electricity supply system.")
-      ),
-      Question(
         "A decomposer is an organism that",
         "hunts and eats animals // migrates for the winter // breaks down dead plants and animals // uses water and sunlight to make food",
         TextSnippet("explanation:Decomposers: organisms that obtain energy by eating dead plant or animal matter. " +

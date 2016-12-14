@@ -191,11 +191,13 @@
             <div class="alert alert-success" role="alert">
                 <h4>Type a new question below, or select one of the existing ones</h4>
                 <select class="form-control" id="ready-questions" >
-                    <option disabled selected value> -- select one -- </option>
+                    <option disabled selected value> -- aristo questions: select one -- </option>
                     @for((question, idx) <- formContent.preFilledQuestions.questions.zipWithIndex) {
                         <option value="@{idx+1}">@question.str</option>
                     }
                 </select>
+                <br>
+                <select class="form-control" id="squad-select"></select>
                 <br>
                 <div class="form-group">
                     <input type="text" class="form-control" placeholder="Raw question" id="questionString"
