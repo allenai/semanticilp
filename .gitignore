@@ -72,7 +72,5 @@ logs/
 project/project/
 project/target/
 src/main/java/
-src/main/resources/
 src/test/java/
-src/test/resources/
 src/test/scala-2.12/
