@@ -4,7 +4,11 @@ import java.io.File
 
 import com.medallia.word2vec.Word2VecModel
 import com.redis.RedisClient
+import com.typesafe.config.ConfigFactory
 import org.allenai.common.Logging
+import org.allenai.entailment.Entailer
+import org.allenai.entailment.interface.{Entailment, Postag}
+import org.allenai.nlpstack.core.{PostaggedToken, Token}
 
 /** Various options for computing similarity */
 sealed trait SimilarityType {
@@ -50,14 +54,12 @@ sealed trait SimilarityType {
 
 /** A function to compute alignment scores between paris of cells, title, question constituent, etc.
   * @param alignmentType Must be one of Entailment, WordOverlap, or Word2Vec
-  * @param entailmentServiceOpt Entailment service to use
   * @param entailmentScoreOffset The value to subtract from raw entailment score to get the score
   * @param tokenizer A keyword tokenizer
   * @param useContextInRedisCache whether to use context in keys, if using redis for caching
   */
 class AlignmentFunction(
     alignmentType: String,
-    entailmentServiceOpt: Option[EntailmentService],
     entailmentScoreOffset: Double,
     tokenizer: KeywordTokenizer,
     useRedisCache: Boolean,
@@ -69,11 +71,7 @@ class AlignmentFunction(
     case "Entailment" => {
       logger.info("Using entailment for alignment score computation")
       if (useRedisCache) logger.info("  Using Redis cache for entailment scores")
-      val teService = entailmentServiceOpt match {
-        case Some(entailmentService) => entailmentService
-        case None => throw new IllegalStateException("No entailment service available")
-      }
-      new EntailmentSimilarity(teService, entailmentScoreOffset, tokenizer, useRedisCache, useContextInRedisCache)
+      new EntailmentSimilarity(entailmentScoreOffset, tokenizer, useRedisCache, useContextInRedisCache)
     }
     case "Word2Vec" => {
       logger.info("Using word2vec for alignment score computation")
@@ -151,7 +149,6 @@ class AlignmentFunction(
 // how much does text1 entail text2? (directional); an entailment score below the offset value is
 // considered negative correlation.
 private class EntailmentSimilarity(
-    entailmentService: EntailmentService,
     entailmentScoreOffset: Double,
     tokenizer: KeywordTokenizer,
     useRedisCache: Boolean,
@@ -201,7 +198,7 @@ private class EntailmentSimilarity(
   // note that in WordNet, consumer -> person -> causal_agent -> cause !
   // Additional candidates: matter, substance, whole, part, cause, unit, event, relation
   private val ignoreHypothesisSet = Set("object", "measure", "part")
-  private val separator = "||*||"
+  private val separator = "|||*|||"
   private val ctx1 = "ctx1="
   private val ctx2 = "ctx2="
   private def getEntailmentScore(keyPrefix: String)(text1: String, text2: String,
@@ -224,7 +221,7 @@ private class EntailmentSimilarity(
           text2Seq <- text2StemmedTokens
           if text1Seq == text2Seq || !ignoreHypothesisSet.contains(text2Seq.mkString(" ")
             .toLowerCase)
-        } yield entailmentService.entail(text1Seq, text2Seq).confidence
+        } yield AlignmentFunction.entailment.entail(text1Seq, text2Seq).confidence
         val scoreMax = if (scores.nonEmpty) scores.max else 0d
         redisOpt.foreach(_.set(key, scoreMax))
         scoreMax
@@ -288,3 +285,40 @@ private class WordOverlapSimilarity(tokenizer: KeywordTokenizer) extends Similar
     }
   }
 }
+
+object AlignmentFunction {
+  lazy val rootConfig = ConfigFactory.systemProperties.withFallback(ConfigFactory.load())
+  lazy val localConfig = rootConfig.getConfig("entailment")
+  lazy val entailer = Entailer(localConfig)
+//  lazy val localEntailer = new LocalEntailer(localConfig)
+//  lazy val keywordTokenizer = KeywordTokenizer.Default
+//  val system = ActorSystem("ari-tableilp-trainer")
+//  lazy val entailmentService = new EntailmentService(localEntailer, keywordTokenizer, system)
+//  lazy val aligner = new AlignmentFunction("Entailment", Some(entailmentService), 0.1,
+//    keywordTokenizer, useRedisCache = true, useContextInRedisCache = false)
+  lazy val entailment = new LightEntailment(entailer)
+}
+
+class LightEntailment(entailer: org.allenai.entailment.Entailer) {
+  val minEntailment = new Entailment(-1.0, Seq.empty)
+  def entail(text: Seq[String], hypothesis: Seq[String]): Entailment = {
+    val textTokens = toPostaggedTokens(text)
+    val hypothesisTokens = toPostaggedTokens(hypothesis)
+    val score = entailer.entail(textTokens, hypothesisTokens, None)
+    if(score.confidence.isNaN) minEntailment else score
+  }
+
+  /** Converts a tokenized string to the PostaggedToken object entailment requires. This uses the
+    * special "Any" POS tag, which entailment will ignore (it treats the token as being of any
+    * possible part-of-speech). Offsets are computed assuming one character between tokens.
+    */
+  def toPostaggedTokens(tokens: Seq[String]): Seq[PostaggedToken] = {
+    val offsets = tokens.foldLeft(Seq(0))((offsets, token) => offsets ++ Seq(offsets.last +
+      token.length + 1))
+    tokens zip offsets map {
+      case (token, offset) => PostaggedToken(Token(token, offset), Postag.Any)
+    }
+  }
+
+}
+

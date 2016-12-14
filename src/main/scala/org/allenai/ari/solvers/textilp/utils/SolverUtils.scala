@@ -2,18 +2,27 @@ package org.allenai.ari.solvers.textilp.utils
 
 import java.net.URLEncoder
 
-import play.api.libs.json.{ JsArray, JsNumber, Json }
+import org.allenai.ari.solvers.textilp.{AlignmentResults, TermAlignment}
+import play.api.libs.json.{JsArray, JsNumber, Json}
 
+import scala.collection.mutable.ArrayBuffer
 import scala.io.Source
 
 object SolverUtils {
-  def handleQuestionWithManyCandidates(onlyQuestion: String, candidates: Set[String], solver: String): Seq[(String, Double)] = {
-    candidates.grouped(6).foldRight(Seq[(String, Double)]()) { (smallGroupOfCandidates, combinedScoreMap) =>
+  def handleQuestionWithManyCandidates(onlyQuestion: String, candidates: Set[String], solver: String): AlignmentResults = {
+    val optionScores = candidates.grouped(6).foldRight(Seq[(String, Double)]()) { (smallGroupOfCandidates, combinedScoreMap) =>
       assert(smallGroupOfCandidates.size <= 6)
       val allOptions = smallGroupOfCandidates.zipWithIndex.map { case (opt, idx) => s" (${(idx + 'A').toChar}) $opt " }.mkString
       val smallQuestion = onlyQuestion + allOptions
       combinedScoreMap ++ evaluateASingleQuestion(smallQuestion, solver)
     }
+
+    val maxIndex = optionScores.zipWithIndex.maxBy(_._1._2)._2
+    val options = optionScores.map{case (str, score) => TermAlignment(str)}.toList
+    options(maxIndex).alignmentIds += 0
+
+    AlignmentResults(List(TermAlignment(onlyQuestion, ArrayBuffer(0))),
+      options, List(TermAlignment("")))
   }
 
   /** query question against existing remote solvers

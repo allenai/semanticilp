@@ -20,6 +20,17 @@ object DummyRedisClient extends JsonQueryCache[String]("", new JedisPool()) {
   override def put(key: String, value: String): Unit = {}
 }
 
+sealed trait AnnotationLevel {}
+
+// just tokenization
+case object Tokenization extends AnnotationLevel
+// Tokens, NER, POS, Chunk
+case object Basic extends AnnotationLevel
+// ???
+case object Intermediate extends AnnotationLevel
+// All possible annotations
+case object Advanced extends AnnotationLevel
+
 object AnnotationUtils {
 
   // redis cache for annotations

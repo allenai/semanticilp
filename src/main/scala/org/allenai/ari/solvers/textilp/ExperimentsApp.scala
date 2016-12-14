@@ -1,27 +1,23 @@
 package org.allenai.ari.solvers.textilp
 
-import java.net.URLEncoder
-
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation
+import org.allenai.ari.solvers.textilp.alignment.AlignmentFunction
+import org.allenai.ari.solvers.textilp.solvers.{ SalienceSolver, TextILPSolver }
 import org.allenai.ari.solvers.textilp.utils.{ AnnotationUtils, Constants, SQuADReader, SolverUtils }
 import org.rogach.scallop._
-import play.api.libs.json.{ JsArray, JsNumber, Json }
 
 import scala.collection.JavaConverters._
-import scala.io.Source
 
 object ExperimentsApp {
+
+  lazy val textILPSolver = new TextILPSolver()
+  lazy val salienceSolver = new SalienceSolver()
 
   class ArgumentParser(args: Array[String]) extends ScallopConf(args) {
     val experimentType: ScallopOption[Int] = opt[Int]("type", descr = "Experiment type", required = true)
     verify()
   }
-
-  /*  def evaluateSquadWithAristo(inputData: Seq[TopicGroup]) = {
-
-  }
-*/
 
   def testQuantifier(): Unit = {
     val ta = AnnotationUtils.pipelineService.createAnnotatedTextAnnotation("", "",
@@ -97,12 +93,41 @@ object ExperimentsApp {
                 val perOptionScores = SolverUtils.handleQuestionWithManyCandidates(q.questionText, candidateAnswers, solver)
                 println("q.questionText = " + q.questionText)
                 println("gold = " + goldAnswers)
-                println("predicted = " + perOptionScores.sortBy(-_._2))
+                //println("predicted = " + perOptionScores.sortBy(-_._2))
                 println("---------")
               }
           }
         }
     }
+  }
+
+  def testAlignmentScore() = {
+    println("Testing the alignment . . . ")
+    println("ent(moon, moon) = " + AlignmentFunction.entailment.entail(Seq("moon"), Seq("moon")))
+    println("ent(moon, sun) = " + AlignmentFunction.entailment.entail(Seq("moon"), Seq("sun")))
+    println("ent(sun, moon) = " + AlignmentFunction.entailment.entail(Seq("sun"), Seq("moon")))
+  }
+
+  def solveSampleQuestionWithTextILP() = {
+    textILPSolver.solve(
+      "A decomposer is an organism that",
+      Set("hunts and eats animals", "migrates for the winter",
+        "breaks down dead plants and animals", "uses water and sunlight to make food"),
+      "explanation:Decomposers: organisms that obtain energy by eating dead plant or animal matter. " +
+        "Windy, cloudy, rainy, and cold are words that help describe\tfocus: deposition. " +
+        "explanation:DECOMPOSER An organism that breaks down cells of dead plants and animals into simpler substances." +
+        "explanation:The plants use sunlight, carbon dioxide, water, and minerals to make food that sustains themselves and other organisms in the forest."
+    )
+//    textILPSolver.solve(
+//      "A decomposer",
+//      Set("hunts ", "migrates for the winter",
+//        "breaks down dead plants and animals", "uses water and sunlight to make food"),
+//      "Decomposers"
+//    )
+  }
+
+  def evaluateSolverAristoQuestions() = {
+
   }
 
   def testRemoteSolverWithSampleQuestion() = {
@@ -120,6 +145,9 @@ object ExperimentsApp {
       case 3 => testPipelineAnnotation()
       case 4 => testRemoteSolverWithSampleQuestion()
       case 5 => evaluateDataSetWithRemoteSolver(devReader, "salience")
+      case 6 => solveSampleQuestionWithTextILP()
+      case 7 => testAlignmentScore()
+      case 8 => evaluateSolverAristoQuestions()
     }
   }
 }

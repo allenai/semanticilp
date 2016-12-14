@@ -7,6 +7,7 @@ GET     /                           controllers.SolveQuestion.index
 POST    /solve                      controllers.SolveQuestion.solve
 GET     /getPrefilledQuestion       controllers.SolveQuestion.getPrefilledQuestion(index: Int)
 
+
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.versioned(path="/public", file: Asset)
 

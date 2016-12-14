@@ -1,5 +1,7 @@
 package org.allenai.ari.solvers.textilp.solvers
 
+import org.allenai.ari.solvers.textilp.{AlignmentResults, EntityRelationResult}
+
 trait TextSolver {
-  def solver(question: String, options: Set[String], snippet: String): Seq[(String, Double)]
+  def solve(question: String, options: Set[String], snippet: String): (AlignmentResults, EntityRelationResult)
 }

@@ -4,7 +4,7 @@ case class QuestionChoice(str: String)
 
 case class TextSnippet(str: String)
 
-case class Question(str: String, questionChoice: Seq[QuestionChoice], snippet: TextSnippet)
+case class Question(str: String, questionChoice: String, snippet: TextSnippet)
 
 case class PreFilledQuestions(questions: Seq[Question])
 
@@ -22,7 +22,7 @@ case object KnowledgeGiven extends ExternalKnowledge
 case object LuceneKnowledge extends ExternalKnowledge
 
 case class FormContent(
-                        solverType: SolverType,
+  solverType: SolverType,
   preFilledQuestions: PreFilledQuestions,
   preFilledQuestionIndOpt: Option[Int],
   questionOpt: Option[Question],
@@ -36,16 +36,12 @@ object StaticContent {
     Seq(
       Question(
         "What was Nikola Tesla's ethnicity?",
-        Seq(
-          QuestionChoice("Serbian"), QuestionChoice("African"), QuestionChoice("American"), QuestionChoice("Asian")
-        ),
+        "Serbian // African // American // Asian",
         TextSnippet("Nikola Tesla (Serbian Cyrillic: Никола Тесла; 10 July 1856 – 7 January 1943) was a Serbian American inventor, electrical engineer, mechanical engineer, physicist, and futurist best known for his contributions to the design of the modern alternating current (AC) electricity supply system.")
       ),
       Question(
         "A decomposer is an organism that",
-        Seq(
-          QuestionChoice("hunts and eats animals"), QuestionChoice("migrates for the winter"), QuestionChoice("breaks down dead plants and animals"), QuestionChoice("uses water and sunlight to make food")
-        ),
+        "hunts and eats animals // migrates for the winter // breaks down dead plants and animals // uses water and sunlight to make food",
         TextSnippet("explanation:Decomposers: organisms that obtain energy by eating dead plant or animal matter. " +
           "Windy, cloudy, rainy, and cold are words that help describe\tfocus: deposition. " +
           "explanation:DECOMPOSER An organism that breaks down cells of dead plants and animals into simpler substances." +
@@ -68,7 +64,7 @@ object StaticContent {
     TextILP,
     preFilledQuestions,
     None,
-    Some(Question("", Seq.empty, TextSnippet(""))),
+    Some(Question("", "", TextSnippet(""))),
     CandidatesGiven,
     KnowledgeGiven,
     ""

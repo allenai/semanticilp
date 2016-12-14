@@ -1,37 +1,48 @@
 import sbt._
 import sbt.Keys._
 
-import org.allenai.plugins.CoreDependencies._
-import org.allenai.plugins.StylePlugin
+//import org.allenai.plugins.CoreDependencies._
+//import org.allenai.plugins.CoreRepositories.Resolvers
+//import org.allenai.plugins.StylePlugin
 
-val cogcompNLPVersion = "3.0.83"
+val cogcompNLPVersion = "3.0.84"
 val cogcompPipelineVersion = "0.1.25"
 val ccgGroupId = "edu.illinois.cs.cogcomp"
 
 lazy val commonSettings = Seq(
   version := "1.0",
   scalaVersion := "2.11.8",
-  javaOptions ++= List("-Xmx11g")
+  javaOptions ++= Seq("-Xmx3G", "-Xms3G"),
+  // Make sure SCIP libraries are locatable.
+  javaOptions += s"-Djava.library.path=lib",
+  envVars ++= Map(
+    "LD_LIBRARY_PATH" -> "lib",
+    "DYLD_LIBRARY_PATH" -> "lib"
+  ),
+  includeFilter in unmanagedJars := "*.jar" || "*.so" || "*.dylib",
+  fork in run := true
 )
 
 // TODO(danm): This is used enough projects to be in allenai/sbt-plugins CoreDependencies.
-def nlpstack(component: String) = ("org.allenai.nlpstack" %% s"nlpstack-$component" % "1.6")
+def nlpstack(component: String) = ("org.allenai.nlpstack" %% s"nlpstack-$component" % "1.6") // exclude("org.slf4j", "log4j-over-slf4j")
   .exclude("commons-logging", "commons-logging")
 
 def textualEntailment(component: String) =
-  "org.allenai.textual-entailment" %% component % "1.0.6"
+  "org.allenai.textual-entailment" %% component % "1.0.6-SNAPSHOT"
 
 val sprayVersion = "1.3.3"
 def sprayModule(id: String): ModuleID = "io.spray" %% s"spray-$id" % sprayVersion
 val sprayClient = sprayModule("client")
 
-lazy val root = (project in file("."))
-  .enablePlugins(StylePlugin).
+lazy val root = (project in file(".")).
+  //enablePlugins(StylePlugin).
   settings(commonSettings: _*).
   settings(
     name := "text-ilp",
     libraryDependencies ++= Seq(
-      allenAiCommon,
+      textualEntailment("interface") exclude("org.slf4j", "log4j-over-slf4j"),
+      textualEntailment("service") exclude("org.slf4j", "log4j-over-slf4j"),
+      //  allenAiCommon,
       //  allenAiTestkit % "test",
       "org.allenai.common" %% "common-cache" % "1.4.6",
       "commons-io" % "commons-io" % "2.4",
@@ -42,6 +53,7 @@ lazy val root = (project in file("."))
       "net.debasishg" %% "redisclient" % "3.0",
       "com.medallia.word2vec" % "Word2VecJava" % "0.10.3",
       ccgGroupId % "illinois-core-utilities" % cogcompNLPVersion withSources,
+      ccgGroupId % "illinois-inference" % cogcompNLPVersion withSources,
       ccgGroupId % "illinois-nlp-pipeline" % cogcompPipelineVersion withSources,
       ccgGroupId % "illinois-quantifier" % "2.0.8" withSources,
       ccgGroupId % "saul-examples_2.11" % "0.5.5",
@@ -51,23 +63,17 @@ lazy val root = (project in file("."))
       nlpstack("tokenize") exclude("edu.stanford.nlp", "stanford-corenlp"),
       nlpstack("postag") exclude("edu.stanford.nlp", "stanford-corenlp"),
       nlpstack("core") exclude("edu.stanford.nlp", "stanford-corenlp"),
-      textualEntailment("interface"),
-      textualEntailment("service"),
-      sprayClient
+      sprayClient,
+      "org.scalatest" % "scalatest_2.11" % "2.2.4"
     ),
     resolvers ++= Seq(
-      Resolver.mavenLocal,
+//      "Artima Maven Repository" at "http://repo.artima.com/releases"
+//      Resolver.mavenLocal,
+//      Resolvers.ai2PublicReleases,
+//      Resolvers.ai2PrivateReleases,
       "CogcompSoftware" at "http://cogcomp.cs.illinois.edu/m2repo/"
-    ),
-    // Make sure SCIP libraries are locatable.
-    javaOptions += s"-Djava.library.path=lib",
-    envVars ++= Map(
-      "LD_LIBRARY_PATH" -> "lib",
-      "DYLD_LIBRARY_PATH" -> "lib"
-    ),
-    includeFilter in unmanagedJars := "*.jar" || "*.so" || "*.dylib",
-    fork := true
-)
+    )
+  )
 
 lazy val viz = (project in file("viz")).
   settings(commonSettings: _*).
@@ -85,5 +91,8 @@ lazy val viz = (project in file("viz")).
       "org.webjars" % "jquery" % "3.1.1",
       "org.webjars" % "headjs" % "1.0.3"
     ),
-    resolvers ++= Seq("scalaz-bintray" at "http://dl.bintray.com/scalaz/releases")
+    resolvers ++= Seq("scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"),
+    projectDependencies := {
+      Seq((projectID in root).value.exclude("org.slf4j", "slf4j-log4j12"))
+    }
   )

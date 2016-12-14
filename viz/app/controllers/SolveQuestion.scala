@@ -3,11 +3,12 @@ package controllers
 import javax.inject._
 
 import models.StaticContent
+import org.allenai.ari.solvers.textilp.ResultJson
+import org.allenai.ari.solvers.textilp.ResultJson._
 import org.allenai.ari.solvers.textilp.solvers.{SalienceSolver, TextILPSolver}
-import play.api._
-import play.api.data.Form
-import play.api.libs.json.{JsNumber, JsString}
+
 import play.api.mvc._
+import play.api.libs.json._
 
 /** This controller creates an `Action` to handle HTTP requests to the
   * application's home page.
@@ -16,7 +17,7 @@ import play.api.mvc._
 class SolveQuestion @Inject() extends Controller {
 
   lazy val salienceSolver = new SalienceSolver()
-  //lazy val textilpSolver = new TextILPSolver {}()
+  lazy val textilpSolver = new TextILPSolver()
 
   /** Create an Action to render an HTML page with a welcome message.
     * The configuration in the `routes` file means that this method
@@ -24,34 +25,44 @@ class SolveQuestion @Inject() extends Controller {
     * a path of `/`.
     */
   def index = Action {
-    //    Ok(views.html.index("Your new application is ready."))
-    Ok(views.html.main("")(StaticContent.initialFormContent))
+    Ok(views.html.main("", "", "", "", StaticContent.initialFormContent, Json.toJson(ResultJson.emptyEntityRelation).toString))
   }
 
-  def solve = Action(parse.json) { implicit request =>
-    println(request.body)
+  def solve = Action (parse.json) { request =>
     val solverType = (request.body \ "solverType").as[JsString].value
     val question = (request.body \ "question").as[JsString].value
     val options = (request.body \ "options").as[JsString].value
     val snippet = (request.body \ "snippet").as[JsString].value
 
     println("solver type : " + solverType)
-    val newPageContent = if(solverType.toLowerCase.contains("salience")) {
+    val solverContent = if(solverType.toLowerCase.contains("salience")) {
       println("Calling salience . . . ")
-      val out = salienceSolver.solver(question, options.split("//").toSet, snippet)
+      val (_, out) = salienceSolver.solve(question, options.split("//").toSet, snippet)
       println("Salience solver response ..... ")
       println(out)
-      StaticContent.initialFormContent.copy(solverLog = out.toString)
+      out
+    }
+    else if(solverType.toLowerCase.contains("textilp")) {
+      println("Calling textilp. . . ")
+      val (_, out) = textilpSolver.solve(question, options.split("//").toSet, snippet)
+      println("textilp solver response ..... ")
+      println(out)
+      out
     }
     else {
       throw new Exception("the solver not found :/")
     }
 
-    Ok(views.html.main("")(newPageContent))
+    println("Sending new resultls ")
+
+    Ok(Json.toJson(solverContent).toString())
   }
 
   def getPrefilledQuestion(index: Int) = Action { request =>
-    Ok(views.html.main("")(StaticContent.getContentWithPrefilled(index)))
+    val question = StaticContent.getContentWithPrefilled(index).questionOpt.get.str
+    val options = StaticContent.getContentWithPrefilled(index).questionOpt.get.questionChoice
+    val snippet = StaticContent.getContentWithPrefilled(index).questionOpt.get.snippet.str
+    Ok(views.html.main("", question, options, snippet, StaticContent.getContentWithPrefilled(index), Json.toJson(ResultJson.emptyEntityRelation).toString))
   }
 
 }

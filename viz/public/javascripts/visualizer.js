@@ -263,12 +263,8 @@ var Visualizer = (function($, window, undefined) {
     };
 
     var Visualizer = function(dispatcher, svgId, webFontURLs) {
-      console.log("svgId: ");
-      console.log(svgId);
       var $svgDiv = $('#' + svgId);
 
-      console.log("$svgDiv");
-      console.log($svgDiv);
       if (!$svgDiv.length) {
         throw Error('Could not find container with id="' + svgId + '"');
       }

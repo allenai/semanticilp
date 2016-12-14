@@ -1,38 +1,26 @@
 $(document).ready(function(){
-    installSubmitClickEvent();
     answerCollectionRadioButton();
     knowledgeRadioButton();
     solverTypeSelector();
 });
 
-var installSubmitClickEvent = function() {
-    $("#submitBtn").click(function() {
-        var solverType = $("#solver-dropdown").prop("text");
-        var questionStr = $("#questionString").val();
-        var options = $("#candidateTextArea").val();
-        var snippet = $("#knowTextArea").val();
-        $.ajax({
-            type: 'POST',
-            url: "/solve",
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            data: JSON.stringify({
-                "solverType": solverType,
-                "question": questionStr,
-                "options": options,
-                "snippet": snippet
-            }),
-            success: function(response) {
-                console.log("sent ... ");
-            },
-            error: function(xhr) {
-                console.log("failed ... ");
-            }
-        });
-    });
-};
+function visualizationBratWithLog(solverLogJson){
+    $("svg").remove();
+    if($('#brat-visualization').length == 0) {
+        $("#brat-container").append('<svg width="100" height="100" id="brat-visualization"></svg>');
+    }
+    var text = solverLogJson.overalString.replace(/\|/g, '\n') + "                                  ";
+    var entities = solverLogJson.entities;
+    var relations = solverLogJson.relations;
+
+    console.log("Applying the embed method ");
+    // brat-visualization
+    Util.embed("brat-visualization",
+        {entity_types: [], relation_types: []},
+        {text: text, entities: entities, relations: relations}
+    );
+    console.log("done embedding");
+}
 
 var answerCollectionRadioButton = function(){
     $("#candidatesManual").change(function() {
