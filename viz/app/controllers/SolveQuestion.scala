@@ -25,7 +25,7 @@ class SolveQuestion @Inject() extends Controller {
     * a path of `/`.
     */
   def index = Action {
-    Ok(views.html.main("", "", "", "", StaticContent.initialFormContent, Json.toJson(ResultJson.emptyEntityRelation).toString))
+    Ok(views.html.main("", "", "", "", StaticContent.initialFormContent, Json.toJson(ResultJson.staticEntityRelationResults).toString))
   }
 
   def solve = Action (parse.json) { request =>

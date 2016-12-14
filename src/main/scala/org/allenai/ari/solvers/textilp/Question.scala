@@ -58,7 +58,7 @@ object ResultJson {
   }
 
   implicit val relationWrites = new Writes[Relation] {
-    def writes(relation: Relation) = Json.arr(relation.relationName, relation.entity1, relation.entity2)
+    def writes(relation: Relation) = Json.arr(relation.relationName, "  ", Json.arr(Json.arr("  ", relation.entity1), Json.arr("  ", relation.entity2)))
   }
 
   implicit val entityRelationWrites = new Writes[EntityRelationResult] {

@@ -32,10 +32,11 @@
         <script src="@routes.Assets.versioned("javascripts/jquery.svgdom.min.js")" type="text/javascript"></script>
         <script>
             var solverLogJson = JSON.parse('@Html(solverResponse)');
+            console.log(solverLogJson);
             $(document).ready(function() {
                 $("#error-box").hide();
+                $(".loader").hide();
                 $("#ready-questions").change(function () {
-                    console.log("change");
                     var selectedIndex = $(this).prop("selectedIndex") - 1;
                     window.location = '/getPrefilledQuestion?index=' + selectedIndex;
                     /*
@@ -59,7 +60,6 @@
                     */
                 });
 
-                console.log("Embeding brat libraies ");
                 head.js(
                     // External libraries
                     'http://localhost:9000/assets/javascripts/jquery.svg.min.js',
@@ -83,11 +83,8 @@
             });
 
             var installSubmitClickEvent = function() {
-                console.log("no0");
                 $("#submitBtn").click(function() {
-                    console.log("no1");
                     if($("#questionString").val().length < 2) {
-                        console.log("no2");
                         $("#error-box").show();
                         $("#error-box").html("<p>You have to enter a valid question!</p>");
                         return;
@@ -102,6 +99,7 @@
                         $("#error-box").html("<p>You have to enter a valid text snippet, or choose automated text extraction. </p>");
                         return;
                     }
+                    $(".loader").show();
                     var solverType = $("#solver-dropdown").prop("text");
                     var questionStr = $("#questionString").val();
                     var options = $("#candidateTextArea").val();
@@ -123,18 +121,18 @@
                             console.log("sent ... ");
                             console.log(response);
                             visualizationBratWithLog(JSON.parse(response));
+                            $(".loader").hide();
                         },
                         error: function(xhr) {
                             console.log("failed ... ");
+                            $(".loader").hide();
                         }
-                    })
+                    });
                 });
             };
 
             var installDefaultErrorBox = function() {
-                console.log("clear1");
                 $("#questionString, #candidateTextArea, #knowTextArea").change(function() {
-                    console.log("clear2");
                     $("#error-box").hide();
                 });
             };
@@ -187,6 +185,7 @@
                     </div>
                 </div>
             </nav>
+            <div class="loader"></div>
             <div class="alert alert-danger" role="alert" id="error-box"></div>
             <div class="alert alert-success" role="alert">
                 <h4>Type a new question below, or select one of the existing ones</h4>
