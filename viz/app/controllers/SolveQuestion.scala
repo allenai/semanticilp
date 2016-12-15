@@ -6,6 +6,7 @@ import models.StaticContent
 import org.allenai.ari.solvers.textilp.ResultJson
 import org.allenai.ari.solvers.textilp.ResultJson._
 import org.allenai.ari.solvers.textilp.solvers.{LuceneSolver, SalienceSolver, TextILPSolver}
+import org.allenai.ari.solvers.textilp.utils.{AnnotationUtils, SolverUtils}
 import play.api.mvc._
 import play.api.libs.json._
 
@@ -34,24 +35,41 @@ class SolveQuestion @Inject() extends Controller {
     val options = (request.body \ "options").as[JsString].value
     val snippet = (request.body \ "snippet").as[JsString].value
 
+    val optionsPostProcessed = if(options.length < 2)  {
+      // it's empty; get the candidate options automatically
+      val ta = AnnotationUtils.annotate(snippet)
+      val generatedCandidates = SolverUtils.getCandidateAnswer(ta)
+      println("Automatically extracted candidtes: " + generatedCandidates.mkString("//"))
+      generatedCandidates
+    } else {
+      options.split("//").toSet
+    }
+
+    val snippetPostprocessed = if(snippet.length < 2) {
+      // it's empty; get it with Lucene
+      ""
+    } else {
+      snippet
+    }
+
     println("solver type : " + solverType)
     val solverContent = if(solverType.toLowerCase.contains("salience")) {
       println("Calling salience . . . ")
-      val (_, out) = salienceSolver.solve(question, options.split("//").toSet, snippet)
+      val (_, out) = salienceSolver.solve(question, optionsPostProcessed, snippetPostprocessed)
       println("Salience solver response ..... ")
       println(out)
       out
     }
     else if(solverType.toLowerCase.contains("lucene")) {
       println("Calling lucene . . . ")
-      val (_, out) = luceneSolver.solve(question, options.split("//").toSet, snippet)
+      val (_, out) = luceneSolver.solve(question, optionsPostProcessed, snippetPostprocessed)
       println("Lucene solver response ..... ")
       println(out)
       out
     }
     else if(solverType.toLowerCase.contains("textilp")) {
       println("Calling textilp. . . ")
-      val (_, out) = textilpSolver.solve(question, options.split("//").toSet, snippet)
+      val (_, out) = textilpSolver.solve(question, optionsPostProcessed, snippetPostprocessed)
       println("textilp solver response ..... ")
       println(out)
       out

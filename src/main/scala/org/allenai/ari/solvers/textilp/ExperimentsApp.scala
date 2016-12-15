@@ -46,7 +46,7 @@ object ExperimentsApp {
           p.contextTAOpt match {
             case None => throw new Exception("The instance does not contain annotation . . . ")
             case Some(annotation) =>
-              val candidateAnswers = getCandidateAnswer(annotation)
+              val candidateAnswers = SolverUtils.getCandidateAnswer(annotation)
               p.questions.foreach { q =>
                 val goldAnswers = q.answers.map(_.answerText)
                 if (goldAnswers.exists(candidateAnswers.contains)) {
@@ -66,19 +66,6 @@ object ExperimentsApp {
     println("found: " + found + "\nnot-found: " + notFound)
   }
 
-  def getCandidateAnswer(contextTA: TextAnnotation): Set[String] = {
-    val nounPhrases = contextTA.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala.
-      filter { ch => ch.getLabel.contains("N") || ch.getLabel.contains("J") || ch.getLabel.contains("V") }.map(_.getSurfaceForm)
-    val quotationExtractionPattern = "([\"'])(?:(?=(\\\\?))\\2.)*?\\1".r
-    val stringsInsideQuotationMark = quotationExtractionPattern.findAllIn(contextTA.text)
-    val ners = contextTA.getView(ViewNames.NER_CONLL).getConstituents.asScala.map(_.getSurfaceForm)
-    val ners_onto = contextTA.getView(ViewNames.NER_ONTONOTES).getConstituents.asScala.map(_.getSurfaceForm)
-    val quant = contextTA.getView(ViewNames.QUANTITIES).getConstituents.asScala.map(_.getSurfaceForm)
-    val p = "-?\\d+".r // regex for finding all the numbers
-    val numbers = p.findAllIn(contextTA.text)
-    (nounPhrases ++ quant ++ ners ++ ners_onto ++ numbers ++ stringsInsideQuotationMark).toSet
-  }
-
   def evaluateDataSetWithRemoteSolver(reader: SQuADReader, solver: String): Unit = {
     reader.instances.slice(0, 3).zipWithIndex.foreach {
       case (ins, idx) =>
@@ -87,7 +74,7 @@ object ExperimentsApp {
           p.contextTAOpt match {
             case None => throw new Exception("The instance does not contain annotation . . . ")
             case Some(annotation) =>
-              val candidateAnswers = getCandidateAnswer(annotation)
+              val candidateAnswers = SolverUtils.getCandidateAnswer(annotation)
               p.questions.foreach { q =>
                 val goldAnswers = q.answers.map(_.answerText)
                 val perOptionScores = SolverUtils.handleQuestionWithManyCandidates(q.questionText, candidateAnswers, solver)

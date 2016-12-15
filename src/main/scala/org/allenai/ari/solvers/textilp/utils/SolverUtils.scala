@@ -2,27 +2,23 @@ package org.allenai.ari.solvers.textilp.utils
 
 import java.net.URLEncoder
 
+import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation
 import org.allenai.ari.solvers.textilp.{AlignmentResults, Entity, EntityRelationResult, TermAlignment}
 import play.api.libs.json.{JsArray, JsNumber, Json}
+
+import scala.collection.JavaConverters._
 
 import scala.io.Source
 
 object SolverUtils {
   def handleQuestionWithManyCandidates(onlyQuestion: String, candidates: Set[String], solver: String): Seq[(String, Double)] = {
-    val optionScores = candidates.grouped(6).foldRight(Seq[(String, Double)]()) { (smallGroupOfCandidates, combinedScoreMap) =>
+    candidates.grouped(6).foldRight(Seq[(String, Double)]()) { (smallGroupOfCandidates, combinedScoreMap) =>
       assert(smallGroupOfCandidates.size <= 6)
       val allOptions = smallGroupOfCandidates.zipWithIndex.map { case (opt, idx) => s" (${(idx + 'A').toChar}) $opt " }.mkString
       val smallQuestion = onlyQuestion + allOptions
       combinedScoreMap ++ evaluateASingleQuestion(smallQuestion, solver)
     }
-
-//    val maxIndex = optionScores.zipWithIndex.maxBy(_._1._2)._2
-//    val options = optionScores.map{case (str, score) => TermAlignment(str)}.toList
-//    options(maxIndex).alignmentIds += 0
-//
-//    AlignmentResults(List(TermAlignment(onlyQuestion, ArrayBuffer(0))),
-//      options, List(TermAlignment("")))
-    optionScores
   }
 
   /** query question against existing remote solvers
@@ -58,4 +54,18 @@ object SolverUtils {
     }
     AlignmentResults() -> EntityRelationResult(fullText, entities, Seq.empty, sortedCanndidates.toString)
   }
+
+  def getCandidateAnswer(contextTA: TextAnnotation): Set[String] = {
+    val nounPhrases = contextTA.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala.
+      filter { ch => ch.getLabel.contains("N") || ch.getLabel.contains("J") || ch.getLabel.contains("V") }.map(_.getSurfaceForm)
+    val quotationExtractionPattern = "([\"'])(?:(?=(\\\\?))\\2.)*?\\1".r
+    val stringsInsideQuotationMark = quotationExtractionPattern.findAllIn(contextTA.text)
+    val ners = contextTA.getView(ViewNames.NER_CONLL).getConstituents.asScala.map(_.getSurfaceForm)
+    val ners_onto = contextTA.getView(ViewNames.NER_ONTONOTES).getConstituents.asScala.map(_.getSurfaceForm)
+    val quant = contextTA.getView(ViewNames.QUANTITIES).getConstituents.asScala.map(_.getSurfaceForm)
+    val p = "-?\\d+".r // regex for finding all the numbers
+    val numbers = p.findAllIn(contextTA.text)
+    (nounPhrases ++ quant ++ ners ++ ners_onto ++ numbers ++ stringsInsideQuotationMark).toSet
+  }
+
 }

@@ -89,12 +89,12 @@
                         $("#error-box").html("<p>You have to enter a valid question!</p>");
                         return;
                     }
-                    if($("#candidateTextArea").val().length < 2) {
+                    if($("#candidateTextArea").val().length < 2 && !$("#candidateAuto").prop('checked') ) {
                         $("#error-box").show();
                         $("#error-box").html("<p>You have to enter a valid candidate list, or choose automated candidate generation. </p>");
                         return;
                     }
-                    if($("#knowTextArea").val().length < 3) {
+                    if($("#knowTextArea").val().length < 3 && !$("#knowLucene").prop('checked') ) {
                         $("#error-box").show();
                         $("#error-box").html("<p>You have to enter a valid text snippet, or choose automated text extraction. </p>");
                         return;
@@ -102,8 +102,15 @@
                     $(".loader").show();
                     var solverType = $("#solver-dropdown").prop("text");
                     var questionStr = $("#questionString").val();
-                    var options = $("#candidateTextArea").val();
-                    var snippet = $("#knowTextArea").val();
+                    var options = "";
+                    if(!$("#candidateAuto").prop('checked')) {
+                        options = $("#candidateTextArea").val();
+                    }
+                    var snippet = "";
+                    if(!$("#knowLucene").prop('checked')) {
+                        snippet = $("#knowTextArea").val();
+                    }
+
                     $.ajax({
                         type: 'POST',
                         url: "/solve",

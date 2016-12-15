@@ -4,14 +4,15 @@ import java.util.Properties
 
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation
 import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper
-import edu.illinois.cs.cogcomp.core.utilities.configuration.Configurator
-import edu.illinois.cs.cogcomp.nlp.common.PipelineConfigurator._
+import edu.illinois.cs.cogcomp.core.utilities.configuration.{Configurator, ResourceManager}
+import edu.illinois.cs.cogcomp.curator.CuratorConfigurator
+import edu.illinois.cs.cogcomp.pipeline.common.PipelineConfigurator
+import edu.illinois.cs.cogcomp.pipeline.common.PipelineConfigurator._
+import edu.illinois.cs.cogcomp.pipeline.main.PipelineFactory
 import edu.illinois.cs.cogcomp.quant.driver.Quantifier
-import edu.illinois.cs.cogcomp.saulexamples.nlp.TextAnnotationFactory
-import org.allenai.ari.solvers.textilp.{ Paragraph, Question, TopicGroup }
+import org.allenai.ari.solvers.textilp.{Paragraph, Question, TopicGroup}
 import org.allenai.common.cache.JsonQueryCache
-import redis.clients.jedis.{ JedisPool, Protocol }
-
+import redis.clients.jedis.{JedisPool, Protocol}
 import spray.json.DefaultJsonProtocol._
 
 /** a dummy redis client for when redis is not supposed to be used */
@@ -59,7 +60,8 @@ object AnnotationUtils {
   val pipelineService = {
     val settings = new Properties()
     viewsToDisable.foreach { v => settings.setProperty(v.key, Configurator.FALSE) }
-    TextAnnotationFactory.createPipelineAnnotatorService(settings)
+    val config = new PipelineConfigurator()
+    PipelineFactory.buildPipeline(config.getConfig(new ResourceManager(settings)))
   }
 
   val quantifierAnnotator = new Quantifier()

@@ -5,8 +5,8 @@ import sbt.Keys._
 //import org.allenai.plugins.CoreRepositories.Resolvers
 //import org.allenai.plugins.StylePlugin
 
-val cogcompNLPVersion = "3.0.84"
-val cogcompPipelineVersion = "0.1.25"
+val cogcompNLPVersion = "3.0.87"
+//val cogcompPipelineVersion = "0.1.25"
 val ccgGroupId = "edu.illinois.cs.cogcomp"
 
 lazy val commonSettings = Seq(
@@ -40,8 +40,8 @@ lazy val root = (project in file(".")).
   settings(
     name := "text-ilp",
     libraryDependencies ++= Seq(
-      textualEntailment("interface") exclude("org.slf4j", "log4j-over-slf4j"),
-      textualEntailment("service") exclude("org.slf4j", "log4j-over-slf4j"),
+      textualEntailment("interface") exclude("org.slf4j", "log4j-over-slf4j") exclude("edu.stanford.nlp", "stanford-corenlp"),
+      textualEntailment("service") exclude("org.slf4j", "log4j-over-slf4j") exclude("edu.stanford.nlp", "stanford-corenlp"),
       //  allenAiCommon,
       //  allenAiTestkit % "test",
       "org.allenai.common" %% "common-cache" % "1.4.6",
@@ -54,8 +54,8 @@ lazy val root = (project in file(".")).
       "com.medallia.word2vec" % "Word2VecJava" % "0.10.3",
       ccgGroupId % "illinois-core-utilities" % cogcompNLPVersion withSources,
       ccgGroupId % "illinois-inference" % cogcompNLPVersion withSources,
-      ccgGroupId % "illinois-nlp-pipeline" % cogcompPipelineVersion withSources,
-      ccgGroupId % "illinois-quantifier" % "2.0.8" withSources,
+      ccgGroupId % "illinois-nlp-pipeline" % cogcompNLPVersion withSources,
+      ccgGroupId % "illinois-quantifier" % "2.0.10" withSources,
       ccgGroupId % "saul-examples_2.11" % "0.5.5",
       ccgGroupId % "scip-jni" % "3.1.1",
       nlpstack("chunk") exclude("edu.stanford.nlp", "stanford-corenlp"),
