@@ -121,13 +121,22 @@ object ExperimentsApp {
     SolverUtils.evaluateASingleQuestion("Which two observations are both used to describe weather? (A) like (B) the difference (C) events (D) temperature and sky condition", "tableilp")
   }
 
+  def testTheDatastes() = {
+    println("omnibusTrain: " + SolverUtils.omnibusTrain.length)
+    println("omnibusTest: " + SolverUtils.omnibusTest.length)
+    println("omnibusDev: " + SolverUtils.omnibusDev.length)
+    println("publicTrain: " + SolverUtils.publicTrain.length)
+    println("publicTest: " + SolverUtils.publicTest.length)
+    println("publicDev: " + SolverUtils.publicDev.length)
+    println("regentsTrain: " + SolverUtils.regentsTrain.length)
+  }
+
   def main(args: Array[String]): Unit = {
     lazy val trainReader = new SQuADReader(Constants.squadTrainingDataFile, Some(AnnotationUtils.pipelineService))
     lazy val devReader = new SQuADReader(Constants.squadDevDataFile, Some(AnnotationUtils.pipelineService))
     val parser = new ArgumentParser(args)
     parser.experimentType() match {
-      case 1 =>
-        generateCandiateAnswers(devReader)
+      case 1 => generateCandiateAnswers(devReader)
       case 2 => testQuantifier()
       case 3 => testPipelineAnnotation()
       case 4 => testRemoteSolverWithSampleQuestion()
@@ -135,6 +144,7 @@ object ExperimentsApp {
       case 6 => solveSampleQuestionWithTextILP()
       case 7 => testAlignmentScore()
       case 8 => testElasticSearchSnippetExtraction()
+      case 9 => testTheDatastes()
     }
   }
 }

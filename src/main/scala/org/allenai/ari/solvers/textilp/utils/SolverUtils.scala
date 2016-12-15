@@ -1,5 +1,6 @@
 package org.allenai.ari.solvers.textilp.utils
 
+import java.io.File
 import java.net.{InetSocketAddress, URLEncoder}
 
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
@@ -110,6 +111,24 @@ object SolverUtils {
       hit.sourceAsMap().asScala.toMap
     }
     hits.sortBy(-_.score).slice(0, topK).map{h => getLuceneHitFields(h)("text").toString }.toSet
+  }
+
+  val omnibusTrain = loadQuestions("Omnibus-Gr04-NDMC-Train.tsv")
+  val omnibusTest = loadQuestions("Omnibus-Gr04-NDMC-Test.tsv")
+  val omnibusDev = loadQuestions("Omnibus-Gr04-NDMC-Dev.tsv")
+  val publicTrain = loadQuestions("Public-Feb2016-Elementary-NDMC-Train.tsv")
+  val publicTest = loadQuestions("Public-Feb2016-Elementary-NDMC-Test.tsv")
+  val publicDev = loadQuestions("Public-Feb2016-Elementary-NDMC-Dev.tsv")
+  val regentsTrain = loadQuestions("Regents-Gr04-NDMC-Train.tsv")
+
+  def loadQuestions(fileName: String): Seq[(String, Seq[String], String)] = {
+    Source.fromFile(new File("other/questionSets/" + fileName)).getLines().toList.map{ line =>
+      val split = line.split("\t")
+      val question = split(0)
+      val answer = split(1)
+      val questionSplit = question.split("\\([A-Z]\\)")
+      (questionSplit.head, questionSplit.tail.toSeq, answer)
+    }
   }
 
 }

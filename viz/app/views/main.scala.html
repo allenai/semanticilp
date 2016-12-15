@@ -1,11 +1,3 @@
-@*
- * This template is called from the `index` template. This template
- * handles the rendering of the page header and body tags. It takes
- * two arguments, a `String` for the title of the page and an `Html`
- * object to insert into the body of the page.
- *@
-@import play.api.libs.json.JsValue
-@import play.api.libs.json.JsString
 @(title: String, questionString: String, options: String, snippet: String, formContent: FormContent, solverResponse: String)
 
 <!DOCTYPE html>
@@ -175,7 +167,6 @@
                     </div>
                     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                         <ul class="nav navbar-nav">
-                            <li><a href="#">Link</a></li>
                             <li class="dropdown">
                                 <a href="#" id="solver-dropdown" class="dropdown-toggle" data-toggle="dropdown"
                                     role="button" aria-haspopup="true" aria-expanded="false">Solver: @formContent.solverType <span class="caret"></span></a>
