@@ -16,14 +16,14 @@ case class Answer(answerText: String, answerStart: Int)
 case class TermAlignment(term: String, alignmentIds: ArrayBuffer[Int] = ArrayBuffer.empty)
 
 case class AlignmentResults(
-   questionAlignments: List[TermAlignment],
-   choiceAlignments: List[TermAlignment],
-   paragraphAlignments: List[TermAlignment]
+   questionAlignments: List[TermAlignment] = List.empty,
+   choiceAlignments: List[TermAlignment] = List.empty,
+   paragraphAlignments: List[TermAlignment] = List.empty
 )
 
 case class Entity(entityName: String, surface: String, boundaries: Seq[(Int, Int)])
 case class Relation(relationName: String, entity1: String, entity2: String)
-case class EntityRelationResult(fullString: String, entities: Seq[Entity], relations: Seq[Relation])
+case class EntityRelationResult(fullString: String, entities: Seq[Entity], relations: Seq[Relation], explanation: String = "")
 
 import play.api.libs.json._
 
@@ -65,7 +65,8 @@ object ResultJson {
     def writes(er: EntityRelationResult) = Json.obj(
       "overalString" -> er.fullString,
       "entities" -> er.entities,
-      "relations" -> er.relations
+      "relations" -> er.relations,
+      "explanation" -> er.explanation
     )
   }
 

@@ -5,8 +5,7 @@ import javax.inject._
 import models.StaticContent
 import org.allenai.ari.solvers.textilp.ResultJson
 import org.allenai.ari.solvers.textilp.ResultJson._
-import org.allenai.ari.solvers.textilp.solvers.{SalienceSolver, TextILPSolver}
-
+import org.allenai.ari.solvers.textilp.solvers.{LuceneSolver, SalienceSolver, TextILPSolver}
 import play.api.mvc._
 import play.api.libs.json._
 
@@ -17,6 +16,7 @@ import play.api.libs.json._
 class SolveQuestion @Inject() extends Controller {
 
   lazy val salienceSolver = new SalienceSolver()
+  lazy val luceneSolver = new LuceneSolver()
   lazy val textilpSolver = new TextILPSolver()
 
   /** Create an Action to render an HTML page with a welcome message.
@@ -39,6 +39,13 @@ class SolveQuestion @Inject() extends Controller {
       println("Calling salience . . . ")
       val (_, out) = salienceSolver.solve(question, options.split("//").toSet, snippet)
       println("Salience solver response ..... ")
+      println(out)
+      out
+    }
+    else if(solverType.toLowerCase.contains("lucene")) {
+      println("Calling lucene . . . ")
+      val (_, out) = luceneSolver.solve(question, options.split("//").toSet, snippet)
+      println("Lucene solver response ..... ")
       println(out)
       out
     }
