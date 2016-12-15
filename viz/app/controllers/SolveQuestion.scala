@@ -35,6 +35,9 @@ class SolveQuestion @Inject() extends Controller {
     val options = (request.body \ "options").as[JsString].value
     val snippet = (request.body \ "snippet").as[JsString].value
 
+    println("Options: " + options)
+    println("Snippet: " + snippet)
+
     val optionsPostProcessed = if(options.length < 2)  {
       // it's empty; get the candidate options automatically
       val ta = AnnotationUtils.annotate(snippet)
@@ -46,8 +49,9 @@ class SolveQuestion @Inject() extends Controller {
     }
 
     val snippetPostprocessed = if(snippet.length < 2) {
-      // it's empty; get it with Lucene
-      ""
+      // it's empty; get it with elastic-search
+      println("Asking the elastic-search . . . ")
+      optionsPostProcessed.flatMap(focus => SolverUtils.extractParagraphGievnQuestion(question, focus, 3)).mkString(" ")
     } else {
       snippet
     }
@@ -56,14 +60,14 @@ class SolveQuestion @Inject() extends Controller {
     val solverContent = if(solverType.toLowerCase.contains("salience")) {
       println("Calling salience . . . ")
       val (_, out) = salienceSolver.solve(question, optionsPostProcessed, snippetPostprocessed)
-      println("Salience solver response ..... ")
+      println("Salience solver response . . .  ")
       println(out)
       out
     }
     else if(solverType.toLowerCase.contains("lucene")) {
       println("Calling lucene . . . ")
       val (_, out) = luceneSolver.solve(question, optionsPostProcessed, snippetPostprocessed)
-      println("Lucene solver response ..... ")
+      println("Lucene solver response . . .  ")
       println(out)
       out
     }
@@ -77,9 +81,7 @@ class SolveQuestion @Inject() extends Controller {
     else {
       throw new Exception("the solver not found :/")
     }
-
     println("Sending new resultls ")
-
     Ok(Json.toJson(solverContent).toString())
   }
 

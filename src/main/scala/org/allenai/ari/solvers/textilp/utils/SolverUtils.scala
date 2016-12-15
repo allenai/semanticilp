@@ -1,14 +1,20 @@
 package org.allenai.ari.solvers.textilp.utils
 
-import java.net.URLEncoder
+import java.net.{InetSocketAddress, URLEncoder}
 
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation
+import org.allenai.ari.solvers.textilp.alignment.KeywordTokenizer
 import org.allenai.ari.solvers.textilp.{AlignmentResults, Entity, EntityRelationResult, TermAlignment}
+import org.elasticsearch.action.search.SearchType
+import org.elasticsearch.client.transport.TransportClient
+import org.elasticsearch.common.settings.Settings
+import org.elasticsearch.common.transport.InetSocketTransportAddress
+import org.elasticsearch.index.query.QueryBuilders
+import org.elasticsearch.search.SearchHit
 import play.api.libs.json.{JsArray, JsNumber, Json}
 
 import scala.collection.JavaConverters._
-
 import scala.io.Source
 
 object SolverUtils {
@@ -66,6 +72,44 @@ object SolverUtils {
     val p = "-?\\d+".r // regex for finding all the numbers
     val numbers = p.findAllIn(contextTA.text)
     (nounPhrases ++ quant ++ ners ++ ners_onto ++ numbers ++ stringsInsideQuotationMark).toSet
+  }
+
+  lazy val esClient = {
+    val settings = Settings.builder()
+      .put("cluster.name", Constants.clusterName)
+      .put("client.transport.sniff", false)
+      .put("sniffOnConnectionFault", false)
+      .build()
+    val host = Constants.hostIp
+    val address = new InetSocketTransportAddress(new InetSocketAddress(host, 9300))
+    println(s"Created Elastic Search Client in cluster ${Constants.clusterName}")
+    val clientBuilder = TransportClient.builder().settings(settings)
+    clientBuilder.build().addTransportAddress(address)
+  }
+
+  def extractParagraphGievnQuestion(question: String, focus: String, topK: Int): Set[String] = {
+    val questionWords = KeywordTokenizer.Default.stemmedKeywordTokenize(question)
+    val focusWords = KeywordTokenizer.Default.stemmedKeywordTokenize(focus)
+
+    val searchStr = s"$question $focus"
+    val response = esClient.prepareSearch(Constants.indexNames.keys.toSeq: _*)
+      // NOTE: DFS_QUERY_THEN_FETCH guarantees that multi-index queries return accurate scoring
+      // results, do not modify
+      .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+      .setQuery(QueryBuilders.matchQuery("text", searchStr))
+      .setFrom(0).setSize(topK).setExplain(true)
+      .execute()
+      .actionGet()
+    // Filter hits that don't overlap with both question and focus words.
+    val hits = response.getHits.getHits.filter { x =>
+      val hitWordsSet = KeywordTokenizer.Default.stemmedKeywordTokenize(x.sourceAsString).toSet
+      (hitWordsSet.intersect(questionWords.toSet).nonEmpty
+        && hitWordsSet.intersect(focusWords.toSet).nonEmpty)
+    }
+    def getLuceneHitFields(hit: SearchHit): Map[String, AnyRef] = {
+      hit.sourceAsMap().asScala.toMap
+    }
+    hits.sortBy(-_.score).slice(0, topK).map{h => getLuceneHitFields(h)("text").toString }.toSet
   }
 
 }

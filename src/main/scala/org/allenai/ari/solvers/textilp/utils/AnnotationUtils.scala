@@ -59,9 +59,11 @@ object AnnotationUtils {
 
   val pipelineService = {
     val settings = new Properties()
-    viewsToDisable.foreach { v => settings.setProperty(v.key, Configurator.FALSE) }
-    val config = new PipelineConfigurator()
-    PipelineFactory.buildPipeline(config.getConfig(new ResourceManager(settings)))
+    settings.setProperty("cacheDirectory", "annotation-cache-textilp")
+    val rm = new ResourceManager(settings)
+    //viewsToDisable.foreach { v => settings.setProperty(v.key, Configurator.FALSE) }
+    val config = new PipelineConfigurator().getConfig(rm)
+    PipelineFactory.buildPipeline(config)
   }
 
   val quantifierAnnotator = new Quantifier()

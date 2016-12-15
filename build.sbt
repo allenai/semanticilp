@@ -6,7 +6,6 @@ import sbt.Keys._
 //import org.allenai.plugins.StylePlugin
 
 val cogcompNLPVersion = "3.0.87"
-//val cogcompPipelineVersion = "0.1.25"
 val ccgGroupId = "edu.illinois.cs.cogcomp"
 
 lazy val commonSettings = Seq(
@@ -64,7 +63,8 @@ lazy val root = (project in file(".")).
       nlpstack("postag") exclude("edu.stanford.nlp", "stanford-corenlp"),
       nlpstack("core") exclude("edu.stanford.nlp", "stanford-corenlp"),
       sprayClient,
-      "org.scalatest" % "scalatest_2.11" % "2.2.4"
+      "org.scalatest" % "scalatest_2.11" % "2.2.4",
+      "org.elasticsearch" % "elasticsearch" % "2.4.1"
     ),
     resolvers ++= Seq(
 //      "Artima Maven Repository" at "http://repo.artima.com/releases"

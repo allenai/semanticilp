@@ -113,8 +113,8 @@ object ExperimentsApp {
 //    )
   }
 
-  def evaluateSolverAristoQuestions() = {
-
+  def testElasticSearchSnippetExtraction() = {
+    println(SolverUtils.extractParagraphGievnQuestion("when is the best time of the year in New York city, especially when it snows or rains?", "Christmas", 3).mkString("\n"))
   }
 
   def testRemoteSolverWithSampleQuestion() = {
@@ -134,7 +134,7 @@ object ExperimentsApp {
       case 5 => evaluateDataSetWithRemoteSolver(devReader, "salience")
       case 6 => solveSampleQuestionWithTextILP()
       case 7 => testAlignmentScore()
-      case 8 => evaluateSolverAristoQuestions()
+      case 8 => testElasticSearchSnippetExtraction()
     }
   }
 }
