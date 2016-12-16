@@ -18,7 +18,8 @@ class SolveQuestion @Inject() extends Controller {
 
   lazy val salienceSolver = new SalienceSolver()
   lazy val luceneSolver = new LuceneSolver()
-  lazy val textilpSolver = new TextILPSolver()
+  lazy val annotationUtils = new AnnotationUtils()
+  lazy val textilpSolver = new TextILPSolver(annotationUtils)
 
   /** Create an Action to render an HTML page with a welcome message.
     * The configuration in the `routes` file means that this method
@@ -40,7 +41,7 @@ class SolveQuestion @Inject() extends Controller {
 
     val optionsPostProcessed = if(options.length < 2)  {
       // it's empty; get the candidate options automatically
-      val ta = AnnotationUtils.annotate(snippet)
+      val ta = annotationUtils.annotate(snippet)
       val generatedCandidates = SolverUtils.getCandidateAnswer(ta)
       println("Automatically extracted candidtes: " + generatedCandidates.mkString("//"))
       generatedCandidates.toSeq

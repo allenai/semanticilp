@@ -1,17 +1,13 @@
 package org.allenai.ari.solvers.textilp
 
-import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
-import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation
 import org.allenai.ari.solvers.textilp.alignment.AlignmentFunction
 import org.allenai.ari.solvers.textilp.solvers.{LuceneSolver, SalienceSolver, TextILPSolver}
 import org.allenai.ari.solvers.textilp.utils.{AnnotationUtils, Constants, SQuADReader, SolverUtils}
 import org.rogach.scallop._
 
-import scala.collection.JavaConverters._
-
 object ExperimentsApp {
-
-  lazy val textILPSolver = new TextILPSolver()
+  lazy val annotationUtils = new AnnotationUtils()
+  lazy val textILPSolver = new TextILPSolver(annotationUtils)
   lazy val salienceSolver = new SalienceSolver()
   lazy val luceneSolver = new LuceneSolver()
 
@@ -21,15 +17,15 @@ object ExperimentsApp {
   }
 
   def testQuantifier(): Unit = {
-    val ta = AnnotationUtils.pipelineService.createAnnotatedTextAnnotation("", "",
+    val ta = annotationUtils.pipelineService.createAnnotatedTextAnnotation("", "",
       "The annual NFL Experience was held at the Moscone Center in San Francisco. In addition, \"Super Bowl City\" opened on January 30 at Justin Herman Plaza on The Embarcadero, featuring games and activities that will highlight the Bay Area's technology, culinary creations, and cultural diversity. More than 1 million people are expected to attend the festivities in San Francisco during Super Bowl Week. San Francisco mayor Ed Lee said of the highly visible homeless presence in this area \"they are going to have to leave\". San Francisco city supervisor Jane Kim unsuccessfully lobbied for the NFL to reimburse San Francisco for city services in the amount of $5 million.")
-    AnnotationUtils.quantifierAnnotator.addView(ta)
+    annotationUtils.quantifierAnnotator.addView(ta)
     println(ta)
     println(ta.getAvailableViews)
   }
 
   def testPipelineAnnotation(): Unit = {
-    val ta = AnnotationUtils.pipelineService.createAnnotatedTextAnnotation("", "",
+    val ta = annotationUtils.pipelineService.createAnnotatedTextAnnotation("", "",
       "this is a sample senrence that needs to be update with 20 pipelines in Illinois. ")
     println(ta)
     println(ta.getAvailableViews)
@@ -156,8 +152,8 @@ object ExperimentsApp {
   }
 
   def main(args: Array[String]): Unit = {
-    lazy val trainReader = new SQuADReader(Constants.squadTrainingDataFile, Some(AnnotationUtils.pipelineService))
-    lazy val devReader = new SQuADReader(Constants.squadDevDataFile, Some(AnnotationUtils.pipelineService))
+    lazy val trainReader = new SQuADReader(Constants.squadTrainingDataFile, Some(annotationUtils.pipelineService), annotationUtils)
+    lazy val devReader = new SQuADReader(Constants.squadDevDataFile, Some(annotationUtils.pipelineService), annotationUtils)
     val parser = new ArgumentParser(args)
     parser.experimentType() match {
       case 1 => generateCandiateAnswers(devReader)

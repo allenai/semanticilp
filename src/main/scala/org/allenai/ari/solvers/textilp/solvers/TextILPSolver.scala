@@ -10,7 +10,7 @@ import org.allenai.ari.solvers.textilp.utils.AnnotationUtils
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
 
-class TextILPSolver extends TextSolver {
+class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
   val epsilon = 0.001
 
   lazy val keywordTokenizer = KeywordTokenizer.Default
@@ -22,10 +22,10 @@ class TextILPSolver extends TextSolver {
 //    val ilpSolver = new IllinoisInference(new OJalgoHook)
     val answers = options.map(o => Answer(o, -1))
 //    println("Tokenizing question .... ")
-    val qTA = AnnotationUtils.pipelineService.createBasicTextAnnotation("", "", question)
+    val qTA = annotationUtils.pipelineService.createBasicTextAnnotation("", "", question)
     val q = Question(question, "", answers, Some(qTA))
 //    println("Tokenizing paragraph .... ")
-    val pTA = AnnotationUtils.pipelineService.createBasicTextAnnotation("", "", snippet) // AnnotationUtils.annotate(snippet, withQuantifier = false)
+    val pTA = annotationUtils.pipelineService.createBasicTextAnnotation("", "", snippet) // AnnotationUtils.annotate(snippet, withQuantifier = false)
     val p = Paragraph(snippet, Seq(q), Some(pTA))
     createILPModel(q, p, ilpSolver, aligner)
   }

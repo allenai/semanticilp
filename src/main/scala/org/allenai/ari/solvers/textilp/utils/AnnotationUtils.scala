@@ -32,7 +32,7 @@ case object Intermediate extends AnnotationLevel
 // All possible annotations
 case object Advanced extends AnnotationLevel
 
-object AnnotationUtils {
+class AnnotationUtils {
 
   // redis cache for annotations
   lazy val synchronizedRedisClient = if(false) { // if (Constants.useRedisCachingForAnnotation) {
@@ -51,7 +51,7 @@ object AnnotationUtils {
       SerializationHelper.deserializeFromJson(redisAnnotation.get)
     } else {
       val textAnnotation = pipelineService.createAnnotatedTextAnnotation("", "", string)
-      if (withQuantifier) AnnotationUtils.quantifierAnnotator.addView(textAnnotation)
+      if (withQuantifier) quantifierAnnotator.addView(textAnnotation)
       synchronizedRedisClient.put(cacheKey, SerializationHelper.serializeToJson(textAnnotation))
       textAnnotation
     }
@@ -60,6 +60,7 @@ object AnnotationUtils {
   val pipelineService = {
     val settings = new Properties()
     settings.setProperty("cacheDirectory", "annotation-cache-textilp")
+    settings.setProperty("disableCache", Configurator.TRUE)
     val rm = new ResourceManager(settings)
     //viewsToDisable.foreach { v => settings.setProperty(v.key, Configurator.FALSE) }
     val config = new PipelineConfigurator().getConfig(rm)

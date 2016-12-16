@@ -1,3 +1,5 @@
+@import play.api.libs.json.JsValue
+@import play.api.libs.json.JsString
 @(title: String, questionString: String, options: String, snippet: String, formContent: FormContent, solverResponse: String)
 
 <!DOCTYPE html>
@@ -189,11 +191,13 @@
             <div class="alert alert-success" role="alert">
                 <h4>Type a new question below, or select one of the existing ones</h4>
                 <select class="form-control" id="ready-questions" >
-                    <option disabled selected value> -- aristo questions: select one -- </option>
+                    <option disabled selected value> -- questions with manually selected text snippet: select one -- </option>
                     @for((question, idx) <- formContent.preFilledQuestions.questions.zipWithIndex) {
                         <option value="@{idx+1}">@question.str</option>
                     }
                 </select>
+                <br>
+                <select class="form-control" id="aristo-select"></select>
                 <br>
                 <select class="form-control" id="squad-select"></select>
                 <br>

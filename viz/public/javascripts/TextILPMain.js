@@ -8,8 +8,8 @@ $(document).ready(function(){
 
 var loadSquadQuestionSamples = function () {
 
+    // SQuAD questions
     var questionParagraphPairs = [];
-
     $.getJSON("/assets/squad-small.json", function (content) {
         var questions = content.data[0].paragraphs.flatMap(function (i) {
             return i.qas.map(function (j) {
@@ -39,6 +39,30 @@ var loadSquadQuestionSamples = function () {
         $("#questionString").val(question);
         $("#knowTextArea").val(snippet);
     });
+
+    // Aristo questions
+    var aristoQuestions = [];
+    $.getJSON("/assets/regents-train.json", function (content) {
+        var selectContent = "<option disabled selected value> -- aristo questions: select one -- </option>";
+        content.forEach(function(q, i){
+            selectContent = selectContent + "<option value=" + i + ">" + q.question + "</option>";
+        });
+        aristoQuestions = content.map(function(q, i){ return q.question; });
+        $('#aristo-select').html(selectContent);
+    });
+
+    // set the select behavior
+    $("#aristo-select").change(function () {
+        var selectedIndex = $(this).prop("selectedIndex") - 1;
+        var split = aristoQuestions[selectedIndex].split(/\([A-Z]\)/);
+        var question = split[0];
+        var options = split.slice(1).join(" // ");
+        $("#questionString").val(question);
+        $("#candidateTextArea").val(options);
+        $("#knowTextArea").val("");
+        $("#knowLucene").prop("checked", true);
+    });
+
 };
 
 // [B](f: (A) ⇒ [B]): [B]  ; Although the types in the arrays aren't strict (:

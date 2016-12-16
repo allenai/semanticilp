@@ -13,7 +13,7 @@ import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
   * file containing the annotated data. More details here:
   * https://rajpurkar.github.io/SQuAD-explorer/
   */
-class SQuADReader(file: File, annotationServiceOpt: Option[AnnotatorService] = None) {
+class SQuADReader(file: File, annotationServiceOpt: Option[AnnotatorService] = None, annotationUtils: AnnotationUtils) {
   private val jsonString = Source.fromFile(file).getLines().mkString
   private val jsonObject = Json.parse(jsonString)
   val instances = (jsonObject \\ "data").head.as[JsArray].value.slice(0, 30).map { value =>
@@ -32,7 +32,7 @@ class SQuADReader(file: File, annotationServiceOpt: Option[AnnotatorService] = N
         val questionAnnotation = annotationServiceOpt match {
           case None => None
           case Some(service) =>
-            val ta = AnnotationUtils.annotate(question)
+            val ta = annotationUtils.annotate(question)
             assert(ta.getAvailableViews.contains(ViewNames.QUANTITIES))
             Some(ta)
         }
@@ -41,7 +41,7 @@ class SQuADReader(file: File, annotationServiceOpt: Option[AnnotatorService] = N
       val contextAnnotation = annotationServiceOpt match {
         case None => None
         case Some(service) =>
-          val ta = AnnotationUtils.annotate(context)
+          val ta = annotationUtils.annotate(context)
           assert(ta.getAvailableViews.contains(ViewNames.QUANTITIES))
           Some(ta)
       }

@@ -19,7 +19,7 @@ lazy val commonSettings = Seq(
     "DYLD_LIBRARY_PATH" -> "lib"
   ),
   includeFilter in unmanagedJars := "*.jar" || "*.so" || "*.dylib",
-  fork in run := true
+  fork := true
 )
 
 // TODO(danm): This is used enough projects to be in allenai/sbt-plugins CoreDependencies.
