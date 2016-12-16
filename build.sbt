@@ -11,7 +11,7 @@ val ccgGroupId = "edu.illinois.cs.cogcomp"
 lazy val commonSettings = Seq(
   version := "1.0",
   scalaVersion := "2.11.8",
-  javaOptions ++= Seq("-Xmx3G", "-Xms3G"),
+  javaOptions ++= Seq("-Xmx20G"),
   // Make sure SCIP libraries are locatable.
   javaOptions += s"-Djava.library.path=lib",
   envVars ++= Map(

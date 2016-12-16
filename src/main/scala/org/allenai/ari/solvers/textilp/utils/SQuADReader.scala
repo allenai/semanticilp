@@ -28,7 +28,7 @@ class SQuADReader(file: File, annotationServiceOpt: Option[AnnotatorService] = N
           val start = (aValue \ "answer_start").as[Int]
           val text = (aValue \ "text").as[String]
           Answer(text, start)
-        }.toSet
+        }
         val questionAnnotation = annotationServiceOpt match {
           case None => None
           case Some(service) =>

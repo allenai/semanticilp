@@ -6,7 +6,8 @@ import java.net.{InetSocketAddress, URLEncoder}
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation
 import org.allenai.ari.solvers.textilp.alignment.KeywordTokenizer
-import org.allenai.ari.solvers.textilp.{AlignmentResults, Entity, EntityRelationResult, TermAlignment}
+import org.allenai.ari.solvers.textilp.{Entity, EntityRelationResult}
+import org.allenai.common.cache.JsonQueryCache
 import org.elasticsearch.action.search.SearchType
 import org.elasticsearch.client.transport.TransportClient
 import org.elasticsearch.common.settings.Settings
@@ -14,12 +15,13 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress
 import org.elasticsearch.index.query.QueryBuilders
 import org.elasticsearch.search.SearchHit
 import play.api.libs.json.{JsArray, JsNumber, Json}
+import redis.clients.jedis.Protocol
 
 import scala.collection.JavaConverters._
 import scala.io.Source
 
 object SolverUtils {
-  def handleQuestionWithManyCandidates(onlyQuestion: String, candidates: Set[String], solver: String): Seq[(String, Double)] = {
+  def handleQuestionWithManyCandidates(onlyQuestion: String, candidates: Seq[String], solver: String): Seq[(String, Double)] = {
     candidates.grouped(6).foldRight(Seq[(String, Double)]()) { (smallGroupOfCandidates, combinedScoreMap) =>
       assert(smallGroupOfCandidates.size <= 6)
       val allOptions = smallGroupOfCandidates.zipWithIndex.map { case (opt, idx) => s" (${(idx + 'A').toChar}) $opt " }.mkString
@@ -46,20 +48,24 @@ object SolverUtils {
     }
   }
 
-  def sortedAnswerToSolverResponse(question: String, options: Set[String], snippet: String, sortedCanndidates: Seq[(String, Double)]): (AlignmentResults, EntityRelationResult) = {
-    val maxScore = sortedCanndidates.head._2
-    val selectedAnswers = sortedCanndidates.filter(_._2 == maxScore)
+  def sortedAnswerToSolverResponse(question: String, options: Seq[String],
+                                   snippet: String,
+                                   sortedCandidates: Seq[(String, Double)]): (Seq[Int], EntityRelationResult) = {
+    val maxScore = sortedCandidates.head._2
+    val (selectedAnswers, _) = sortedCandidates.filter(_._2 == maxScore).unzip
+
+    val selectedIndices = question.zipWithIndex.collect{ case (option, idx) if selectedAnswers.toSet.contains(option) => idx }
 
     val questionString = "Question: " + question
     val choiceString = "|Options: " + options.zipWithIndex.map { case (ans, key) => s" (${key + 1}) " + ans }.mkString(" ")
     val paragraphString = "|Paragraph: " + snippet
     val fullText = questionString + paragraphString + choiceString
-    val entities = selectedAnswers.map { case (str, _) =>
+    val entities = selectedAnswers.map { str =>
       val begin = choiceString.indexOf(str) + paragraphString.length + questionString.length
       val end = begin + str.length
       Entity("  ", str, Seq((begin, end)))
     }
-    AlignmentResults() -> EntityRelationResult(fullText, entities, Seq.empty, sortedCanndidates.toString)
+    selectedIndices -> EntityRelationResult(fullText, entities, Seq.empty, sortedCandidates.toString)
   }
 
   def getCandidateAnswer(contextTA: TextAnnotation): Set[String] = {
@@ -88,29 +94,50 @@ object SolverUtils {
     clientBuilder.build().addTransportAddress(address)
   }
 
-  def extractParagraphGievnQuestion(question: String, focus: String, topK: Int): Set[String] = {
-    val questionWords = KeywordTokenizer.Default.stemmedKeywordTokenize(question)
-    val focusWords = KeywordTokenizer.Default.stemmedKeywordTokenize(focus)
+//  lazy val elasticWebredisCache = if (Constants.useRedisCachingForAnnotation) {
+//    JsonQueryCache[Set[String]]("elastic:", "localhost", Protocol.DEFAULT_PORT, Protocol.DEFAULT_TIMEOUT)
+//  } else {
+//    // use the dummy client, which always returns None for any query (and not using any Redis)
+//    DummyRedisClient
+//  }
 
-    val searchStr = s"$question $focus"
-    val response = esClient.prepareSearch(Constants.indexNames.keys.toSeq: _*)
-      // NOTE: DFS_QUERY_THEN_FETCH guarantees that multi-index queries return accurate scoring
-      // results, do not modify
-      .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-      .setQuery(QueryBuilders.matchQuery("text", searchStr))
-      .setFrom(0).setSize(topK).setExplain(true)
-      .execute()
-      .actionGet()
-    // Filter hits that don't overlap with both question and focus words.
-    val hits = response.getHits.getHits.filter { x =>
-      val hitWordsSet = KeywordTokenizer.Default.stemmedKeywordTokenize(x.sourceAsString).toSet
-      (hitWordsSet.intersect(questionWords.toSet).nonEmpty
-        && hitWordsSet.intersect(focusWords.toSet).nonEmpty)
-    }
-    def getLuceneHitFields(hit: SearchHit): Map[String, AnyRef] = {
-      hit.sourceAsMap().asScala.toMap
-    }
-    hits.sortBy(-_.score).slice(0, topK).map{h => getLuceneHitFields(h)("text").toString }.toSet
+  def extractParagraphGievnQuestion(question: String, focus: String, topK: Int): Set[String] = {
+//    val cacheKey = "elasticWebParagraph:" + question + "////focus:" + focus + "///topK:" + topK
+//    val cacheOutput = if(Constants.useRedisCachingForAnnotation) {
+//      elasticWebredisCache.get(cacheKey).asInstanceOf[Option[Set[String]]]
+//    }
+//    else {
+//      None
+//    }
+//    if(cacheOutput.isEmpty) {
+      val questionWords = KeywordTokenizer.Default.stemmedKeywordTokenize(question)
+      val focusWords = KeywordTokenizer.Default.stemmedKeywordTokenize(focus)
+
+      val searchStr = s"$question $focus"
+      val response = esClient.prepareSearch(Constants.indexNames.keys.toSeq: _*)
+        // NOTE: DFS_QUERY_THEN_FETCH guarantees that multi-index queries return accurate scoring
+        // results, do not modify
+        .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+        .setQuery(QueryBuilders.matchQuery("text", searchStr))
+        .setFrom(0).setSize(topK).setExplain(true)
+        .execute()
+        .actionGet()
+      // Filter hits that don't overlap with both question and focus words.
+      val hits = response.getHits.getHits.filter { x =>
+        val hitWordsSet = KeywordTokenizer.Default.stemmedKeywordTokenize(x.sourceAsString).toSet
+        (hitWordsSet.intersect(questionWords.toSet).nonEmpty
+          && hitWordsSet.intersect(focusWords.toSet).nonEmpty)
+      }
+      def getLuceneHitFields(hit: SearchHit): Map[String, AnyRef] = {
+        hit.sourceAsMap().asScala.toMap
+      }
+      val elasticOutput = hits.sortBy(-_.score).map { h => getLuceneHitFields(h)("text").toString }.toSet
+//      elasticWebredisCache.put(cacheKey, elasticOutput)
+      elasticOutput
+//    }
+//    else {
+//      cacheOutput.get
+//    }
   }
 
   val omnibusTrain = loadQuestions("Omnibus-Gr04-NDMC-Train.tsv")
@@ -129,6 +156,36 @@ object SolverUtils {
       val questionSplit = question.split("\\([A-Z]\\)")
       (questionSplit.head, questionSplit.tail.toSeq, answer)
     }
+  }
+
+  def assignCredit(predict: Seq[Int], gold: Int, maxOpts: Int): Double = {
+    if(predict.contains(gold)) {
+      1 / maxOpts.toDouble
+    }
+    else {
+      0.0
+    }
+  }
+
+  def printMemoryDetails() = {
+    val mb = 1024*1024
+
+    //Getting the runtime reference from system
+    val runtime = Runtime.getRuntime
+
+    println("##### Heap utilization statistics [MB] #####")
+
+    //Print used memory
+    println("Used Memory:" + (runtime.totalMemory() - runtime.freeMemory()) / mb)
+
+    //Print free memory
+    println("Free Memory:" + runtime.freeMemory() / mb)
+
+    //Print total available memory
+    println("Total Memory:" + runtime.totalMemory() / mb)
+
+    //Print Maximum available memory
+    println("Max Memory:" + runtime.maxMemory() / mb)
   }
 
 }

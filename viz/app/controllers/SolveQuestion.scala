@@ -43,9 +43,9 @@ class SolveQuestion @Inject() extends Controller {
       val ta = AnnotationUtils.annotate(snippet)
       val generatedCandidates = SolverUtils.getCandidateAnswer(ta)
       println("Automatically extracted candidtes: " + generatedCandidates.mkString("//"))
-      generatedCandidates
+      generatedCandidates.toSeq
     } else {
-      options.split("//").toSet
+      options.split("//").toSeq
     }
 
     val snippetPostprocessed = if(snippet.length < 2) {

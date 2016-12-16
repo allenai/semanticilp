@@ -3,8 +3,8 @@ package org.allenai.ari.solvers.textilp
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation
 import org.allenai.ari.solvers.textilp.alignment.AlignmentFunction
-import org.allenai.ari.solvers.textilp.solvers.{ SalienceSolver, TextILPSolver }
-import org.allenai.ari.solvers.textilp.utils.{ AnnotationUtils, Constants, SQuADReader, SolverUtils }
+import org.allenai.ari.solvers.textilp.solvers.{LuceneSolver, SalienceSolver, TextILPSolver}
+import org.allenai.ari.solvers.textilp.utils.{AnnotationUtils, Constants, SQuADReader, SolverUtils}
 import org.rogach.scallop._
 
 import scala.collection.JavaConverters._
@@ -13,6 +13,7 @@ object ExperimentsApp {
 
   lazy val textILPSolver = new TextILPSolver()
   lazy val salienceSolver = new SalienceSolver()
+  lazy val luceneSolver = new LuceneSolver()
 
   class ArgumentParser(args: Array[String]) extends ScallopConf(args) {
     val experimentType: ScallopOption[Int] = opt[Int]("type", descr = "Experiment type", required = true)
@@ -74,7 +75,7 @@ object ExperimentsApp {
           p.contextTAOpt match {
             case None => throw new Exception("The instance does not contain annotation . . . ")
             case Some(annotation) =>
-              val candidateAnswers = SolverUtils.getCandidateAnswer(annotation)
+              val candidateAnswers = SolverUtils.getCandidateAnswer(annotation).toSeq
               p.questions.foreach { q =>
                 val goldAnswers = q.answers.map(_.answerText)
                 val perOptionScores = SolverUtils.handleQuestionWithManyCandidates(q.questionText, candidateAnswers, solver)
@@ -98,7 +99,7 @@ object ExperimentsApp {
   def solveSampleQuestionWithTextILP() = {
     textILPSolver.solve(
       "A decomposer is an organism that",
-      Set("hunts and eats animals", "migrates for the winter",
+      Seq("hunts and eats animals", "migrates for the winter",
         "breaks down dead plants and animals", "uses water and sunlight to make food"),
       "explanation:Decomposers: organisms that obtain energy by eating dead plant or animal matter. " +
         "Windy, cloudy, rainy, and cold are words that help describe\tfocus: deposition. " +
@@ -119,6 +120,29 @@ object ExperimentsApp {
 
   def testRemoteSolverWithSampleQuestion() = {
     SolverUtils.evaluateASingleQuestion("Which two observations are both used to describe weather? (A) like (B) the difference (C) events (D) temperature and sky condition", "tableilp")
+  }
+
+  def evaluateTextilpOnRegents() = {
+    SolverUtils.printMemoryDetails()
+    println("Starting the evaluation . . . ")
+    val perQuestionScore = SolverUtils.regentsTrain.map{ case (question, options, correct) =>
+      println("collecting knolwdge . . . ")
+      val knowledgeSnippet = options.flatMap(focus => SolverUtils.extractParagraphGievnQuestion(question, focus, 1)).mkString(" ")
+      println("solving it . . . ")
+      val (selected, _) = textILPSolver.solve(question, options, knowledgeSnippet)
+      val score = SolverUtils.assignCredit(selected, correct.head - 'A', options.length)
+      println("Question: " + question + "   / selected: " + selected)
+      score
+    }
+    println("Average score: " + perQuestionScore.sum / perQuestionScore.size)
+  }
+
+  def evaluateSalienceOnRegents() = {
+
+  }
+
+  def evaluateLuceneOnRegents() = {
+
   }
 
   def testTheDatastes() = {
@@ -145,6 +169,8 @@ object ExperimentsApp {
       case 7 => testAlignmentScore()
       case 8 => testElasticSearchSnippetExtraction()
       case 9 => testTheDatastes()
+      case 10 => evaluateSalienceOnRegents()
+      case 11 => evaluateTextilpOnRegents()
     }
   }
 }

@@ -17,12 +17,14 @@ class TextILPSolver extends TextSolver {
   lazy val aligner = new AlignmentFunction("Entailment", 0.1, keywordTokenizer,
     useRedisCache = false, useContextInRedisCache = false)
 
-  def solve(question: String, options: Set[String], snippet: String): (AlignmentResults, EntityRelationResult) = {
-//    val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
-    val ilpSolver = new IllinoisInference(new OJalgoHook)
+  def solve(question: String, options: Seq[String], snippet: String): (Seq[Int], EntityRelationResult) = {
+    val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
+//    val ilpSolver = new IllinoisInference(new OJalgoHook)
     val answers = options.map(o => Answer(o, -1))
+//    println("Tokenizing question .... ")
     val qTA = AnnotationUtils.pipelineService.createBasicTextAnnotation("", "", question)
     val q = Question(question, "", answers, Some(qTA))
+//    println("Tokenizing paragraph .... ")
     val pTA = AnnotationUtils.pipelineService.createBasicTextAnnotation("", "", snippet) // AnnotationUtils.annotate(snippet, withQuantifier = false)
     val p = Paragraph(snippet, Seq(q), Some(pTA))
     createILPModel(q, p, ilpSolver, aligner)
@@ -33,7 +35,7 @@ class TextILPSolver extends TextSolver {
     p: Paragraph,
     ilpSolver: IlpSolver[V, _],
     alignmentFunction: AlignmentFunction
-  ): (AlignmentResults, EntityRelationResult) = {
+  ): (Seq[Int], EntityRelationResult) = {
 
     println("starting to create the model  . . . ")
 
@@ -89,7 +91,7 @@ class TextILPSolver extends TextSolver {
 
     // constraints
     // alignment to only one option, i.e. there must be only one single active option
-    val activeAnsVars = activeAnswerOptions.map { case (ans, x) => x }.toSeq
+    val activeAnsVars = activeAnswerOptions.map { case (ans, x) => x }
     val coeffs = Seq.fill(activeAnsVars.length)(1.0)
     ilpSolver.addConsBasicLinear("onlyOneActiveOption", activeAnsVars, coeffs, Some(1.0), Some(1.0))
 
@@ -108,21 +110,22 @@ class TextILPSolver extends TextSolver {
 
     println("Done solving the model  . . . ")
 
-    // extracting the solution
-    val questionAlignments = qTokens.map { c => c -> TermAlignment(c.getSurfaceForm) }.toMap
-    val choiceAlignments = q.answers.map { c => c -> TermAlignment(c.answerText) }.toMap
-    val paragraphAlignments = pTokens.map { c => c -> TermAlignment(c.getSurfaceForm) }.toMap
+//    // extracting the solution
+//    val questionAlignments = qTokens.map { c => c -> TermAlignment(c.getSurfaceForm) }.toMap
+//    val choiceAlignments = q.answers.map { c => c -> TermAlignment(c.answerText) }.toMap
+//    val paragraphAlignments = pTokens.map { c => c -> TermAlignment(c.getSurfaceForm) }.toMap
 
-    var iter = 0
-    questionParagraphAlignments.foreach {
-      case (c1, c2, x) =>
-        if (ilpSolver.getSolVal(x) > 1.0 - epsilon) {
-          questionAlignments(c1).alignmentIds.+=(iter)
-          paragraphAlignments(c2).alignmentIds.+=(iter)
-          iter = iter + 1
-        }
-    }
+//    var iter = 0
+//    questionParagraphAlignments.foreach {
+//      case (c1, c2, x) =>
+//        if (ilpSolver.getSolVal(x) > 1.0 - epsilon) {
+//          questionAlignments(c1).alignmentIds.+=(iter)
+//          paragraphAlignments(c2).alignmentIds.+=(iter)
+//          iter = iter + 1
+//        }
+//    }
 
+    val selectedIndex = activeAnswerOptions.zipWithIndex.collectFirst { case ((ans, x), idx) if ilpSolver.getSolVal(x) > 1.0 - epsilon => idx }.getOrElse(-1)
 
     val questionString = "Question: " + qTokens.map(_.getSurfaceForm).mkString(" ")
     val choiceString = "|Options: " + q.answers.zipWithIndex.map{case (ans, key) => s" (${key+1}) " + ans.answerText}.mkString(" ")
@@ -176,14 +179,14 @@ class TextILPSolver extends TextSolver {
         }
     }
 
-    paragraphAnswerAlignments.foreach {
-      case (c1, c2, x) =>
-        if (ilpSolver.getSolVal(x) > 1.0 - epsilon) {
-          paragraphAlignments(c1).alignmentIds.+=(iter)
-          choiceAlignments(c2).alignmentIds.+=(iter)
-          iter = iter + 1
-        }
-    }
+//    paragraphAnswerAlignments.foreach {
+//      case (c1, c2, x) =>
+//        if (ilpSolver.getSolVal(x) > 1.0 - epsilon) {
+//          paragraphAlignments(c1).alignmentIds.+=(iter)
+//          choiceAlignments(c2).alignmentIds.+=(iter)
+//          iter = iter + 1
+//        }
+//    }
 
     paragraphAnswerAlignments.foreach {
       case (c1, c2, x) =>
@@ -225,14 +228,14 @@ class TextILPSolver extends TextSolver {
 
     println("returning the answer  . . . ")
 
-    val alignmentResult = AlignmentResults(
-      questionAlignments.values.toList,
-      choiceAlignments.values.toList,
-      paragraphAlignments.values.toList
-    )
+//    val alignmentResult = AlignmentResults(
+//      questionAlignments.values.toList,
+//      choiceAlignments.values.toList,
+//      paragraphAlignments.values.toList
+//    )
 
     val erView = EntityRelationResult(questionString + paragraphString + choiceString, entities, relations)
 
-    alignmentResult -> erView
+    Seq(selectedIndex) -> erView
   }
 }
