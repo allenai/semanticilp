@@ -101,7 +101,19 @@ object SolverUtils {
 //    DummyRedisClient
 //  }
 
-  def extractParagraphGievnQuestion(question: String, focus: String, topK: Int): Set[String] = {
+  def extractPatagraphGivenQuestionAndFocusSet(question: String, focusSet: Seq[String], topK: Int): Seq[String] = {
+    focusSet.flatMap(f => extractParagraphGivenQuestionAndFocusWord(question, f, 200))
+  }
+
+  def extractPatagraphGivenQuestionAndFocusSet3(question: String, focusSet: Seq[String], topK: Int): Seq[String] = {
+    focusSet.flatMap(f => extractParagraphGivenQuestionAndFocusWord3(question, f)).toSeq.sortBy(-_.score).take(topK).map{h: SearchHit => getLuceneHitFields(h)("text").toString }
+  }
+
+  def getLuceneHitFields(hit: SearchHit): Map[String, AnyRef] = {
+    hit.sourceAsMap().asScala.toMap
+  }
+
+  def extractParagraphGivenQuestionAndFocusWord(question: String, focus: String, topK: Int): Set[String] = {
 //    val cacheKey = "elasticWebParagraph:" + question + "////focus:" + focus + "///topK:" + topK
 //    val cacheOutput = if(Constants.useRedisCachingForAnnotation) {
 //      elasticWebredisCache.get(cacheKey).asInstanceOf[Option[Set[String]]]
@@ -128,9 +140,6 @@ object SolverUtils {
         (hitWordsSet.intersect(questionWords.toSet).nonEmpty
           && hitWordsSet.intersect(focusWords.toSet).nonEmpty)
       }
-      def getLuceneHitFields(hit: SearchHit): Map[String, AnyRef] = {
-        hit.sourceAsMap().asScala.toMap
-      }
       val elasticOutput = hits.sortBy(-_.score).map { h => getLuceneHitFields(h)("text").toString }.toSet
 //      elasticWebredisCache.put(cacheKey, elasticOutput)
       elasticOutput
@@ -138,6 +147,61 @@ object SolverUtils {
 //    else {
 //      cacheOutput.get
 //    }
+  }
+
+  def extractParagraphGivenQuestionAndFocusWord2(question: String, focus: String, topK: Int): Set[String] = {
+    val questionWords = KeywordTokenizer.Default.stemmedKeywordTokenize(question)
+    val focusWords = KeywordTokenizer.Default.stemmedKeywordTokenize(focus)
+    val searchStr = s"$question $focus"
+    val response = esClient.prepareSearch(Constants.indexNames.keys.toSeq: _*)
+      // NOTE: DFS_QUERY_THEN_FETCH guarantees that multi-index queries return accurate scoring
+      // results, do not modify
+      .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+      .setQuery(QueryBuilders.matchQuery("text", searchStr))
+      .setFrom(0).setSize(200).setExplain(true)
+      .execute()
+      .actionGet()
+    // Filter hits that don't overlap with both question and focus words.
+    val hits = response.getHits.getHits.filter { x =>
+      val hitWordsSet = KeywordTokenizer.Default.stemmedKeywordTokenize(x.sourceAsString).toSet
+      (hitWordsSet.intersect(questionWords.toSet).nonEmpty
+        && hitWordsSet.intersect(focusWords.toSet).nonEmpty)
+    }
+    def getLuceneHitFields(hit: SearchHit): Map[String, AnyRef] = {
+      hit.sourceAsMap().asScala.toMap
+    }
+
+    val sortedHits = hits.sortBy(-_.score)
+    val selectedOutput = if(sortedHits.length > topK) {
+      sortedHits.slice(0, topK)
+    }
+    else {
+      sortedHits
+    }
+    selectedOutput.map { h => getLuceneHitFields(h)("text").toString }.toSet
+  }
+
+  def extractParagraphGivenQuestionAndFocusWord3(question: String, focus: String): Array[SearchHit] = {
+    val questionWords = KeywordTokenizer.Default.stemmedKeywordTokenize(question)
+    val focusWords = KeywordTokenizer.Default.stemmedKeywordTokenize(focus)
+    val searchStr = s"$question $focus"
+    val response = esClient.prepareSearch(Constants.indexNames.keys.toSeq: _*)
+      // NOTE: DFS_QUERY_THEN_FETCH guarantees that multi-index queries return accurate scoring
+      // results, do not modify
+      .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+      .setQuery(QueryBuilders.matchQuery("text", searchStr))
+      .setFrom(0).setSize(200).setExplain(true)
+      .execute()
+      .actionGet()
+    // Filter hits that don't overlap with both question and focus words.
+    def getLuceneHitFields(hit: SearchHit): Map[String, AnyRef] = {
+      hit.sourceAsMap().asScala.toMap
+    }
+    response.getHits.getHits.filter { x =>
+      val hitWordsSet = KeywordTokenizer.Default.stemmedKeywordTokenize(x.sourceAsString).toSet
+      (hitWordsSet.intersect(questionWords.toSet).nonEmpty
+        && hitWordsSet.intersect(focusWords.toSet).nonEmpty)
+    }
   }
 
   val omnibusTrain = loadQuestions("Omnibus-Gr04-NDMC-Train.tsv")

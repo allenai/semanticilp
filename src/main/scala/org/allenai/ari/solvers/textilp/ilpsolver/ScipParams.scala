@@ -25,7 +25,7 @@ object ScipParams {
     timeLimit = 180d,
     threads = 1,
     logFile = "scip.log",
-    messagehdlrQuiet = false,
+    messagehdlrQuiet = true,
     printVersion = 0
   )
 }

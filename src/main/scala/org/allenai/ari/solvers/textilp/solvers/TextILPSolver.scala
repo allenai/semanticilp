@@ -1,6 +1,7 @@
 package org.allenai.ari.solvers.textilp.solvers
 
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.Constituent
 import edu.illinois.cs.cogcomp.infer.ilp.OJalgoHook
 import org.allenai.ari.solvers.textilp.alignment.{AlignmentFunction, KeywordTokenizer}
 import org.allenai.ari.solvers.textilp._
@@ -23,9 +24,15 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
     val answers = options.map(o => Answer(o, -1))
 //    println("Tokenizing question .... ")
     val qTA = annotationUtils.pipelineService.createBasicTextAnnotation("", "", question)
+    if(question.trim.nonEmpty) {
+      annotationUtils.pipelineService.addView(qTA, ViewNames.SHALLOW_PARSE)
+    }
     val q = Question(question, "", answers, Some(qTA))
 //    println("Tokenizing paragraph .... ")
     val pTA = annotationUtils.pipelineService.createBasicTextAnnotation("", "", snippet) // AnnotationUtils.annotate(snippet, withQuantifier = false)
+    if(snippet.trim.nonEmpty) {
+      annotationUtils.pipelineService.addView(pTA, ViewNames.SHALLOW_PARSE)
+    }
     val p = Paragraph(snippet, Seq(q), Some(pTA))
     createILPModel(q, p, ilpSolver, aligner)
   }
@@ -43,8 +50,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
     require(p.contextTAOpt.isDefined, "the annotatins for the paragraph is not defined")
     val qTA = q.qTAOpt.get
     val pTA = p.contextTAOpt.get
-    val qTokens = qTA.getView(ViewNames.TOKENS).getConstituents.asScala.toSeq
-    val pTokens = pTA.getView(ViewNames.TOKENS).getConstituents.asScala.toSeq
+    val qTokens = if(qTA.hasView(ViewNames.SHALLOW_PARSE)) qTA.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala else Seq.empty
+    val pTokens = if(pTA.hasView(ViewNames.SHALLOW_PARSE)) pTA.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala else Seq.empty
 
     ilpSolver.setAsMaximization()
 
@@ -75,6 +82,15 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
       paragraphAnswerAlignments.filter { case (_, ansTmp, _) => ansTmp == ans }.map(_._3)
     }
 
+    def getVariablesConnectedToParagraphToken(c: Constituent): Seq[V] = {
+      questionParagraphAlignments.filter { case (_, cTmp, _) => cTmp == c }.map(_._3) ++
+        paragraphAnswerAlignments.filter { case (cTmp, _, _) => cTmp == c }.map(_._3)
+    }
+
+    def getVariablesConnectedToParagraphSentence(sentenceId: Int): Seq[V] = {
+      pTokens.filter(_.getSentenceId == sentenceId).flatMap(getVariablesConnectedToParagraphToken)
+    }
+
     // variable must be active if anything connected to it is active
     activeAnswerOptions.foreach {
       case (ans, x) =>
@@ -89,11 +105,61 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
         }
     }
 
+    // active sentences for the paragraph
+    val activeParagraphConstituents = for {
+      t <- pTokens
+      x = ilpSolver.createBinaryVar("", 0.0)
+    } yield (t, x)
+
+    // the paragraph token is active if anything connected to it is active
+    activeParagraphConstituents.foreach {
+      case (ans, x) =>
+        val connectedVariables = getVariablesConnectedToParagraphToken(ans)
+        val allVars = connectedVariables :+ x
+        val coeffs = Seq.fill(connectedVariables.length)(-1.0) :+ 1.0
+        ilpSolver.addConsBasicLinear("activeOptionVar", allVars, coeffs, None, Some(0.0))
+        connectedVariables.foreach { connectedVar =>
+          val vars = Seq(connectedVar, x)
+          val coeffs = Seq(1.0, -1.0)
+          ilpSolver.addConsBasicLinear("activeParagraphConsVar", vars, coeffs, None, Some(0.0))
+        }
+    }
+
+    // active sentences for the paragraph
+    val activeSentences = for {
+      s <- 0 until pTA.getNumberOfSentences
+      x = ilpSolver.createBinaryVar("", 0.0)
+    } yield (s, x)
+
+//    val activeSentenceVariablePerConstituet = {
+//      val paragraphConsToVar = activeSentences.toMap
+//      activeParagraphConstituents.map{ case (c, v) => c -> paragraphConsToVar(c.getSentenceId) }
+//    }.toMap
+
+    // the sentence variable is active if anything connected to it is active
+    activeSentences.foreach {
+      case (ans, x) =>
+        val connectedVariables = getVariablesConnectedToParagraphSentence(ans)
+        val allVars = connectedVariables :+ x
+        val coeffs = Seq.fill(connectedVariables.length)(-1.0) :+ 1.0
+        ilpSolver.addConsBasicLinear("activeOptionVar", allVars, coeffs, None, Some(0.0))
+        connectedVariables.foreach { connectedVar =>
+          val vars = Seq(connectedVar, x)
+          val coeffs = Seq(1.0, -1.0)
+          ilpSolver.addConsBasicLinear("activeParagraphConsVar", vars, coeffs, None, Some(0.0))
+        }
+    }
+
     // constraints
     // alignment to only one option, i.e. there must be only one single active option
     val activeAnsVars = activeAnswerOptions.map { case (ans, x) => x }
-    val coeffs = Seq.fill(activeAnsVars.length)(1.0)
-    ilpSolver.addConsBasicLinear("onlyOneActiveOption", activeAnsVars, coeffs, Some(1.0), Some(1.0))
+    val activeAnsVarsCoeffs = Seq.fill(activeAnsVars.length)(1.0)
+    ilpSolver.addConsBasicLinear("onlyOneActiveOption", activeAnsVars, activeAnsVarsCoeffs, Some(1.0), Some(1.0))
+
+    // have at most one active sentence
+    val (_, sentenceVars) = activeSentences.unzip
+    val sentenceVarsCoeffs = Seq.fill(sentenceVars.length)(1.0)
+    ilpSolver.addConsBasicLinear("activeParagraphConsVar", sentenceVars, sentenceVarsCoeffs, Some(0.0), Some(1.0))
 
     // sparsity parameters
     // alignment is preferred for lesser sentences

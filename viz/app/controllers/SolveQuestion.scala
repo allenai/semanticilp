@@ -52,7 +52,9 @@ class SolveQuestion @Inject() extends Controller {
     val snippetPostprocessed = if(snippet.length < 2) {
       // it's empty; get it with elastic-search
       println("Asking the elastic-search . . . ")
-      optionsPostProcessed.flatMap(focus => SolverUtils.extractParagraphGievnQuestion(question, focus, 3)).mkString(" ")
+      val snippet = optionsPostProcessed.flatMap(focus => SolverUtils.extractParagraphGivenQuestionAndFocusWord(question, focus, 3)).mkString(" ")
+      println(snippet)
+      snippet
     } else {
       snippet
     }

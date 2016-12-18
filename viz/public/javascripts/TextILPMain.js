@@ -71,6 +71,10 @@ Array.prototype.flatMap = function(lambda) {
 };
 
 function visualizationBratWithLog(solverLogJson){
+
+    // I don't know why we sometimes have new lines in the strings ugh
+    solverLogJsonNew = JSON.parse(JSON.stringify(solverLogJson).replace(/\\n/, " "));
+
     var entity_types = [
         {
             "type": "  ",
@@ -93,9 +97,9 @@ function visualizationBratWithLog(solverLogJson){
     if($('#brat-visualization').length == 0) {
         $("#brat-container").append('<svg width="100" height="100" id="brat-visualization"></svg>');
     }
-    var text = solverLogJson.overalString.replace(/\|/g, '\n') + "                                  ";
-    var entities = solverLogJson.entities;
-    var relations = solverLogJson.relations;
+    var text = solverLogJsonNew.overalString.replace(/\|/g, '\n') + "                                                               ";
+    var entities = solverLogJsonNew.entities;
+    var relations = solverLogJsonNew.relations;
 
     // console.log(entities);
     // console.log(relations);

@@ -111,7 +111,19 @@ object ExperimentsApp {
   }
 
   def testElasticSearchSnippetExtraction() = {
-    println(SolverUtils.extractParagraphGievnQuestion("when is the best time of the year in New York city, especially when it snows or rains?", "Christmas", 3).mkString("\n"))
+    println(SolverUtils.extractParagraphGivenQuestionAndFocusWord("when is the best time of the year in New York city, especially when it snows or rains?", "Christmas", 3).mkString("\n"))
+  }
+
+  def extractKnowledgeSnippet() = {
+    val question = "In New York State the longest period of daylight occurs during which month"
+    val candidates = Seq("June", "March", "December", "September")
+    candidates.foreach { focus =>
+      println("Query: " + question + "  " + focus + " --> Result: " + SolverUtils.extractParagraphGivenQuestionAndFocusWord2(question, focus, 3).mkString(" "))
+      //println("Q: In New York State --> " + SolverUtils.extractParagraphGivenQuestionAndFocusWord2("In New York State ", focus, 3))
+      //println("Q: the longest period of daylight --> " +SolverUtils.extractParagraphGivenQuestionAndFocusWord2("the longest period of daylight", focus, 3))
+      //println("----------")
+    }
+    println("Query: " + question + "  " + candidates + " --> Result: " + SolverUtils.extractPatagraphGivenQuestionAndFocusSet3(question, candidates, 8).mkString(" "))
   }
 
   def testRemoteSolverWithSampleQuestion() = {
@@ -123,11 +135,13 @@ object ExperimentsApp {
     println("Starting the evaluation . . . ")
     val perQuestionScore = SolverUtils.regentsTrain.map{ case (question, options, correct) =>
       println("collecting knolwdge . . . ")
-      val knowledgeSnippet = options.flatMap(focus => SolverUtils.extractParagraphGievnQuestion(question, focus, 1)).mkString(" ")
+//      val knowledgeSnippet = options.flatMap(focus => SolverUtils.extractParagraphGivenQuestionAndFocusWord(question, focus, 3)).mkString(" ")
+//      val knowledgeSnippet = options.flatMap(focus => SolverUtils.extractParagraphGivenQuestionAndFocusWord2(question, focus, 3)).mkString(" ")
+      val knowledgeSnippet = SolverUtils.extractPatagraphGivenQuestionAndFocusSet3(question, options, 8).mkString(" ")
       println("solving it . . . ")
       val (selected, _) = textILPSolver.solve(question, options, knowledgeSnippet)
       val score = SolverUtils.assignCredit(selected, correct.head - 'A', options.length)
-      println("Question: " + question + "   / selected: " + selected)
+      println("Question: " + question + " / options: " + options  +  "   / selected: " + selected)
       score
     }
     println("Average score: " + perQuestionScore.sum / perQuestionScore.size)
@@ -167,6 +181,7 @@ object ExperimentsApp {
       case 9 => testTheDatastes()
       case 10 => evaluateSalienceOnRegents()
       case 11 => evaluateTextilpOnRegents()
+      case 12 => extractKnowledgeSnippet()
     }
   }
 }

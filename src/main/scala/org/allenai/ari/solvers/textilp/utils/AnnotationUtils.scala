@@ -61,6 +61,7 @@ class AnnotationUtils {
     val settings = new Properties()
     settings.setProperty("cacheDirectory", "annotation-cache-textilp")
     settings.setProperty("disableCache", Configurator.TRUE)
+    viewsToDisable.foreach{ key => settings.setProperty(key.value, Configurator.FALSE) }
     val rm = new ResourceManager(settings)
     //viewsToDisable.foreach { v => settings.setProperty(v.key, Configurator.FALSE) }
     val config = new PipelineConfigurator().getConfig(rm)
