@@ -106,7 +106,7 @@ object SolverUtils {
   }
 
   def extractPatagraphGivenQuestionAndFocusSet3(question: String, focusSet: Seq[String], topK: Int): Seq[String] = {
-    focusSet.flatMap(f => extractParagraphGivenQuestionAndFocusWord3(question, f)).toSeq.sortBy(-_.score).take(topK).map{h: SearchHit => getLuceneHitFields(h)("text").toString }
+    focusSet.flatMap(f => extractParagraphGivenQuestionAndFocusWord3(question, f)).sortBy(-_.score).take(topK).map{h: SearchHit => getLuceneHitFields(h)("text").toString }
   }
 
   def getLuceneHitFields(hit: SearchHit): Map[String, AnyRef] = {
@@ -140,7 +140,7 @@ object SolverUtils {
         (hitWordsSet.intersect(questionWords.toSet).nonEmpty
           && hitWordsSet.intersect(focusWords.toSet).nonEmpty)
       }
-      val elasticOutput = hits.sortBy(-_.score).map { h => getLuceneHitFields(h)("text").toString }.toSet
+      val elasticOutput = hits.sortBy(-_.score).map { h => getLuceneHitFields(h)("text").toString + "." }.toSet
 //      elasticWebredisCache.put(cacheKey, elasticOutput)
       elasticOutput
 //    }

@@ -98,10 +98,11 @@ function visualizationBratWithLog(solverLogJson){
         $("#brat-container").append('<svg width="100" height="100" id="brat-visualization"></svg>');
     }
     var text = solverLogJsonNew.overalString.replace(/\|/g, '\n') + "                                                               ";
-    var entities = solverLogJsonNew.entities;
+    var entities = solverLogJsonNew.entities; // .slice(0, 40);
     var relations = solverLogJsonNew.relations;
 
-    // console.log(entities);
+    console.log(entities);
+    console.log(solverLogJsonNew.entities.length);
     // console.log(relations);
 
     console.log("Applying the embed method ");

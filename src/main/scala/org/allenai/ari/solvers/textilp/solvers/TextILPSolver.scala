@@ -11,13 +11,24 @@ import org.allenai.ari.solvers.textilp.utils.AnnotationUtils
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
 
-class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
+object TextILPSolver {
   val epsilon = 0.001
+  val oneActiveSentenceConstraint = true
+
+  val scienceTermsBoost = false
+  val interSentenceAlignments = false
+  val stopWords = false
+  val essentialTerms = false
+  val minQuestionToParagraphAlignmentScore = 0.0
+  val minParagraphToQuestionAlignmentScore = 0.0
+  val minInterSentenceAlignmentScore = 0.0
+
 
   lazy val keywordTokenizer = KeywordTokenizer.Default
-  lazy val aligner = new AlignmentFunction("Entailment", 0.1, keywordTokenizer,
-    useRedisCache = false, useContextInRedisCache = false)
+  lazy val aligner = new AlignmentFunction("Entailment", 0.1, keywordTokenizer, useRedisCache = false, useContextInRedisCache = false)
+}
 
+class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
   def solve(question: String, options: Seq[String], snippet: String): (Seq[Int], EntityRelationResult) = {
     val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
 //    val ilpSolver = new IllinoisInference(new OJalgoHook)
@@ -34,7 +45,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
       annotationUtils.pipelineService.addView(pTA, ViewNames.SHALLOW_PARSE)
     }
     val p = Paragraph(snippet, Seq(q), Some(pTA))
-    createILPModel(q, p, ilpSolver, aligner)
+    createILPModel(q, p, ilpSolver, TextILPSolver.aligner)
   }
 
   def createILPModel[V <: IlpVar](
@@ -191,9 +202,10 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
 //        }
 //    }
 
-    val selectedIndex = activeAnswerOptions.zipWithIndex.collectFirst { case ((ans, x), idx) if ilpSolver.getSolVal(x) > 1.0 - epsilon => idx }.getOrElse(-1)
+    val selectedIndex = activeAnswerOptions.zipWithIndex.collectFirst { case ((ans, x), idx) if ilpSolver.getSolVal(x) > 1.0 - TextILPSolver.epsilon => idx }.getOrElse(-1)
 
-    val questionString = "Question: " + qTokens.map(_.getSurfaceForm).mkString(" ")
+    val questionBeginning = "Question: "
+    val questionString = questionBeginning + qTokens.map(_.getSurfaceForm).mkString(" ")
     val choiceString = "|Options: " + q.answers.zipWithIndex.map{case (ans, key) => s" (${key+1}) " + ans.answerText}.mkString(" ")
     val paragraphString = "|Paragraph: " + pTokens.map(_.getSurfaceForm).mkString(" ")
 
@@ -207,15 +219,15 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
 
     questionParagraphAlignments.foreach {
       case (c1, c2, x) =>
-        if (ilpSolver.getSolVal(x) > 1.0 - epsilon) {
-
-          val qBeginIndex = questionString.indexOf(c1.getSurfaceForm)
+        if (ilpSolver.getSolVal(x) > 1.0 - TextILPSolver.epsilon) {
+//          val qBeginIndex = questionString.indexOf(c1.getSurfaceForm)
+          val qBeginIndex = questionBeginning.length + c1.getStartCharOffset
           val qEndIndex = qBeginIndex + c1.getSurfaceForm.length
           val span1 = (qBeginIndex, qEndIndex)
           val t1 = if(!entityMap.contains(span1)) {
             val t1 = "T" + eIter
             eIter = eIter + 1
-            entities += Entity(t1, c1.getSurfaceForm, Seq(span1))
+            entities += Entity(t1, c1.getSurfaceForm.trim, Seq(span1))
             entityMap.put(span1, t1)
             t1
           }
@@ -223,13 +235,14 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
              entityMap(span1)
           }
 
-          val pBeginIndex = paragraphString.indexOf(c2.getSurfaceForm) + questionString.length
+//          val pBeginIndex = paragraphString.indexOf(c2.getSurfaceForm) + questionString.length
+          val pBeginIndex = c2.getStartCharOffset + questionString.length
           val pEndIndex = pBeginIndex + c2.getSurfaceForm.length
           val span2 = (pBeginIndex, pEndIndex)
           val t2 = if(!entityMap.contains(span2)) {
             val t2 = "T" + eIter
             eIter = eIter + 1
-            entities += Entity(t2, c2.getSurfaceForm, Seq(span2))
+            entities += Entity(t2, c2.getSurfaceForm.trim, Seq(span2))
             entityMap.put(span2, t2)
             t2
           }
@@ -238,7 +251,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
           }
 
           if(!relationSet.contains((t1, t2))) {
-            relations += Relation("R" + rIter, t1, t2)
+            relations += Relation("R" + rIter, t1, t2, ilpSolver.getVarObjCoeff(x))
             rIter = rIter + 1
             relationSet.add((t1, t2))
           }
@@ -256,13 +269,15 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
 
     paragraphAnswerAlignments.foreach {
       case (c1, c2, x) =>
-        if (ilpSolver.getSolVal(x) > 1.0 - epsilon) {
-          val pBeginIndex = paragraphString.indexOf(c1.getSurfaceForm) + questionString.length
+        if (ilpSolver.getSolVal(x) > 1.0 - TextILPSolver.epsilon) {
+//          val pBeginIndex = paragraphString.indexOf(c1.getSurfaceForm) + questionString.length
+//          val pEndIndex = pBeginIndex + c1.getSurfaceForm.length
+          val pBeginIndex = c1.getStartCharOffset + questionString.length
           val pEndIndex = pBeginIndex + c1.getSurfaceForm.length
           val span1 = (pBeginIndex, pEndIndex)
           val t1 = if(!entityMap.contains(span1)) {
             val t1 = "T" + eIter
-            entities += Entity(t1, c1.getSurfaceForm, Seq(span1))
+            entities += Entity(t1, c1.getSurfaceForm.trim, Seq(span1))
             entityMap.put(span1, t1)
             eIter = eIter + 1
             t1
@@ -275,7 +290,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
           val span2 = (oBeginIndex, oEndIndex)
           val t2 = if(!entityMap.contains(span2)) {
             val t2 = "T" + eIter
-            entities += Entity(t2, c2.answerText, Seq(span2))
+            entities += Entity(t2, c2.answerText.trim, Seq(span2))
             eIter = eIter + 1
             entityMap.put(span2, t2)
             t2
@@ -285,7 +300,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
           }
 
           if(!relationSet.contains((t1, t2))) {
-            relations += Relation("R" + rIter, t1, t2)
+            relations += Relation("R" + rIter, t1, t2, ilpSolver.getVarObjCoeff(x))
             rIter = rIter + 1
             relationSet.add((t1, t2))
           }
