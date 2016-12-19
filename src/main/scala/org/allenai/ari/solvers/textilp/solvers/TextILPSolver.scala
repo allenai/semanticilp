@@ -22,7 +22,29 @@ object TextILPSolver {
   val minQuestionToParagraphAlignmentScore = 0.0
   val minParagraphToQuestionAlignmentScore = 0.0
   val minInterSentenceAlignmentScore = 0.0
+  val activeSentenceAlignmentCoeff = -1.0 // penalizes extra sentence usage
+  val constituentAlignmentCoeff = -0.1
+  val activeScienceTermBoost = 1d
+  val minActiveParagraphConstituentAggrAlignment = 0.1
+  val minActiveQuestionConstituentAggrAlignment = 0.1
+  val minAlignmentWhichTerm = 0.6d
+  val minPConsToPConsAlignment = 0.6
+  val minPConsTQChoiceAlignment = 0.2
+  val whichTermAddBoost = 1.5d
+  val whichTermMulBoost = 1d
 
+  val essentialTermsMturkConfidenceThreshold = 0.9
+  val essentialClassifierConfidenceThreshold = 0.9
+  val essentialTermsFracToCover = 1.0 // a number in [0,1]
+  val essentialTermsSlack = 1 // a non-negative integer
+  val essentialTermWeightScale = 1.0
+  val essentialTermWeightBias = 0.0
+  val essentialTermMinimalSetThreshold = 0.8
+  val essentialTermMaximalSetThreshold = 0.2
+  val essentialTermMinimalSetTopK = 3
+  val essentialTermMaximalSetBottomK = 0
+  val essentialTermMinimalSetSlack = 1
+  val essentialTermMaximalSetSlack = 0
 
   lazy val keywordTokenizer = KeywordTokenizer.Default
   lazy val aligner = new AlignmentFunction("Entailment", 0.1, keywordTokenizer, useRedisCache = false, useContextInRedisCache = false)
@@ -205,9 +227,10 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
     val selectedIndex = activeAnswerOptions.zipWithIndex.collectFirst { case ((ans, x), idx) if ilpSolver.getSolVal(x) > 1.0 - TextILPSolver.epsilon => idx }.getOrElse(-1)
 
     val questionBeginning = "Question: "
-    val questionString = questionBeginning + qTokens.map(_.getSurfaceForm).mkString(" ")
+    val paragraphBeginning = "|Paragraph: "
+    val questionString = questionBeginning + q.questionText
     val choiceString = "|Options: " + q.answers.zipWithIndex.map{case (ans, key) => s" (${key+1}) " + ans.answerText}.mkString(" ")
-    val paragraphString = "|Paragraph: " + pTokens.map(_.getSurfaceForm).mkString(" ")
+    val paragraphString = paragraphBeginning + p.context
 
     val entities = ArrayBuffer[Entity]()
     val relations = ArrayBuffer[Relation]()
@@ -227,7 +250,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
           val t1 = if(!entityMap.contains(span1)) {
             val t1 = "T" + eIter
             eIter = eIter + 1
-            entities += Entity(t1, c1.getSurfaceForm.trim, Seq(span1))
+            entities += Entity(t1, c1.getSurfaceForm, Seq(span1))
             entityMap.put(span1, t1)
             t1
           }
@@ -236,13 +259,13 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
           }
 
 //          val pBeginIndex = paragraphString.indexOf(c2.getSurfaceForm) + questionString.length
-          val pBeginIndex = c2.getStartCharOffset + questionString.length
+          val pBeginIndex = c2.getStartCharOffset + questionString.length + paragraphBeginning.length
           val pEndIndex = pBeginIndex + c2.getSurfaceForm.length
           val span2 = (pBeginIndex, pEndIndex)
           val t2 = if(!entityMap.contains(span2)) {
             val t2 = "T" + eIter
             eIter = eIter + 1
-            entities += Entity(t2, c2.getSurfaceForm.trim, Seq(span2))
+            entities += Entity(t2, c2.getSurfaceForm, Seq(span2))
             entityMap.put(span2, t2)
             t2
           }
@@ -272,12 +295,12 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
         if (ilpSolver.getSolVal(x) > 1.0 - TextILPSolver.epsilon) {
 //          val pBeginIndex = paragraphString.indexOf(c1.getSurfaceForm) + questionString.length
 //          val pEndIndex = pBeginIndex + c1.getSurfaceForm.length
-          val pBeginIndex = c1.getStartCharOffset + questionString.length
+          val pBeginIndex = c1.getStartCharOffset + questionString.length + paragraphBeginning.length
           val pEndIndex = pBeginIndex + c1.getSurfaceForm.length
           val span1 = (pBeginIndex, pEndIndex)
           val t1 = if(!entityMap.contains(span1)) {
             val t1 = "T" + eIter
-            entities += Entity(t1, c1.getSurfaceForm.trim, Seq(span1))
+            entities += Entity(t1, c1.getSurfaceForm, Seq(span1))
             entityMap.put(span1, t1)
             eIter = eIter + 1
             t1
@@ -290,7 +313,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
           val span2 = (oBeginIndex, oEndIndex)
           val t2 = if(!entityMap.contains(span2)) {
             val t2 = "T" + eIter
-            entities += Entity(t2, c2.answerText.trim, Seq(span2))
+            entities += Entity(t2, c2.answerText, Seq(span2))
             eIter = eIter + 1
             entityMap.put(span2, t2)
             t2

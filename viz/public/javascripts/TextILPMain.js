@@ -72,6 +72,8 @@ Array.prototype.flatMap = function(lambda) {
 
 function visualizationBratWithLog(solverLogJson){
 
+    //var solverLogJson = {"overalString":"Question: A student tosses a ball into the air Which force causes the ball to fall back to the ground|Paragraph: Gravity is the force which makes a thrown ball fall back to the ground .. Gravity causes a ball to fall to the ground after it is thrown into the air.. Gravity causes the ball to fall back to earth ..|Options:  (1)  gravity    (2)   magnetism    (3)   mechanical    (4)   friction","entities":[["T0","tosses",[[20,26]]],["T1","is thrown",[[228,237]]],["T2","a ball",[[27,33]]],["T3","a ball",[[190,196]]],["T4","the air",[[39,46]]],["T5","the air..",[[243,252]]],["T6","Which force",[[48,59]]],["T7","Gravity",[[175,182]]],["T8","causes",[[183,189]]],["T9","causes",[[60,66]]],["T10","the ball",[[67,75]]],["T11","to fall",[[76,83]]],["T12","to fall",[[197,204]]],["T13","the ground",[[92,102]]],["T14","the ground",[[208,218]]],["T15","gravity",[[328,338]]]],"relations":[["R0"," 0.02 ",[["  ","T0"],["  ","T1"]]],["R1"," 0.9 ",[["  ","T2"],["  ","T3"]]],["R2"," 0.9 ",[["  ","T4"],["  ","T5"]]],["R3"," 0.15 ",[["  ","T6"],["  ","T7"]]],["R4"," 0.04 ",[["  ","T6"],["  ","T8"]]],["R5"," 0.9 ",[["  ","T9"],["  ","T8"]]],["R6"," 0.9 ",[["  ","T10"],["  ","T3"]]],["R7"," 0.9 ",[["  ","T11"],["  ","T12"]]],["R8"," 0.9 ",[["  ","T13"],["  ","T14"]]],["R9"," 0.9 ",[["  ","T7"],["  ","T15"]]]],"explanation":""};
+
     // I don't know why we sometimes have new lines in the strings ugh
     solverLogJsonNew = JSON.parse(JSON.stringify(solverLogJson).replace(/\\n/, " "));
 
@@ -97,10 +99,12 @@ function visualizationBratWithLog(solverLogJson){
     if($('#brat-visualization').length == 0) {
         $("#brat-container").append('<svg width="100" height="100" id="brat-visualization"></svg>');
     }
-    var text = solverLogJsonNew.overalString.replace(/\|/g, '\n') + "                                                               ";
+    var text = solverLogJsonNew.overalString.replace(/\|/g, "\n") + "                                                               ";
     var entities = solverLogJsonNew.entities; // .slice(0, 40);
     var relations = solverLogJsonNew.relations;
 
+
+    console.log(text);
     console.log(entities);
     console.log(solverLogJsonNew.entities.length);
     // console.log(relations);
