@@ -211,6 +211,7 @@ object SolverUtils {
   val publicTest = loadQuestions("Public-Feb2016-Elementary-NDMC-Test.tsv")
   val publicDev = loadQuestions("Public-Feb2016-Elementary-NDMC-Dev.tsv")
   val regentsTrain = loadQuestions("Regents-Gr04-NDMC-Train.tsv")
+  val small = loadQuestions("small.tsv")
 
   def loadQuestions(fileName: String): Seq[(String, Seq[String], String)] = {
     Source.fromFile(new File("other/questionSets/" + fileName)).getLines().toList.map{ line =>
@@ -223,8 +224,13 @@ object SolverUtils {
   }
 
   def assignCredit(predict: Seq[Int], gold: Int, maxOpts: Int): Double = {
-    if(predict.contains(gold)) {
+    println("predict: " + predict + " / gold: " + gold)
+    require(!(predict.contains(-1) && predict.length > 1))
+    if(predict.contains(-1)) { // no answer; give partial credits
       1 / maxOpts.toDouble
+    }
+    else if(predict.contains(gold)) {
+      1 / predict.length.toDouble
     }
     else {
       0.0

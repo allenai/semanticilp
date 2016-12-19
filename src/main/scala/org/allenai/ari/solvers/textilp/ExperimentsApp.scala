@@ -141,7 +141,7 @@ object ExperimentsApp {
       println("solving it . . . ")
       val (selected, _) = textILPSolver.solve(question, options, knowledgeSnippet)
       val score = SolverUtils.assignCredit(selected, correct.head - 'A', options.length)
-      println("Question: " + question + " / options: " + options  +  "   / selected: " + selected)
+      println("Question: " + question + " / options: " + options  +  "   / selected: " + selected  + " / score: " + score)
       score
     }
     println("Average score: " + perQuestionScore.sum / perQuestionScore.size)
