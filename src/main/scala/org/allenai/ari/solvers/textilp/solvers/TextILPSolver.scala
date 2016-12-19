@@ -230,6 +230,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
       activeAnswerOptions.zipWithIndex.collect { case ((ans, x), idx) if ilpSolver.getSolVal(x) > 1.0 - TextILPSolver.epsilon => idx }
     }
     else {
+      // if the program is not solver, say IDK
       Seq.empty
     }
 

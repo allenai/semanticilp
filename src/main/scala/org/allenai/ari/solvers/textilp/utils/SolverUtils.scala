@@ -101,7 +101,13 @@ object SolverUtils {
   }
 
   def extractPatagraphGivenQuestionAndFocusSet3(question: String, focusSet: Seq[String], topK: Int): Seq[String] = {
-    focusSet.flatMap(f => extractParagraphGivenQuestionAndFocusWord3(question, f, 200)).sortBy(-_._2).take(topK).map{_._1}
+    val sortedSet = focusSet.flatMap(f => extractParagraphGivenQuestionAndFocusWord3(question, f, 200)).sortBy(-_._2)
+    (if(sortedSet.size > topK) {
+      sortedSet.take(topK)
+    }
+    else {
+      sortedSet
+    }).map{_._1}
   }
 
   def getLuceneHitFields(hit: SearchHit): Map[String, AnyRef] = {
