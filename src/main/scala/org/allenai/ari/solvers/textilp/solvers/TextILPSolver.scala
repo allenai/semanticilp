@@ -5,6 +5,7 @@ import edu.illinois.cs.cogcomp.core.datastructures.textannotation.Constituent
 import edu.illinois.cs.cogcomp.infer.ilp.OJalgoHook
 import org.allenai.ari.solvers.textilp.alignment.{AlignmentFunction, KeywordTokenizer}
 import org.allenai.ari.solvers.textilp._
+import org.allenai.ari.solvers.textilp.ilpsolver.IlpStatus.IlpStatusOptimal
 import org.allenai.ari.solvers.textilp.ilpsolver._
 import org.allenai.ari.solvers.textilp.utils.AnnotationUtils
 
@@ -224,7 +225,12 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
 //        }
 //    }
 
-    val selectedIndex = activeAnswerOptions.zipWithIndex.collectFirst { case ((ans, x), idx) if ilpSolver.getSolVal(x) > 1.0 - TextILPSolver.epsilon => idx }.getOrElse(-1)
+    val selectedIndex = if(ilpSolver.getStatus == IlpStatusOptimal) {
+      activeAnswerOptions.zipWithIndex.collect { case ((ans, x), idx) if ilpSolver.getSolVal(x) > 1.0 - TextILPSolver.epsilon => idx }
+    }
+    else {
+      Seq.empty
+    }
 
     val questionBeginning = "Question: "
     val paragraphBeginning = "|Paragraph: "
@@ -340,6 +346,6 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
 
     val erView = EntityRelationResult(questionString + paragraphString + choiceString, entities, relations)
 
-    Seq(selectedIndex) -> erView
+    selectedIndex -> erView
   }
 }

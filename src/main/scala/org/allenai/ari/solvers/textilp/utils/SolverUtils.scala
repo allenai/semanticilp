@@ -226,7 +226,7 @@ object SolverUtils {
   def assignCredit(predict: Seq[Int], gold: Int, maxOpts: Int): Double = {
     println("predict: " + predict + " / gold: " + gold)
     require(!(predict.contains(-1) && predict.length > 1))
-    if(predict.contains(-1)) { // no answer; give partial credits
+    if(predict.contains(-1) || predict.isEmpty) { // no answer; give partial credits
       1 / maxOpts.toDouble
     }
     else if(predict.contains(gold)) {
