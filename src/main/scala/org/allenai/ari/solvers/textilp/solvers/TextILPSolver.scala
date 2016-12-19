@@ -2,7 +2,7 @@ package org.allenai.ari.solvers.textilp.solvers
 
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.Constituent
-import edu.illinois.cs.cogcomp.infer.ilp.OJalgoHook
+import edu.illinois.cs.cogcomp.infer.ilp.{GurobiHook, OJalgoHook}
 import org.allenai.ari.solvers.textilp.alignment.{AlignmentFunction, KeywordTokenizer}
 import org.allenai.ari.solvers.textilp._
 import org.allenai.ari.solvers.textilp.ilpsolver.IlpStatus.IlpStatusOptimal
@@ -55,6 +55,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
   def solve(question: String, options: Seq[String], snippet: String): (Seq[Int], EntityRelationResult) = {
     val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
 //    val ilpSolver = new IllinoisInference(new OJalgoHook)
+//    val ilpSolver = new IllinoisInference(new GurobiHook)
     val answers = options.map(o => Answer(o, -1))
 //    println("Tokenizing question .... ")
     val qTA = annotationUtils.pipelineService.createBasicTextAnnotation("", "", question)

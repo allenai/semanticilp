@@ -9,6 +9,7 @@ val cogcompNLPVersion = "3.0.87"
 val ccgGroupId = "edu.illinois.cs.cogcomp"
 
 lazy val commonSettings = Seq(
+  organization := ccgGroupId,
   version := "1.0",
   scalaVersion := "2.11.8",
   javaOptions ++= Seq("-Xmx20G"),
@@ -33,9 +34,22 @@ val sprayVersion = "1.3.3"
 def sprayModule(id: String): ModuleID = "io.spray" %% s"spray-$id" % sprayVersion
 val sprayClient = sprayModule("client")
 
+lazy val envUser = System.getenv("COGCOMP_USER")
+lazy val user = if (envUser == null) System.getProperty("user.name") else envUser
+lazy val keyFile = new java.io.File(Path.userHome.absolutePath + "/.ssh/id_rsa")
+
+lazy val publishSettings = Seq(
+  publishTo := Some(
+    Resolver.ssh(
+      "CogcompSoftwareRepo", "bilbo.cs.illinois.edu",
+      "/mounts/bilbo/disks/0/www/cogcomp/html/m2repo/") as (user, keyFile)
+  )
+)
+
 lazy val root = (project in file(".")).
   //enablePlugins(StylePlugin).
   settings(commonSettings: _*).
+  settings(publishSettings: _*).
   settings(
     name := "text-ilp",
     libraryDependencies ++= Seq(
