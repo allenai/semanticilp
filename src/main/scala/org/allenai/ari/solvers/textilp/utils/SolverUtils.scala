@@ -14,10 +14,12 @@ import org.elasticsearch.common.settings.Settings
 import org.elasticsearch.common.transport.InetSocketTransportAddress
 import org.elasticsearch.index.query.QueryBuilders
 import org.elasticsearch.search.SearchHit
-import play.api.libs.json.{JsArray, JsNumber, Json}
+import play.api.libs.json._
 import redis.clients.jedis.Protocol
 
 import scala.collection.JavaConverters._
+import spray.json.DefaultJsonProtocol._
+
 import scala.io.Source
 
 object SolverUtils {
@@ -94,19 +96,12 @@ object SolverUtils {
     clientBuilder.build().addTransportAddress(address)
   }
 
-//  lazy val elasticWebredisCache = if (Constants.useRedisCachingForAnnotation) {
-//    JsonQueryCache[Set[String]]("elastic:", "localhost", Protocol.DEFAULT_PORT, Protocol.DEFAULT_TIMEOUT)
-//  } else {
-//    // use the dummy client, which always returns None for any query (and not using any Redis)
-//    DummyRedisClient
-//  }
-
   def extractPatagraphGivenQuestionAndFocusSet(question: String, focusSet: Seq[String], topK: Int): Seq[String] = {
     focusSet.flatMap(f => extractParagraphGivenQuestionAndFocusWord(question, f, 200))
   }
 
   def extractPatagraphGivenQuestionAndFocusSet3(question: String, focusSet: Seq[String], topK: Int): Seq[String] = {
-    focusSet.flatMap(f => extractParagraphGivenQuestionAndFocusWord3(question, f)).sortBy(-_.score).take(topK).map{h: SearchHit => getLuceneHitFields(h)("text").toString }
+    focusSet.flatMap(f => extractParagraphGivenQuestionAndFocusWord3(question, f, 200)).sortBy(-_._2).take(topK).map{_._1}
   }
 
   def getLuceneHitFields(hit: SearchHit): Map[String, AnyRef] = {
@@ -114,99 +109,77 @@ object SolverUtils {
   }
 
   def extractParagraphGivenQuestionAndFocusWord(question: String, focus: String, topK: Int): Set[String] = {
-//    val cacheKey = "elasticWebParagraph:" + question + "////focus:" + focus + "///topK:" + topK
-//    val cacheOutput = if(Constants.useRedisCachingForAnnotation) {
-//      elasticWebredisCache.get(cacheKey).asInstanceOf[Option[Set[String]]]
-//    }
-//    else {
-//      None
-//    }
-//    if(cacheOutput.isEmpty) {
-      val questionWords = KeywordTokenizer.Default.stemmedKeywordTokenize(question)
-      val focusWords = KeywordTokenizer.Default.stemmedKeywordTokenize(focus)
-
-      val searchStr = s"$question $focus"
-      val response = esClient.prepareSearch(Constants.indexNames.keys.toSeq: _*)
-        // NOTE: DFS_QUERY_THEN_FETCH guarantees that multi-index queries return accurate scoring
-        // results, do not modify
-        .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-        .setQuery(QueryBuilders.matchQuery("text", searchStr))
-        .setFrom(0).setSize(topK).setExplain(true)
-        .execute()
-        .actionGet()
-      // Filter hits that don't overlap with both question and focus words.
-      val hits = response.getHits.getHits.filter { x =>
-        val hitWordsSet = KeywordTokenizer.Default.stemmedKeywordTokenize(x.sourceAsString).toSet
-        (hitWordsSet.intersect(questionWords.toSet).nonEmpty
-          && hitWordsSet.intersect(focusWords.toSet).nonEmpty)
-      }
-      val elasticOutput = hits.sortBy(-_.score).map { h => getLuceneHitFields(h)("text").toString + "." }.toSet
-//      elasticWebredisCache.put(cacheKey, elasticOutput)
-      elasticOutput
-//    }
-//    else {
-//      cacheOutput.get
-//    }
+    val hits = extractParagraphGivenQuestionAndFocusWord3(question, focus, topK)
+    hits.sortBy(-_._2).map { _._1 }.toSet
   }
 
   def extractParagraphGivenQuestionAndFocusWord2(question: String, focus: String, topK: Int): Set[String] = {
-    val questionWords = KeywordTokenizer.Default.stemmedKeywordTokenize(question)
-    val focusWords = KeywordTokenizer.Default.stemmedKeywordTokenize(focus)
-    val searchStr = s"$question $focus"
-    val response = esClient.prepareSearch(Constants.indexNames.keys.toSeq: _*)
-      // NOTE: DFS_QUERY_THEN_FETCH guarantees that multi-index queries return accurate scoring
-      // results, do not modify
-      .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-      .setQuery(QueryBuilders.matchQuery("text", searchStr))
-      .setFrom(0).setSize(200).setExplain(true)
-      .execute()
-      .actionGet()
-    // Filter hits that don't overlap with both question and focus words.
-    val hits = response.getHits.getHits.filter { x =>
-      val hitWordsSet = KeywordTokenizer.Default.stemmedKeywordTokenize(x.sourceAsString).toSet
-      (hitWordsSet.intersect(questionWords.toSet).nonEmpty
-        && hitWordsSet.intersect(focusWords.toSet).nonEmpty)
-    }
-    def getLuceneHitFields(hit: SearchHit): Map[String, AnyRef] = {
-      hit.sourceAsMap().asScala.toMap
-    }
-
-    val sortedHits = hits.sortBy(-_.score)
+    val hits = extractParagraphGivenQuestionAndFocusWord3(question, focus, 200)
+    val sortedHits = hits.sortBy(-_._2)
     val selectedOutput = if(sortedHits.length > topK) {
       sortedHits.slice(0, topK)
     }
     else {
       sortedHits
     }
-    selectedOutput.map { h => getLuceneHitFields(h)("text").toString }.toSet
+    selectedOutput.map {_._1}.toSet
   }
 
-  def extractParagraphGivenQuestionAndFocusWord3(question: String, focus: String): Array[SearchHit] = {
-    val questionWords = KeywordTokenizer.Default.stemmedKeywordTokenize(question)
-    val focusWords = KeywordTokenizer.Default.stemmedKeywordTokenize(focus)
-    val searchStr = s"$question $focus"
-    val response = esClient.prepareSearch(Constants.indexNames.keys.toSeq: _*)
-      // NOTE: DFS_QUERY_THEN_FETCH guarantees that multi-index queries return accurate scoring
-      // results, do not modify
-      .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-      .setQuery(QueryBuilders.matchQuery("text", searchStr))
-      .setFrom(0).setSize(200).setExplain(true)
-      .execute()
-      .actionGet()
-    // Filter hits that don't overlap with both question and focus words.
-    def getLuceneHitFields(hit: SearchHit): Map[String, AnyRef] = {
-      hit.sourceAsMap().asScala.toMap
+  lazy val elasticWebredisCache = if (Constants.useRedisCachingForElasticSearch) {
+    JsonQueryCache[String]("elastic:", "localhost", Protocol.DEFAULT_PORT, Protocol.DEFAULT_TIMEOUT)
+  } else {
+    // use the dummy client, which always returns None for any query (and not using any Redis)
+    DummyRedisClient
+  }
+
+  def extractParagraphGivenQuestionAndFocusWord3(question: String, focus: String, searchHitSize: Int): Seq[(String, Double)] = {
+    val cacheKey = "elasticWebParagraph:" + question + "//focus:" + focus + "//topK:" + searchHitSize
+    val cacheResult = if(Constants.useRedisCachingForAnnotation) {
+      elasticWebredisCache.get(cacheKey)
     }
-    response.getHits.getHits.filter { x =>
-      val hitWordsSet = KeywordTokenizer.Default.stemmedKeywordTokenize(x.sourceAsString).toSet
-      (hitWordsSet.intersect(questionWords.toSet).nonEmpty
-        && hitWordsSet.intersect(focusWords.toSet).nonEmpty)
+    else {
+      None
+    }
+    if (cacheResult.isEmpty) {
+      val questionWords = KeywordTokenizer.Default.stemmedKeywordTokenize(question)
+      val focusWords = KeywordTokenizer.Default.stemmedKeywordTokenize(focus)
+      val searchStr = s"$question $focus"
+      val response = esClient.prepareSearch(Constants.indexNames.keys.toSeq: _*)
+        // NOTE: DFS_QUERY_THEN_FETCH guarantees that multi-index queries return accurate scoring
+        // results, do not modify
+        .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+        .setQuery(QueryBuilders.matchQuery("text", searchStr))
+        .setFrom(0).setSize(searchHitSize).setExplain(true)
+        .execute()
+        .actionGet()
+      // Filter hits that don't overlap with both question and focus words.
+      def getLuceneHitFields(hit: SearchHit): Map[String, AnyRef] = {
+        hit.sourceAsMap().asScala.toMap
+      }
+      val hits = response.getHits.getHits.filter { x =>
+        val hitWordsSet = KeywordTokenizer.Default.stemmedKeywordTokenize(x.sourceAsString).toSet
+        (hitWordsSet.intersect(questionWords.toSet).nonEmpty
+          && hitWordsSet.intersect(focusWords.toSet).nonEmpty)
+      }
+      val results = hits.map{h: SearchHit => getLuceneHitFields(h)("text").toString -> h.score().toDouble }
+      val cacheValue = JsArray(results.map{ case (key, value) =>  JsArray(Seq(JsString(key), JsNumber(value)))})
+      elasticWebredisCache.put(cacheKey, cacheValue.toString())
+      results
+    } else {
+      val jsonString = cacheResult.get
+      val json = Json.parse(jsonString)
+      json.as[JsArray].value.map{resultTuple =>
+        val tupleValues = resultTuple.as[JsArray]
+        val key = tupleValues.head.as[JsString].value
+        val score = tupleValues(1).as[JsNumber].value
+        key -> score.toDouble
+      }
     }
   }
 
   val omnibusTrain = loadQuestions("Omnibus-Gr04-NDMC-Train.tsv")
   val omnibusTest = loadQuestions("Omnibus-Gr04-NDMC-Test.tsv")
-  val omnibusDev = loadQuestions("Omnibus-Gr04-NDMC-Dev.tsv")
+  val omnibusDev: Seq[(String, Seq[String], String)] = loadQuestions("Omnibus-Gr04-NDMC-Dev.tsv")
   val publicTrain = loadQuestions("Public-Feb2016-Elementary-NDMC-Train.tsv")
   val publicTest = loadQuestions("Public-Feb2016-Elementary-NDMC-Test.tsv")
   val publicDev = loadQuestions("Public-Feb2016-Elementary-NDMC-Dev.tsv")

@@ -130,18 +130,18 @@ object ExperimentsApp {
     SolverUtils.evaluateASingleQuestion("Which two observations are both used to describe weather? (A) like (B) the difference (C) events (D) temperature and sky condition", "tableilp")
   }
 
-  def evaluateTextilpOnRegents() = {
+  def evaluateTextilpOnRegents(dataset: Seq[(String, Seq[String], String)]) = {
     SolverUtils.printMemoryDetails()
     println("Starting the evaluation . . . ")
-    val perQuestionScore = SolverUtils.regentsTrain.map{ case (question, options, correct) =>
-      println("collecting knolwdge . . . ")
+    val perQuestionScore = dataset.map{ case (question, options, correct) =>
+      //println("collecting knolwdge . . . ")
 //      val knowledgeSnippet = options.flatMap(focus => SolverUtils.extractParagraphGivenQuestionAndFocusWord(question, focus, 3)).mkString(" ")
 //      val knowledgeSnippet = options.flatMap(focus => SolverUtils.extractParagraphGivenQuestionAndFocusWord2(question, focus, 3)).mkString(" ")
       val knowledgeSnippet = SolverUtils.extractPatagraphGivenQuestionAndFocusSet3(question, options, 8).mkString(" ")
-      println("solving it . . . ")
+      //println("solving it . . . ")
       val (selected, _) = textILPSolver.solve(question, options, knowledgeSnippet)
       val score = SolverUtils.assignCredit(selected, correct.head - 'A', options.length)
-      println("Question: " + question + " / options: " + options  +  "   / selected: " + selected  + " / score: " + score)
+      //println("Question: " + question + " / options: " + options  +  "   / selected: " + selected  + " / score: " + score)
       score
     }
     println("Average score: " + perQuestionScore.sum / perQuestionScore.size)
@@ -180,7 +180,15 @@ object ExperimentsApp {
       case 8 => testElasticSearchSnippetExtraction()
       case 9 => testTheDatastes()
       case 10 => evaluateSalienceOnRegents()
-      case 11 => evaluateTextilpOnRegents()
+      case 11 =>
+        evaluateTextilpOnRegents(SolverUtils.publicTrain)
+        println("==== public train ")
+        evaluateTextilpOnRegents(SolverUtils.publicDev)
+        println("==== public dev ")
+        evaluateTextilpOnRegents(SolverUtils.publicTest)
+        println("==== public test ")
+        evaluateTextilpOnRegents(SolverUtils.regentsTrain)
+        println("==== regents train  ")
       case 12 => extractKnowledgeSnippet()
     }
   }
