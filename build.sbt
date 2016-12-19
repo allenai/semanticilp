@@ -69,8 +69,8 @@ lazy val root = (project in file(".")).
     resolvers ++= Seq(
 //      "Artima Maven Repository" at "http://repo.artima.com/releases"
 //      Resolver.mavenLocal,
-//      Resolvers.ai2PublicReleases,
-//      Resolvers.ai2PrivateReleases,
+      Resolver.bintrayRepo("allenai", "maven"),
+      Resolver.bintrayRepo("allenai", "private"),
       "CogcompSoftware" at "http://cogcomp.cs.illinois.edu/m2repo/"
     )
   )
