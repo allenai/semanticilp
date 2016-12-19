@@ -83,8 +83,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
 
     require(q.qTAOpt.isDefined, "the annotatins for the question is not defined")
     require(p.contextTAOpt.isDefined, "the annotatins for the paragraph is not defined")
-    val qTA = q.qTAOpt.get
-    val pTA = p.contextTAOpt.get
+    val qTA = q.qTAOpt.getOrElse(throw new Exception("The annotation for the question not found . . . "))
+    val pTA = p.contextTAOpt.getOrElse(throw new Exception("The annotation for the paragraph not found . . . "))
     val qTokens = if(qTA.hasView(ViewNames.SHALLOW_PARSE)) qTA.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala else Seq.empty
     val pTokens = if(pTA.hasView(ViewNames.SHALLOW_PARSE)) pTA.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala else Seq.empty
 
