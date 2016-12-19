@@ -141,7 +141,7 @@ object ExperimentsApp {
       //println("solving it . . . ")
       val (selected, _) = textILPSolver.solve(question, options, knowledgeSnippet)
       val score = SolverUtils.assignCredit(selected, correct.head - 'A', options.length)
-      //println("Question: " + question + " / options: " + options  +  "   / selected: " + selected  + " / score: " + score)
+      println("Question: " + question + " / options: " + options  +  "   / selected: " + selected  + " / score: " + score)
       score
     }
     println("Average score: " + perQuestionScore.sum / perQuestionScore.size)
@@ -181,14 +181,14 @@ object ExperimentsApp {
       case 9 => testTheDatastes()
       case 10 => evaluateSalienceOnRegents()
       case 11 =>
-//        evaluateTextilpOnRegents(SolverUtils.publicTrain)
-//        println("==== public train ")
-//        evaluateTextilpOnRegents(SolverUtils.publicDev)
-//        println("==== public dev ")
-//        evaluateTextilpOnRegents(SolverUtils.publicTest)
-//        println("==== public test ")
-        evaluateTextilpOnRegents(SolverUtils.regentsTrain)
-        println("==== regents train  ")
+        evaluateTextilpOnRegents(SolverUtils.publicTrain)
+        println("==== public train ")
+        evaluateTextilpOnRegents(SolverUtils.publicDev)
+        println("==== public dev ")
+        evaluateTextilpOnRegents(SolverUtils.publicTest)
+        println("==== public test ")
+//        evaluateTextilpOnRegents(SolverUtils.regentsTrain)
+//        println("==== regents train  ")
       case 12 => extractKnowledgeSnippet()
     }
   }
