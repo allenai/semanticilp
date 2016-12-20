@@ -10,7 +10,7 @@ val ccgGroupId = "edu.illinois.cs.cogcomp"
 
 lazy val commonSettings = Seq(
   organization := ccgGroupId,
-  version := "1.2",
+  version := "1.3",
   scalaVersion := "2.11.8",
   javaOptions ++= Seq("-Xmx20G"),
   // Make sure SCIP libraries are locatable.
@@ -24,9 +24,10 @@ lazy val commonSettings = Seq(
 )
 
 // TODO(danm): This is used enough projects to be in allenai/sbt-plugins CoreDependencies.
-def nlpstack(component: String) = ("org.allenai.nlpstack" %% s"nlpstack-$component" % "1.6") // exclude("org.slf4j", "log4j-over-slf4j")
+def nlpstack(component: String) = ("org.allenai.nlpstack" %% s"nlpstack-$component" % "1.17") // exclude("org.slf4j", "log4j-over-slf4j")
   .exclude("commons-logging", "commons-logging")
   .exclude("edu.stanford.nlp", "stanford-corenlp")
+  .exclude("org.slf4j", "log4j-over-slf4j")
 
 def textualEntailment(component: String) = ("org.allenai.textual-entailment" %% component % "1.0.6-SNAPSHOT")
     .exclude("org.slf4j", "log4j-over-slf4j")
@@ -59,7 +60,6 @@ lazy val root = (project in file(".")).
     libraryDependencies ++= Seq(
       textualEntailment("interface"),
       textualEntailment("service"),
-      //  allenAiCommon,
       //  allenAiTestkit % "test",
       "org.allenai.common" %% "common-core" % "1.4.6",
       "org.allenai.common" %% "common-cache" % "1.4.6",
