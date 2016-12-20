@@ -10,7 +10,7 @@ val ccgGroupId = "edu.illinois.cs.cogcomp"
 
 lazy val commonSettings = Seq(
   organization := ccgGroupId,
-  version := "1.0",
+  version := "1.2",
   scalaVersion := "2.11.8",
   javaOptions ++= Seq("-Xmx20G"),
   // Make sure SCIP libraries are locatable.
@@ -26,9 +26,13 @@ lazy val commonSettings = Seq(
 // TODO(danm): This is used enough projects to be in allenai/sbt-plugins CoreDependencies.
 def nlpstack(component: String) = ("org.allenai.nlpstack" %% s"nlpstack-$component" % "1.6") // exclude("org.slf4j", "log4j-over-slf4j")
   .exclude("commons-logging", "commons-logging")
+  .exclude("edu.stanford.nlp", "stanford-corenlp")
 
-def textualEntailment(component: String) =
-  "org.allenai.textual-entailment" %% component % "1.0.6-SNAPSHOT"
+def textualEntailment(component: String) = ("org.allenai.textual-entailment" %% component % "1.0.6-SNAPSHOT")
+    .exclude("org.slf4j", "log4j-over-slf4j")
+    .exclude("edu.stanford.nlp", "stanford-corenlp")
+
+def ccgLib(component: String) = (ccgGroupId % component % cogcompNLPVersion withSources)
 
 val sprayVersion = "1.3.3"
 def sprayModule(id: String): ModuleID = "io.spray" %% s"spray-$id" % sprayVersion
@@ -53,10 +57,11 @@ lazy val root = (project in file(".")).
   settings(
     name := "text-ilp",
     libraryDependencies ++= Seq(
-      textualEntailment("interface") exclude("org.slf4j", "log4j-over-slf4j") exclude("edu.stanford.nlp", "stanford-corenlp"),
-      textualEntailment("service") exclude("org.slf4j", "log4j-over-slf4j") exclude("edu.stanford.nlp", "stanford-corenlp"),
+      textualEntailment("interface"),
+      textualEntailment("service"),
       //  allenAiCommon,
       //  allenAiTestkit % "test",
+      "org.allenai.common" %% "common-core" % "1.4.6",
       "org.allenai.common" %% "common-cache" % "1.4.6",
       "commons-io" % "commons-io" % "2.4",
       "net.sf.opencsv" % "opencsv" % "2.1",
@@ -65,17 +70,17 @@ lazy val root = (project in file(".")).
       "com.google.inject" % "guice" % "4.0",
       "net.debasishg" %% "redisclient" % "3.0",
       "com.medallia.word2vec" % "Word2VecJava" % "0.10.3",
-      ccgGroupId % "illinois-core-utilities" % cogcompNLPVersion withSources,
-      ccgGroupId % "illinois-inference" % cogcompNLPVersion withSources,
-      ccgGroupId % "illinois-nlp-pipeline" % cogcompNLPVersion withSources,
+      ccgLib("illinois-core-utilities"),
+      ccgLib("illinois-inference"),
+      ccgLib("illinois-nlp-pipeline"),
       ccgGroupId % "illinois-quantifier" % "2.0.10" withSources,
       ccgGroupId % "saul-examples_2.11" % "0.5.5",
       ccgGroupId % "scip-jni" % "3.1.1",
-      nlpstack("chunk") exclude("edu.stanford.nlp", "stanford-corenlp"),
-      nlpstack("lemmatize") exclude("edu.stanford.nlp", "stanford-corenlp"),
-      nlpstack("tokenize") exclude("edu.stanford.nlp", "stanford-corenlp"),
-      nlpstack("postag") exclude("edu.stanford.nlp", "stanford-corenlp"),
-      nlpstack("core") exclude("edu.stanford.nlp", "stanford-corenlp"),
+      nlpstack("chunk") ,
+      nlpstack("lemmatize"),
+      nlpstack("tokenize"),
+      nlpstack("postag"),
+      nlpstack("core"),
       sprayClient,
       "org.scalatest" % "scalatest_2.11" % "2.2.4",
       "org.elasticsearch" % "elasticsearch" % "2.4.1"

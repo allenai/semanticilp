@@ -183,14 +183,14 @@ object SolverUtils {
     }
   }
 
-  val omnibusTrain = loadQuestions("Omnibus-Gr04-NDMC-Train.tsv")
-  val omnibusTest = loadQuestions("Omnibus-Gr04-NDMC-Test.tsv")
-  val omnibusDev: Seq[(String, Seq[String], String)] = loadQuestions("Omnibus-Gr04-NDMC-Dev.tsv")
-  val publicTrain = loadQuestions("Public-Feb2016-Elementary-NDMC-Train.tsv")
-  val publicTest = loadQuestions("Public-Feb2016-Elementary-NDMC-Test.tsv")
-  val publicDev = loadQuestions("Public-Feb2016-Elementary-NDMC-Dev.tsv")
-  val regentsTrain = loadQuestions("Regents-Gr04-NDMC-Train.tsv")
-  val small = loadQuestions("small.tsv")
+  lazy val omnibusTrain = loadQuestions("Omnibus-Gr04-NDMC-Train.tsv")
+  lazy val omnibusTest = loadQuestions("Omnibus-Gr04-NDMC-Test.tsv")
+  lazy val omnibusDev: Seq[(String, Seq[String], String)] = loadQuestions("Omnibus-Gr04-NDMC-Dev.tsv")
+  lazy val publicTrain = loadQuestions("Public-Feb2016-Elementary-NDMC-Train2.tsv")
+  lazy val publicTest = loadQuestions("Public-Feb2016-Elementary-NDMC-Test.tsv")
+  lazy val publicDev = loadQuestions("Public-Feb2016-Elementary-NDMC-Dev.tsv")
+  lazy val regentsTrain = loadQuestions("Regents-Gr04-NDMC-Train.tsv")
+  lazy val small = loadQuestions("small.tsv")
 
   def loadQuestions(fileName: String): Seq[(String, Seq[String], String)] = {
     Source.fromFile(new File("other/questionSets/" + fileName)).getLines().toList.map{ line =>
