@@ -1,6 +1,5 @@
 package org.allenai.ari.solvers.textilp.ilpsolver
 
-import org.allenai.ari.solvers.textilp.ilpsolver.IlpStatus._
 import org.allenai.common.Logging
 
 import de.zib.jscip.nativ.jni._

@@ -1,16 +1,11 @@
 package org.allenai.ari.solvers.textilp.ilpsolver
 
-import org.allenai.common.{ Enum, EnumCompanion }
-
 /** Various relevant status values after an ILP is solved */
-sealed abstract class IlpStatus(override val id: String) extends Enum[IlpStatus]("0")
-object IlpStatus extends EnumCompanion[IlpStatus] {
-  case object IlpStatusUnknown extends IlpStatus("Unknown")
-  case object IlpStatusOptimal extends IlpStatus("Optimal")
-  case object IlpStatusFeasible extends IlpStatus("Feasible")
-  case object IlpStatusInfeasible extends IlpStatus("Infeasible")
-  register(IlpStatusUnknown, IlpStatusOptimal, IlpStatusFeasible, IlpStatusInfeasible)
-}
+sealed abstract class IlpStatus(val id: String)
+case object IlpStatusUnknown extends IlpStatus("Unknown")
+case object IlpStatusOptimal extends IlpStatus("Optimal")
+case object IlpStatusFeasible extends IlpStatus("Feasible")
+case object IlpStatusInfeasible extends IlpStatus("Infeasible")
 
 /** A trait for ILP variable type. */
 trait IlpVar {}

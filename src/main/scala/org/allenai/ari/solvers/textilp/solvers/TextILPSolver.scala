@@ -5,7 +5,6 @@ import edu.illinois.cs.cogcomp.core.datastructures.textannotation.Constituent
 import edu.illinois.cs.cogcomp.infer.ilp.{GurobiHook, OJalgoHook}
 import org.allenai.ari.solvers.textilp.alignment.{AlignmentFunction, KeywordTokenizer}
 import org.allenai.ari.solvers.textilp._
-import org.allenai.ari.solvers.textilp.ilpsolver.IlpStatus.IlpStatusOptimal
 import org.allenai.ari.solvers.textilp.ilpsolver._
 import org.allenai.ari.solvers.textilp.utils.AnnotationUtils
 
