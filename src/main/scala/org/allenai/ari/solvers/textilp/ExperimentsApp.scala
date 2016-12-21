@@ -155,6 +155,26 @@ object ExperimentsApp {
 
   }
 
+  def evaluateTextilpOnSquad(reader: SQuADReader) = {
+    SolverUtils.printMemoryDetails()
+    val (exactMatch, f1, total) = reader.instances.slice(0, 5).zipWithIndex.flatMap {
+      case (ins, idx) =>
+        println("Idx: " + idx + " / ratio: " + idx * 1.0 / reader.instances.size)
+        ins.paragraphs.slice(0, 5).flatMap { p =>
+          p.contextTAOpt match {
+            case None => throw new Exception("The instance does not contain annotation . . . ")
+            case Some(annotation) =>
+              val candidateAnswers = SolverUtils.getCandidateAnswer(annotation).toSeq
+              p.questions.slice(0, 5).map { q =>
+                val (selected, _) = textILPSolver.solve(q.questionText, candidateAnswers, p.context)
+                SolverUtils.assignCreditSquad(candidateAnswers(selected.head), q.answers.map(_.answerText))
+              }
+          }
+        }
+    }.unzip3
+    println("Average exact match: " + exactMatch.sum / total.sum + "  /   Average f1: " + f1.sum / total.sum)
+  }
+
   def testTheDatastes() = {
     println("omnibusTrain: " + SolverUtils.omnibusTrain.length)
     println("omnibusTest: " + SolverUtils.omnibusTest.length)
@@ -163,6 +183,10 @@ object ExperimentsApp {
     println("publicTest: " + SolverUtils.publicTest.length)
     println("publicDev: " + SolverUtils.publicDev.length)
     println("regentsTrain: " + SolverUtils.regentsTrain.length)
+  }
+
+  def testSquadPythonEvaluationScript() = {
+    println(SolverUtils.assignCreditSquad("the country in the east", Seq("east", "world")))
   }
 
   def main(args: Array[String]): Unit = {
@@ -181,15 +205,17 @@ object ExperimentsApp {
       case 9 => testTheDatastes()
       case 10 => evaluateSalienceOnRegents()
       case 11 =>
-        evaluateTextilpOnRegents(SolverUtils.publicTrain)
-        println("==== public train ")
-        evaluateTextilpOnRegents(SolverUtils.publicDev)
-        println("==== public dev ")
-        evaluateTextilpOnRegents(SolverUtils.publicTest)
-        println("==== public test ")
+//        evaluateTextilpOnRegents(SolverUtils.publicTrain)
+//        println("==== public train ")
+//        evaluateTextilpOnRegents(SolverUtils.publicDev)
+//        println("==== public dev ")
+//        evaluateTextilpOnRegents(SolverUtils.publicTest)
+//        println("==== public test ")
 //        evaluateTextilpOnRegents(SolverUtils.regentsTrain)
 //        println("==== regents train  ")
       case 12 => extractKnowledgeSnippet()
+      case 13 => testSquadPythonEvaluationScript()
+      case 14 => evaluateTextilpOnSquad(trainReader)
     }
   }
 }

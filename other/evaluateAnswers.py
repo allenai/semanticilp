@@ -7,7 +7,7 @@ def evaluate(prediction, ground_truths):
     exact_match = metric_max_over_ground_truths(exact_match_score, prediction, ground_truths)
     f1 = metric_max_over_ground_truths(f1_score, prediction, ground_truths)
 
-    return {'exact_match': exact_match, 'f1': f1}
+    return str(1.0 * exact_match) + "\t" + str(f1)
 
 def main(argv):
     # example run:  print(evaluate('chemistry', ['the physics', 'the chemistry']))

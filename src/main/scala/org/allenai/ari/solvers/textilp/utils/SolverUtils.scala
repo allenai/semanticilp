@@ -216,6 +216,15 @@ object SolverUtils {
     }
   }
 
+  import sys.process._
+  def assignCreditSquad(predict: String, golds: Seq[String]): (Double, Double, Double) = {
+    val output = s"python other/evaluateAnswers.py '$predict' ${golds.mkString("'", "' '", "'")} ".!!
+    val outputSplit = output.split("\t")
+    val exactMatch = outputSplit(0).toDouble
+    val f1 = outputSplit(1).toDouble
+    (exactMatch, f1, 1.0)
+  }
+
   def printMemoryDetails() = {
     val mb = 1024*1024
 
