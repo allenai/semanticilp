@@ -38,6 +38,7 @@ object SolverUtils {
   def evaluateASingleQuestion(q: String, solver: String): Seq[(String, Double)] = {
     val charset = "UTF-8"
     val query = Constants.queryLink + URLEncoder.encode(q, charset) + "&solvers=" + solver
+//    println("query: " + query)
     val html = Source.fromURL(query)
     val jsonString = html.mkString
     val json = Json.parse(jsonString)
@@ -55,9 +56,9 @@ object SolverUtils {
                                    sortedCandidates: Seq[(String, Double)]): (Seq[Int], EntityRelationResult) = {
     val maxScore = sortedCandidates.head._2
     val (selectedAnswers, _) = sortedCandidates.filter(_._2 == maxScore).unzip
-
-    val selectedIndices = question.zipWithIndex.collect{ case (option, idx) if selectedAnswers.toSet.contains(option) => idx }
-
+    val trimmedSelectedSet = selectedAnswers.map(_.trim).toSet
+    val trimmedOptions = options.map(_.trim)
+    val selectedIndices = trimmedOptions .zipWithIndex.collect{ case (option, idx) if trimmedSelectedSet.contains(option) => idx }
     val questionString = "Question: " + question
     val choiceString = "|Options: " + options.zipWithIndex.map { case (ans, key) => s" (${key + 1}) " + ans }.mkString(" ")
     val paragraphString = "|Paragraph: " + snippet
@@ -77,7 +78,12 @@ object SolverUtils {
     val stringsInsideQuotationMark = quotationExtractionPattern.findAllIn(contextTA.text)
     val ners = contextTA.getView(ViewNames.NER_CONLL).getConstituents.asScala.map(_.getSurfaceForm)
     val ners_onto = contextTA.getView(ViewNames.NER_ONTONOTES).getConstituents.asScala.map(_.getSurfaceForm)
-    val quant = contextTA.getView(ViewNames.QUANTITIES).getConstituents.asScala.map(_.getSurfaceForm)
+    val quant = if(contextTA.hasView(ViewNames.QUANTITIES)) {
+      contextTA.getView(ViewNames.QUANTITIES).getConstituents.asScala.map(_.getSurfaceForm)
+    }
+    else {
+      Seq.empty
+    }
     val p = "-?\\d+".r // regex for finding all the numbers
     val numbers = p.findAllIn(contextTA.text)
     (nounPhrases ++ quant ++ ners ++ ners_onto ++ numbers ++ stringsInsideQuotationMark).toSet
@@ -131,7 +137,7 @@ object SolverUtils {
     selectedOutput.map {_._1}.toSet
   }
 
-  lazy val elasticWebredisCache = if (Constants.useRedisCachingForElasticSearch) {
+  lazy val elasticWebRedisCache = if (Constants.useRedisCachingForElasticSearch) {
     JsonQueryCache[String]("elastic:", "localhost", Protocol.DEFAULT_PORT, Protocol.DEFAULT_TIMEOUT)
   } else {
     // use the dummy client, which always returns None for any query (and not using any Redis)
@@ -141,7 +147,7 @@ object SolverUtils {
   def extractParagraphGivenQuestionAndFocusWord3(question: String, focus: String, searchHitSize: Int): Seq[(String, Double)] = {
     val cacheKey = "elasticWebParagraph:" + question + "//focus:" + focus + "//topK:" + searchHitSize
     val cacheResult = if(Constants.useRedisCachingForAnnotation) {
-      elasticWebredisCache.get(cacheKey)
+      elasticWebRedisCache.get(cacheKey)
     }
     else {
       None
@@ -169,7 +175,9 @@ object SolverUtils {
       }
       val results = hits.map{h: SearchHit => getLuceneHitFields(h)("text").toString -> h.score().toDouble }
       val cacheValue = JsArray(results.map{ case (key, value) =>  JsArray(Seq(JsString(key), JsNumber(value)))})
-      elasticWebredisCache.put(cacheKey, cacheValue.toString())
+      if(Constants.useRedisCachingForAnnotation) {
+        elasticWebRedisCache.put(cacheKey, cacheValue.toString())
+      }
       results
     } else {
       val jsonString = cacheResult.get

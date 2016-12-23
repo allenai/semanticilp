@@ -2,9 +2,11 @@ package org.allenai.ari.solvers.textilp.utils
 
 import java.util.Properties
 
+import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation
 import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper
 import edu.illinois.cs.cogcomp.core.utilities.configuration.{Configurator, ResourceManager}
+import edu.illinois.cs.cogcomp.curator.{CuratorConfigurator, CuratorFactory}
 import edu.illinois.cs.cogcomp.pipeline.common.PipelineConfigurator
 import edu.illinois.cs.cogcomp.pipeline.common.PipelineConfigurator._
 import edu.illinois.cs.cogcomp.pipeline.main.PipelineFactory
@@ -43,20 +45,7 @@ class AnnotationUtils {
 
   val viewsToDisable = Set(USE_SRL_NOM, USE_SRL_VERB, USE_STANFORD_DEP, USE_STANFORD_PARSE)
 
-  def annotate(string: String, withQuantifier: Boolean = true): TextAnnotation = {
-    val cacheKey = "TextAnnotations:" + viewsToDisable.mkString("*") + withQuantifier + string
-    val redisAnnotation = synchronizedRedisClient.get(cacheKey)
-    if (redisAnnotation.isDefined) {
-      SerializationHelper.deserializeFromJson(redisAnnotation.get)
-    } else {
-      val textAnnotation = pipelineService.createAnnotatedTextAnnotation("", "", string)
-      if (withQuantifier) quantifierAnnotator.addView(textAnnotation)
-      synchronizedRedisClient.put(cacheKey, SerializationHelper.serializeToJson(textAnnotation))
-      textAnnotation
-    }
-  }
-
-  val pipelineService = {
+  lazy val pipelineService = {
     val settings = new Properties()
     settings.setProperty("cacheDirectory", "annotation-cache-textilp")
     settings.setProperty("disableCache", Configurator.TRUE)
@@ -67,7 +56,36 @@ class AnnotationUtils {
     PipelineFactory.buildPipeline(config)
   }
 
-  val quantifierAnnotator = new Quantifier()
+  lazy val curatorService = {
+    //val settings = new Properties()
+    //settings.setProperty("cacheDirectory", "annotation-cache-textilp")
+    //settings.setProperty("disableCache", Configurator.TRUE)
+    //viewsToDisable.foreach{ key => settings.setProperty(key.value, Configurator.FALSE) }
+    //val rm = new ResourceManager(settings)
+    //viewsToDisable.foreach { v => settings.setProperty(v.key, Configurator.FALSE) }
+    //val config = new CuratorConfigurator().getConfig(rm)
+    CuratorFactory.buildCuratorClient()
+  }
+
+  def annotate(string: String, withQuantifier: Boolean = true): TextAnnotation = {
+    val cacheKey = "TextAnnotations:" + viewsToDisable.mkString("*") + withQuantifier + string
+    val redisAnnotation = synchronizedRedisClient.get(cacheKey)
+    if (redisAnnotation.isDefined) {
+      SerializationHelper.deserializeFromJson(redisAnnotation.get)
+    } else {
+      //val textAnnotation = pipelineService.createAnnotatedTextAnnotation("", "", string)
+      val textAnnotation = pipelineService.createBasicTextAnnotation("", "", string)
+      pipelineService.addView(textAnnotation, ViewNames.POS)
+      pipelineService.addView(textAnnotation, ViewNames.NER_CONLL)
+      pipelineService.addView(textAnnotation, ViewNames.NER_ONTONOTES)
+      pipelineService.addView(textAnnotation, ViewNames.SHALLOW_PARSE)
+      //if (withQuantifier) quantifierAnnotator.addView(textAnnotation)
+      synchronizedRedisClient.put(cacheKey, SerializationHelper.serializeToJson(textAnnotation))
+      textAnnotation
+    }
+  }
+
+  lazy val quantifierAnnotator = new Quantifier()
 
   def annotateInstance(tg: TopicGroup): TopicGroup = {
     val annotatedParagraphs = tg.paragraphs.map { p =>
