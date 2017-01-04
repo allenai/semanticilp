@@ -3,8 +3,11 @@ package org.allenai.ari.solvers.textilp
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
 import org.allenai.ari.solvers.textilp.alignment.AlignmentFunction
 import org.allenai.ari.solvers.textilp.solvers.{LuceneSolver, SalienceSolver, TextILPSolver, TextSolver}
-import org.allenai.ari.solvers.textilp.utils.{AnnotationUtils, Constants, SQuADReader, SolverUtils}
+import org.allenai.ari.solvers.textilp.utils.WikiUtils.WikiDataProperties
+import org.allenai.ari.solvers.textilp.utils._
 import org.rogach.scallop._
+
+import scala.collection.JavaConverters._
 
 object ExperimentsApp {
   lazy val annotationUtils = new AnnotationUtils()
@@ -18,11 +21,13 @@ object ExperimentsApp {
   }
 
   def testQuantifier(): Unit = {
-    val ta = annotationUtils.pipelineService.createAnnotatedTextAnnotation("", "",
+    val ta = annotationUtils.pipelineService.createBasicTextAnnotation("", "",
       "The annual NFL Experience was held at the Moscone Center in San Francisco. In addition, \"Super Bowl City\" opened on January 30 at Justin Herman Plaza on The Embarcadero, featuring games and activities that will highlight the Bay Area's technology, culinary creations, and cultural diversity. More than 1 million people are expected to attend the festivities in San Francisco during Super Bowl Week. San Francisco mayor Ed Lee said of the highly visible homeless presence in this area \"they are going to have to leave\". San Francisco city supervisor Jane Kim unsuccessfully lobbied for the NFL to reimburse San Francisco for city services in the amount of $5 million.")
-    annotationUtils.quantifierAnnotator.addView(ta)
+    annotationUtils.pipelineService.addView(ta, ViewNames.QUANTITIES)
     println(ta)
     println(ta.getAvailableViews)
+    println(ta.getView(ViewNames.QUANTITIES))
+    println(ta.getView(ViewNames.QUANTITIES).getConstituents.asScala.filter(_.getLabel.contains("Date")))
   }
 
   def testPipelineAnnotation(): Unit = {
@@ -48,29 +53,14 @@ object ExperimentsApp {
   }
 
   def testCuratorAnnotation() = {
-    val ta = annotationUtils.curatorService.createBasicTextAnnotation("", "", "This is a sample sentence. Barak Obama is the president of US. Lake Tahoe is a nice place to visit. I like the blue skye. ")
+    val ta = annotationUtils.curatorService.createBasicTextAnnotation("", "",
+      "This is a sample sentence. Barak Obama is the president of US. Lake Tahoe is a nice place to visit. I like the blue skye. ")
     annotationUtils.curatorService.addView(ta, ViewNames.WIKIFIER)
-//    annotationUtils.curatorService.addView(ta, ViewNames.WIKIFIER)
     println(ta.getAvailableViews)
   }
 
-  def processSQuADWithWikifier(reader: SQuADReader) = {
-    import java.io._
-    val pw = new PrintWriter(new File("squadTrain.txt" ))
-    reader.instances.zipWithIndex.foreach {
-      case (ins, idx) =>
-        ins.paragraphs.foreach { p =>
-          pw.write("P: " + p.context + "\n")
-          p.questions.foreach { q =>
-            pw.write("Q: " + q.questionText + "\n")
-          }
-        }
-    }
-    pw.close()
-  }
-
   //TODO if "the" is among the candidate answrs, drop it and make it another candidate
-  //TODO capture aphabetical numbers too, like "six"
+  //TODO capture alphabetical numbers too, like "six"
   def generateCandiateAnswers(reader: SQuADReader): Unit = {
     var found: Int = 0
     var notFound: Int = 0
@@ -224,6 +214,36 @@ object ExperimentsApp {
     println(SolverUtils.assignCreditSquad("the country in the east", Seq("east", "world")))
   }
 
+  def testNERAnnotations() = {
+    val text = "As of 2012[update] research continued in many fields. The university president, John Jenkins, described his hope that Notre Dame would become \"one of the pre–eminent research institutions in the world\" in his inaugural address. The university has many multi-disciplinary institutes devoted to research in varying fields, including the Medieval Institute, the Kellogg Institute for International Studies, the Kroc Institute for International Peace studies, and the Center for Social Concerns. Recent research includes work on family conflict and child development, genome mapping, the increasing trade deficit of the United States with China, studies in fluid mechanics, computational science and engineering, and marketing trends on the Internet. As of 2013, the university is home to the Notre Dame Global Adaptation Index which ranks countries annually based on how vulnerable they are to climate change and how prepared they are to adapt."
+    val ta = annotationUtils.annotate(text)
+    val nersConll = ta.getView(ViewNames.NER_CONLL).getConstituents.asScala.map(c => c.getSurfaceForm + ": " + c.getLabel ).mkString("\n")
+    println(nersConll)
+    println("-------------")
+    val nersOntontes = ta.getView(ViewNames.NER_ONTONOTES).getConstituents.asScala.map(c => c.getSurfaceForm + ": " + c.getLabel ).mkString("\n")
+    println(nersOntontes)
+  }
+
+  def testChunker() = {
+    fun("My estate goes to my husband, son, daughter-in-law, and nephew.")
+    fun("Notre Dame students had a showdown in 1924 with which anti-catholic group?")
+    fun("He is a well-respected man.")
+    fun("We knew there would be a stop-off in Singapore for refuelling.")
+    fun("The house was unoccupied at the time of the break-in.")
+    fun("There was a build-up of traffic on the ring road.")
+    fun("The design is state-of-the-art.")
+    fun("The slacker video-gamed his way through life.")
+    fun("Queen Victoria throne-sat for six decades.")
+    fun("I changed my diet and became a no-meater.")
+    fun("No-meater is too confusing without the hyphen.")
+    def fun(text: String) = {
+      println("text: " + text)
+      val ta = annotationUtils.annotate(text)
+      val shallowParse = ta.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala.map(c => c.getSurfaceForm + ": " + c.getLabel).mkString("\n")
+      println(shallowParse)
+    }
+  }
+
   def main(args: Array[String]): Unit = {
     lazy val trainReader = new SQuADReader(Constants.squadTrainingDataFile, Some(annotationUtils.pipelineService), annotationUtils)
     lazy val devReader = new SQuADReader(Constants.squadDevDataFile, Some(annotationUtils.pipelineService), annotationUtils)
@@ -243,7 +263,6 @@ object ExperimentsApp {
         evaluateTextSolverOnRegents(SolverUtils.publicTest, luceneSolver)
         evaluateTextSolverOnRegents(SolverUtils.publicTrain, salienceSolver)
         evaluateTextSolverOnRegents(SolverUtils.publicTest, salienceSolver)
-
       case 11 =>
 //        evaluateTextilpOnRegents(SolverUtils.publicTrain)
 //        println("==== public train ")
@@ -258,7 +277,35 @@ object ExperimentsApp {
       case 14 => evaluateTextilpOnSquad(trainReader)
       case 15 => dumpSQuADQuestionsOnDisk(devReader)
       case 16 => testCuratorAnnotation()
-      case 17 => processSQuADWithWikifier(devReader)
+      case 17 => annotationUtils.processSQuADWithWikifier(trainReader)
+      case 18 => annotationUtils.processSQuADWithWikifierAndPutRedis(devReader)
+      case 19 => annotationUtils.verifyWikifierAnnotationsOnDisk(trainReader)
+      case 20 =>
+        //val question = trainReader.instances.head.paragraphs.head.questions.head
+        //println(trainReader.instances(1).paragraphs.head.questions.map(_.questionText).mkString("\n"))
+        val qAndpPairs = trainReader.instances.slice(0, 1).flatMap { i => i.paragraphs.flatMap{p => p.questions.map(_ -> p)}}
+
+        import scala.collection.JavaConverters._
+
+        qAndpPairs.groupBy(_._1.qTAOpt.get.getView(ViewNames.TOKENS).asScala.head.getSurfaceForm).foreach{ case (str, qs) =>
+          println("Str = " + str)
+          qs.foreach{case (q, p) =>
+            if(q.questionText.toLowerCase.contains("which ")) {
+              println("-------------------")
+              annotationUtils.getTargetPhrase(q, p)
+              println("gold: " + q.answers)
+            }
+          }
+        }
+      case 21 => println(WikiUtils.extractCategoryOfWikipageRecursively(Seq("Saint Louis University"), 5))
+      case 22 => println(WikiUtils.getWikiDataId("University"))
+      case 23 => println(WikiUtils.wikiAskQuery("Saint Louis University", "University", WikiDataProperties.instanceOf, 3))
+      case 24 => println(WikiUtils.wikiAskQuery("Dan Roth", WikiDataProperties.person, WikiDataProperties.instanceOf, 3))
+      //WikiUtils.getWikibaseCandidatesForQuestion()
+//        println(WikiUtils.extractCategoryOfWikipage("Blue"))
+//        println(WikiUtils.extractRelevantCategories("Color"))
+      case 25 => testNERAnnotations()
+      case 26 => testChunker()
     }
   }
 }

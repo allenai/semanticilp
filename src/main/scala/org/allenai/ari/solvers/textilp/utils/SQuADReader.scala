@@ -33,7 +33,7 @@ class SQuADReader(file: File, annotationServiceOpt: Option[AnnotatorService] = N
           case None => None
           case Some(service) =>
             val ta = annotationUtils.annotate(question)
-            //assert(ta.getAvailableViews.contains(ViewNames.QUANTITIES))
+            assert(ta.getAvailableViews.contains(ViewNames.QUANTITIES))
             Some(ta)
         }
         Question(question, id, answers, questionAnnotation)
@@ -42,7 +42,7 @@ class SQuADReader(file: File, annotationServiceOpt: Option[AnnotatorService] = N
         case None => None
         case Some(service) =>
           val ta = annotationUtils.annotate(context)
-          //assert(ta.getAvailableViews.contains(ViewNames.QUANTITIES))
+          assert(ta.getAvailableViews.contains(ViewNames.QUANTITIES))
           Some(ta)
       }
       Paragraph(context, questions, contextAnnotation)

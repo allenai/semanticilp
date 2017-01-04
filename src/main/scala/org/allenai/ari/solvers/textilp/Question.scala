@@ -26,8 +26,6 @@ case class Entity(entityName: String, surface: String, boundaries: Seq[(Int, Int
 case class Relation(relationName: String, entity1: String, entity2: String, weight: Double)
 case class EntityRelationResult(fullString: String, entities: Seq[Entity], relations: Seq[Relation], explanation: String = "")
 
-import play.api.libs.json._
-
 object ResultJson {
 //  val staticAlignmentResult = AlignmentResults(
 //    List(
@@ -53,6 +51,8 @@ object ResultJson {
   )
 
   val emptyEntityRelation = EntityRelationResult("", List.empty, List.empty)
+
+  import play.api.libs.json._
 
   implicit val entityWrites = new Writes[Entity] {
     def writes(entity: Entity) = Json.arr(entity.entityName, entity.surface, entity.boundaries.map(pair => Json.arr(pair._1, pair._2)))

@@ -5,7 +5,7 @@ import sbt.Keys._
 //import org.allenai.plugins.CoreRepositories.Resolvers
 //import org.allenai.plugins.StylePlugin
 
-val cogcompNLPVersion = "3.0.87"
+val cogcompNLPVersion = "3.0.89"
 val ccgGroupId = "edu.illinois.cs.cogcomp"
 
 lazy val commonSettings = Seq(
@@ -73,7 +73,6 @@ lazy val root = (project in file(".")).
       ccgLib("illinois-core-utilities"),
       ccgLib("illinois-inference"),
       ccgLib("illinois-nlp-pipeline"),
-      ccgGroupId % "illinois-quantifier" % "2.0.10" withSources,
       ccgGroupId % "saul-examples_2.11" % "0.5.5",
       ccgGroupId % "scip-jni" % "3.1.1",
       nlpstack("chunk") ,
