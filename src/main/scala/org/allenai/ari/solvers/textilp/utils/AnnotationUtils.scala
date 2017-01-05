@@ -1,6 +1,7 @@
 package org.allenai.ari.solvers.textilp.utils
 
 import java.util.Properties
+import java.util.regex.Pattern
 
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, TextAnnotation}
@@ -167,6 +168,33 @@ class AnnotationUtils {
     pw.close()
   }
 
+
+  // processes questions and paragraphs together (hence "jointly")
+  def processSQuADWithWikifierJointly(reader: SQuADReader) = {
+    import java.io._
+    val pw = new PrintWriter(new File("squadTrain_wikifier.txt" ))
+    reader.instances.zipWithIndex.foreach {
+      case (ins, idx) =>
+        println("Idx: " + idx + " / ratio: " + idx * 1.0 / reader.instances.size)
+        ins.paragraphs.foreach { p =>
+
+          val jointText = (p.context + p.questions.map {_.questionText}).mkString(" ")
+
+          val ta = curatorService.createBasicTextAnnotation("", "", p.context)
+          curatorService.addView(ta, ViewNames.WIKIFIER)
+          val json = SerializationHelper.serializeToJson(ta)
+          pw.write(json + "\n\n")
+          p.questions.foreach { q =>
+            val ta = curatorService.createBasicTextAnnotation("", "", q.questionText)
+            curatorService.addView(ta, ViewNames.WIKIFIER)
+            val json = SerializationHelper.serializeToJson(ta)
+            pw.write(json + "\n\n")
+          }
+        }
+    }
+    pw.close()
+  }
+
   def verifyWikifierAnnotationsOnDisk(reader: SQuADReader) = {
     reader.instances.zipWithIndex.foreach {
       case (ins, idx) =>
@@ -194,6 +222,7 @@ class AnnotationUtils {
 
   val questionTerms = Set("which", "what", "where", "who", "whom", "how")
   val numberTriggers = Set("age")
+  val tobe = Set("is", "are", "am", "do", "does", "did", "was", "were")
 
   def containsOffset(c: Constituent, offset: Int): Boolean = {
     c.getEndCharOffset >= offset && c.getStartCharOffset <= offset
@@ -216,6 +245,8 @@ class AnnotationUtils {
     require(paragraphWikiAnnotationOpt.isDefined, throw new Exception("The wiki annotation for paragraph is not defined"))
     val wikiMentionsInText = SerializationHelper.deserializeFromJson(paragraphWikiAnnotationOpt.get).getView(ViewNames.WIKIFIER).getConstituents.asScala.toList
     val wikiMentionsInQuestion = SerializationHelper.deserializeFromJson(questionWikiAnnotationOpt.get).getView(ViewNames.WIKIFIER).getConstituents.asScala.toList
+//    println("wikiMentionsInText: " + wikiMentionsInText.map(a => a.getSurfaceForm + ":" + a.getLabel).mkString("/") )
+//    println("wikiMentionsInQuestion: " + wikiMentionsInQuestion.map(a => a.getSurfaceForm + ":" + a.getLabel).mkString("/") )
 
     def questionPhraseCondition(a: Constituent): Boolean = {
       val splitSet = a.getSurfaceForm.toLowerCase.split(" ").toSet
@@ -241,40 +272,96 @@ class AnnotationUtils {
     )
     println(questionConstituentOpt)
     val candidates = ArrayBuffer[Constituent]()
-    if(questionConstituentOpt.isDefined) {
+    val triggerTerm = if(questionConstituentOpt.isDefined) {
       val tailingTerms = questionConstituentOpt.get._1.getSurfaceForm.split(" ").tail
       val idx = questionConstituentOpt.get._2
-      var triggerTerm = if(tailingTerms.nonEmpty) {
+      val triggerTerm = if(tailingTerms.nonEmpty) {
         tailingTerms.mkString(" ")
       }
       else {
         println("trigger terms was empty so we replaced it with the next constituents")
-        shallowParseCons(idx + 1).getSurfaceForm
+        if (shallowParseCons.length > idx + 1)
+          shallowParseCons(idx + 1).getSurfaceForm
+        else
+          "" // example when this doesn't work: There were multiple students from Notre Dame who entered the Pro Football Hall of Fame, how many?
       }
+
+      val wikiTriggerTermOpt = wikiMentionsInQuestion.find{ _.getStartSpan > questionConstituentOpt.get._1.getStartSpan }
 
       println("trigger term:  " + triggerTerm)
+      val wikiTrigger = if(wikiTriggerTermOpt.isDefined) dropWikiURL(wikiTriggerTermOpt.get.getLabel) else triggerTerm
+      println("wiki trigger: " + wikiTrigger)
 
-      // number trigger
+      // general number trigger
       if(questionConstituentOpt.get._1.getSurfaceForm.contains(" age ") ||
-        questionConstituentOpt.get._1.getSurfaceForm.contains("how many")
+        question.questionText.toLowerCase.contains("how many") ||
+        question.questionText.toLowerCase.contains("how much") ||
+        question.questionText.toLowerCase.contains("how large")
       ){
-        println("number trigger! ")
+        println("general number trigger! ")
         candidates.++=:(paragraphQuantitiesCons.filter(_.getLabel.contains("Number")))
+
+        // NER-Ontonotes
+        candidates.++=:(paragraphNerConsOnto.filter(_.getLabel.contains("CARDINAL")))
+        candidates.++=:(paragraphNerConsOnto.filter(_.getLabel.contains("QUANTITY")))
       }
 
+//      // time trigger
+//      if(questionConstituentOpt.get._1.getSurfaceForm.contains("time")
+//      ){
+//        println("time trigger! ")
+//        candidates.++=:(paragraphQuantitiesCons.filter(_.getLabel.contains("TIME")))
+//      }
+
       // date trigger
-      if(questionConstituentOpt.get._1.getSurfaceForm.contains(" date ")){
+      if(questionConstituentOpt.get._1.getSurfaceForm.contains(" date ") ||
+        questionConstituentOpt.get._1.getSurfaceForm.toLowerCase.trim.contains("what year") ||
+        questionConstituentOpt.get._1.getSurfaceForm.toLowerCase.trim.contains("what time")){
         println("date trigger! ")
+        println("time trigger! ")
+        candidates.++=:(paragraphQuantitiesCons.filter(_.getLabel.contains("TIME")))
         candidates.++=:(paragraphQuantitiesCons.filter(_.getLabel.contains("Date")))
 
-        //
+        // NER-ontonotes
+        candidates.++=:(paragraphNerConsOnto.filter(_.getLabel.contains("DATE")))
+      }
+
+      // language trigger
+      if(questionConstituentOpt.get._1.getSurfaceForm.toLowerCase.trim.contains("language")){
+        println("language trigger! ")
+        // NER-Conll
+        candidates.++=:(paragraphNerConsOnto.filter(_.getLabel.contains("LANGUAGE")))
+      }
+
+      // nationality trigger
+      if(questionConstituentOpt.get._1.getSurfaceForm.toLowerCase.trim.contains("nationality")){
+        println("nationality trigger! ")
+        // NER-Ontonotes
+        candidates.++=:(paragraphNerConsOnto.filter(_.getLabel.contains("NORP")))
+      }
+
+      // percent trigger
+      if(questionConstituentOpt.get._1.getSurfaceForm.toLowerCase.trim.contains("percent")){
+        println("percent trigger! ")
+        // NER-Ontonotes
+        candidates.++=:(paragraphNerConsOnto.filter(_.getLabel.contains("PERCENT")))
+      }
+
+      // money trigger
+      if(questionConstituentOpt.get._1.getSurfaceForm.toLowerCase.trim.contains("money") ||
+        questionConstituentOpt.get._1.getSurfaceForm.toLowerCase.trim.contains("currency")){
+        println("money trigger! ")
+        // NER-Ontonotes
+        candidates.++=:(paragraphNerConsOnto.filter(_.getLabel.contains("MONEY")))
       }
 
       // person trigger
       if(( questionConstituentOpt.get._1.getSurfaceForm.toLowerCase.trim.contains("who") &&
-        !questionConstituentOpt.get._1.getSurfaceForm.toLowerCase.trim.contains("how many") ) ||
+        !question.questionText.contains("how many") ) ||
         questionConstituentOpt.get._1.getSurfaceForm.toLowerCase.trim.contains("which individual") ||
-        questionConstituentOpt.get._1.getSurfaceForm.toLowerCase.trim.contains("which person") ){
+        questionConstituentOpt.get._1.getSurfaceForm.toLowerCase.trim.contains("which person") ||
+        questionConstituentOpt.get._1.getSurfaceForm.toLowerCase.trim.contains("what individual") ||
+        questionConstituentOpt.get._1.getSurfaceForm.toLowerCase.trim.contains("what person") ){
         println("person trigger! ")
         // NER-Conll
         candidates.++=:(paragraphNerConsConll.filter(_.getLabel.contains("PER")))
@@ -292,7 +379,7 @@ class AnnotationUtils {
         val constituentsWithPrefix = prefixSet.flatMap{ prefix =>
           ontonotesCandidates.map{ c =>
             val target = prefix + " " + c.getSurfaceForm
-            target.r.findAllIn(paragraph.context) -> target
+            Pattern.quote(target).r.findAllIn(paragraph.context) -> target
           }
         }.filter{_._1.nonEmpty}.map{ case (a, t) =>
           println(s"(s, e) = (${a.start}, ${a.end})  /  text length :" + paragraph.contextTAOpt.get.text.length)
@@ -309,7 +396,7 @@ class AnnotationUtils {
         // WikiData
         if(candidates.isEmpty) {
           val wikiMentions = wikiMentionsInText.filter{ c =>
-            WikiUtils.wikiAskQuery(c.getLabel, WikiDataProperties.person, WikiDataProperties.instanceOf, 5)
+            WikiUtils.wikiAskQuery(dropWikiURL(c.getLabel), WikiDataProperties.person, WikiDataProperties.instanceOf, 5)
           }
           candidates.++=:(wikiMentions)
         }
@@ -321,8 +408,10 @@ class AnnotationUtils {
       }
 
       // which trigger
-      if(questionConstituentOpt.get._1.getSurfaceForm.toLowerCase.trim.contains("which ") ) {
-        println("which trigger! ")
+      if((questionConstituentOpt.get._1.getSurfaceForm.toLowerCase.trim.contains("which") ||
+        questionConstituentOpt.get._1.getSurfaceForm.toLowerCase.trim.contains("what")) &&
+        candidates.nonEmpty ) {
+        println("which trigger . . .")
 
         // which location
         if(triggerTerm.contains("location")) {
@@ -340,8 +429,8 @@ class AnnotationUtils {
           println(paragraphNerConsOnto)
         }
 
-        // which institute
-        if(triggerTerm.contains("institute")) {
+        // institute
+        if(triggerTerm.contains("institute") || triggerTerm.contains("company")) {
           // NER-Conll
           def conllLocationFilter(in: String): Boolean = in.contains("ORG")
           candidates.++=:(paragraphNerConsConll.filter(a => conllLocationFilter(a.getLabel)))
@@ -372,12 +461,24 @@ class AnnotationUtils {
           println(paragraphNerConsOnto)
         }
 
+        // to-be triggers
+        if(triggerTerm.split(" ").toSet.intersect(tobe).nonEmpty) {
+          println("tobe trigger  . . . ")
+        }
+
         // WikiData
         if(candidates.isEmpty) {
+          println("using Wiki mentions . . .  ")
+          //println(wikiMentionsInText)
           val wikiMentions = wikiMentionsInText.filter { c =>
-            WikiUtils.wikiAskQuery(c.getLabel, triggerTerm, WikiDataProperties.instanceOf, 5)
+
+            WikiUtils.wikiAskQuery(dropWikiURL(c.getLabel), wikiTrigger, WikiDataProperties.instanceOf, 5) ||
+              WikiUtils.wikiAskQuery(dropWikiURL(c.getLabel), wikiTrigger, WikiDataProperties.subclassOf, 5)
           }
           candidates.++=:(wikiMentions)
+        }
+        else {
+          println("Candidates are not empty: " + candidates.length)
         }
       }
 
@@ -394,8 +495,22 @@ class AnnotationUtils {
       val wikiMentions = wikiMentionCategories.filter{case (c, categories) => categories.toSet.intersect(triggerWordCategories.toSet).nonEmpty}
       println("Mentions with intersections" + wikiMentions.map(_._1))
       */
+      triggerTerm
     }
-    println("Candidates = " + candidates.toSet)
+    else {
+      ""
+    }
+    val targetSet = Set(triggerTerm, "the" + triggerTerm.trim)
+    val candidatesSet = candidates.map(_.getSurfaceForm.trim).toSet
+    // println("candidatesSet= " + candidatesSet)
+    def setContainsIt(str: String): Boolean = {
+      candidatesSet.diff(Set(str)).exists{ s =>  s.contains(str) }
+    }
+    val uniqueCandidateSet = candidatesSet.collect{ case a if !setContainsIt(a) => a }
+    val uniqueCandidateSetWithoutQuestionTarget = uniqueCandidateSet.diff(targetSet)
+    println("uniqueCandidateSetWithoutQuestionTarget: " + uniqueCandidateSetWithoutQuestionTarget)
   }
+
+  def dropWikiURL(url: String): String = url.replace("http://en.wikipedia.org/wiki/", "")
 
 }

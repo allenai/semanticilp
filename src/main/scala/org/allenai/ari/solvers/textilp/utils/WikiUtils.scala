@@ -3,6 +3,7 @@ package org.allenai.ari.solvers.textilp.utils
 import java.net.{InetSocketAddress, URLEncoder}
 
 import org.allenai.ari.solvers.textilp.{Paragraph, Question}
+import org.allenai.common.cache.JsonQueryCache
 
 import scala.io.Source
 import play.api.libs.json._
@@ -74,9 +75,14 @@ object WikiUtils {
 //    result
 //  }
 
+  import redis.clients.jedis.Protocol
+  import spray.json.DefaultJsonProtocol._
+  lazy val wikiDataRedis = JsonQueryCache[String]("", "localhost", Protocol.DEFAULT_PORT, Protocol.DEFAULT_TIMEOUT)
+
   def wikiAskQuery(qStr: String, pStr: String, property: String, mostOccurrences: Int): Boolean = {
     val qStrId = getWikiDataId(qStr)
     val pStrId = getWikiDataId(pStr)
+    //println(s"qStr: $qStr /  qStrId: $qStrId / pStr: $pStr / pStrId: $pStrId")
     val result = if(qStrId.isDefined && pStrId.isDefined) {
       val qStrIdEncoded = URLEncoder.encode(qStrId.get, "UTF-8")
       val pStrIdEncoded = URLEncoder.encode(pStrId.get, "UTF-8")
@@ -85,11 +91,20 @@ object WikiUtils {
       // no "?" for the first one
       val path = "wdt:" + propertyEncoded + "/" + (1 until mostOccurrences).map(_ => "wdt:" + propertyEncoded + "?").mkString("/")
       val wikiCategoryQueryUrl = s"https://query.wikidata.org/sparql?format=json&query=ASK%20{%20wd:$qStrIdEncoded%20$path%20wd:$pStrIdEncoded%20}"
-      println("qStr: " + qStr + " / pStr: " + pStr + " / query: " + wikiCategoryQueryUrl)
-      val html = Source.fromURL(wikiCategoryQueryUrl)
-      val jsonString = html.mkString
-      val json = Json.parse(jsonString)
-      (json \ "boolean").as[JsBoolean].value
+      val redisResult = wikiDataRedis.get(wikiCategoryQueryUrl)
+      if(redisResult.isEmpty) {
+        println("qStr: " + qStr + " / pStr: " + pStr + " / query: " + wikiCategoryQueryUrl)
+        val html = Source.fromURL(wikiCategoryQueryUrl)
+        val jsonString = html.mkString
+        val json = Json.parse(jsonString)
+        val result = (json \ "boolean").as[JsBoolean].value
+        wikiDataRedis.put(wikiCategoryQueryUrl, result.toString)
+        result
+      }
+      else{
+        println("qStr: " + qStr + " / pStr: " + pStr + " / from cache: " + redisResult.get)
+        redisResult.get.toBoolean
+      }
     }
     else {
       false

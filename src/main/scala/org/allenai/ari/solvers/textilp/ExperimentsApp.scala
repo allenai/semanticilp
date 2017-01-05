@@ -287,16 +287,23 @@ object ExperimentsApp {
 
         import scala.collection.JavaConverters._
 
-        qAndpPairs.groupBy(_._1.qTAOpt.get.getView(ViewNames.TOKENS).asScala.head.getSurfaceForm).foreach{ case (str, qs) =>
-          println("Str = " + str)
-          qs.foreach{case (q, p) =>
-            if(q.questionText.toLowerCase.contains("which ")) {
-              println("-------------------")
+//        qAndpPairs.groupBy(_._1.qTAOpt.get.getView(ViewNames.TOKENS).asScala.head.getSurfaceForm).foreach{ case (str, qs) =>
+//          println("Str = " + str)
+//          qs.zipWithIndex.foreach{case ((q, p), idx) =>
+//            if(q.questionText.toLowerCase.contains("which ")) {
+//              println("---------" + idx + "---------")
+//              annotationUtils.getTargetPhrase(q, p)
+//              println("gold: " + q.answers)
+//            }
+//          }
+//        }
+        qAndpPairs.zipWithIndex.foreach{ case ((q, p), idx) =>
+            if(q.questionText.toLowerCase.contains("how ") && idx == 189) {
+              println("---------" + idx + "---------")
               annotationUtils.getTargetPhrase(q, p)
               println("gold: " + q.answers)
             }
           }
-        }
       case 21 => println(WikiUtils.extractCategoryOfWikipageRecursively(Seq("Saint Louis University"), 5))
       case 22 => println(WikiUtils.getWikiDataId("University"))
       case 23 => println(WikiUtils.wikiAskQuery("Saint Louis University", "University", WikiDataProperties.instanceOf, 3))
