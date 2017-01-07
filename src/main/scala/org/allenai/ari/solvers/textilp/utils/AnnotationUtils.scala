@@ -423,6 +423,146 @@ class AnnotationUtils {
     uniqueCandidateSetWithoutQuestionTarget.toSeq
   }
 
+  def candidateGenerationWithQuestionTypeClassification(question: Question, paragraph: Paragraph): Set[String] = {
+    val candidates = ArrayBuffer[Constituent]()
+    require(question.qTAOpt.isDefined, throw new Exception("the annotation for this question doest not exist"))
+    require(paragraph.contextTAOpt.isDefined, throw new Exception("the annotation for this paragraph doest not exist"))
+    println(question.questionText)
+    println(paragraph.context)
+    val pTA = paragraph.contextTAOpt.get
+    val qTA = question.qTAOpt.get
+    questionTypeClassification.addView(qTA)
+    require(qTA.getAvailableViews.contains(questionTypeClassification.finalViewName))
+    val fineType = qTA.getView(questionTypeClassification.finalViewName).getConstituents.get(0).getLabel
+    val fineScore = qTA.getView(questionTypeClassification.finalViewName).getConstituents.get(0).getConstituentScore
+    val coarseType = qTA.getView(questionTypeClassification.finalViewName).getConstituents.get(1).getLabel
+    val coarseScore = qTA.getView(questionTypeClassification.finalViewName).getConstituents.get(1).getConstituentScore
+    println("fileType: " + fineType  + s" ($fineScore) / coarseType: " + coarseType + s" ($coarseScore)")
+
+
+    val (shallowParseCons, paragraphQuantitiesCons, paragraphNerConsConll, paragraphNerConsOnto,
+    wikiMentionsInText, wikiMentionsInQuestion, paragraphTokens) = extractVariables(question, paragraph)
+
+    val fineTypeCandidates = fineType.toString match {
+      case "LOC:city" =>  if (fineScore > -2.0) cityExtractor(candidates, wikiMentionsInText) else Set.empty
+      case "LOC:country" => if (fineScore > -2.5) countryExtractor(candidates, wikiMentionsInText) else Set.empty
+      case "LOC:mount" =>
+        if (fineScore > -1.2) {
+          extractMountain(candidates, paragraphNerConsOnto, wikiMentionsInText)
+        }
+        else {
+          Set.empty
+        }
+      case "LOC:state" =>
+        if (fineScore > -0.4) {
+          stateExtractor(candidates, wikiMentionsInText)
+        }
+        else {
+          Set.empty
+        }
+      case "LOC:other" =>
+        if(fineScore> 0.0) {
+          locationExtractor(paragraphNerConsConll, paragraphNerConsOnto, candidates)
+          stateExtractor(candidates, wikiMentionsInText)
+          extractMountain(candidates, paragraphNerConsOnto, wikiMentionsInText)
+        }
+        else {
+          Set.empty
+        }
+      case "NUM:count" =>
+        if( fineScore > -1.3 ) {
+          numberExtractor(paragraphQuantitiesCons, paragraphNerConsOnto, candidates)
+        }
+        else {
+          Set.empty
+        }
+      case "NUM:dist" =>
+        if (fineScore > -1.5) numberExtractor(paragraphQuantitiesCons, paragraphNerConsOnto, candidates) else Set.empty
+      case "NUM:weight" =>
+        if (fineScore > -1) numberExtractor(paragraphQuantitiesCons, paragraphNerConsOnto, candidates) else Set.empty
+      case "NUM:speed" =>
+        if (fineScore > -2.5) numberExtractor(paragraphQuantitiesCons, paragraphNerConsOnto, candidates) else Set.empty
+      case "NUM:period" =>
+        if (fineScore > -1.5) numberExtractor(paragraphQuantitiesCons, paragraphNerConsOnto, candidates) else Set.empty
+      case "NUM:perc" =>
+        if (fineScore > -1.5) percentageExtractor(paragraphQuantitiesCons, candidates) else Set.empty
+      case "NUM:date" =>
+        if (fineScore > -1.5) dateExtractor(paragraphQuantitiesCons, paragraphNerConsOnto, candidates) else Set.empty
+      case "NUM:money" =>
+        if (fineScore > 0.0) moneyExtractor(paragraphQuantitiesCons, candidates) else Set.empty
+      case "NUM:other" =>
+        if (fineScore > -0.5) numberExtractor(paragraphQuantitiesCons, paragraphNerConsOnto, candidates) else Set.empty
+      case "ABBR:exp" => if(fineScore > -0.5) Set.empty /*TODO*/ else Set.empty
+      case "DESC:reason" => if(fineScore > 0.1) Set.empty /*TODO*/ else Set.empty
+      case "ENTY:color" =>
+        if(fineScore > -1.25) wikiDataInstanceOfExtractor(candidates, wikiMentionsInText, WikiDataProperties.color) else Set.empty
+      case "ENTY:food" =>
+        if(fineScore > 2.5) wikiDataInstanceOfExtractor(candidates, wikiMentionsInText, WikiDataProperties.food) else Set.empty
+      case "ENTY:other" =>
+        if(fineScore > 1.0) entityExtractor(paragraphNerConsConll, paragraphNerConsOnto, candidates) else Set.empty
+      case _ => Set.empty
+    }
+
+    //    LOC:city         -> city (Q515) with WikiData, score > -2.0
+    //    LOC:country 	 -> country (Q6256) with wiiData, score > -2.5
+    //    LOC:mount 		 -> mountain (Q8502) withWiiData / ENER: GPE	Geo-political Entity (GPE), score > -1.2
+    //    LOC:state		-> score > -0.4 /  state (Q7275) withWiiData
+    //
+    //    LOC:other --> extract everything: state/city/location/mountain/etc, LOC/GPE  score > 0.0
+    //
+    //    NUM:count  --> score > -1.3  / ORDINAL
+    //    NUM:dist -> QUANTITY / score > -1.5
+    //    NUM:weight -> score > -1.0
+    //    NUM:speed -> score > -2.5
+    //
+    //    NUM:perc -> pecentage / score > -1.5
+    //
+    //    NUM:date -> score > -1.5
+    //    NUM:period -> score > -1.5
+    //    NUM:money -> score > 0.0  : NER: MONEY
+    //    NUM:temp -> ignore
+    //
+    //
+    //    General numbers:
+    //      NUM:other -> numbers
+    //
+    //    ABBR:exp  --> score > -0.5
+
+
+    val coarseTypeCandidates = coarseType match {
+      case "ABBR" =>
+      case "DESC" =>
+      case "ENTY" =>
+      case "HUM" =>
+      case "NUM" =>
+      case "LOC" =>
+    }
+
+    Set.empty
+  }
+
+  def extractMountain(candidates: ArrayBuffer[Constituent], paragraphNerConsOnto: List[Constituent], wikiMentionsInText: List[Constituent]): candidates.type = {
+    // WikiData
+    wikiDataInstanceOfExtractor(candidates, wikiMentionsInText, WikiDataProperties.mountain)
+
+    // NER
+    def ontonotesLocationFilter(in: String): Boolean = in.contains("GPE")
+    val ontonotesCandidates = paragraphNerConsOnto.filter(a => ontonotesLocationFilter(a.getLabel))
+    candidates.++=:(ontonotesCandidates)
+  }
+
+  def stateExtractor(candidates: ArrayBuffer[Constituent], wikiMentionsInText: List[Constituent]): Unit = {
+    wikiDataInstanceOfExtractor(candidates, wikiMentionsInText, WikiDataProperties.state)
+  }
+
+  def countryExtractor(candidates: ArrayBuffer[Constituent], wikiMentionsInText: List[Constituent]): Unit = {
+    wikiDataInstanceOfExtractor(candidates, wikiMentionsInText, WikiDataProperties.country)
+  }
+
+  def cityExtractor(candidates: ArrayBuffer[Constituent], wikiMentionsInText: List[Constituent]): Unit = {
+    wikiDataInstanceOfExtractor(candidates, wikiMentionsInText, WikiDataProperties.city)
+  }
+
   def extractGeneralWikiSubsetMentions(wikiMentionsInText: List[Constituent], candidates: ArrayBuffer[Constituent], wikiTrigger: String): Unit = {
     println("using Wiki mentions . . .  ")
     //println(wikiMentionsInText)
@@ -526,11 +666,15 @@ class AnnotationUtils {
 
     // WikiData
     if (candidates.isEmpty) {
-      val wikiMentions = wikiMentionsInText.filter { c =>
-        WikiUtils.wikiAskQuery(dropWikiURL(c.getLabel), WikiDataProperties.person, WikiDataProperties.instanceOf, 5)
-      }
-      candidates.++=:(wikiMentions)
+      wikiDataInstanceOfExtractor(candidates, wikiMentionsInText, WikiDataProperties.person)
     }
+  }
+
+  def wikiDataInstanceOfExtractor(candidates: ArrayBuffer[Constituent], wikiMentionsInText: List[Constituent], targetType: String): Unit = {
+    val wikiMentions = wikiMentionsInText.filter { c =>
+      WikiUtils.wikiAskQuery(dropWikiURL(c.getLabel), targetType, WikiDataProperties.instanceOf, 5)
+    }
+    candidates.++=:(wikiMentions)
   }
 
   def moneyExtractor(paragraphNerConsOnto: List[Constituent], candidates: ArrayBuffer[Constituent]): Unit = {
@@ -576,67 +720,6 @@ class AnnotationUtils {
     val wikiMentionsInText = SerializationHelper.deserializeFromJson(paragraphWikiAnnotationOpt.get).getView(ViewNames.WIKIFIER).getConstituents.asScala.toList
     val wikiMentionsInQuestion = SerializationHelper.deserializeFromJson(questionWikiAnnotationOpt.get).getView(ViewNames.WIKIFIER).getConstituents.asScala.toList
     (shallowParseCons, paragraphQuantitiesCons, paragraphNerConsConll, paragraphNerConsOnto, wikiMentionsInText, wikiMentionsInQuestion, paragraphTokens)
-  }
-
-  def candidateGenerationWithQuestionTypeClassification(question: Question, paragraph: Paragraph): Set[String] = {
-    require(question.qTAOpt.isDefined, throw new Exception("the annotation for this question doest not exist"))
-    require(paragraph.contextTAOpt.isDefined, throw new Exception("the annotation for this paragraph doest not exist"))
-    println(question.questionText)
-    println(paragraph.context)
-    val pTA = paragraph.contextTAOpt.get
-    val qTA = question.qTAOpt.get
-    questionTypeClassification.addView(qTA)
-    require(qTA.getAvailableViews.contains(questionTypeClassification.finalViewName))
-    val fineType = qTA.getView(questionTypeClassification.finalViewName).getConstituents.get(0).getLabel
-    val fineScore = qTA.getView(questionTypeClassification.finalViewName).getConstituents.get(0).getConstituentScore
-    val coarseType = qTA.getView(questionTypeClassification.finalViewName).getConstituents.get(1).getLabel
-    val coarseScore = qTA.getView(questionTypeClassification.finalViewName).getConstituents.get(1).getConstituentScore
-    println("fileType: " + fineType  + s" ($fineScore) / coarseType: " + coarseType + s" ($coarseScore)")
-
-    val fineTypeCandidates = fineType match {
-      case "LOC:city" =>
-      case "LOC:country" =>
-      case "LOC:mount" =>
-      case "LOC:state" =>
-      case "LOC:other" =>
-      case "NUM:count" =>
-      case "NUM:dist" =>
-      case "NUM:weight" =>
-      case "NUM:speed" =>
-      case "NUM:perc" =>
-      case "NUM:date" =>
-      case "NUM:period" =>
-      case "NUM:money" =>
-      case "NUM:other" =>
-      case "ABBR:exp" =>
-      case "DESC:reason" =>
-      case "ENTY:color" =>
-      case "ENTY:food" =>
-      case "ENTY:other" =>
-    }
-
-    val coarseTypeCandidates = coarseType match {
-      case "ABBR" =>
-      case "DESC" =>
-      case "ENTY" =>
-      case "HUM" =>
-      case "NUM" =>
-    }
-
-    Set.empty
-
-    //    val paragraphTokenView = paragraph.contextTAOpt.get.getView(ViewNames.TOKENS)
-//    val paragraphTokens = paragraphTokenView.getConstituents.asScala.toList
-//    val shallowParseCons = question.qTAOpt.get.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala.toList
-//    val paragraphQuantitiesCons = paragraph.contextTAOpt.get.getView(ViewNames.QUANTITIES).getConstituents.asScala.toList
-//    val paragraphNerConsConll = paragraph.contextTAOpt.get.getView(ViewNames.NER_CONLL).getConstituents.asScala.toList
-//    val paragraphNerConsOnto = paragraph.contextTAOpt.get.getView(ViewNames.NER_ONTONOTES).getConstituents.asScala.toList
-//    val questionWikiAnnotationOpt = wikifierRedis.get(question.questionText)
-//    val paragraphWikiAnnotationOpt = wikifierRedis.get(paragraph.context)
-//    require(questionWikiAnnotationOpt.isDefined, throw new Exception("The wiki annotation for question is not defined"))
-//    require(paragraphWikiAnnotationOpt.isDefined, throw new Exception("The wiki annotation for paragraph is not defined"))
-//    val wikiMentionsInText = SerializationHelper.deserializeFromJson(paragraphWikiAnnotationOpt.get).getView(ViewNames.WIKIFIER).getConstituents.asScala.toList
-//    val wikiMentionsInQuestion = SerializationHelper.deserializeFromJson(questionWikiAnnotationOpt.get).getView(ViewNames.WIKIFIER).getConstituents.asScala.toList
   }
 
   def dropWikiURL(url: String): String = url.replace("http://en.wikipedia.org/wiki/", "")

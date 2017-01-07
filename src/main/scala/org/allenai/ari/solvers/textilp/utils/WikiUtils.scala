@@ -54,19 +54,21 @@ object WikiUtils {
 
   // important WikiData relations
   object WikiDataProperties {
+    // property
     val instanceOf = "P31"
     val subclassOf = "P279"
 
+    // entity
     val person = "Q5"
     val country = "Q6256"
-    val soverignState = "Q3624078"
+    val sovereignState = "Q3624078"
     val memberOfUN = "Q160016"
-
-
-    // location?
-    // time?
-    // color
-
+    val city = "Q515"
+    val mountain = "Q8502"
+    val state = "Q7275"
+    val drink = "Q40050"
+    val food = "Q2095"
+    val color = "Q1075"
   }
 
 //  def wikiAskQueryWithMaxRepetition(qStr: String, pStr: String, property: String, maxRepetition: Int): Boolean = {

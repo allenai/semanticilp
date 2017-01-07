@@ -316,7 +316,8 @@ object ExperimentsApp {
         // evaluate the candidate generation recall
         val qAndpPairs = trainReader.instances.slice(0, 30).flatMap { i => i.paragraphs.slice(0,5).flatMap{p => p.questions.slice(0, 10).map(q => (q, p))}}.take(1000)
         val (pre, rec, candSize) = qAndpPairs.zipWithIndex.map{ case ((q, p), idx) =>
-          val candidates = annotationUtils.getTargetPhrase(q, p).toSet
+//          val candidates = annotationUtils.getTargetPhrase(q, p).toSet
+          val candidates = annotationUtils.candidateGenerationWithQuestionTypeClassification(q, p)
           val goldCandidates = q.answers.map(_.answerText).toSet
           val pre = if (goldCandidates.intersect(candidates).nonEmpty) 1.0 else 0.0
           val rec = if(candidates.nonEmpty) 1.0 else 0.0
@@ -329,8 +330,9 @@ object ExperimentsApp {
         println("Precision: " + avgP)
         println("Recall: " + avgR)
         println("AvgResult: " + avgCandidateLength)
-        println("Ratio of answers with length 1" + candSize.count(_ == 1))
+        println("Ratio of answers with length 1: " + candSize.count(_ == 1))
         println("F1: " + 2 * avgR * avgR  / (avgP + avgR))
+        println(candSize)
       case 28 =>
         val qAndpPairs = trainReader.instances.flatMap { i => i.paragraphs.flatMap{p => p.questions.map(_ -> p)}}
         qAndpPairs.zipWithIndex.foreach{ case ((q, p), idx) =>
