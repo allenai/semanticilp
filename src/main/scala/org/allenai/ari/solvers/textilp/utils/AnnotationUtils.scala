@@ -481,39 +481,34 @@ class AnnotationUtils {
       case _ =>
     }
 
-    //    LOC:city         -> city (Q515) with WikiData, score > -2.0
-    //    LOC:country 	 -> country (Q6256) with wiiData, score > -2.5
-    //    LOC:mount 		 -> mountain (Q8502) withWiiData / ENER: GPE	Geo-political Entity (GPE), score > -1.2
-    //    LOC:state		-> score > -0.4 /  state (Q7275) withWiiData
-    //
-    //    LOC:other --> extract everything: state/city/location/mountain/etc, LOC/GPE  score > 0.0
-    //
-    //    NUM:count  --> score > -1.3  / ORDINAL
-    //    NUM:dist -> QUANTITY / score > -1.5
-    //    NUM:weight -> score > -1.0
-    //    NUM:speed -> score > -2.5
-    //
-    //    NUM:perc -> pecentage / score > -1.5
-    //
-    //    NUM:date -> score > -1.5
-    //    NUM:period -> score > -1.5
-    //    NUM:money -> score > 0.0  : NER: MONEY
-    //    NUM:temp -> ignore
-    //
-    //
-    //    General numbers:
-    //      NUM:other -> numbers
-    //
-    //    ABBR:exp  --> score > -0.5
-
-
-    val coarseTypeCandidates = coarseType match {
-      case "ABBR" =>
-      case "DESC" =>
-      case "ENTY" =>
-      case "HUM" =>
-      case "NUM" =>
-      case "LOC" =>
+    if(candidates.isEmpty) {
+      coarseType match {
+        case "ABBR" =>
+        case "DESC" =>
+        case "ENTY" | "HUM" =>
+          if (coarseScore > 0.5) {
+            entityExtractor(paragraphNerConsConll, paragraphNerConsOnto, candidates)
+            wikiDataInstanceOfExtractor(candidates, wikiMentionsInText, WikiDataProperties.color)
+            wikiDataInstanceOfExtractor(candidates, wikiMentionsInText, WikiDataProperties.food)
+            wikiDataInstanceOfExtractor(candidates, wikiMentionsInText, WikiDataProperties.person)
+            wikiDataInstanceOfExtractor(candidates, wikiMentionsInText, WikiDataProperties.country)
+          }
+        case "NUM" =>
+          if (coarseScore > 0.5) {
+            numberExtractor(paragraphQuantitiesCons, paragraphNerConsOnto, candidates)
+            percentageExtractor(paragraphQuantitiesCons, candidates)
+            dateExtractor(paragraphQuantitiesCons, paragraphNerConsOnto, candidates)
+            moneyExtractor(paragraphQuantitiesCons, candidates)
+            candidates.++=:(paragraphNerConsOnto.filter(_.getLabel.contains("ORDINAL")))
+          }
+        case "LOC" =>
+          if (coarseScore > -0.5) {
+            cityExtractor(candidates, wikiMentionsInText)
+            countryExtractor(candidates, wikiMentionsInText)
+            extractMountain(candidates, paragraphNerConsOnto, wikiMentionsInText)
+            stateExtractor(candidates, wikiMentionsInText)
+          }
+      }
     }
 
     candidates.map(_.getSurfaceForm.trim).toSet
