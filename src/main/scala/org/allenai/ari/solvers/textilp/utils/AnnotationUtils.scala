@@ -7,11 +7,11 @@ import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, TextAnnotation}
 import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper
 import edu.illinois.cs.cogcomp.core.utilities.configuration.{Configurator, ResourceManager}
-import edu.illinois.cs.cogcomp.curator.{CuratorConfigurator, CuratorFactory}
+import edu.illinois.cs.cogcomp.curator.CuratorFactory
 import edu.illinois.cs.cogcomp.pipeline.common.PipelineConfigurator
 import edu.illinois.cs.cogcomp.pipeline.common.PipelineConfigurator._
 import edu.illinois.cs.cogcomp.pipeline.main.PipelineFactory
-//import edu.illinois.cs.cogcomp.quant.driver.Quantifier
+import edu.illinois.cs.cogcomp.saulexamples.nlp.QuestionTypeClassification.QuestionTypeAnnotator
 import org.allenai.ari.solvers.textilp.utils.WikiUtils.WikiDataProperties
 import org.allenai.ari.solvers.textilp.{Paragraph, Question, TopicGroup}
 import org.allenai.common.cache.JsonQueryCache
@@ -49,6 +49,8 @@ class AnnotationUtils {
   }
 
   val viewsToDisable = Set(USE_SRL_NOM, USE_SRL_VERB, USE_STANFORD_DEP, USE_STANFORD_PARSE)
+  val viewsToAdd = Seq(ViewNames.POS, ViewNames.LEMMA, ViewNames.NER_CONLL, ViewNames.NER_ONTONOTES,
+    ViewNames.SHALLOW_PARSE/*, ViewNames.QUANTITIES*/)
 
   lazy val pipelineService = {
     println("Starting to build the pipeline service . . . ")
@@ -75,20 +77,18 @@ class AnnotationUtils {
     CuratorFactory.buildCuratorClient()
   }
 
+  lazy val questionTypeClassification = new QuestionTypeAnnotator()
+
+
   def annotate(string: String): TextAnnotation = {
-    val cacheKey = "TextAnnotations:" + viewsToDisable.mkString("*") + string
+    val cacheKey = "*TextAnnotations:" + viewsToDisable.mkString("*") + viewsToAdd.mkString("*") + string
     val redisAnnotation = synchronizedRedisClient.get(cacheKey)
     if (redisAnnotation.isDefined) {
       SerializationHelper.deserializeFromJson(redisAnnotation.get)
     } else {
       //val textAnnotation = pipelineService.createAnnotatedTextAnnotation("", "", string)
       val textAnnotation = pipelineService.createBasicTextAnnotation("", "", string)
-      pipelineService.addView(textAnnotation, ViewNames.POS)
-      pipelineService.addView(textAnnotation, ViewNames.NER_CONLL)
-      pipelineService.addView(textAnnotation, ViewNames.NER_ONTONOTES)
-      pipelineService.addView(textAnnotation, ViewNames.SHALLOW_PARSE)
-      println("string" + string)
-      pipelineService.addView(textAnnotation, ViewNames.QUANTITIES)
+      viewsToAdd.foreach{ vu => pipelineService.addView(textAnnotation, vu) }
       //if (withQuantifier) quantifierAnnotator.addView(textAnnotation)
       synchronizedRedisClient.put(cacheKey, SerializationHelper.serializeToJson(textAnnotation))
       textAnnotation
@@ -220,7 +220,7 @@ class AnnotationUtils {
 
   import scala.collection.JavaConverters._
 
-  val questionTerms = Set("which", "what", "where", "who", "whom", "how")
+  val questionTerms = Set("which", "what", "where", "who", "whom", "how", "when", "why")
   val numberTriggers = Set("age")
   val tobe = Set("is", "are", "am", "do", "does", "did", "was", "were")
 
@@ -228,30 +228,19 @@ class AnnotationUtils {
     c.getEndCharOffset >= offset && c.getStartCharOffset <= offset
   }
 
-  def getTargetPhrase(question: Question, paragraph: Paragraph) = {
+  def getTargetPhrase(question: Question, paragraph: Paragraph): Seq[String] = {
     require(question.qTAOpt.isDefined, throw new Exception("the annotation for this question doest not exist"))
     require(paragraph.contextTAOpt.isDefined, throw new Exception("the annotation for this paragraph doest not exist"))
     println(question.questionText)
     println(paragraph.context)
-    val paragraphTokenView = paragraph.contextTAOpt.get.getView(ViewNames.TOKENS)
-    val paragraphTokens = paragraphTokenView.getConstituents.asScala.toList
-    val shallowParseCons = question.qTAOpt.get.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala.toList
-    val paragraphQuantitiesCons = paragraph.contextTAOpt.get.getView(ViewNames.QUANTITIES).getConstituents.asScala.toList
-    val paragraphNerConsConll = paragraph.contextTAOpt.get.getView(ViewNames.NER_CONLL).getConstituents.asScala.toList
-    val paragraphNerConsOnto = paragraph.contextTAOpt.get.getView(ViewNames.NER_ONTONOTES).getConstituents.asScala.toList
-    val questionWikiAnnotationOpt = wikifierRedis.get(question.questionText)
-    val paragraphWikiAnnotationOpt = wikifierRedis.get(paragraph.context)
-    require(questionWikiAnnotationOpt.isDefined, throw new Exception("The wiki annotation for question is not defined"))
-    require(paragraphWikiAnnotationOpt.isDefined, throw new Exception("The wiki annotation for paragraph is not defined"))
-    val wikiMentionsInText = SerializationHelper.deserializeFromJson(paragraphWikiAnnotationOpt.get).getView(ViewNames.WIKIFIER).getConstituents.asScala.toList
-    val wikiMentionsInQuestion = SerializationHelper.deserializeFromJson(questionWikiAnnotationOpt.get).getView(ViewNames.WIKIFIER).getConstituents.asScala.toList
+    val (shallowParseCons, paragraphQuantitiesCons, paragraphNerConsConll, paragraphNerConsOnto,
+    wikiMentionsInText, wikiMentionsInQuestion, paragraphTokens) = extractVariables(question, paragraph)
 //    println("wikiMentionsInText: " + wikiMentionsInText.map(a => a.getSurfaceForm + ":" + a.getLabel).mkString("/") )
 //    println("wikiMentionsInQuestion: " + wikiMentionsInQuestion.map(a => a.getSurfaceForm + ":" + a.getLabel).mkString("/") )
 
     def questionPhraseCondition(a: Constituent): Boolean = {
       val splitSet = a.getSurfaceForm.toLowerCase.split(" ").toSet
       val fullText = a.getTextAnnotation.text.toLowerCase
-
       if(splitSet.contains("who")) {
         // who should not come with "those who" or "how many"
         if (fullText.contains("how many") || fullText.contains("those who")) {
@@ -260,7 +249,16 @@ class AnnotationUtils {
         else {
           true
         }
-      } else {
+      }
+      else if(splitSet.contains("when")) {
+        if (fullText.contains("what ") || fullText.contains("which") || fullText.contains("which") || fullText.contains("how") || fullText.contains("why")) {
+          false
+        }
+        else {
+          true
+        }
+      }
+      else {
         splitSet.intersect(questionTerms).nonEmpty
       }
     }
@@ -299,11 +297,7 @@ class AnnotationUtils {
         question.questionText.toLowerCase.contains("how large")
       ){
         println("general number trigger! ")
-        candidates.++=:(paragraphQuantitiesCons.filter(_.getLabel.contains("Number")))
-
-        // NER-Ontonotes
-        candidates.++=:(paragraphNerConsOnto.filter(_.getLabel.contains("CARDINAL")))
-        candidates.++=:(paragraphNerConsOnto.filter(_.getLabel.contains("QUANTITY")))
+        numberExtractor(paragraphQuantitiesCons, paragraphNerConsOnto, candidates)
       }
 
 //      // time trigger
@@ -315,44 +309,37 @@ class AnnotationUtils {
 
       // date trigger
       if(questionConstituentOpt.get._1.getSurfaceForm.contains(" date ") ||
+        questionConstituentOpt.get._1.getSurfaceForm.toLowerCase.trim.contains("when") ||
         questionConstituentOpt.get._1.getSurfaceForm.toLowerCase.trim.contains("what year") ||
         questionConstituentOpt.get._1.getSurfaceForm.toLowerCase.trim.contains("what time")){
         println("date trigger! ")
         println("time trigger! ")
-        candidates.++=:(paragraphQuantitiesCons.filter(_.getLabel.contains("TIME")))
-        candidates.++=:(paragraphQuantitiesCons.filter(_.getLabel.contains("Date")))
-
-        // NER-ontonotes
-        candidates.++=:(paragraphNerConsOnto.filter(_.getLabel.contains("DATE")))
+        dateExtractor(paragraphQuantitiesCons, paragraphNerConsOnto, candidates)
       }
 
       // language trigger
       if(questionConstituentOpt.get._1.getSurfaceForm.toLowerCase.trim.contains("language")){
         println("language trigger! ")
-        // NER-Conll
-        candidates.++=:(paragraphNerConsOnto.filter(_.getLabel.contains("LANGUAGE")))
+        languageExtractor(paragraphNerConsOnto, candidates)
       }
 
       // nationality trigger
       if(questionConstituentOpt.get._1.getSurfaceForm.toLowerCase.trim.contains("nationality")){
         println("nationality trigger! ")
-        // NER-Ontonotes
-        candidates.++=:(paragraphNerConsOnto.filter(_.getLabel.contains("NORP")))
+        nationalityExtractor(paragraphNerConsOnto, candidates)
       }
 
       // percent trigger
       if(questionConstituentOpt.get._1.getSurfaceForm.toLowerCase.trim.contains("percent")){
         println("percent trigger! ")
-        // NER-Ontonotes
-        candidates.++=:(paragraphNerConsOnto.filter(_.getLabel.contains("PERCENT")))
+        percentageExtractor(paragraphNerConsOnto, candidates)
       }
 
       // money trigger
       if(questionConstituentOpt.get._1.getSurfaceForm.toLowerCase.trim.contains("money") ||
         questionConstituentOpt.get._1.getSurfaceForm.toLowerCase.trim.contains("currency")){
         println("money trigger! ")
-        // NER-Ontonotes
-        candidates.++=:(paragraphNerConsOnto.filter(_.getLabel.contains("MONEY")))
+        moneyExtractor(paragraphNerConsOnto, candidates)
       }
 
       // person trigger
@@ -363,43 +350,7 @@ class AnnotationUtils {
         questionConstituentOpt.get._1.getSurfaceForm.toLowerCase.trim.contains("what individual") ||
         questionConstituentOpt.get._1.getSurfaceForm.toLowerCase.trim.contains("what person") ){
         println("person trigger! ")
-        // NER-Conll
-        candidates.++=:(paragraphNerConsConll.filter(_.getLabel.contains("PER")))
-        println("surface: " + paragraphNerConsConll)
-        println("labels: " + paragraphNerConsConll.map(_.getLabel))
-        println("conll filtered: " + paragraphNerConsConll.filter(_.getLabel.contains("PER")))
-
-        // NER-Ontonotes
-        val ontonotesCandidates = paragraphNerConsOnto.filter(_.getLabel.contains("PERSON"))
-        candidates.++=:(ontonotesCandidates)
-        println(paragraphNerConsOnto)
-
-        // add constituents with prefix
-        val prefixSet = Seq("Father", "Rev.")
-        val constituentsWithPrefix = prefixSet.flatMap{ prefix =>
-          ontonotesCandidates.map{ c =>
-            val target = prefix + " " + c.getSurfaceForm
-            Pattern.quote(target).r.findAllIn(paragraph.context) -> target
-          }
-        }.filter{_._1.nonEmpty}.map{ case (a, t) =>
-          println(s"(s, e) = (${a.start}, ${a.end})  /  text length :" + paragraph.contextTAOpt.get.text.length)
-          val charStart = a.start
-          val charEnd = a.end - 1
-          val consStart = paragraphTokens.find{containsOffset(_, charStart) }.getOrElse(throw new Exception("didn't find the token"))
-          val consEnd = paragraphTokens.find{containsOffset(_, charEnd) }.getOrElse(throw new Exception("didn't find the token"))
-          new Constituent(t, "candidates", paragraph.contextTAOpt.get, consStart.getStartSpan, consEnd.getEndSpan)
-        }
-
-        println("constituentsWithPrefix = " + constituentsWithPrefix)
-        candidates.++=:(constituentsWithPrefix)
-
-        // WikiData
-        if(candidates.isEmpty) {
-          val wikiMentions = wikiMentionsInText.filter{ c =>
-            WikiUtils.wikiAskQuery(dropWikiURL(c.getLabel), WikiDataProperties.person, WikiDataProperties.instanceOf, 5)
-          }
-          candidates.++=:(wikiMentions)
-        }
+        personExtractor(question, paragraph, candidates)
 
         // organization
         if(candidates.isEmpty) {
@@ -415,50 +366,17 @@ class AnnotationUtils {
 
         // which location
         if(triggerTerm.contains("location")) {
-          // NER-Conll
-          def conllLocationFilter(in: String): Boolean = in.contains("LOC") || in.contains("ORG")
-          candidates.++=:(paragraphNerConsConll.filter(a => conllLocationFilter(a.getLabel)))
-          println("surface: " + paragraphNerConsConll)
-          println("labels: " + paragraphNerConsConll.map(_.getLabel))
-          println("conll filtered: " + paragraphNerConsConll.filter(a => conllLocationFilter(a.getLabel)))
-
-          // NER-Ontonotes
-          def ontonotesLocationFilter(in: String): Boolean = in.contains("LOC") || in.contains("ORG") || in.contains("GPE") || in.contains("FAC")
-          val ontonotesCandidates = paragraphNerConsOnto.filter(a => ontonotesLocationFilter(a.getLabel))
-          candidates.++=:(ontonotesCandidates)
-          println(paragraphNerConsOnto)
+          locationExtractor(paragraphNerConsConll, paragraphNerConsOnto, candidates)
         }
 
         // institute
         if(triggerTerm.contains("institute") || triggerTerm.contains("company")) {
-          // NER-Conll
-          def conllLocationFilter(in: String): Boolean = in.contains("ORG")
-          candidates.++=:(paragraphNerConsConll.filter(a => conllLocationFilter(a.getLabel)))
-          println("surface: " + paragraphNerConsConll)
-          println("labels: " + paragraphNerConsConll.map(_.getLabel))
-          println("conll filtered: " + paragraphNerConsConll.filter(a => conllLocationFilter(a.getLabel)))
-
-          // NER-Ontonotes
-          def ontonotesLocationFilter(in: String): Boolean = in.contains("ORG")
-          val ontonotesCandidates = paragraphNerConsOnto.filter(a => ontonotesLocationFilter(a.getLabel))
-          candidates.++=:(ontonotesCandidates)
-          println(paragraphNerConsOnto)
+          instituteExtractor(paragraphNerConsConll, paragraphNerConsOnto, candidates)
         }
 
         // which entity
         if(triggerTerm.contains("entity")) {
-          // NER-Conll
-          def conllLocationFilter(in: String): Boolean = in.contains("ORG")
-          candidates.++=:(paragraphNerConsConll.filter(a => conllLocationFilter(a.getLabel)))
-          println("surface: " + paragraphNerConsConll)
-          println("labels: " + paragraphNerConsConll.map(_.getLabel))
-          println("conll filtered: " + paragraphNerConsConll.filter(a => conllLocationFilter(a.getLabel)))
-
-          // NER-Ontonotes
-          def ontonotesLocationFilter(in: String): Boolean = in.contains("ORG")
-          val ontonotesCandidates = paragraphNerConsOnto.filter(a => ontonotesLocationFilter(a.getLabel))
-          candidates.++=:(ontonotesCandidates)
-          println(paragraphNerConsOnto)
+          entityExtractor(paragraphNerConsConll, paragraphNerConsOnto, candidates)
         }
 
         // to-be triggers
@@ -468,14 +386,7 @@ class AnnotationUtils {
 
         // WikiData
         if(candidates.isEmpty) {
-          println("using Wiki mentions . . .  ")
-          //println(wikiMentionsInText)
-          val wikiMentions = wikiMentionsInText.filter { c =>
-
-            WikiUtils.wikiAskQuery(dropWikiURL(c.getLabel), wikiTrigger, WikiDataProperties.instanceOf, 5) ||
-              WikiUtils.wikiAskQuery(dropWikiURL(c.getLabel), wikiTrigger, WikiDataProperties.subclassOf, 5)
-          }
-          candidates.++=:(wikiMentions)
+          extractGeneralWikiSubsetMentions(wikiMentionsInText, candidates, wikiTrigger)
         }
         else {
           println("Candidates are not empty: " + candidates.length)
@@ -509,6 +420,223 @@ class AnnotationUtils {
     val uniqueCandidateSet = candidatesSet.collect{ case a if !setContainsIt(a) => a }
     val uniqueCandidateSetWithoutQuestionTarget = uniqueCandidateSet.diff(targetSet)
     println("uniqueCandidateSetWithoutQuestionTarget: " + uniqueCandidateSetWithoutQuestionTarget)
+    uniqueCandidateSetWithoutQuestionTarget.toSeq
+  }
+
+  def extractGeneralWikiSubsetMentions(wikiMentionsInText: List[Constituent], candidates: ArrayBuffer[Constituent], wikiTrigger: String): Unit = {
+    println("using Wiki mentions . . .  ")
+    //println(wikiMentionsInText)
+    val wikiMentions = wikiMentionsInText.filter { c =>
+      WikiUtils.wikiAskQuery(dropWikiURL(c.getLabel), wikiTrigger, WikiDataProperties.instanceOf, 5) ||
+        WikiUtils.wikiAskQuery(dropWikiURL(c.getLabel), wikiTrigger, WikiDataProperties.subclassOf, 5)
+    }
+    candidates.++=:(wikiMentions)
+  }
+
+  def entityExtractor(paragraphNerConsConll: List[Constituent], paragraphNerConsOnto: List[Constituent], candidates: ArrayBuffer[Constituent]): Unit = {
+    // NER-Conll
+    def conllLocationFilter(in: String): Boolean = in.contains("ORG")
+    candidates.++=:(paragraphNerConsConll.filter(a => conllLocationFilter(a.getLabel)))
+    println("surface: " + paragraphNerConsConll)
+    println("labels: " + paragraphNerConsConll.map(_.getLabel))
+    println("conll filtered: " + paragraphNerConsConll.filter(a => conllLocationFilter(a.getLabel)))
+
+    // NER-Ontonotes
+    def ontonotesLocationFilter(in: String): Boolean = in.contains("ORG")
+    val ontonotesCandidates = paragraphNerConsOnto.filter(a => ontonotesLocationFilter(a.getLabel))
+    candidates.++=:(ontonotesCandidates)
+    println(paragraphNerConsOnto)
+  }
+
+  def instituteExtractor(paragraphNerConsConll: List[Constituent], paragraphNerConsOnto: List[Constituent], candidates: ArrayBuffer[Constituent]): Unit = {
+    // NER-Conll
+    def conllLocationFilter(in: String): Boolean = in.contains("ORG")
+    candidates.++=:(paragraphNerConsConll.filter(a => conllLocationFilter(a.getLabel)))
+    println("surface: " + paragraphNerConsConll)
+    println("labels: " + paragraphNerConsConll.map(_.getLabel))
+    println("conll filtered: " + paragraphNerConsConll.filter(a => conllLocationFilter(a.getLabel)))
+
+    // NER-Ontonotes
+    def ontonotesLocationFilter(in: String): Boolean = in.contains("ORG")
+    val ontonotesCandidates = paragraphNerConsOnto.filter(a => ontonotesLocationFilter(a.getLabel))
+    candidates.++=:(ontonotesCandidates)
+    println(paragraphNerConsOnto)
+  }
+
+  def locationExtractor(paragraphNerConsConll: List[Constituent], paragraphNerConsOnto: List[Constituent], candidates: ArrayBuffer[Constituent]): Unit = {
+    // NER-Conll
+    def conllLocationFilter(in: String): Boolean = in.contains("LOC") || in.contains("ORG")
+    candidates.++=:(paragraphNerConsConll.filter(a => conllLocationFilter(a.getLabel)))
+    println("surface: " + paragraphNerConsConll)
+    println("labels: " + paragraphNerConsConll.map(_.getLabel))
+    println("conll filtered: " + paragraphNerConsConll.filter(a => conllLocationFilter(a.getLabel)))
+
+    // NER-Ontonotes
+    def ontonotesLocationFilter(in: String): Boolean = in.contains("LOC") || in.contains("ORG") || in.contains("GPE") || in.contains("FAC")
+    val ontonotesCandidates = paragraphNerConsOnto.filter(a => ontonotesLocationFilter(a.getLabel))
+    candidates.++=:(ontonotesCandidates)
+  }
+
+  def numberExtractor(paragraphQuantitiesCons: List[Constituent], paragraphNerConsOnto: List[Constituent], candidates: ArrayBuffer[Constituent]): Unit = {
+    candidates.++=:(paragraphQuantitiesCons.filter(_.getLabel.contains("Number")))
+
+    // NER-Ontonotes
+    candidates.++=:(paragraphNerConsOnto.filter(_.getLabel.contains("CARDINAL")))
+    candidates.++=:(paragraphNerConsOnto.filter(_.getLabel.contains("QUANTITY")))
+  }
+
+  def personExtractor(question: Question, paragraph: Paragraph, candidates: ArrayBuffer[Constituent]): Unit = {
+    val (shallowParseCons, paragraphQuantitiesCons, paragraphNerConsConll, paragraphNerConsOnto,
+    wikiMentionsInText, wikiMentionsInQuestion, paragraphTokens) = extractVariables(question, paragraph)
+    // NER-Conll
+    candidates.++=:(paragraphNerConsConll.filter(_.getLabel.contains("PER")))
+    println("surface: " + paragraphNerConsConll)
+    println("labels: " + paragraphNerConsConll.map(_.getLabel))
+    println("conll filtered: " + paragraphNerConsConll.filter(_.getLabel.contains("PER")))
+
+    // NER-Ontonotes
+    val ontonotesCandidates = paragraphNerConsOnto.filter(_.getLabel.contains("PERSON"))
+    candidates.++=:(ontonotesCandidates)
+    println(paragraphNerConsOnto)
+
+    // add constituents with prefix
+    val prefixSet = Seq("Father", "Rev.")
+    val constituentsWithPrefix = prefixSet.flatMap { prefix =>
+      ontonotesCandidates.map { c =>
+        val target = prefix + " " + c.getSurfaceForm
+        Pattern.quote(target).r.findAllIn(paragraph.context) -> target
+      }
+    }.filter {
+      _._1.nonEmpty
+    }.map { case (a, t) =>
+      println(s"(s, e) = (${a.start}, ${a.end})  /  text length :" + paragraph.contextTAOpt.get.text.length)
+      val charStart = a.start
+      val charEnd = a.end - 1
+      val consStart = paragraphTokens.find {
+        containsOffset(_, charStart)
+      }.getOrElse(throw new Exception("didn't find the token"))
+      val consEnd = paragraphTokens.find {
+        containsOffset(_, charEnd)
+      }.getOrElse(throw new Exception("didn't find the token"))
+      new Constituent(t, "candidates", paragraph.contextTAOpt.get, consStart.getStartSpan, consEnd.getEndSpan)
+    }
+
+    println("constituentsWithPrefix = " + constituentsWithPrefix)
+    candidates.++=:(constituentsWithPrefix)
+
+    // WikiData
+    if (candidates.isEmpty) {
+      val wikiMentions = wikiMentionsInText.filter { c =>
+        WikiUtils.wikiAskQuery(dropWikiURL(c.getLabel), WikiDataProperties.person, WikiDataProperties.instanceOf, 5)
+      }
+      candidates.++=:(wikiMentions)
+    }
+  }
+
+  def moneyExtractor(paragraphNerConsOnto: List[Constituent], candidates: ArrayBuffer[Constituent]): Unit = {
+    // NER-Ontonotes
+    candidates.++=:(paragraphNerConsOnto.filter(_.getLabel.contains("MONEY")))
+  }
+
+  def percentageExtractor(paragraphNerConsOnto: List[Constituent], candidates: ArrayBuffer[Constituent]): Unit = {
+    // NER-Ontonotes
+    candidates.++=:(paragraphNerConsOnto.filter(_.getLabel.contains("PERCENT")))
+  }
+
+  def nationalityExtractor(paragraphNerConsOnto: List[Constituent], candidates: ArrayBuffer[Constituent]): Unit = {
+    // NER-Ontonotes
+    candidates.++=:(paragraphNerConsOnto.filter(_.getLabel.contains("NORP")))
+  }
+
+  def languageExtractor(paragraphNerConsOnto: List[Constituent], candidates: ArrayBuffer[Constituent]): Unit = {
+    // NER-Conll
+    candidates.++=:(paragraphNerConsOnto.filter(_.getLabel.contains("LANGUAGE")))
+  }
+
+  def dateExtractor(paragraphQuantitiesCons: List[Constituent], paragraphNerConsOnto: List[Constituent], candidates: ArrayBuffer[Constituent]): Unit = {
+    candidates.++=:(paragraphQuantitiesCons.filter(_.getLabel.contains("TIME")))
+    candidates.++=:(paragraphQuantitiesCons.filter(_.getLabel.contains("Date")))
+
+    // NER-ontonotes
+    candidates.++=:(paragraphNerConsOnto.filter(_.getLabel.contains("DATE")))
+  }
+
+  def extractVariables(question: Question, paragraph: Paragraph): (List[Constituent], List[Constituent], List[Constituent],
+    List[Constituent], List[Constituent], List[Constituent], List[Constituent]) = {
+    val paragraphTokenView = paragraph.contextTAOpt.get.getView(ViewNames.TOKENS)
+    val paragraphTokens = paragraphTokenView.getConstituents.asScala.toList
+    val shallowParseCons = question.qTAOpt.get.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala.toList
+    val paragraphQuantitiesCons = List.empty //paragraph.contextTAOpt.get.getView(ViewNames.QUANTITIES).getConstituents.asScala.toList
+    val paragraphNerConsConll = paragraph.contextTAOpt.get.getView(ViewNames.NER_CONLL).getConstituents.asScala.toList
+    val paragraphNerConsOnto = paragraph.contextTAOpt.get.getView(ViewNames.NER_ONTONOTES).getConstituents.asScala.toList
+    val questionWikiAnnotationOpt = wikifierRedis.get(question.questionText)
+    val paragraphWikiAnnotationOpt = wikifierRedis.get(paragraph.context)
+    require(questionWikiAnnotationOpt.isDefined, throw new Exception("The wiki annotation for question is not defined"))
+    require(paragraphWikiAnnotationOpt.isDefined, throw new Exception("The wiki annotation for paragraph is not defined"))
+    val wikiMentionsInText = SerializationHelper.deserializeFromJson(paragraphWikiAnnotationOpt.get).getView(ViewNames.WIKIFIER).getConstituents.asScala.toList
+    val wikiMentionsInQuestion = SerializationHelper.deserializeFromJson(questionWikiAnnotationOpt.get).getView(ViewNames.WIKIFIER).getConstituents.asScala.toList
+    (shallowParseCons, paragraphQuantitiesCons, paragraphNerConsConll, paragraphNerConsOnto, wikiMentionsInText, wikiMentionsInQuestion, paragraphTokens)
+  }
+
+  def candidateGenerationWithQuestionTypeClassification(question: Question, paragraph: Paragraph): Set[String] = {
+    require(question.qTAOpt.isDefined, throw new Exception("the annotation for this question doest not exist"))
+    require(paragraph.contextTAOpt.isDefined, throw new Exception("the annotation for this paragraph doest not exist"))
+    println(question.questionText)
+    println(paragraph.context)
+    val pTA = paragraph.contextTAOpt.get
+    val qTA = question.qTAOpt.get
+    questionTypeClassification.addView(qTA)
+    require(qTA.getAvailableViews.contains(questionTypeClassification.finalViewName))
+    val fineType = qTA.getView(questionTypeClassification.finalViewName).getConstituents.get(0).getLabel
+    val fineScore = qTA.getView(questionTypeClassification.finalViewName).getConstituents.get(0).getConstituentScore
+    val coarseType = qTA.getView(questionTypeClassification.finalViewName).getConstituents.get(1).getLabel
+    val coarseScore = qTA.getView(questionTypeClassification.finalViewName).getConstituents.get(1).getConstituentScore
+    println("fileType: " + fineType  + s" ($fineScore) / coarseType: " + coarseType + s" ($coarseScore)")
+
+    val fineTypeCandidates = fineType match {
+      case "LOC:city" =>
+      case "LOC:country" =>
+      case "LOC:mount" =>
+      case "LOC:state" =>
+      case "LOC:other" =>
+      case "NUM:count" =>
+      case "NUM:dist" =>
+      case "NUM:weight" =>
+      case "NUM:speed" =>
+      case "NUM:perc" =>
+      case "NUM:date" =>
+      case "NUM:period" =>
+      case "NUM:money" =>
+      case "NUM:other" =>
+      case "ABBR:exp" =>
+      case "DESC:reason" =>
+      case "ENTY:color" =>
+      case "ENTY:food" =>
+      case "ENTY:other" =>
+    }
+
+    val coarseTypeCandidates = coarseType match {
+      case "ABBR" =>
+      case "DESC" =>
+      case "ENTY" =>
+      case "HUM" =>
+      case "NUM" =>
+    }
+
+    Set.empty
+
+    //    val paragraphTokenView = paragraph.contextTAOpt.get.getView(ViewNames.TOKENS)
+//    val paragraphTokens = paragraphTokenView.getConstituents.asScala.toList
+//    val shallowParseCons = question.qTAOpt.get.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala.toList
+//    val paragraphQuantitiesCons = paragraph.contextTAOpt.get.getView(ViewNames.QUANTITIES).getConstituents.asScala.toList
+//    val paragraphNerConsConll = paragraph.contextTAOpt.get.getView(ViewNames.NER_CONLL).getConstituents.asScala.toList
+//    val paragraphNerConsOnto = paragraph.contextTAOpt.get.getView(ViewNames.NER_ONTONOTES).getConstituents.asScala.toList
+//    val questionWikiAnnotationOpt = wikifierRedis.get(question.questionText)
+//    val paragraphWikiAnnotationOpt = wikifierRedis.get(paragraph.context)
+//    require(questionWikiAnnotationOpt.isDefined, throw new Exception("The wiki annotation for question is not defined"))
+//    require(paragraphWikiAnnotationOpt.isDefined, throw new Exception("The wiki annotation for paragraph is not defined"))
+//    val wikiMentionsInText = SerializationHelper.deserializeFromJson(paragraphWikiAnnotationOpt.get).getView(ViewNames.WIKIFIER).getConstituents.asScala.toList
+//    val wikiMentionsInQuestion = SerializationHelper.deserializeFromJson(questionWikiAnnotationOpt.get).getView(ViewNames.WIKIFIER).getConstituents.asScala.toList
   }
 
   def dropWikiURL(url: String): String = url.replace("http://en.wikipedia.org/wiki/", "")

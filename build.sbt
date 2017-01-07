@@ -73,7 +73,7 @@ lazy val root = (project in file(".")).
       ccgLib("illinois-core-utilities"),
       ccgLib("illinois-inference"),
       ccgLib("illinois-nlp-pipeline"),
-      ccgGroupId % "saul-examples_2.11" % "0.5.5",
+      ccgGroupId % "saul-examples_2.11" % "0.5.7-SNAPSHOT",
       ccgGroupId % "scip-jni" % "3.1.1",
       nlpstack("chunk") ,
       nlpstack("lemmatize"),

@@ -283,10 +283,9 @@ object ExperimentsApp {
       case 20 =>
         //val question = trainReader.instances.head.paragraphs.head.questions.head
         //println(trainReader.instances(1).paragraphs.head.questions.map(_.questionText).mkString("\n"))
-        val qAndpPairs = trainReader.instances.slice(0, 1).flatMap { i => i.paragraphs.flatMap{p => p.questions.map(_ -> p)}}
+        val qAndpPairs = trainReader.instances.slice(0, 2).flatMap { i => i.paragraphs.flatMap{p => p.questions.map(_ -> p)}}
 
-        import scala.collection.JavaConverters._
-
+//        import scala.collection.JavaConverters._
 //        qAndpPairs.groupBy(_._1.qTAOpt.get.getView(ViewNames.TOKENS).asScala.head.getSurfaceForm).foreach{ case (str, qs) =>
 //          println("Str = " + str)
 //          qs.zipWithIndex.foreach{case ((q, p), idx) =>
@@ -298,7 +297,7 @@ object ExperimentsApp {
 //          }
 //        }
         qAndpPairs.zipWithIndex.foreach{ case ((q, p), idx) =>
-            if(q.questionText.toLowerCase.contains("how ") && idx == 189) {
+            if(q.questionText.toLowerCase.contains("why ")) {
               println("---------" + idx + "---------")
               annotationUtils.getTargetPhrase(q, p)
               println("gold: " + q.answers)
@@ -313,6 +312,32 @@ object ExperimentsApp {
 //        println(WikiUtils.extractRelevantCategories("Color"))
       case 25 => testNERAnnotations()
       case 26 => testChunker()
+      case 27 =>
+        // evaluate the candidate generation recall
+        val qAndpPairs = trainReader.instances.slice(0, 30).flatMap { i => i.paragraphs.slice(0,5).flatMap{p => p.questions.slice(0, 10).map(q => (q, p))}}.take(1000)
+        val (pre, rec, candSize) = qAndpPairs.zipWithIndex.map{ case ((q, p), idx) =>
+          val candidates = annotationUtils.getTargetPhrase(q, p).toSet
+          val goldCandidates = q.answers.map(_.answerText).toSet
+          val pre = if (goldCandidates.intersect(candidates).nonEmpty) 1.0 else 0.0
+          val rec = if(candidates.nonEmpty) 1.0 else 0.0
+          (pre, rec, candidates.size)
+        }.unzip3
+        val avgP = pre.sum / pre.length
+        val avgR = rec.sum / rec.length
+        val avgCandidateLength = candSize.sum / candSize.length
+        println("Overall size: " + pre.length)
+        println("Precision: " + avgP)
+        println("Recall: " + avgR)
+        println("AvgResult: " + avgCandidateLength)
+        println("Ratio of answers with length 1" + candSize.count(_ == 1))
+        println("F1: " + 2 * avgR * avgR  / (avgP + avgR))
+      case 28 =>
+        val qAndpPairs = trainReader.instances.flatMap { i => i.paragraphs.flatMap{p => p.questions.map(_ -> p)}}
+        qAndpPairs.zipWithIndex.foreach{ case ((q, p), idx) =>
+            println("---------" + idx + "---------")
+            annotationUtils.candidateGenerationWithQuestionTypeClassification(q, p)
+            println("gold: " + q.answers)
+        }
     }
   }
 }
