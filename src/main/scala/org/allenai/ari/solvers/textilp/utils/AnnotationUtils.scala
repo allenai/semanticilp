@@ -412,15 +412,7 @@ class AnnotationUtils {
       ""
     }
     val targetSet = Set(triggerTerm, "the" + triggerTerm.trim)
-    val candidatesSet = candidates.map(_.getSurfaceForm.trim).toSet
-    // println("candidatesSet= " + candidatesSet)
-    def setContainsIt(str: String): Boolean = {
-      candidatesSet.diff(Set(str)).exists{ s =>  s.contains(str) }
-    }
-    val uniqueCandidateSet = candidatesSet.collect{ case a if !setContainsIt(a) => a }
-    val uniqueCandidateSetWithoutQuestionTarget = uniqueCandidateSet.diff(targetSet)
-    println("uniqueCandidateSetWithoutQuestionTarget: " + uniqueCandidateSetWithoutQuestionTarget)
-    uniqueCandidateSetWithoutQuestionTarget.toSeq
+    postProcessCandidates(candidates, targetSet)
   }
 
   def candidateGenerationWithQuestionTypeClassification(question: Question, paragraph: Paragraph): Set[String] = {
@@ -443,22 +435,16 @@ class AnnotationUtils {
     val (shallowParseCons, paragraphQuantitiesCons, paragraphNerConsConll, paragraphNerConsOnto,
     wikiMentionsInText, wikiMentionsInQuestion, paragraphTokens) = extractVariables(question, paragraph)
 
-    val fineTypeCandidates = fineType.toString match {
-      case "LOC:city" =>  if (fineScore > -2.0) cityExtractor(candidates, wikiMentionsInText) else Set.empty
-      case "LOC:country" => if (fineScore > -2.5) countryExtractor(candidates, wikiMentionsInText) else Set.empty
+    fineType.toString match {
+      case "LOC:city" =>  if (fineScore > -2.0) cityExtractor(candidates, wikiMentionsInText)
+      case "LOC:country" => if (fineScore > -2.5) countryExtractor(candidates, wikiMentionsInText)
       case "LOC:mount" =>
         if (fineScore > -1.2) {
           extractMountain(candidates, paragraphNerConsOnto, wikiMentionsInText)
         }
-        else {
-          Set.empty
-        }
       case "LOC:state" =>
         if (fineScore > -0.4) {
           stateExtractor(candidates, wikiMentionsInText)
-        }
-        else {
-          Set.empty
         }
       case "LOC:other" =>
         if(fineScore> 0.0) {
@@ -466,41 +452,33 @@ class AnnotationUtils {
           stateExtractor(candidates, wikiMentionsInText)
           extractMountain(candidates, paragraphNerConsOnto, wikiMentionsInText)
         }
-        else {
-          Set.empty
-        }
       case "NUM:count" =>
-        if( fineScore > -1.3 ) {
-          numberExtractor(paragraphQuantitiesCons, paragraphNerConsOnto, candidates)
-        }
-        else {
-          Set.empty
-        }
+        if( fineScore > -1.3 ) numberExtractor(paragraphQuantitiesCons, paragraphNerConsOnto, candidates)
       case "NUM:dist" =>
-        if (fineScore > -1.5) numberExtractor(paragraphQuantitiesCons, paragraphNerConsOnto, candidates) else Set.empty
+        if (fineScore > -1.5) numberExtractor(paragraphQuantitiesCons, paragraphNerConsOnto, candidates)
       case "NUM:weight" =>
-        if (fineScore > -1) numberExtractor(paragraphQuantitiesCons, paragraphNerConsOnto, candidates) else Set.empty
+        if (fineScore > -1) numberExtractor(paragraphQuantitiesCons, paragraphNerConsOnto, candidates)
       case "NUM:speed" =>
-        if (fineScore > -2.5) numberExtractor(paragraphQuantitiesCons, paragraphNerConsOnto, candidates) else Set.empty
+        if (fineScore > -2.5) numberExtractor(paragraphQuantitiesCons, paragraphNerConsOnto, candidates)
       case "NUM:period" =>
-        if (fineScore > -1.5) numberExtractor(paragraphQuantitiesCons, paragraphNerConsOnto, candidates) else Set.empty
+        if (fineScore > -1.5) numberExtractor(paragraphQuantitiesCons, paragraphNerConsOnto, candidates)
       case "NUM:perc" =>
-        if (fineScore > -1.5) percentageExtractor(paragraphQuantitiesCons, candidates) else Set.empty
+        if (fineScore > -1.5) percentageExtractor(paragraphQuantitiesCons, candidates)
       case "NUM:date" =>
-        if (fineScore > -1.5) dateExtractor(paragraphQuantitiesCons, paragraphNerConsOnto, candidates) else Set.empty
+        if (fineScore > -1.5) dateExtractor(paragraphQuantitiesCons, paragraphNerConsOnto, candidates)
       case "NUM:money" =>
-        if (fineScore > 0.0) moneyExtractor(paragraphQuantitiesCons, candidates) else Set.empty
+        if (fineScore > 0.0) moneyExtractor(paragraphQuantitiesCons, candidates)
       case "NUM:other" =>
-        if (fineScore > -0.5) numberExtractor(paragraphQuantitiesCons, paragraphNerConsOnto, candidates) else Set.empty
+        if (fineScore > -0.5) numberExtractor(paragraphQuantitiesCons, paragraphNerConsOnto, candidates)
       case "ABBR:exp" => if(fineScore > -0.5) Set.empty /*TODO*/ else Set.empty
       case "DESC:reason" => if(fineScore > 0.1) Set.empty /*TODO*/ else Set.empty
       case "ENTY:color" =>
-        if(fineScore > -1.25) wikiDataInstanceOfExtractor(candidates, wikiMentionsInText, WikiDataProperties.color) else Set.empty
+        if(fineScore > -1.25) wikiDataInstanceOfExtractor(candidates, wikiMentionsInText, WikiDataProperties.color)
       case "ENTY:food" =>
-        if(fineScore > 2.5) wikiDataInstanceOfExtractor(candidates, wikiMentionsInText, WikiDataProperties.food) else Set.empty
+        if(fineScore > 2.5) wikiDataInstanceOfExtractor(candidates, wikiMentionsInText, WikiDataProperties.food)
       case "ENTY:other" =>
-        if(fineScore > 1.0) entityExtractor(paragraphNerConsConll, paragraphNerConsOnto, candidates) else Set.empty
-      case _ => Set.empty
+        if(fineScore > 1.0) entityExtractor(paragraphNerConsConll, paragraphNerConsOnto, candidates)
+      case _ =>
     }
 
     //    LOC:city         -> city (Q515) with WikiData, score > -2.0
@@ -538,8 +516,21 @@ class AnnotationUtils {
       case "LOC" =>
     }
 
-    Set.empty
+    candidates.map(_.getSurfaceForm.trim).toSet
   }
+
+  def postProcessCandidates(candidates: ArrayBuffer[Constituent], targetSet: Set[String]): Seq[String] = {
+    val candidatesSet = candidates.map(_.getSurfaceForm.trim).toSet
+    // println("candidatesSet= " + candidatesSet)
+    def setContainsIt(str: String): Boolean = {
+      candidatesSet.diff(Set(str)).exists { s => s.contains(str) }
+    }
+    val uniqueCandidateSet = candidatesSet.collect { case a if !setContainsIt(a) => a }
+    val uniqueCandidateSetWithoutQuestionTarget = uniqueCandidateSet.diff(targetSet)
+    println("uniqueCandidateSetWithoutQuestionTarget: " + uniqueCandidateSetWithoutQuestionTarget)
+    uniqueCandidateSetWithoutQuestionTarget.toSeq
+  }
+
 
   def extractMountain(candidates: ArrayBuffer[Constituent], paragraphNerConsOnto: List[Constituent], wikiMentionsInText: List[Constituent]): candidates.type = {
     // WikiData

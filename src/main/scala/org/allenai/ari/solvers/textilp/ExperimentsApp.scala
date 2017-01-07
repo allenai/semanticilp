@@ -318,6 +318,7 @@ object ExperimentsApp {
         val (pre, rec, candSize) = qAndpPairs.zipWithIndex.map{ case ((q, p), idx) =>
 //          val candidates = annotationUtils.getTargetPhrase(q, p).toSet
           val candidates = annotationUtils.candidateGenerationWithQuestionTypeClassification(q, p)
+          println("candidates = " + candidates)
           val goldCandidates = q.answers.map(_.answerText).toSet
           val pre = if (goldCandidates.intersect(candidates).nonEmpty) 1.0 else 0.0
           val rec = if(candidates.nonEmpty) 1.0 else 0.0
@@ -325,7 +326,7 @@ object ExperimentsApp {
         }.unzip3
         val avgP = pre.sum / pre.length
         val avgR = rec.sum / rec.length
-        val avgCandidateLength = candSize.sum / candSize.length
+        val avgCandidateLength = candSize.sum.toDouble / candSize.length
         println("Overall size: " + pre.length)
         println("Precision: " + avgP)
         println("Recall: " + avgR)
