@@ -71,7 +71,7 @@ object ExperimentsApp {
           p.contextTAOpt match {
             case None => throw new Exception("The instance does not contain annotation . . . ")
             case Some(annotation) =>
-              val candidateAnswers = SolverUtils.getCandidateAnswer(annotation)
+              val candidateAnswers = annotationUtils.getCandidateAnswer(annotation)
               p.questions.foreach { q =>
                 val goldAnswers = q.answers.map(_.answerText)
                 if (goldAnswers.exists(candidateAnswers.contains)) {
@@ -99,7 +99,7 @@ object ExperimentsApp {
           p.contextTAOpt match {
             case None => throw new Exception("The instance does not contain annotation . . . ")
             case Some(annotation) =>
-              val candidateAnswers = SolverUtils.getCandidateAnswer(annotation).toSeq
+              val candidateAnswers = annotationUtils.getCandidateAnswer(annotation).toSeq
               p.questions.foreach { q =>
                 val goldAnswers = q.answers.map(_.answerText)
                 val perOptionScores = SolverUtils.handleQuestionWithManyCandidates(q.questionText, candidateAnswers, solver)
@@ -189,7 +189,7 @@ object ExperimentsApp {
           p.contextTAOpt match {
             case None => throw new Exception("The instance does not contain annotation . . . ")
             case Some(annotation) =>
-              val candidateAnswers = SolverUtils.getCandidateAnswer(annotation).toSeq
+              val candidateAnswers = annotationUtils.getCandidateAnswer(annotation).toSeq
               p.questions.slice(0, 1).map { q =>
                 val (selected, _) = textILPSolver.solve(q.questionText, candidateAnswers, p.context)
                 SolverUtils.assignCreditSquad(candidateAnswers(selected.head), q.answers.map(_.answerText))
@@ -317,7 +317,8 @@ object ExperimentsApp {
         val qAndpPairs = trainReader.instances.slice(0, 30).flatMap { i => i.paragraphs.slice(0,5).flatMap{p => p.questions.slice(0, 10).map(q => (q, p))}}.take(1000)
         val (pre, rec, candSize) = qAndpPairs.zipWithIndex.map{ case ((q, p), idx) =>
 //          val candidates = annotationUtils.getTargetPhrase(q, p).toSet
-          val candidates = annotationUtils.candidateGenerationWithQuestionTypeClassification(q, p)
+          //val candidates = annotationUtils.candidateGenerationWithQuestionTypeClassification(q, p)
+          val candidates = annotationUtils.getCandidateAnswer(p.contextTAOpt.get)
           println("candidates = " + candidates)
           val goldCandidates = q.answers.map(_.answerText).toSet
           val pre = if (goldCandidates.intersect(candidates).nonEmpty) 1.0 else 0.0

@@ -71,24 +71,6 @@ object SolverUtils {
     selectedIndices -> EntityRelationResult(fullText, entities, Seq.empty, sortedCandidates.toString)
   }
 
-  def getCandidateAnswer(contextTA: TextAnnotation): Set[String] = {
-    val nounPhrases = contextTA.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala.
-      filter { ch => ch.getLabel.contains("N") || ch.getLabel.contains("J") || ch.getLabel.contains("V") }.map(_.getSurfaceForm)
-    val quotationExtractionPattern = "([\"'])(?:(?=(\\\\?))\\2.)*?\\1".r
-    val stringsInsideQuotationMark = quotationExtractionPattern.findAllIn(contextTA.text)
-    val ners = contextTA.getView(ViewNames.NER_CONLL).getConstituents.asScala.map(_.getSurfaceForm)
-    val ners_onto = contextTA.getView(ViewNames.NER_ONTONOTES).getConstituents.asScala.map(_.getSurfaceForm)
-    val quant = if(contextTA.hasView(ViewNames.QUANTITIES)) {
-      contextTA.getView(ViewNames.QUANTITIES).getConstituents.asScala.map(_.getSurfaceForm)
-    }
-    else {
-      Seq.empty
-    }
-    val p = "-?\\d+".r // regex for finding all the numbers
-    val numbers = p.findAllIn(contextTA.text)
-    (nounPhrases ++ quant ++ ners ++ ners_onto ++ numbers ++ stringsInsideQuotationMark).toSet
-  }
-
   lazy val esClient = {
     val settings = Settings.builder()
       .put("cluster.name", Constants.clusterName)

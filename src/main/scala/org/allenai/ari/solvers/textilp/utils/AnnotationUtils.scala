@@ -431,7 +431,6 @@ class AnnotationUtils {
     val coarseScore = qTA.getView(questionTypeClassification.finalViewName).getConstituents.get(1).getConstituentScore
     println("fileType: " + fineType  + s" ($fineScore) / coarseType: " + coarseType + s" ($coarseScore)")
 
-
     val (shallowParseCons, paragraphQuantitiesCons, paragraphNerConsConll, paragraphNerConsOnto,
     wikiMentionsInText, wikiMentionsInQuestion, paragraphTokens) = extractVariables(question, paragraph)
 
@@ -514,6 +513,45 @@ class AnnotationUtils {
     candidates.map(_.getSurfaceForm.trim).toSet
   }
 
+  def getCandidateAnswer(contextTA: TextAnnotation): Set[String] = {
+    val candidates = ArrayBuffer[Constituent]()
+    println(contextTA.getText)
+    val pTA = contextTA
+    val nounPhrases = contextTA.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala.
+      filter { ch => ch.getLabel.contains("N") || ch.getLabel.contains("J") || ch.getLabel.contains("V") }.map(_.getSurfaceForm)
+    val quotationExtractionPattern = "([\"'])(?:(?=(\\\\?))\\2.)*?\\1".r
+    val stringsInsideQuotationMark = quotationExtractionPattern.findAllIn(contextTA.text)
+    val paragraphNerConsConll = contextTA.getView(ViewNames.NER_CONLL).getConstituents.asScala.toList
+    val paragraphNerConsOnto = contextTA.getView(ViewNames.NER_ONTONOTES).getConstituents.asScala.toList
+    val paragraphWikiAnnotationOpt = wikifierRedis.get(contextTA.getText)
+    val wikiMentionsInText = SerializationHelper.deserializeFromJson(paragraphWikiAnnotationOpt.get).getView(ViewNames.WIKIFIER).getConstituents.asScala.toList
+    val quant = if(contextTA.hasView(ViewNames.QUANTITIES)) {
+      contextTA.getView(ViewNames.QUANTITIES).getConstituents.asScala.map(_.getSurfaceForm)
+    }
+    else {
+      Seq.empty
+    }
+    val paragraphQuantitiesCons = List.empty //paragraph.contextTAOpt.get.getView(ViewNames.QUANTITIES).getConstituents.asScala.toList
+    val p = "-?\\d+".r // regex for finding all the numbers
+    val numbers = p.findAllIn(contextTA.text)
+    extractMountain(candidates, paragraphNerConsOnto, wikiMentionsInText)
+    cityExtractor(candidates, wikiMentionsInText)
+    countryExtractor(candidates, wikiMentionsInText)
+    stateExtractor(candidates, wikiMentionsInText)
+    numberExtractor(paragraphQuantitiesCons, paragraphNerConsOnto, candidates)
+    percentageExtractor(paragraphQuantitiesCons, candidates)
+    dateExtractor(paragraphQuantitiesCons, paragraphNerConsOnto, candidates)
+    moneyExtractor(paragraphQuantitiesCons, candidates)
+    candidates.++=:(paragraphNerConsOnto.filter(_.getLabel.contains("ORDINAL")))
+    entityExtractor(paragraphNerConsConll, paragraphNerConsOnto, candidates)
+    wikiDataInstanceOfExtractor(candidates, wikiMentionsInText, WikiDataProperties.color)
+    wikiDataInstanceOfExtractor(candidates, wikiMentionsInText, WikiDataProperties.food)
+    wikiDataInstanceOfExtractor(candidates, wikiMentionsInText, WikiDataProperties.person)
+    wikiDataInstanceOfExtractor(candidates, wikiMentionsInText, WikiDataProperties.country)
+    candidates.++(nounPhrases ++ quant ++ paragraphNerConsConll ++ paragraphNerConsOnto ++ numbers ++ stringsInsideQuotationMark)
+    candidates.map(_.getSurfaceForm.trim).toSet
+  }
+
   def postProcessCandidates(candidates: ArrayBuffer[Constituent], targetSet: Set[String]): Seq[String] = {
     val candidatesSet = candidates.map(_.getSurfaceForm.trim).toSet
     // println("candidatesSet= " + candidatesSet)
@@ -527,7 +565,7 @@ class AnnotationUtils {
   }
 
 
-  def extractMountain(candidates: ArrayBuffer[Constituent], paragraphNerConsOnto: List[Constituent], wikiMentionsInText: List[Constituent]): candidates.type = {
+  def extractMountain(candidates: ArrayBuffer[Constituent], paragraphNerConsOnto: List[Constituent], wikiMentionsInText: List[Constituent]): Unit = {
     // WikiData
     wikiDataInstanceOfExtractor(candidates, wikiMentionsInText, WikiDataProperties.mountain)
 
