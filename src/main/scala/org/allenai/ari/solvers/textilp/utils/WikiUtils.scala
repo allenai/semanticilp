@@ -1,6 +1,6 @@
 package org.allenai.ari.solvers.textilp.utils
 
-import java.net.{InetSocketAddress, URLEncoder}
+import java.net.URLEncoder
 
 import org.allenai.ari.solvers.textilp.{Paragraph, Question}
 import org.allenai.common.cache.JsonQueryCache
@@ -115,11 +115,60 @@ object WikiUtils {
     result
   }
 
+  def wikiDataDistanceWithIds(e1: String, e2: String, property: String): Int = {
+    val endpoint = "https://query.wikidata.org/sparql?format=json&query="
+    val url = s"""PREFIX gas: <http://www.bigdata.com/rdf/gas#>
+
+                SELECT ?super (?aLength + ?bLength as ?length) WHERE {
+                  SERVICE gas:service {
+                    gas:program gas:gasClass "com.bigdata.rdf.graph.analytics.SSSP" ;
+                                gas:in wd:$e1 ;
+                                gas:traversalDirection "Forward" ;
+                                gas:out ?super ;
+                                gas:out1 ?aLength ;
+                                gas:maxIterations 10 ;
+                                gas:linkType wdt:$property .
+                  }
+                  SERVICE gas:service {
+                    gas:program gas:gasClass "com.bigdata.rdf.graph.analytics.SSSP" ;
+                                gas:in wd:$e2 ;
+                                gas:traversalDirection "Forward" ;
+                                gas:out ?super ;
+                                gas:out1 ?bLength ;
+                                gas:maxIterations 10 ;
+                                gas:linkType wdt:$property .
+                  }
+                } ORDER BY ?length
+                LIMIT 1"""
+    val query = endpoint + URLEncoder.encode(url, "UTF-8")
+    val html = Source.fromURL(query)
+    val jsonString = html.mkString
+    val json = Json.parse(jsonString)
+    (json \\ "length").map { jsValue =>
+      (jsValue \ "value").get.as[JsString].value.toDouble.toInt
+    }.headOption.getOrElse(30)
+  }
+
+  def wikiDistanceWithIds(e1: String, e2: String): Int = {
+    math.min(
+      wikiDataDistanceWithIds(e1, e2, WikiDataProperties.instanceOf),
+      wikiDataDistanceWithIds(e1, e2, WikiDataProperties.subclassOf)
+    )
+  }
+
+  def wikiDistance(e1: String, e2: String): Int = {
+    val eId1 = getWikiDataId(e1)
+    val eId2 = getWikiDataId(e2)
+    //println(eId1 + "  /  " + eId2)
+    if(eId1.isDefined && eId2.isDefined) {
+      wikiDistanceWithIds(eId1.get, eId2.get)
+    }
+    else {
+      20
+    }
+  }
+
   def getWikiBaseCandidatesForQuestion(question: Question): Seq[String] = {
     Seq.empty
   }
-
-//  def wikiDataDistance(ent1: String, ent2: String, property: String): Int = {
-//
-//  }
 }

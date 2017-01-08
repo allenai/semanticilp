@@ -1,6 +1,7 @@
 package org.allenai.ari.solvers.textilp
 
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
+import org.allenai.ari.solvers.squad.{SquadClassifier, SquadClassifierUtils}
 import org.allenai.ari.solvers.textilp.alignment.AlignmentFunction
 import org.allenai.ari.solvers.textilp.solvers.{LuceneSolver, SalienceSolver, TextILPSolver, TextSolver}
 import org.allenai.ari.solvers.textilp.utils.WikiUtils.WikiDataProperties
@@ -244,6 +245,45 @@ object ExperimentsApp {
     }
   }
 
+  def testWikiDataSimilarity() = {
+    def call(e1: String, e2: String) = println(s"e1: $e1 / e2: $e2 / distance: ${WikiUtils.wikiDistance(e1, e2)}")
+    call("Barack_Obama", "Person")
+    call("Iran", "Country")
+    call("United_States", "Country")
+    call("University_of_Illinois_at_Urbana–Champaign", "University")
+    call("Dan Roth", "Persin")
+    call("Champaign,_Illinois", "Urbana,_Illinois")
+    call("United_States", "Spain")
+    call("English", "Spanish")
+    call("English", "Arabic")
+    call("Fox", "Cat")
+    call("Fox", "Animal")
+  }
+  /*
+        Result:
+  [info] e1: Barack_Obama / e2: Person / distance: 3
+  [info] e1: Iran / e2: Country / distance: 1
+  [info] e1: United_States / e2: Country / distance: 1
+  [info] e1: University_of_Illinois_at_Urbana–Champaign / e2: University / distance: 30
+  [info] e1: Dan Roth / e2: Country / distance: 3
+  [info] e1: Champaign,_Illinois / e2: Urbana,_Illinois / distance: 2
+  [info] e1: United_States / e2: Spain / distance: 2
+  [info] e1: English / e2: Spanish / distance: 2
+  [info] e1: English / e2: Arabic / distance: 30
+  [info] e1: Fox / e2: Cat / distance: 30
+  [info] e1: Fox / e2: Animal / distance: 30
+    */
+
+
+  def trainAndEvaluateSquadClassifier() = {
+    import SquadClassifierUtils._
+    SquadClassifierUtils.populateInstances()
+    beginClassifier.learn(10)
+    endClassifier.learn(10)
+    beginClassifier.test()
+    endClassifier.test()
+  }
+
   def main(args: Array[String]): Unit = {
     lazy val trainReader = new SQuADReader(Constants.squadTrainingDataFile, Some(annotationUtils.pipelineService), annotationUtils)
     lazy val devReader = new SQuADReader(Constants.squadDevDataFile, Some(annotationUtils.pipelineService), annotationUtils)
@@ -342,6 +382,8 @@ object ExperimentsApp {
             annotationUtils.candidateGenerationWithQuestionTypeClassification(q, p)
             println("gold: " + q.answers)
         }
+      case 29 => testWikiDataSimilarity()
+      case 30 => trainAndEvaluateSquadClassifier()
     }
   }
 }
