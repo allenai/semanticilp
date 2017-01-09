@@ -6,12 +6,13 @@ import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper
 import edu.illinois.cs.cogcomp.lbjava.learn.{SparseAveragedPerceptron, SparseNetworkLearner}
 import edu.illinois.cs.cogcomp.saul.classifier.Learnable
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
-import org.allenai.ari.solvers.textilp.QPPair
+import org.allenai.ari.solvers.textilp.{QPPair, Question, Paragraph}
 import org.allenai.ari.solvers.textilp.utils.WikiUtils.WikiDataProperties
 import org.allenai.ari.solvers.textilp.utils.{AnnotationUtils, Constants, SQuADReader, WikiUtils}
 
 import scala.collection.JavaConverters._
 import CandidateGeneration._
+import SquadClassifierUtils._
 
 object SquadSolverDataModel extends DataModel{
 
@@ -176,39 +177,7 @@ object SquadSolverDataModel extends DataModel{
       conjWithType(getPChunkLabel(qp, begin)), conjWithType(getPOntoLabel(qp, begin)),
       conjWithType(getPConllLabel(qp, begin)))
   }
-
-  // TA
-  def getQTA(qp: QPPair): TextAnnotation = qp.question.qTAOpt.get
-  def getPTA(qp: QPPair): TextAnnotation = qp.paragraph.contextTAOpt.get
-
-  // P Views
-  def getPOntoView(qp: QPPair): View = getPTA(qp).getView(ViewNames.NER_ONTONOTES)
-  def getPConllView(qp: QPPair): View = getPTA(qp).getView(ViewNames.NER_CONLL)
-  def getPWikiView(qp: QPPair): View = getPTA(qp).getView(ViewNames.WIKIFIER)
-  def getPPOSView(qp: QPPair): View = getPTA(qp).getView(ViewNames.POS)
-  def getPLemmaView(qp: QPPair): View = getPTA(qp).getView(ViewNames.LEMMA)
-  def getPShallowParseView(qp: QPPair): View = getPTA(qp).getView(ViewNames.SHALLOW_PARSE)
-
-  // Q Views
-  def getQShallowParseView(qp: QPPair): View = getQTA(qp).getView(ViewNames.SHALLOW_PARSE)
-
-  // P labels
-  def getPLemmaLabel(qp: QPPair, begin: Boolean): String = getLabel(qp, getPLemmaView(qp), begin)
-  def getPPOSLabel(qp: QPPair, begin: Boolean): String = getLabel(qp, getPPOSView(qp), begin)
-  def getPOntoLabel(qp: QPPair, begin: Boolean): String = getLabel(qp, getPOntoView(qp), begin)
-  def getPConllLabel(qp: QPPair, begin: Boolean): String = getLabel(qp, getPConllView(qp), begin)
-  def getPWikiLabel(qp: QPPair, begin: Boolean): String = getLabel(qp, getPWikiView(qp), begin)
-  def getPChunkLabel(qp: QPPair, begin: Boolean): String = getLabel(qp, getPShallowParseView(qp), begin)
-
-  def getTokenSurface(qp: QPPair, begin: Boolean): String = {
-    qp.paragraph.contextTAOpt.get.getToken(if(begin) qp.beginTokenIdx else qp.endTokenIdx)
-  }
-
-  def getLabel(qp: QPPair, vu: View, begin: Boolean): String = {
-    vu.getConstituentsCoveringToken(if (begin) qp.beginTokenIdx else qp.endTokenIdx).asScala.head.getLabel.mkString(" ")
-  }
 }
-
 
 class SquadClassifier(cType: String = "begin") extends Learnable[QPPair](SquadSolverDataModel.pair) {
   import SquadSolverDataModel._
@@ -248,5 +217,63 @@ object SquadClassifierUtils {
     }
     SquadSolverDataModel.pair.populate(getInstances(0, 10))
     SquadSolverDataModel.pair.populate(getInstances(11, 20), train = false)
+  }
+
+  // TA
+  def getQTA(qp: QPPair): TextAnnotation = qp.question.qTAOpt.get
+  def getPTA(qp: QPPair): TextAnnotation = qp.paragraph.contextTAOpt.get
+
+  // P Views
+  def getPOntoView(qp: QPPair): View = getPTA(qp).getView(ViewNames.NER_ONTONOTES)
+  def getPConllView(qp: QPPair): View = getPTA(qp).getView(ViewNames.NER_CONLL)
+  def getPWikiView(qp: QPPair): View = getPTA(qp).getView(ViewNames.WIKIFIER)
+  def getPPOSView(qp: QPPair): View = getPTA(qp).getView(ViewNames.POS)
+  def getPLemmaView(qp: QPPair): View = getPTA(qp).getView(ViewNames.LEMMA)
+  def getPShallowParseView(qp: QPPair): View = getPTA(qp).getView(ViewNames.SHALLOW_PARSE)
+
+  // Q Views
+  def getQShallowParseView(qp: QPPair): View = getQTA(qp).getView(ViewNames.SHALLOW_PARSE)
+
+  // P labels
+  def getPLemmaLabel(qp: QPPair, begin: Boolean): String = getLabel(qp, getPLemmaView(qp), begin)
+  def getPPOSLabel(qp: QPPair, begin: Boolean): String = getLabel(qp, getPPOSView(qp), begin)
+  def getPOntoLabel(qp: QPPair, begin: Boolean): String = getLabel(qp, getPOntoView(qp), begin)
+  def getPConllLabel(qp: QPPair, begin: Boolean): String = getLabel(qp, getPConllView(qp), begin)
+  def getPWikiLabel(qp: QPPair, begin: Boolean): String = getLabel(qp, getPWikiView(qp), begin)
+  def getPChunkLabel(qp: QPPair, begin: Boolean): String = getLabel(qp, getPShallowParseView(qp), begin)
+
+  def getTokenSurface(qp: QPPair, begin: Boolean): String = {
+    qp.paragraph.contextTAOpt.get.getToken(if(begin) qp.beginTokenIdx else qp.endTokenIdx)
+  }
+
+  def getLabel(qp: QPPair, vu: View, begin: Boolean): String = {
+    vu.getConstituentsCoveringToken(if (begin) qp.beginTokenIdx else qp.endTokenIdx).asScala.head.getLabel.mkString(" ")
+  }
+
+  def decodeTopKAnswers(q: Question, p: Paragraph, k: Int): Unit = {
+    println(q.questionText)
+    println(p.context)
+    val inds = p.contextTAOpt.get.getTokens.indices
+    val scoresPerIndex = inds.map{ i =>
+      val qp = QPPair(q, p, i, i)
+      val beginScore = beginClassifier.classifier.scores().get("true")
+      val endScore = endClassifier.classifier.scores().get("true")
+      (i, (beginScore, endScore))
+    }.toMap
+
+    // choose top-K pairs with the highest scores
+    val scoresPerIndexPairs = for{
+      j <- inds
+      i <- 0 until j
+    }
+      yield (i, j, scoresPerIndex(i)._1 + scoresPerIndex(j)._2)
+
+    val sortedScores = scoresPerIndexPairs.sortBy(-_._3) // biggest scores at the beginning
+
+    val selectedSpana = sortedScores.take(k)
+    selectedSpana.foreach{ case (i, j, score) =>
+        val answer = p.contextTAOpt.get.getTokensInSpan(i, j).mkString(" ")
+        println("ans: " + answer + " / score: " + score)
+    }
   }
 }
