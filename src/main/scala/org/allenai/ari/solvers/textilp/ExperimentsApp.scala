@@ -1,11 +1,12 @@
 package org.allenai.ari.solvers.textilp
 
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
-import org.allenai.ari.solvers.squad.{SquadClassifier, SquadClassifierUtils}
+import org.allenai.ari.solvers.squad.{CandidateGeneration, SquadClassifier, SquadClassifierUtils}
 import org.allenai.ari.solvers.textilp.alignment.AlignmentFunction
 import org.allenai.ari.solvers.textilp.solvers.{LuceneSolver, SalienceSolver, TextILPSolver, TextSolver}
 import org.allenai.ari.solvers.textilp.utils.WikiUtils.WikiDataProperties
 import org.allenai.ari.solvers.textilp.utils._
+import org.elasticsearch.search.suggest.phrase.PhraseSuggestionBuilder.CandidateGenerator
 import org.rogach.scallop._
 
 import scala.collection.JavaConverters._
@@ -72,7 +73,7 @@ object ExperimentsApp {
           p.contextTAOpt match {
             case None => throw new Exception("The instance does not contain annotation . . . ")
             case Some(annotation) =>
-              val candidateAnswers = annotationUtils.getCandidateAnswer(annotation)
+              val candidateAnswers = CandidateGeneration.getCandidateAnswer(annotation)
               p.questions.foreach { q =>
                 val goldAnswers = q.answers.map(_.answerText)
                 if (goldAnswers.exists(candidateAnswers.contains)) {
@@ -100,7 +101,7 @@ object ExperimentsApp {
           p.contextTAOpt match {
             case None => throw new Exception("The instance does not contain annotation . . . ")
             case Some(annotation) =>
-              val candidateAnswers = annotationUtils.getCandidateAnswer(annotation).toSeq
+              val candidateAnswers = CandidateGeneration.getCandidateAnswer(annotation).toSeq
               p.questions.foreach { q =>
                 val goldAnswers = q.answers.map(_.answerText)
                 val perOptionScores = SolverUtils.handleQuestionWithManyCandidates(q.questionText, candidateAnswers, solver)
@@ -190,7 +191,7 @@ object ExperimentsApp {
           p.contextTAOpt match {
             case None => throw new Exception("The instance does not contain annotation . . . ")
             case Some(annotation) =>
-              val candidateAnswers = annotationUtils.getCandidateAnswer(annotation).toSeq
+              val candidateAnswers = CandidateGeneration.getCandidateAnswer(annotation).toSeq
               p.questions.slice(0, 1).map { q =>
                 val (selected, _) = textILPSolver.solve(q.questionText, candidateAnswers, p.context)
                 SolverUtils.assignCreditSquad(candidateAnswers(selected.head), q.answers.map(_.answerText))
@@ -339,7 +340,7 @@ object ExperimentsApp {
         qAndpPairs.zipWithIndex.foreach{ case ((q, p), idx) =>
             if(q.questionText.toLowerCase.contains("why ")) {
               println("---------" + idx + "---------")
-              annotationUtils.getTargetPhrase(q, p)
+              CandidateGeneration.getTargetPhrase(q, p)
               println("gold: " + q.answers)
             }
           }
@@ -358,7 +359,7 @@ object ExperimentsApp {
         val (pre, rec, candSize) = qAndpPairs.zipWithIndex.map{ case ((q, p), idx) =>
 //          val candidates = annotationUtils.getTargetPhrase(q, p).toSet
           //val candidates = annotationUtils.candidateGenerationWithQuestionTypeClassification(q, p)
-          val candidates = annotationUtils.getCandidateAnswer(p.contextTAOpt.get)
+          val candidates = CandidateGeneration.getCandidateAnswer(p.contextTAOpt.get)
           println("candidates = " + candidates)
           val goldCandidates = q.answers.map(_.answerText).toSet
           val pre = if (goldCandidates.intersect(candidates).nonEmpty) 1.0 else 0.0
@@ -378,9 +379,9 @@ object ExperimentsApp {
       case 28 =>
         val qAndpPairs = trainReader.instances.flatMap { i => i.paragraphs.flatMap{p => p.questions.map(_ -> p)}}
         qAndpPairs.zipWithIndex.foreach{ case ((q, p), idx) =>
-            println("---------" + idx + "---------")
-            annotationUtils.candidateGenerationWithQuestionTypeClassification(q, p)
-            println("gold: " + q.answers)
+          println("---------" + idx + "---------")
+          CandidateGeneration.candidateGenerationWithQuestionTypeClassification(q, p)
+          println("gold: " + q.answers)
         }
       case 29 => testWikiDataSimilarity()
       case 30 => trainAndEvaluateSquadClassifier()
