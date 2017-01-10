@@ -82,7 +82,8 @@ lazy val root = (project in file(".")).
       nlpstack("core"),
       sprayClient,
       "org.scalatest" % "scalatest_2.11" % "2.2.4",
-      "org.elasticsearch" % "elasticsearch" % "2.4.1"
+      "org.elasticsearch" % "elasticsearch" % "2.4.1",
+      "me.tongfei" % "progressbar" % "0.5.1"
     ),
     resolvers ++= Seq(
 //      "Artima Maven Repository" at "http://repo.artima.com/releases"

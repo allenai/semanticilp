@@ -13,6 +13,8 @@ import scala.collection.JavaConverters._
 import CandidateGeneration._
 import SquadClassifierUtils._
 import edu.illinois.cs.cogcomp.saul.datamodel.property.Property
+import edu.illinois.cs.cogcomp.saul.datamodel.property.features.discrete.DiscreteProperty
+import me.tongfei.progressbar.ProgressBar
 
 import scala.collection.immutable.IndexedSeq
 
@@ -168,13 +170,13 @@ object SquadSolverDataModel extends DataModel{
   }
 
   // manually extracted type
-  val questionTypeConjWithAnnotations = (begin: Boolean) => property(pair) { qp: QPPair =>
-    val questionType = extractQuestionTypeInformation(getQShallowParseView(qp).getConstituents.asScala.toList).map(_._1)
-    def conjWithType = (str: String) => str + questionType
-    List(conjWithType(getPLemmaLabel(qp, begin)), conjWithType(getPPOSLabel(qp, begin)),
-      conjWithType(getPChunkLabel(qp, begin)), conjWithType(getPOntoLabel(qp, begin)),
-      conjWithType(getPConllLabel(qp, begin)))
-  }
+//  val questionTypeConjWithAnnotations = (begin: Boolean) => property(pair) { qp: QPPair =>
+//    val questionType = extractQuestionTypeInformation(getQShallowParseView(qp).getConstituents.asScala.toList).map(_._1)
+//    def conjWithType = (str: String) => str + questionType
+//    List(conjWithType(getPLemmaLabel(qp, begin)), conjWithType(getPPOSLabel(qp, begin)),
+//      conjWithType(getPChunkLabel(qp, begin)), conjWithType(getPOntoLabel(qp, begin)),
+//      conjWithType(getPConllLabel(qp, begin)))
+//  }
 
   val questionTypeConjWithGivebLabel = (begin: Boolean, f:(QPPair, Boolean) => String) => property(pair) { qp: QPPair =>
     val questionType = extractQuestionTypeInformation(getQShallowParseView(qp).getConstituents.asScala.toList).map(_._1)
@@ -195,29 +197,47 @@ object SquadSolverDataModel extends DataModel{
   // f:(QPPair, Boolean) => String
 
   val typeClassifierViewName = "QUESTION_TYPE"
-  val questionType = (begin: Boolean) =>  property(pair) { qp: QPPair =>
+//  val questionType = (begin: Boolean) =>  property(pair) { qp: QPPair =>
+//    val fineType = qp.question.qTAOpt.get.getView(typeClassifierViewName).getConstituents.get(0).getLabel
+//    val coarseType = qp.question.qTAOpt.get.getView(typeClassifierViewName).getConstituents.get(1).getLabel
+//    val thresholdedLabelsFine = Seq(-1.0, 0.5).map(th => questionTypeWithScoreThresholded(th, fine = true, qp))
+//    val thresholdedLabelsCoarse = Seq(-1.0, 0.5).map(th => questionTypeWithScoreThresholded(th, fine = false, qp))
+//    val typeInfo = List(fineType, coarseType) ++ thresholdedLabelsFine ++ thresholdedLabelsCoarse
+//    val tokenLabelInfo = List(getPLemmaLabel(qp, begin), getPPOSLabel(qp, begin),
+//      getPChunkLabel(qp, begin), getPOntoLabel(qp, begin), getPConllLabel(qp, begin))
+//    typeInfo.flatMap{ typ => tokenLabelInfo.map{ tok => typ + tok } }
+//  }
+
+//  def questionTypeWithScoreThresholded(th: Double, fine: Boolean, qp: QPPair): String = {
+//    val score = getQTA(qp).getView(typeClassifierViewName).getConstituents.get(if(fine) 0 else 1).getConstituentScore
+//    (score > th).toString
+//  }
+
+//  val questionTypeClassifierConjWithAnnotations = (begin: Boolean) => property(pair) { qp: QPPair =>
+//    val questionType = extractQuestionTypeInformation(getQShallowParseView(qp).getConstituents.asScala.toList).map(_._1)
+//    def conjWithType = (str: String) => str + questionType
+//    List(conjWithType(getPLemmaLabel(qp, begin)), conjWithType(getPPOSLabel(qp, begin)),
+//      conjWithType(getPChunkLabel(qp, begin)), conjWithType(getPOntoLabel(qp, begin)),
+//      conjWithType(getPConllLabel(qp, begin)))
+//  }
+
+  val questionTypeClassifierConjGivenLabel = (begin: Boolean, f:(QPPair, Boolean) => String) => property(pair) { qp: QPPair =>
     val fineType = qp.question.qTAOpt.get.getView(typeClassifierViewName).getConstituents.get(0).getLabel
     val coarseType = qp.question.qTAOpt.get.getView(typeClassifierViewName).getConstituents.get(1).getLabel
-    val thresholdedLabelsFine = Seq(-1.0, 0.5).map(th => questionTypeWithScoreThresholded(th, fine = true, qp))
-    val thresholdedLabelsCoarse = Seq(-1.0, 0.5).map(th => questionTypeWithScoreThresholded(th, fine = false, qp))
-    val typeInfo = List(fineType, coarseType) ++ thresholdedLabelsFine ++ thresholdedLabelsCoarse
-    val tokenLabelInfo = List(getPLemmaLabel(qp, begin), getPPOSLabel(qp, begin),
-      getPChunkLabel(qp, begin), getPOntoLabel(qp, begin), getPConllLabel(qp, begin))
-    typeInfo.flatMap{ typ => tokenLabelInfo.map{ tok => typ + tok } }
+    val fineScore = qp.question.qTAOpt.get.getView(typeClassifierViewName).getConstituents.get(0).getConstituentScore
+    val coarseScore = qp.question.qTAOpt.get.getView(typeClassifierViewName).getConstituents.get(1).getConstituentScore
+    val fineScoreType = Seq(-1.0, 0.0, 0.5).map(s => if(fineScore > s) "1" else "0").mkString
+    val coarseScoreType = Seq(-1.0, 0.0, 0.5).map(s => if(coarseScore > s) "1" else "0").mkString
+    List(f(qp, begin) + fineType + fineScoreType, f(qp, begin) + coarseType + coarseScoreType)
   }
 
-  def questionTypeWithScoreThresholded(th: Double, fine: Boolean, qp: QPPair): String = {
-    val score = getQTA(qp).getView(typeClassifierViewName).getConstituents.get(if(fine) 0 else 1).getConstituentScore
-    (score > th).toString
-  }
-
-  val questionTypeClassifierConjWithAnnotations = (begin: Boolean) => property(pair) { qp: QPPair =>
-    val questionType = extractQuestionTypeInformation(getQShallowParseView(qp).getConstituents.asScala.toList).map(_._1)
-    def conjWithType = (str: String) => str + questionType
-    List(conjWithType(getPLemmaLabel(qp, begin)), conjWithType(getPPOSLabel(qp, begin)),
-      conjWithType(getPChunkLabel(qp, begin)), conjWithType(getPOntoLabel(qp, begin)),
-      conjWithType(getPConllLabel(qp, begin)))
-  }
+  val questionTypeClassifierConjWithAnnotations2 = (begin: Boolean) => List(
+    questionTypeClassifierConjGivenLabel(begin, getPLemmaLabel),
+    questionTypeClassifierConjGivenLabel(begin, getPPOSLabel),
+    questionTypeClassifierConjGivenLabel(begin, getPChunkLabel),
+    questionTypeClassifierConjGivenLabel(begin, getPOntoLabel),
+    questionTypeClassifierConjGivenLabel(begin, getPConllLabel)
+  )
 
   val slidingWindowOfLemmaWithTh = (begin: Boolean, size: Int, th: Int) => property(pair) { qp: QPPair =>
     val center = if(begin) qp.beginTokenIdx else qp.endTokenIdx
@@ -273,13 +293,92 @@ object SquadSolverDataModel extends DataModel{
       )
   }*/
 
+  val conj2 = (p1: DiscreteProperty[QPPair], p2: DiscreteProperty[QPPair]) => property(pair) { qp: QPPair =>
+    p1(qp) + p2(qp)
+  }
+
+  val bigramForward = (p: DiscreteProperty[QPPair]) => property(pair) { qp: QPPair =>
+    val tokenSize = qp.paragraph.contextTAOpt.get.getTokens.length
+    val beginNew = if(qp.beginTokenIdx + 1 < tokenSize) qp.beginTokenIdx + 1 else qp.beginTokenIdx
+    val endNew = if(qp.endTokenIdx + 1 < tokenSize) qp.endTokenIdx + 1 else qp.endTokenIdx
+    val qpF = QPPair(qp.question, qp.paragraph, beginNew, endNew)
+    p(qp) + p(qpF)
+  }
+
+  val bigramBackward = (p: DiscreteProperty[QPPair]) => property(pair) { qp: QPPair =>
+    val beginNew = if(qp.beginTokenIdx - 1 >= 0) qp.beginTokenIdx - 1 else 0
+    val endNew = if(qp.endTokenIdx - 1 >= 0) qp.endTokenIdx - 1 else 0
+    val qpB = QPPair(qp.question, qp.paragraph, beginNew, endNew)
+    p(qp) + p(qpB)
+  }
+
+  val bigramFeatures = { (begin: Boolean) =>
+      questionTypeConjWithAnnotations2(begin) ++ Seq(
+        whichWhatTriggerAndIsTobeAndEntityLabel(begin),
+        candidateLemma(begin),
+        numberQuestionAndCandidateIsNumber(begin),
+        dateQuestionAndCandidateIsDate(begin),
+        personTriggerAndPersonNameOnto(begin),
+        personTriggerAndPersonNameConll(begin),
+        nationalityTriggerAndOntoNationalityLabel(begin),
+        whichWhatTriggerAndConllInstituteLabel(begin),
+        whichWhatTriggerAndEntityTriggerAndOntoLabels(begin),
+        questionConstituentConjOnto(begin),
+        questionTriggerTermConjOnto(begin),
+        firstNPConjWithOntoLabel(begin),
+        secondNPConjWithOntoLabel(begin),
+        firstVPConjWithOntoLabel(begin),
+        secondVPConjWithOntoLabel(begin)
+      ).flatMap(p => Seq(bigramForward(p), bigramBackward(p)))
+  }
+
+  val trigramForward = (p: DiscreteProperty[QPPair]) => property(pair) { qp: QPPair =>
+    val tokenSize = qp.paragraph.contextTAOpt.get.getTokens.length
+    val beginNew2 = if(qp.beginTokenIdx + 1 < tokenSize) qp.beginTokenIdx + 1 else qp.beginTokenIdx
+    val endNew2 = if(qp.endTokenIdx + 1 < tokenSize) qp.endTokenIdx + 1 else qp.endTokenIdx
+    val beginNew3 = if(qp.beginTokenIdx + 2 < tokenSize) qp.beginTokenIdx + 2 else qp.beginTokenIdx
+    val endNew3 = if(qp.endTokenIdx + 2 < tokenSize) qp.endTokenIdx + 2 else qp.endTokenIdx
+    val qpF2 = QPPair(qp.question, qp.paragraph, beginNew2, endNew2)
+    val qpF3 = QPPair(qp.question, qp.paragraph, beginNew3, endNew3)
+    p(qp) + p(qpF2) + p(qpF3)
+  }
+
+  val conjWithSlidingWindow = { (begin: Boolean) =>
+      questionTypeConjWithAnnotations2(begin) ++ Seq(
+      whichWhatTriggerAndIsTobeAndEntityLabel(begin),
+      candidateLemma(begin),
+      numberQuestionAndCandidateIsNumber(begin),
+      dateQuestionAndCandidateIsDate(begin),
+      personTriggerAndPersonNameOnto(begin),
+      personTriggerAndPersonNameConll(begin),
+      nationalityTriggerAndOntoNationalityLabel(begin),
+      whichWhatTriggerAndConllInstituteLabel(begin),
+      whichWhatTriggerAndEntityTriggerAndOntoLabels(begin),
+      questionConstituentConjOnto(begin),
+      questionTriggerTermConjOnto(begin),
+      firstNPConjWithOntoLabel(begin),
+      secondNPConjWithOntoLabel(begin),
+      firstVPConjWithOntoLabel(begin),
+      secondVPConjWithOntoLabel(begin)
+      ).map(p => conj2(p, questionOverlapWithinCurrentSentence(begin, 5)))
+  }
+
+  val bigramFeaturesWithContextSimilarity = { (begin: Boolean) =>
+    conjWithSlidingWindow(begin).flatMap(p => Seq(bigramForward(p), bigramBackward(p)))
+  }
+
+ // try this: questionTypeClassifierConjWithAnnotations2
+  // try conjunction with context
+  // try bigram features
+  // try bigram with context
+
   val propertyList = (begin: Boolean) => {
+      conjWithSlidingWindow(begin) ++
       questionTypeConjWithAnnotations2(begin) ++
         List(
           slidingWindowOfLemmaSize(begin, 5),
           questionOverlapWithinCurrentSentence(begin, 5),
           slidingWindowOfLemmaSizeWithinSentence(begin, 5),
-          questionTypeConjWithAnnotations(begin),
           whichWhatTriggerAndIsTobeAndEntityLabel(begin),
           candidateLemma(begin),
           numberQuestionAndCandidateIsNumber(begin),
@@ -347,7 +446,7 @@ object SquadClassifierUtils {
 
   private lazy val annotationUtils = new AnnotationUtils()
   private lazy val trainReader = new SQuADReader(Constants.squadTrainingDataFile, Some(annotationUtils.pipelineService), annotationUtils)
-  private val devReader = new SQuADReader(Constants.squadDevDataFile, Some(annotationUtils.pipelineService), annotationUtils)
+  private lazy val devReader = new SQuADReader(Constants.squadDevDataFile, Some(annotationUtils.pipelineService), annotationUtils)
 
   lazy val ((trainInstances, trainQPPairs), (devInstances, devQPPairs)) = {
     println("trainReader length: " + trainReader.instances.length)
@@ -474,8 +573,8 @@ object SquadClassifierUtils {
   }
 
   def insideDecoder(q: Question, p: Paragraph, k: Int, threshold: Double): Seq[(Int, Int)] = {
-    println(q.questionText)
-    println(p.context)
+    //println(q.questionText)
+    //println(p.context)
     val inds = p.contextTAOpt.get.getTokens.indices
     val scoresPerIndex = inds.map{ i =>
       val qp = QPPair(q, p, i, i)
@@ -517,22 +616,27 @@ object SquadClassifierUtils {
     val sortedScores = scoresPerIndexPairs.sortBy(-_._3) // biggest scores at the beginning
 
     val selectedSpans = sortedScores.take(k)
-    selectedSpans.foreach { case (i, j, score) =>
-      val answer = paragraphTA.getTokensInSpan(i, j).mkString(" ")
-      println("ans: " + answer + " / score: " + score)
-    }
+//    selectedSpans.foreach { case (i, j, score) =>
+//      val answer = paragraphTA.getTokensInSpan(i, j).mkString(" ")
+//      println("ans: " + answer + " / score: " + score)
+//    }
     selectedSpans.map(a => (a._1, a._2))
   }
 
   // maximizes F-alpha
   def findFMaximizingThreshold(thresholdRange: Seq[Double], train: Boolean = true): Unit = {
     thresholdRange.foreach { th =>
-      val (exact, f1, ones) = (if (train) trainQPPairs else devQPPairs).map { case (q, p) =>
+      val pairs = if (train) trainQPPairs else devQPPairs
+      val pb = new ProgressBar("Test", pairs.length); // name, initial max
+      pb.start()
+      val (exact, f1, ones) = pairs.map { case (q, p) =>
         val selectedSpans = insideDecoder(q, p, 1, th)
         assert(selectedSpans.length == 1)
         val predictedSpan = p.contextTAOpt.get.getTokensInSpan(selectedSpans.head._1, selectedSpans.head._2).mkString(" ")
+        pb.step()
         SolverUtils.assignCreditSquad(predictedSpan, q.answers.map(_.answerText))
-      }.unzip3
+       }.unzip3
+      pb.stop()
       val avgF1 = f1.sum / ones.sum
       val avgExact = exact.sum / ones.sum
       val totalCount = ones.sum
