@@ -1,6 +1,7 @@
 package org.allenai.ari.solvers.textilp
 
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
+import org.allenai.ari.solvers.squad.SquadClassifierUtils._
 import org.allenai.ari.solvers.squad.{CandidateGeneration, SquadClassifier, SquadClassifierUtils}
 import org.allenai.ari.solvers.textilp.alignment.AlignmentFunction
 import org.allenai.ari.solvers.textilp.solvers.{LuceneSolver, SalienceSolver, TextILPSolver, TextSolver}
@@ -279,10 +280,25 @@ object ExperimentsApp {
   def trainAndEvaluateSquadClassifier() = {
     import SquadClassifierUtils._
     SquadClassifierUtils.populateInstances()
-    beginClassifier.learn(10)
-    endClassifier.learn(10)
-    beginClassifier.test()
-    endClassifier.test()
+//    beginClassifier.learn(50)
+    //endClassifier.learn(50)
+//    beginClassifier.save()
+    //endClassifier.save()
+//    beginClassifier.test(SquadClassifierUtils.trainInstances)
+//    beginClassifier.test(SquadClassifierUtils.testInstances)
+//    endClassifier.test(SquadClassifierUtils.trainInstances)
+//    endClassifier.test(SquadClassifierUtils.testInstances)
+
+    insideClassifier.learn(30)
+    insideClassifier.save()
+    insideClassifier.test(SquadClassifierUtils.trainInstances)
+    insideClassifier.test(SquadClassifierUtils.testInstances)
+  }
+
+  def decodeClassifierResults() = {
+    insideClassifier.load()
+    insideClassifier.test(SquadClassifierUtils.testInstances)
+    SquadClassifierUtils.decodeQuestionsWithInside(train = false)
   }
 
   def main(args: Array[String]): Unit = {
@@ -385,6 +401,7 @@ object ExperimentsApp {
         }
       case 29 => testWikiDataSimilarity()
       case 30 => trainAndEvaluateSquadClassifier()
+      case 31 => decodeClassifierResults()
     }
   }
 }

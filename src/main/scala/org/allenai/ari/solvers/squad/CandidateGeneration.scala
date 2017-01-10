@@ -152,10 +152,10 @@ object CandidateGeneration {
   def extractQuestionKeyQuestionTerms(shallowParseCons: List[Constituent], wikiMentionsInQuestion: List[Constituent]): (Option[(Constituent, Int)], String, Option[Constituent]) = {
     val questionConstituentOpt: Option[(Constituent, Int)] = extractQuestionTypeInformation(shallowParseCons)
 
-    println(shallowParseCons.map(a =>
-      s"( ${a.getSurfaceForm} -> ${a.getLabel} )").mkString(" ")
-    )
-    println(questionConstituentOpt)
+//    println(shallowParseCons.map(a =>
+//      s"( ${a.getSurfaceForm} -> ${a.getLabel} )").mkString(" ")
+//    )
+//    println(questionConstituentOpt)
 
     val (triggerTerm, wikiTriggerTermOpt) = if (questionConstituentOpt.isDefined) {
       val tailingTerms = questionConstituentOpt.get._1.getSurfaceForm.split(" ").tail
@@ -167,7 +167,7 @@ object CandidateGeneration {
         tailingTerms.mkString(" ")
       }
       else {
-        println("trigger terms was empty so we replaced it with the next constituents")
+//        println("trigger terms was empty so we replaced it with the next constituents")
         if (shallowParseCons.length > idx + 1)
           shallowParseCons(idx + 1).getSurfaceForm
         else
@@ -178,7 +178,7 @@ object CandidateGeneration {
     else {
       "" -> None
     }
-    println("trigger term: " + triggerTerm)
+    //println("trigger term: " + triggerTerm)
     (questionConstituentOpt, triggerTerm, wikiTriggerTermOpt)
   }
 
@@ -548,10 +548,11 @@ object CandidateGeneration {
   def questionNationalityTrigger(str: String): Boolean = str.contains(" nationality ")
   def questionPercentTrigger(str: String): Boolean = str.contains(" percent ")
   def questionCurrencyTrigger(str: String): Boolean = str.contains(" money ") || str.contains(" currency ")
-  def questionPersonTrigger(str: String): Boolean = ( str.contains(" who ") && !str.contains(" how many ")) ||
+  def questionPersonTrigger(str: String): Boolean = ( str.contains("who ") && !str.contains("how many ")) ||
     str.contains("which individual") || str.contains("which person") ||
-    str.contains("what individual") || str.contains("what person")
-  def questionWhichWhatTrigger(str: String) = str.contains("which") || str.contains("what")
+    str.contains("what individual") || str.contains("what person") || str.contains("to whom ")
+  def questionWhichWhatTrigger(str: String) = str.contains("which") || str.contains("what") ||
+    str.contains("for whos ") || str.contains("for whose ")
   def questionLocationTrigger(str: String) = str.contains("location")
   def questionOrgTrigger(str: String) = str.contains("institute") || str.contains("company")
   def questionEntTrigger(str: String) = str.contains("entity")

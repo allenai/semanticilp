@@ -10,6 +10,7 @@ import edu.illinois.cs.cogcomp.curator.CuratorFactory
 import edu.illinois.cs.cogcomp.pipeline.common.PipelineConfigurator
 import edu.illinois.cs.cogcomp.pipeline.common.PipelineConfigurator._
 import edu.illinois.cs.cogcomp.pipeline.main.PipelineFactory
+import edu.illinois.cs.cogcomp.saulexamples.nlp.QuestionTypeClassification.QuestionTypeAnnotator
 import org.allenai.ari.solvers.squad.CandidateGeneration
 import org.allenai.ari.solvers.textilp.{Paragraph, Question, TopicGroup}
 import org.allenai.common.cache.JsonQueryCache
@@ -73,7 +74,7 @@ class AnnotationUtils {
   }
 
   def annotate(string: String): TextAnnotation = {
-    val cacheKey = "*TextAnnotations:" + viewsToDisable.mkString("*") + viewsToAdd.mkString("*") + string
+    val cacheKey = "*TextAnnotations:withQTypes" + viewsToDisable.mkString("*") + viewsToAdd.mkString("*") + string
     val redisAnnotation = synchronizedRedisClient.get(cacheKey)
     if (redisAnnotation.isDefined) {
       SerializationHelper.deserializeFromJson(redisAnnotation.get)
@@ -202,5 +203,11 @@ class AnnotationUtils {
           }
         }
     }
+  }
+
+
+  // Chen-Tse's annotations
+  def readAndDumpTheWikifierAnnotationsInRedis() = {
+
   }
 }

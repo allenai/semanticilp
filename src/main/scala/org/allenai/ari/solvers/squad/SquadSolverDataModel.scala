@@ -6,28 +6,26 @@ import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper
 import edu.illinois.cs.cogcomp.lbjava.learn.{SparseAveragedPerceptron, SparseNetworkLearner}
 import edu.illinois.cs.cogcomp.saul.classifier.Learnable
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
-import org.allenai.ari.solvers.textilp.{QPPair, Question, Paragraph}
-import org.allenai.ari.solvers.textilp.utils.WikiUtils.WikiDataProperties
-import org.allenai.ari.solvers.textilp.utils.{AnnotationUtils, Constants, SQuADReader, WikiUtils}
+import org.allenai.ari.solvers.textilp.{Paragraph, QPPair, Question}
+import org.allenai.ari.solvers.textilp.utils.{AnnotationUtils, Constants, SQuADReader}
 
 import scala.collection.JavaConverters._
 import CandidateGeneration._
 import SquadClassifierUtils._
+import edu.illinois.cs.cogcomp.saul.datamodel.property.Property
+
+import scala.collection.immutable.IndexedSeq
 
 object SquadSolverDataModel extends DataModel{
 
   val pair = node[QPPair]
 
-  val beginTokenLabel = property(pair) { qp: QPPair =>
-    val longestAns = qp.question.answers.maxBy(_.answerText.length)
-    val beginToken = qp.paragraph.contextTAOpt.get.getTokenIdFromCharacterOffset(longestAns.answerStart)
-    qp.beginTokenIdx == beginToken
-  }
-
-  val endTokenLabel = property(pair) { qp: QPPair =>
-    val longestAns = qp.question.answers.maxBy(_.answerText.length)
-    val endToken = qp.paragraph.contextTAOpt.get.getTokenIdFromCharacterOffset(longestAns.answerStart + longestAns.answerText.length - 1)
-    qp.endTokenIdx == endToken
+  val beginTokenLabel = property(pair) { qp: QPPair => qp.beginTokenIdx == getBeginTokenIndex(qp.question, qp.paragraph) }
+  val endTokenLabel = property(pair) { qp: QPPair => qp.endTokenIdx  == getEndTokenIndex(qp.question, qp.paragraph) }
+  val insideTokenLabel = property(pair) { qp: QPPair =>
+    val begin = getBeginTokenIndex(qp.question, qp.paragraph)
+    val end = getEndTokenIndex(qp.question, qp.paragraph)
+    qp.beginTokenIdx >= begin && qp.beginTokenIdx <= end
   }
 
   val pairTokenLabel = property(pair) { qp: QPPair =>
@@ -37,18 +35,9 @@ object SquadSolverDataModel extends DataModel{
     (qp.beginTokenIdx == beginToken) && (qp.endTokenIdx == endToken)
   }
 
-  val questionUnigrams = property(pair) { qp: QPPair =>
-    qp.question.qTAOpt.get.getView(ViewNames.LEMMA).getConstituents.asScala.map(_.getSurfaceForm).toList
-  }
+  val candidateLemma = (begin: Boolean) => property(pair) { qp: QPPair => getPLemmaLabel(qp, begin) }
 
-  def candidateLemma = (begin: Boolean) => property(pair) { qp: QPPair =>
-    val pTokens = qp.paragraph.contextTAOpt.get.getView(ViewNames.LEMMA).getConstituents.asScala.map(_.getSurfaceForm).toList
-    if(begin) pTokens(qp.beginTokenIdx) else pTokens(qp.endTokenIdx)
-  }
-  val beginLemma = candidateLemma(true)
-  val endLemma = candidateLemma(false)
-
-  def questionContainsString = (str: String) => property(pair) { qp: QPPair =>
+  val questionContainsString = (str: String) => property(pair) { qp: QPPair =>
     qp.question.questionText.toLowerCase.contains(str)
   }
   val whTypes = questionTerms.map(questionContainsString)
@@ -61,18 +50,33 @@ object SquadSolverDataModel extends DataModel{
     val shallowParseCons = qp.question.qTAOpt.get.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala.toList
     val questionWikiAnnotationOpt = wikifierRedis.get(qp.question.questionText)
     val wikiMentionsInQuestion = SerializationHelper.deserializeFromJson(questionWikiAnnotationOpt.get).getView(ViewNames.WIKIFIER).getConstituents.asScala.toList
+    val paragraphWikiAnnotationOpt = wikifierRedis.get(qp.paragraph.context)
+    val wikiViewOfInParagraph = SerializationHelper.deserializeFromJson(paragraphWikiAnnotationOpt.get).getView(ViewNames.WIKIFIER)
+    val paragraphWikiLabel = wikiViewOfInParagraph.getConstituentsCoveringToken(if(begin) qp.beginTokenIdx else qp.endTokenIdx).asScala.headOption.map{ _.getLabel}.getOrElse("")
     val (questionConstituentOpt, triggerTerm, wikiTriggerTermOpt) = extractQuestionKeyQuestionTerms(shallowParseCons, wikiMentionsInQuestion)
     val wikiTrigger = if(wikiTriggerTermOpt.isDefined) dropWikiURL(wikiTriggerTermOpt.get.getLabel) else triggerTerm
-    val wikiDataCandidates = isSubsetWithWikiData(wikiTrigger, getPWikiLabel(qp, begin))
+    val wikiDataCandidates = isSubsetWithWikiData(wikiTrigger, paragraphWikiLabel)
     questionConstituentOpt.map(_._1).toString + wikiDataCandidates
   }
 
+  val questionConstituentConjOnto = (begin: Boolean) => property(pair) { qp: QPPair =>
+    val shallowParseCons = qp.question.qTAOpt.get.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala.toList
+    val (questionConstituentOpt, triggerTerm, wikiTriggerTermOpt) = extractQuestionKeyQuestionTerms(shallowParseCons, List.empty)
+    questionConstituentOpt.map(_._1).toString + getPOntoLabel(qp, begin)
+  }
+
+  val questionTriggerTermConjOnto = (begin: Boolean) => property(pair) { qp: QPPair =>
+    val shallowParseCons = qp.question.qTAOpt.get.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala.toList
+    val (questionConstituentOpt, triggerTerm, wikiTriggerTermOpt) = extractQuestionKeyQuestionTerms(shallowParseCons, List.empty)
+    triggerTerm + getPOntoLabel(qp, begin)
+  }
+
   val rankingQuestionAndOrdinal = (begin: Boolean) => property(pair) { qp: QPPair =>
-    isItRankingQuestion(qp.question.questionText) && ontoOrdinal(getPOntoLabel(qp, begin))
+    isItRankingQuestion(qp.question.questionText.toLowerCase) && ontoOrdinal(getPOntoLabel(qp, begin))
   }
 
   val rankingQuestionAndNumber = (begin: Boolean) => property(pair) { qp: QPPair =>
-    isItRankingQuestion(qp.question.questionText) && ontoQuantOrCard(getPOntoLabel(qp, begin))
+    isItRankingQuestion(qp.question.questionText.toLowerCase) && ontoQuantOrCard(getPOntoLabel(qp, begin))
   }
 
   val numberQuestionAndCandidateIsNumber = (begin: Boolean) => property(pair) { qp: QPPair =>
@@ -84,62 +88,81 @@ object SquadSolverDataModel extends DataModel{
   }
 
   val personTriggerAndPersonNameOnto = (begin: Boolean) => property(pair) { qp: QPPair =>
-    questionPersonTrigger(qp.question.questionText) && ontoPerson(getPOntoLabel(qp, begin))
+//    println("getPOntoLabel: " + getPOntoLabel(qp, begin) + " ontoPerson: " + ontoPerson(getPOntoLabel(qp, begin)) +
+//      "  questionPersonTrigger: " + questionPersonTrigger(qp.question.questionText.toLowerCase))
+    //questionPersonTrigger(qp.question.questionText.toLowerCase) && ontoPerson(getPOntoLabel(qp, begin))
+    questionPersonTrigger(qp.question.questionText.toLowerCase).toString + getPOntoLabel(qp, begin)
   }
 
   val personTriggerAndPersonNameConll = (begin: Boolean) => property(pair) { qp: QPPair =>
-    questionPersonTrigger(qp.question.questionText) && conllPerson(getPConllLabel(qp, begin))
+    questionPersonTrigger(qp.question.questionText.toLowerCase) && conllPerson(getPConllLabel(qp, begin))
   }
 
   val personTriggerAndPersonNamePrefix = (begin: Boolean) => property(pair) { qp: QPPair =>
-    questionPersonTrigger(qp.question.questionText) && personNamePrefix.contains(getTokenSurface(qp, begin))
+    questionPersonTrigger(qp.question.questionText.toLowerCase) && personNamePrefix.contains(getTokenSurface(qp, begin))
   }
 
-  val personTriggerAndPersonNameWikiData = (begin: Boolean) => property(pair) { qp: QPPair =>
-    questionPersonTrigger(qp.question.questionText) &&
-      WikiUtils.wikiAskQuery(dropWikiURL(getPWikiLabel(qp, begin)), WikiDataProperties.person, WikiDataProperties.instanceOf, 5)
-  }
+//  val personTriggerAndPersonNameWikiData = (begin: Boolean) => property(pair) { qp: QPPair =>
+//    questionPersonTrigger(qp.question.questionText.toLowerCase) &&
+//      WikiUtils.wikiAskQuery(dropWikiURL(getPWikiLabel(qp, begin)), WikiDataProperties.person, WikiDataProperties.instanceOf, 5)
+//  }
 
   val currencyTriggerAndOntoCurrencyLabel = (begin: Boolean) => property(pair) { qp: QPPair =>
-    questionCurrencyTrigger(qp.question.questionText) && ontoMoney(getPOntoLabel(qp, begin))
+    questionCurrencyTrigger(qp.question.questionText.toLowerCase) && ontoMoney(getPOntoLabel(qp, begin))
   }
 
   val percentTriggerAndOntoPercentLabel = (begin: Boolean) => property(pair) { qp: QPPair =>
-    questionPercentTrigger(qp.question.questionText) && ontoPercent(getPOntoLabel(qp, begin))
+    questionPercentTrigger(qp.question.questionText.toLowerCase) && ontoPercent(getPOntoLabel(qp, begin))
   }
 
   val nationalityTriggerAndOntoNationalityLabel = (begin: Boolean) => property(pair) { qp: QPPair =>
-    questionNationalityTrigger(qp.question.questionText) && ontoNationality(getPOntoLabel(qp, begin))
+    questionNationalityTrigger(qp.question.questionText.toLowerCase) && ontoNationality(getPOntoLabel(qp, begin))
   }
 
   val languageTriggerAndOntoLanguageLabel = (begin: Boolean) => property(pair) { qp: QPPair =>
-    questionLanguageTrigger(qp.question.questionText) && ontoLanguage(getPOntoLabel(qp, begin))
+    questionLanguageTrigger(qp.question.questionText.toLowerCase) && ontoLanguage(getPOntoLabel(qp, begin))
+  }
+
+  val firstNPConjWithOntoLabel = (begin: Boolean) => property(pair) { qp: QPPair =>
+    getKthTargetLabelInQuestionShallowParse(qp, 0, "NP") + getPOntoLabel(qp, begin)
+  }
+
+  val secondNPConjWithOntoLabel = (begin: Boolean) => property(pair) { qp: QPPair =>
+    getKthTargetLabelInQuestionShallowParse(qp, 1, "NP") + getPOntoLabel(qp, begin)
+  }
+
+  val firstVPConjWithOntoLabel = (begin: Boolean) => property(pair) { qp: QPPair =>
+    getKthTargetLabelInQuestionShallowParse(qp, 0, "VP") + getPOntoLabel(qp, begin)
+  }
+
+  val secondVPConjWithOntoLabel = (begin: Boolean) => property(pair) { qp: QPPair =>
+    getKthTargetLabelInQuestionShallowParse(qp, 1, "VP") + getPOntoLabel(qp, begin)
   }
 
   val whichWhatTriggerAndOntoLocationLabel = (begin: Boolean) => property(pair) { qp: QPPair =>
-    questionWhichWhatTrigger(qp.question.questionText) &&
-      questionLocationTrigger(qp.question.questionText) &&
+    questionWhichWhatTrigger(qp.question.questionText.toLowerCase) &&
+      questionLocationTrigger(qp.question.questionText.toLowerCase) &&
       ontonotesLocationFilter(getPOntoLabel(qp, begin))
   }
 
   val whichWhatTriggerAndConllLocationLabel = (begin: Boolean) => property(pair) { qp: QPPair =>
-    questionWhichWhatTrigger(qp.question.questionText) &&
-      questionLocationTrigger(qp.question.questionText) &&
+    questionWhichWhatTrigger(qp.question.questionText.toLowerCase) &&
+      questionLocationTrigger(qp.question.questionText.toLowerCase) &&
       conllLocationFilter(getPOntoLabel(qp, begin))
   }
 
   val whichWhatTriggerAndConllInstituteLabel = (begin: Boolean) => property(pair) { qp: QPPair =>
-    questionWhichWhatTrigger(qp.question.questionText).toString +
+    questionWhichWhatTrigger(qp.question.questionText.toLowerCase).toString +
       questionOrgTrigger(qp.question.questionText).toString + getPOntoLabel(qp, begin)
   }
 
   val whichWhatTriggerAndEntityTriggerAndOntoLabels = (begin: Boolean) => property(pair) { qp: QPPair =>
-    questionWhichWhatTrigger(qp.question.questionText).toString +
+    questionWhichWhatTrigger(qp.question.questionText.toLowerCase).toString +
       questionEntTrigger(qp.question.questionText).toString + getPOntoLabel(qp, begin)
   }
 
   val whichWhatTriggerAndIsTobeAndEntityLabel = (begin: Boolean) => property(pair) { qp: QPPair =>
-    questionWhichWhatTrigger(qp.question.questionText).toString +
+    questionWhichWhatTrigger(qp.question.questionText.toLowerCase).toString +
       tobe.exists(qp.question.questionText.contains).toString +
       getPOntoLabel(qp, begin)
   }
@@ -152,6 +175,24 @@ object SquadSolverDataModel extends DataModel{
       conjWithType(getPChunkLabel(qp, begin)), conjWithType(getPOntoLabel(qp, begin)),
       conjWithType(getPConllLabel(qp, begin)))
   }
+
+  val questionTypeConjWithGivebLabel = (begin: Boolean, f:(QPPair, Boolean) => String) => property(pair) { qp: QPPair =>
+    val questionType = extractQuestionTypeInformation(getQShallowParseView(qp).getConstituents.asScala.toList).map(_._1)
+    f(qp, begin) + questionType
+//    List(conjWithType(getPLemmaLabel(qp, begin)), conjWithType(getPPOSLabel(qp, begin)),
+//      conjWithType(getPChunkLabel(qp, begin)), conjWithType(getPOntoLabel(qp, begin)),
+//      conjWithType(getPConllLabel(qp, begin)))
+  }
+
+  val questionTypeConjWithAnnotations2 = (begin: Boolean) => List(
+    questionTypeConjWithGivebLabel(begin, getPLemmaLabel),
+    questionTypeConjWithGivebLabel(begin, getPPOSLabel),
+    questionTypeConjWithGivebLabel(begin, getPChunkLabel),
+    questionTypeConjWithGivebLabel(begin, getPOntoLabel),
+    questionTypeConjWithGivebLabel(begin, getPConllLabel)
+  )
+
+  // f:(QPPair, Boolean) => String
 
   val typeClassifierViewName = "QUESTION_TYPE"
   val questionType = (begin: Boolean) =>  property(pair) { qp: QPPair =>
@@ -177,6 +218,100 @@ object SquadSolverDataModel extends DataModel{
       conjWithType(getPChunkLabel(qp, begin)), conjWithType(getPOntoLabel(qp, begin)),
       conjWithType(getPConllLabel(qp, begin)))
   }
+
+  val slidingWindowOfLemmaWithTh = (begin: Boolean, size: Int, th: Int) => property(pair) { qp: QPPair =>
+    val center = if(begin) qp.beginTokenIdx else qp.endTokenIdx
+    val min = scala.math.min(0, center - size)
+    val max = scala.math.min(qp.paragraph.contextTAOpt.get.getTokens.length - 1, center + size)
+    val paragraphsLemmaTokens = getPLemmaView(qp).getConstituentsCoveringSpan(min, max).asScala.map(_.getLabel).toSet
+    val questionLemmaTokens = getQLemmaView(qp).getConstituents.asScala.map(_.getLabel).toSet
+    paragraphsLemmaTokens.intersect(questionLemmaTokens).size > th
+  }
+
+  val slidingWindowOfLemmaSize = (begin: Boolean, size: Int) => property(pair) { qp: QPPair =>
+    val center = if(begin) qp.beginTokenIdx else qp.endTokenIdx
+    val ta = qp.paragraph.contextTAOpt.get
+    val min = scala.math.max(0, center - size)
+    val max = scala.math.min(ta.getTokens.length - 1, center + size)
+    val paragraphsLemmaTokens = getPLemmaView(qp).getConstituentsCoveringSpan(min, max).asScala.map(_.getLabel).toSet
+    val questionLemmaTokens = getQLemmaView(qp).getConstituents.asScala.map(_.getLabel).toSet
+    paragraphsLemmaTokens.intersect(questionLemmaTokens).size.toString
+  }
+
+  val slidingWindowOfLemmaSizeWithinSentence = (begin: Boolean, size: Int) => property(pair) { qp: QPPair =>
+    val center = if(begin) qp.beginTokenIdx else qp.endTokenIdx
+    val ta = qp.paragraph.contextTAOpt.get
+    val sentenceId = ta.getSentenceId(center)
+    val filteredIndices = ta.getTokens.indices.filter(ta.getSentenceId(_) == sentenceId)
+    val min = scala.math.max(center - size, filteredIndices.min)
+    val max = scala.math.min(center + size, filteredIndices.max)
+    val paragraphsLemmaTokens = getPLemmaView(qp).getConstituentsCoveringSpan(min, max).asScala.map(_.getLabel).toSet
+    val questionLemmaTokens = getQLemmaView(qp).getConstituents.asScala.map(_.getLabel).toSet
+    paragraphsLemmaTokens.intersect(questionLemmaTokens).size.toString
+  }
+
+  val questionOverlapWithinCurrentSentence = (begin: Boolean, size: Int) => property(pair) { qp: QPPair =>
+    val center = if(begin) qp.beginTokenIdx else qp.endTokenIdx
+    val ta = qp.paragraph.contextTAOpt.get
+    val sentenceId = ta.getSentenceId(center)
+    val filteredIndices = ta.getTokens.indices.filter(ta.getSentenceId(_) == sentenceId)
+    val paragraphsLemmaTokens = getPLemmaView(qp).getConstituentsCoveringSpan(filteredIndices.min, filteredIndices.max).asScala.map(_.getLabel).toSet
+    val questionLemmaTokens = getQLemmaView(qp).getConstituents.asScala.map(_.getLabel).toSet
+    paragraphsLemmaTokens.intersect(questionLemmaTokens).size.toString
+  }
+
+/*  val slidingWindowWithLemma = {
+    (begin: Boolean) =>
+      List(
+        slidingWindowOfLemmaWithTh(begin, 4, 1),
+        slidingWindowOfLemmaWithTh(begin, 4, 2),
+        slidingWindowOfLemmaWithTh(begin, 4, 3),
+        slidingWindowOfLemmaWithTh(begin, 4, 4),
+        slidingWindowOfLemmaWithTh(begin, 4, 5),
+        slidingWindowOfLemmaWithTh(begin, 4, 6),
+        slidingWindowOfLemmaWithTh(begin, 4, 7)
+      )
+  }*/
+
+  val propertyList = (begin: Boolean) => {
+      questionTypeConjWithAnnotations2(begin) ++
+        List(
+          slidingWindowOfLemmaSize(begin, 5),
+          questionOverlapWithinCurrentSentence(begin, 5),
+          slidingWindowOfLemmaSizeWithinSentence(begin, 5),
+          questionTypeConjWithAnnotations(begin),
+          whichWhatTriggerAndIsTobeAndEntityLabel(begin),
+          candidateLemma(begin),
+          numberQuestionAndCandidateIsNumber(begin),
+          dateQuestionAndCandidateIsDate(begin),
+          personTriggerAndPersonNameOnto(begin),
+          personTriggerAndPersonNameConll(begin),
+          nationalityTriggerAndOntoNationalityLabel(begin),
+          whichWhatTriggerAndConllInstituteLabel(begin),
+          whichWhatTriggerAndEntityTriggerAndOntoLabels(begin),
+          questionConstituentConjOnto(begin),
+          questionTriggerTermConjOnto(begin),
+          firstNPConjWithOntoLabel(begin),
+          secondNPConjWithOntoLabel(begin),
+          firstVPConjWithOntoLabel(begin),
+          secondVPConjWithOntoLabel(begin)
+//    questionKeyTerms(begin)//,
+//    personTriggerAndPersonNameWikiData(begin),
+//    personTriggerAndPersonNamePrefix(begin)//,
+//    rankingQuestionAndOrdinal(begin)//,
+//    rankingQuestionAndNumber(begin)//,
+//    currencyTriggerAndOntoCurrencyLabel(begin)//,
+//    percentTriggerAndOntoPercentLabel(begin)//,
+//    nationalityTriggerAndOntoNationalityLabel(begin)
+//    languageTriggerAndOntoLanguageLabel(begin)
+//    whichWhatTriggerAndOntoLocationLabel(begin)//,
+//    whichWhatTriggerAndConllLocationLabel(begin)//,
+)
+    }
+
+  val beginFeatures: List[Property[QPPair]] = propertyList(true)
+
+  val endFeatures: List[Property[QPPair]] = propertyList(false)
 }
 
 class SquadClassifier(cType: String = "begin") extends Learnable[QPPair](SquadSolverDataModel.pair) {
@@ -185,15 +320,17 @@ class SquadClassifier(cType: String = "begin") extends Learnable[QPPair](SquadSo
     case "begin" => beginTokenLabel
     case "end" => endTokenLabel
     case "pair" => pairTokenLabel
+    case "inside" => insideTokenLabel
     case _ => throw new Exception("Unknown classifier type")
   }
   def cFeatures = cType match {
-    case "begin" => List(beginLemma)
-    case "end" => List(endLemma)
-    case "pair" => List(beginLemma, endLemma)
+    case "begin" => beginFeatures
+    case "end" => endFeatures
+    case "pair" => beginFeatures ++ endFeatures
+    case "inside" => beginFeatures
     case _ => throw new Exception("Unknown classifier type")
   }
-  override def feature = using(questionUnigrams +: cFeatures)
+  override def feature = using(cFeatures)
   override lazy val classifier = new SparseNetworkLearner {
     val p = new SparseAveragedPerceptron.Parameters()
     p.learningRate = .1
@@ -206,17 +343,50 @@ object SquadClassifierUtils {
   val beginClassifier = new SquadClassifier("begin")
   val endClassifier = new SquadClassifier("end")
   val pairClassifier = new SquadClassifier("pair")
+  val insideClassifier = new SquadClassifier("inside")
 
   private lazy val annotationUtils = new AnnotationUtils()
   private lazy val trainReader = new SQuADReader(Constants.squadTrainingDataFile, Some(annotationUtils.pipelineService), annotationUtils)
+  private lazy val devReader = new SQuADReader(Constants.squadDevDataFile, Some(annotationUtils.pipelineService), annotationUtils)
+
+  lazy val (trainInstances, testInstances) = {
+    println("trainReader length: " + trainReader.instances.length)
+//    println("devReader length: " + devReader.instances.length)
+    def getInstances(i: Int, j: Int, sQuADReader: SQuADReader): Seq[QPPair] = {
+      val qAndpPairs = sQuADReader.instances.slice(i, j).flatMap { ii => ii.paragraphs.flatMap { p => p.questions.map(q => (q, p)) } }//.filter(_._1.questionText.toLowerCase.contains("who"))
+      qAndpPairs.flatMap { case (q, p) =>
+        val inds = p.contextTAOpt.get.getTokens.indices
+        val begin = getBeginTokenIndex(q, p)
+        val end = getEndTokenIndex(q, p)
+//        println("q: " + q.questionText)
+//        println("a: " + q.answers)
+//        println("p: " + p.context)
+        val extraInds = (1 to 0).flatMap(_ => List(begin, end))
+        val (positive, negative) = (inds ++ extraInds).map { i =>
+          val qp = QPPair(q, p, i, i)
+//          SquadSolverDataModel.personTriggerAndPersonNameOnto(true)(qp)
+//          println("i: " + i + " / " + SquadSolverDataModel.beginTokenLabel(qp) + "  /   " + SquadSolverDataModel.endTokenLabel(qp) + "  /   " + p.contextTAOpt.get.getToken(i))
+//          println("------------")
+//          println("Person trigger: " + SquadSolverDataModel.personTriggerAndPersonNameOnto(true)(qp) +
+//            " / overlap: " + SquadSolverDataModel.slidingWindowOfLemmaSize(true, 5)(qp)  +
+//            " / overlapWithinSentence: " + SquadSolverDataModel.questionOverlapWithinCurrentSentence(true, 5)(qp)  +
+//            " / overlapWithSentence: " + SquadSolverDataModel.slidingWindowOfLemmaSizeWithinSentence(true, 5)(qp)  +
+//            " / label: " + SquadSolverDataModel.insideTokenLabel(qp) +
+//            " / token: " + p.contextTAOpt.get.getToken(i)
+//          )
+          qp
+        }.partition{ SquadSolverDataModel.insideTokenLabel(_)== "true" }
+        positive ++ scala.util.Random.shuffle(negative).take(positive.length * 2)
+      }
+    }
+    getInstances(0, 28, trainReader) -> getInstances(28, 30, trainReader)
+  }
 
   def populateInstances(): Unit =  {
-    def getInstances(i: Int, j: Int): Seq[QPPair] = {
-      val qAndpPairs = trainReader.instances.slice(i, j).flatMap { i => i.paragraphs.slice(0, 5).flatMap { p => p.questions.slice(0, 10).map(q => (q, p)) } }.take(1000)
-      qAndpPairs.flatMap { case (q, p) => p.contextTAOpt.get.getTokens.indices.map { i => QPPair(q, p, i, i) } }
-    }
-    SquadSolverDataModel.pair.populate(getInstances(0, 10))
-    SquadSolverDataModel.pair.populate(getInstances(11, 20), train = false)
+    println(trainInstances.length)
+    println(testInstances.length)
+    SquadSolverDataModel.pair.populate(trainInstances)
+    //SquadSolverDataModel.pair.populate(testInstances, train = false)
   }
 
   // TA
@@ -226,12 +396,13 @@ object SquadClassifierUtils {
   // P Views
   def getPOntoView(qp: QPPair): View = getPTA(qp).getView(ViewNames.NER_ONTONOTES)
   def getPConllView(qp: QPPair): View = getPTA(qp).getView(ViewNames.NER_CONLL)
-  def getPWikiView(qp: QPPair): View = getPTA(qp).getView(ViewNames.WIKIFIER)
+//  def getPWikiView(qp: QPPair): View = getPTA(qp).getView(ViewNames.WIKIFIER)
   def getPPOSView(qp: QPPair): View = getPTA(qp).getView(ViewNames.POS)
   def getPLemmaView(qp: QPPair): View = getPTA(qp).getView(ViewNames.LEMMA)
   def getPShallowParseView(qp: QPPair): View = getPTA(qp).getView(ViewNames.SHALLOW_PARSE)
 
   // Q Views
+  def getQLemmaView(qp: QPPair): View = getQTA(qp).getView(ViewNames.LEMMA)
   def getQShallowParseView(qp: QPPair): View = getQTA(qp).getView(ViewNames.SHALLOW_PARSE)
 
   // P labels
@@ -239,25 +410,55 @@ object SquadClassifierUtils {
   def getPPOSLabel(qp: QPPair, begin: Boolean): String = getLabel(qp, getPPOSView(qp), begin)
   def getPOntoLabel(qp: QPPair, begin: Boolean): String = getLabel(qp, getPOntoView(qp), begin)
   def getPConllLabel(qp: QPPair, begin: Boolean): String = getLabel(qp, getPConllView(qp), begin)
-  def getPWikiLabel(qp: QPPair, begin: Boolean): String = getLabel(qp, getPWikiView(qp), begin)
+  //def getPWikiLabel(qp: QPPair, begin: Boolean): String = getLabel(qp, getPWikiView(qp), begin)
   def getPChunkLabel(qp: QPPair, begin: Boolean): String = getLabel(qp, getPShallowParseView(qp), begin)
+
+  def getKthTargetLabelInQuestionShallowParse(qp: QPPair, k: Int, targetLabel: String): String = {
+    val surfaceStrings = getQShallowParseView(qp).getConstituents.asScala.filter(_.getLabel == targetLabel).map(_.getSurfaceForm)
+    if(surfaceStrings.length > k) surfaceStrings(k) else ""
+  }
 
   def getTokenSurface(qp: QPPair, begin: Boolean): String = {
     qp.paragraph.contextTAOpt.get.getToken(if(begin) qp.beginTokenIdx else qp.endTokenIdx)
   }
 
   def getLabel(qp: QPPair, vu: View, begin: Boolean): String = {
-    vu.getConstituentsCoveringToken(if (begin) qp.beginTokenIdx else qp.endTokenIdx).asScala.head.getLabel.mkString(" ")
+    vu.getConstituentsCoveringToken(if (begin) qp.beginTokenIdx else qp.endTokenIdx).asScala.headOption.map(_.getLabel).getOrElse("")
   }
 
-  def decodeTopKAnswers(q: Question, p: Paragraph, k: Int): Unit = {
+  def decodeQuestionsWithBeginEnd(train: Boolean = true, size: Int = 10, k: Int = 5) = {
+    (if(train) trainInstances else testInstances).take(size).foreach{ ins =>
+      beginEndDecoder(ins.question, ins.paragraph, k)
+    }
+  }
+
+  def decodeQuestionsWithInside(train: Boolean = true, size: Int = 10, k: Int = 5) = {
+    (if(train) trainInstances else testInstances).take(size).foreach{ ins =>
+      insideDecoder(ins.question, ins.paragraph, k)
+    }
+  }
+
+  def getBeginTokenIndex(question: Question, paragraph: Paragraph): Int = {
+    val longestAns = question.answers.maxBy(_.answerText.length)
+    //println("B: Longest Ans: " + longestAns)
+    val tokId = paragraph.contextTAOpt.get.getTokenIdFromCharacterOffset(longestAns.answerStart)
+    //println("TokId: " + tokId + "  /  " + paragraph.contextTAOpt.get.getToken(tokId))
+    tokId
+  }
+
+  def getEndTokenIndex(question: Question, paragraph: Paragraph): Int = {
+    val longestAns = question.answers.maxBy(_.answerText.length)
+    paragraph.contextTAOpt.get.getTokenIdFromCharacterOffset(longestAns.answerStart + longestAns.answerText.length - 1)
+  }
+
+  def beginEndDecoder(q: Question, p: Paragraph, k: Int): Unit = {
     println(q.questionText)
     println(p.context)
     val inds = p.contextTAOpt.get.getTokens.indices
     val scoresPerIndex = inds.map{ i =>
       val qp = QPPair(q, p, i, i)
-      val beginScore = beginClassifier.classifier.scores().get("true")
-      val endScore = endClassifier.classifier.scores().get("true")
+      val beginScore = beginClassifier.classifier.scores(qp).get("true")
+      val endScore = endClassifier.classifier.scores(qp).get("true")
       (i, (beginScore, endScore))
     }.toMap
 
@@ -268,12 +469,63 @@ object SquadClassifierUtils {
     }
       yield (i, j, scoresPerIndex(i)._1 + scoresPerIndex(j)._2)
 
+    extractTopKSpans(k, scoresPerIndexPairs, p.contextTAOpt.get)
+  }
+
+  def insideDecoder(q: Question, p: Paragraph, k: Int): Unit = {
+    println(q.questionText)
+    println(p.context)
+    val inds = p.contextTAOpt.get.getTokens.indices
+    val scoresPerIndex = inds.map{ i =>
+      val qp = QPPair(q, p, i, i)
+      val scores = insideClassifier.classifier.scores(qp)
+      scores.get("true")
+    }
+
+    // choose top-K pairs with the highest scores
+    val scoresPerIndexPairs = for{
+      i <- inds
+      j <- i to inds.end
+    }
+      yield (i, j, scoresPerIndex.slice(i, j).sum)
+
+    extractTopKSpans(k, scoresPerIndexPairs, p.contextTAOpt.get)
+  }
+
+  def pairDecoder(q: Question, p: Paragraph, k: Int): Unit = {
+    println(q.questionText)
+    println(p.context)
+    val inds = p.contextTAOpt.get.getTokens.indices
+    val scoresPerIndex = inds.map{ i =>
+      val qp = QPPair(q, p, i, i)
+      pairClassifier.classifier.scores(qp).get("true")
+    }
+
+    // choose top-K pairs with the highest scores
+    val scoresPerIndexPairs = for{
+      i <- inds
+      j <- i to inds.end
+      qp = QPPair(q, p, i, i)
+      score = pairClassifier.classifier.scores(qp).get("true")
+    }
+      yield (i, j, score)
+
+    extractTopKSpans(k, scoresPerIndexPairs, p.contextTAOpt.get)
+  }
+
+  def extractTopKSpans(k: Int, scoresPerIndexPairs: IndexedSeq[(Int, Int, Double)], paragraphTA: TextAnnotation): Unit = {
     val sortedScores = scoresPerIndexPairs.sortBy(-_._3) // biggest scores at the beginning
 
-    val selectedSpana = sortedScores.take(k)
-    selectedSpana.foreach{ case (i, j, score) =>
-        val answer = p.contextTAOpt.get.getTokensInSpan(i, j).mkString(" ")
-        println("ans: " + answer + " / score: " + score)
+    val selectedSpans = sortedScores.take(k)
+    selectedSpans.foreach { case (i, j, score) =>
+      val answer = paragraphTA.getTokensInSpan(i, j).mkString(" ")
+      println("ans: " + answer + " / score: " + score)
     }
   }
+
+
+  def findFMaximizingThreshold(): Unit = {
+
+  }
+
 }

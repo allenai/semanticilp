@@ -8,6 +8,7 @@ import scala.io.Source
 import java.io.File
 
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
+import org.allenai.ari.solvers.squad.CandidateGeneration
 
 /** Reads the SQuAD data, given the location to the json
   * file containing the annotated data. More details here:
@@ -33,8 +34,10 @@ class SQuADReader(file: File, annotationServiceOpt: Option[AnnotatorService] = N
           case None => None
           case Some(service) =>
             val ta = annotationUtils.annotate(question)
+            CandidateGeneration.questionTypeClassification.addView(ta)
             //assert(ta.getAvailableViews.contains(ViewNames.QUANTITIES))
             assert(ta.getAvailableViews.contains(ViewNames.LEMMA))
+            assert(ta.getAvailableViews.contains(CandidateGeneration.questionTypeClassification.finalViewName))
             Some(ta)
         }
         Question(question, id, answers, questionAnnotation)
