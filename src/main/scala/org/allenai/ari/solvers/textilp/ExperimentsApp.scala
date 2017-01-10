@@ -306,7 +306,7 @@ object ExperimentsApp {
     insideClassifier.load()
     insideClassifier.test(SquadClassifierUtils.trainInstances)
     insideClassifier.test(SquadClassifierUtils.devInstances)
-    findFMaximizingThreshold(1.4 to 20.0 by 0.2)
+    findFMaximizingThreshold(0.0 to 5.0 by 0.2)
   }
 
   def main(args: Array[String]): Unit = {
