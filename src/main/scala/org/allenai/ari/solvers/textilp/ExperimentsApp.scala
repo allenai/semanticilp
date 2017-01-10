@@ -292,13 +292,21 @@ object ExperimentsApp {
     insideClassifier.learn(30)
     insideClassifier.save()
     insideClassifier.test(SquadClassifierUtils.trainInstances)
-    insideClassifier.test(SquadClassifierUtils.testInstances)
+    insideClassifier.test(SquadClassifierUtils.devInstances)
   }
 
   def decodeClassifierResults() = {
     insideClassifier.load()
-    insideClassifier.test(SquadClassifierUtils.testInstances)
+    insideClassifier.test(SquadClassifierUtils.trainInstances)
+    insideClassifier.test(SquadClassifierUtils.devInstances)
     SquadClassifierUtils.decodeQuestionsWithInside(train = false)
+  }
+
+  def tuneF1InsideClassifier() = {
+    insideClassifier.load()
+    insideClassifier.test(SquadClassifierUtils.trainInstances)
+    insideClassifier.test(SquadClassifierUtils.devInstances)
+    findFMaximizingThreshold(-1.0 to 1.0 by 0.2)
   }
 
   def main(args: Array[String]): Unit = {
@@ -402,6 +410,7 @@ object ExperimentsApp {
       case 29 => testWikiDataSimilarity()
       case 30 => trainAndEvaluateSquadClassifier()
       case 31 => decodeClassifierResults()
+      case 32 => tuneF1InsideClassifier()
     }
   }
 }

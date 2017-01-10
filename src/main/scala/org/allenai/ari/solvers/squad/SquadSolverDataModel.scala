@@ -7,7 +7,7 @@ import edu.illinois.cs.cogcomp.lbjava.learn.{SparseAveragedPerceptron, SparseNet
 import edu.illinois.cs.cogcomp.saul.classifier.Learnable
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
 import org.allenai.ari.solvers.textilp.{Paragraph, QPPair, Question}
-import org.allenai.ari.solvers.textilp.utils.{AnnotationUtils, Constants, SQuADReader}
+import org.allenai.ari.solvers.textilp.utils.{AnnotationUtils, Constants, SQuADReader, SolverUtils}
 
 import scala.collection.JavaConverters._
 import CandidateGeneration._
@@ -347,14 +347,14 @@ object SquadClassifierUtils {
 
   private lazy val annotationUtils = new AnnotationUtils()
   private lazy val trainReader = new SQuADReader(Constants.squadTrainingDataFile, Some(annotationUtils.pipelineService), annotationUtils)
-  private lazy val devReader = new SQuADReader(Constants.squadDevDataFile, Some(annotationUtils.pipelineService), annotationUtils)
+  private val devReader = new SQuADReader(Constants.squadDevDataFile, Some(annotationUtils.pipelineService), annotationUtils)
 
-  lazy val (trainInstances, testInstances) = {
+  lazy val ((trainInstances, trainQPPairs), (devInstances, devQPPairs)) = {
     println("trainReader length: " + trainReader.instances.length)
 //    println("devReader length: " + devReader.instances.length)
-    def getInstances(i: Int, j: Int, sQuADReader: SQuADReader): Seq[QPPair] = {
+    def getInstances(i: Int, j: Int, sQuADReader: SQuADReader): (Seq[QPPair], Seq[(Question, Paragraph)]) = {
       val qAndpPairs = sQuADReader.instances.slice(i, j).flatMap { ii => ii.paragraphs.flatMap { p => p.questions.map(q => (q, p)) } }//.filter(_._1.questionText.toLowerCase.contains("who"))
-      qAndpPairs.flatMap { case (q, p) =>
+      val trainableInstances = qAndpPairs.flatMap { case (q, p) =>
         val inds = p.contextTAOpt.get.getTokens.indices
         val begin = getBeginTokenIndex(q, p)
         val end = getEndTokenIndex(q, p)
@@ -378,13 +378,14 @@ object SquadClassifierUtils {
         }.partition{ SquadSolverDataModel.insideTokenLabel(_)== "true" }
         positive ++ scala.util.Random.shuffle(negative).take(positive.length * 2)
       }
+      trainableInstances -> qAndpPairs
     }
     getInstances(0, 28, trainReader) -> getInstances(28, 30, trainReader)
   }
 
   def populateInstances(): Unit =  {
     println(trainInstances.length)
-    println(testInstances.length)
+    println(devInstances.length)
     SquadSolverDataModel.pair.populate(trainInstances)
     //SquadSolverDataModel.pair.populate(testInstances, train = false)
   }
@@ -427,14 +428,14 @@ object SquadClassifierUtils {
   }
 
   def decodeQuestionsWithBeginEnd(train: Boolean = true, size: Int = 10, k: Int = 5) = {
-    (if(train) trainInstances else testInstances).take(size).foreach{ ins =>
+    (if(train) trainInstances else devInstances).take(size).foreach{ ins =>
       beginEndDecoder(ins.question, ins.paragraph, k)
     }
   }
 
   def decodeQuestionsWithInside(train: Boolean = true, size: Int = 10, k: Int = 5) = {
-    (if(train) trainInstances else testInstances).take(size).foreach{ ins =>
-      insideDecoder(ins.question, ins.paragraph, k)
+    (if(train) trainInstances else devInstances).take(size).foreach{ ins =>
+      insideDecoder(ins.question, ins.paragraph, k, 0.0)
     }
   }
 
@@ -451,7 +452,7 @@ object SquadClassifierUtils {
     paragraph.contextTAOpt.get.getTokenIdFromCharacterOffset(longestAns.answerStart + longestAns.answerText.length - 1)
   }
 
-  def beginEndDecoder(q: Question, p: Paragraph, k: Int): Unit = {
+  def beginEndDecoder(q: Question, p: Paragraph, k: Int): Seq[(Int, Int)] = {
     println(q.questionText)
     println(p.context)
     val inds = p.contextTAOpt.get.getTokens.indices
@@ -472,14 +473,13 @@ object SquadClassifierUtils {
     extractTopKSpans(k, scoresPerIndexPairs, p.contextTAOpt.get)
   }
 
-  def insideDecoder(q: Question, p: Paragraph, k: Int): Unit = {
+  def insideDecoder(q: Question, p: Paragraph, k: Int, threshold: Double): Seq[(Int, Int)] = {
     println(q.questionText)
     println(p.context)
     val inds = p.contextTAOpt.get.getTokens.indices
     val scoresPerIndex = inds.map{ i =>
       val qp = QPPair(q, p, i, i)
-      val scores = insideClassifier.classifier.scores(qp)
-      scores.get("true")
+      insideClassifier.classifier.scores(qp).get("true") - threshold
     }
 
     // choose top-K pairs with the highest scores
@@ -492,7 +492,7 @@ object SquadClassifierUtils {
     extractTopKSpans(k, scoresPerIndexPairs, p.contextTAOpt.get)
   }
 
-  def pairDecoder(q: Question, p: Paragraph, k: Int): Unit = {
+  def pairDecoder(q: Question, p: Paragraph, k: Int): Seq[(Int, Int)] = {
     println(q.questionText)
     println(p.context)
     val inds = p.contextTAOpt.get.getTokens.indices
@@ -513,7 +513,7 @@ object SquadClassifierUtils {
     extractTopKSpans(k, scoresPerIndexPairs, p.contextTAOpt.get)
   }
 
-  def extractTopKSpans(k: Int, scoresPerIndexPairs: IndexedSeq[(Int, Int, Double)], paragraphTA: TextAnnotation): Unit = {
+  def extractTopKSpans(k: Int, scoresPerIndexPairs: IndexedSeq[(Int, Int, Double)], paragraphTA: TextAnnotation): Seq[(Int, Int)] = {
     val sortedScores = scoresPerIndexPairs.sortBy(-_._3) // biggest scores at the beginning
 
     val selectedSpans = sortedScores.take(k)
@@ -521,11 +521,23 @@ object SquadClassifierUtils {
       val answer = paragraphTA.getTokensInSpan(i, j).mkString(" ")
       println("ans: " + answer + " / score: " + score)
     }
+    selectedSpans.map(a => (a._1, a._2))
   }
 
-
-  def findFMaximizingThreshold(): Unit = {
-
+  // maximizes F-alpha
+  def findFMaximizingThreshold(thresholdRange: Seq[Double], train: Boolean = true): Unit = {
+    thresholdRange.foreach { th =>
+      val (exact, f1, ones) = (if (train) trainQPPairs else devQPPairs).map { case (q, p) =>
+        val selectedSpans = insideDecoder(q, p, 1, th)
+        assert(selectedSpans.length == 1)
+        val predictedSpan = p.contextTAOpt.get.getTokensInSpan(selectedSpans.head._1, selectedSpans.head._2).mkString(" ")
+        SolverUtils.assignCreditSquad(predictedSpan, q.answers.map(_.answerText))
+      }.unzip3
+      val avgF1 = f1.sum / ones.sum
+      val avgExact = exact.sum / ones.sum
+      val totalCount = ones.sum
+      println(s"Th: $th / Instance count: $totalCount / avgF1: $avgF1 / avgExact: $avgExact")
+    }
   }
 
 }
