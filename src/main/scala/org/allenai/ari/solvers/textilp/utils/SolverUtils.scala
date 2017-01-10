@@ -208,7 +208,9 @@ object SolverUtils {
 
   import sys.process._
   def assignCreditSquad(predict: String, golds: Seq[String]): (Double, Double, Double) = {
-    val output = s"python other/evaluateAnswers.py '$predict' ${golds.mkString("'", "' '", "'")} ".!!
+    // val command = s"python other/evaluateAnswers.py '$predict' ${golds.mkString("'", "' '", "'")} "
+    val command = Seq("python", "other/evaluateAnswers.py", s"'$predict'") ++ golds.map(str => s"'$str'")
+    val output = command.!!
     val outputSplit = output.split("\t")
     val exactMatch = outputSplit(0).toDouble
     val f1 = outputSplit(1).toDouble

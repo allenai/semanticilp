@@ -214,7 +214,7 @@ object ExperimentsApp {
   }
 
   def testSquadPythonEvaluationScript() = {
-    println(SolverUtils.assignCreditSquad("the country in the east", Seq("east", "world")))
+    println(SolverUtils.assignCreditSquad("chemistry earth", Seq("the chemistry of the world in champaign", "the chemistry of the computer science world")))
   }
 
   def testNERAnnotations() = {
@@ -289,7 +289,7 @@ object ExperimentsApp {
 //    endClassifier.test(SquadClassifierUtils.trainInstances)
 //    endClassifier.test(SquadClassifierUtils.testInstances)
 
-    insideClassifier.learn(30)
+    insideClassifier.learn(20)
     insideClassifier.save()
     insideClassifier.test(SquadClassifierUtils.trainInstances)
     insideClassifier.test(SquadClassifierUtils.devInstances)

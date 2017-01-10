@@ -170,13 +170,14 @@ object SquadSolverDataModel extends DataModel{
   }
 
   // manually extracted type
-//  val questionTypeConjWithAnnotations = (begin: Boolean) => property(pair) { qp: QPPair =>
-//    val questionType = extractQuestionTypeInformation(getQShallowParseView(qp).getConstituents.asScala.toList).map(_._1)
-//    def conjWithType = (str: String) => str + questionType
-//    List(conjWithType(getPLemmaLabel(qp, begin)), conjWithType(getPPOSLabel(qp, begin)),
-//      conjWithType(getPChunkLabel(qp, begin)), conjWithType(getPOntoLabel(qp, begin)),
-//      conjWithType(getPConllLabel(qp, begin)))
-//  }
+  // TODO: comment this
+  val questionTypeConjWithAnnotations = (begin: Boolean) => property(pair) { qp: QPPair =>
+    val questionType = extractQuestionTypeInformation(getQShallowParseView(qp).getConstituents.asScala.toList).map(_._1)
+    def conjWithType = (str: String) => str + questionType
+    List(conjWithType(getPLemmaLabel(qp, begin)), conjWithType(getPPOSLabel(qp, begin)),
+      conjWithType(getPChunkLabel(qp, begin)), conjWithType(getPOntoLabel(qp, begin)),
+      conjWithType(getPConllLabel(qp, begin)))
+  }
 
   val questionTypeConjWithGivebLabel = (begin: Boolean, f:(QPPair, Boolean) => String) => property(pair) { qp: QPPair =>
     val questionType = extractQuestionTypeInformation(getQShallowParseView(qp).getConstituents.asScala.toList).map(_._1)
@@ -313,7 +314,9 @@ object SquadSolverDataModel extends DataModel{
   }
 
   val bigramFeatures = { (begin: Boolean) =>
-      questionTypeConjWithAnnotations2(begin) ++ Seq(
+    questionTypeClassifierConjWithAnnotations2(begin) ++
+      questionTypeConjWithAnnotations2(begin) ++
+      Seq(
         whichWhatTriggerAndIsTobeAndEntityLabel(begin),
         candidateLemma(begin),
         numberQuestionAndCandidateIsNumber(begin),
@@ -367,13 +370,11 @@ object SquadSolverDataModel extends DataModel{
     conjWithSlidingWindow(begin).flatMap(p => Seq(bigramForward(p), bigramBackward(p)))
   }
 
- // try this: questionTypeClassifierConjWithAnnotations2
-  // try conjunction with context
-  // try bigram features
-  // try bigram with context
-
   val propertyList = (begin: Boolean) => {
+    bigramFeaturesWithContextSimilarity(begin) ++
+      bigramFeatures(begin) ++
       conjWithSlidingWindow(begin) ++
+      questionTypeClassifierConjWithAnnotations2(begin) ++
       questionTypeConjWithAnnotations2(begin) ++
         List(
           slidingWindowOfLemmaSize(begin, 5),
@@ -394,6 +395,7 @@ object SquadSolverDataModel extends DataModel{
           secondNPConjWithOntoLabel(begin),
           firstVPConjWithOntoLabel(begin),
           secondVPConjWithOntoLabel(begin)
+
 //    questionKeyTerms(begin)//,
 //    personTriggerAndPersonNameWikiData(begin),
 //    personTriggerAndPersonNamePrefix(begin)//,
@@ -405,7 +407,7 @@ object SquadSolverDataModel extends DataModel{
 //    languageTriggerAndOntoLanguageLabel(begin)
 //    whichWhatTriggerAndOntoLocationLabel(begin)//,
 //    whichWhatTriggerAndConllLocationLabel(begin)//,
-)
+      )
     }
 
   val beginFeatures: List[Property[QPPair]] = propertyList(true)
