@@ -74,4 +74,7 @@ project/target/
 src/main/java/
 src/test/java/
 src/test/scala-2.12/
-/other/squadDev_wikifier.txt
+other/squadDev_wikifier.txt
+other/
+models/
+src/main/resources/QuestionTypeClassification/
