@@ -694,4 +694,25 @@ object SquadClassifierUtils {
     }
   }
 
+  def evaluateF1OfTopKScores(th: Double, train: Boolean = true, k: Int): Unit = {
+      val pairs = if (train) trainQPPairs else devQPPairs
+      val pb = new ProgressBar("Test", pairs.length); // name, initial max
+      pb.start()
+      val (exact, f1, ones) = pairs.map { case (q, p) =>
+        val selectedSpans = insideDecoder(q, p, k, th)
+        assert(selectedSpans.length == k)
+        val (exactSet, f1Set, _) = selectedSpans.map{ span =>
+          val predictedSpan = p.contextTAOpt.get.getTokensInSpan(span._1, span._2).mkString(" ")
+          SolverUtils.assignCreditSquad(predictedSpan, q.answers.map(_.answerText))
+        }.unzip3
+        pb.step()
+        (exactSet.max, f1Set.max, 1.0)
+      }.unzip3
+      pb.stop()
+      val avgF1 = f1.sum / ones.sum
+      val avgExact = exact.sum / ones.sum
+      val totalCount = ones.sum
+      println(s"Th: $th / Instance count: $totalCount / avgF1: $avgF1 / avgExact: $avgExact")
+    }
+
 }

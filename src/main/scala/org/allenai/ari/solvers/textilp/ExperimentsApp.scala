@@ -289,7 +289,7 @@ object ExperimentsApp {
 //    endClassifier.test(SquadClassifierUtils.trainInstances)
 //    endClassifier.test(SquadClassifierUtils.testInstances)
 
-    insideClassifier.learn(20)
+    insideClassifier.learn(10)
     insideClassifier.save()
     insideClassifier.test(SquadClassifierUtils.trainInstances)
     insideClassifier.test(SquadClassifierUtils.devInstances)
@@ -306,7 +306,14 @@ object ExperimentsApp {
     insideClassifier.load()
     insideClassifier.test(SquadClassifierUtils.trainInstances)
     insideClassifier.test(SquadClassifierUtils.devInstances)
-    findFMaximizingThreshold(0.0 to 5.0 by 0.2)
+    findFMaximizingThreshold(2.0 to 4.0 by 0.2)
+  }
+
+  def evaluateTopBestAnswers() = {
+    insideClassifier.load()
+    insideClassifier.test(SquadClassifierUtils.trainInstances)
+    insideClassifier.test(SquadClassifierUtils.devInstances)
+    evaluateF1OfTopKScores(0.0, train = true, 10)
   }
 
   def main(args: Array[String]): Unit = {
@@ -411,6 +418,7 @@ object ExperimentsApp {
       case 30 => trainAndEvaluateSquadClassifier()
       case 31 => decodeClassifierResults()
       case 32 => tuneF1InsideClassifier()
+      case 33 => evaluateTopBestAnswers()
     }
   }
 }
