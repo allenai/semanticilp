@@ -398,29 +398,6 @@ object SquadSolverDataModel extends DataModel{
   }
 
   val propertyList = (begin: Boolean) => {
-    conjWithSlidingWindow(begin) ++
-      questionTypeConjWithAnnotations2(begin) ++
-      List(
-        slidingWindowOfLemmaSize(begin, 5),
-        questionOverlapWithinCurrentSentence(begin, 5),
-        slidingWindowOfLemmaSizeWithinSentence(begin, 5),
-        whichWhatTriggerAndIsTobeAndEntityLabel(begin),
-        candidateLemma(begin),
-        numberQuestionAndCandidateIsNumber(begin),
-        dateQuestionAndCandidateIsDate(begin),
-        personTriggerAndPersonNameOnto(begin),
-        personTriggerAndPersonNameConll(begin),
-        nationalityTriggerAndOntoNationalityLabel(begin),
-        whichWhatTriggerAndConllInstituteLabel(begin),
-        whichWhatTriggerAndEntityTriggerAndOntoLabels(begin),
-        questionConstituentConjOnto(begin),
-        questionTriggerTermConjOnto(begin),
-        firstNPConjWithOntoLabel(begin),
-        secondNPConjWithOntoLabel(begin),
-        firstVPConjWithOntoLabel(begin),
-        secondVPConjWithOntoLabel(begin)
-      )
-/*
     bigramFeaturesWithContextSimilarity(begin) ++
       bigramFeatures(begin) ++
       conjWithSlidingWindow(begin) ++
@@ -457,7 +434,6 @@ object SquadSolverDataModel extends DataModel{
         //    whichWhatTriggerAndOntoLocationLabel(begin)//,
         //    whichWhatTriggerAndConllLocationLabel(begin)//,
       )
-*/
   }
 
   val beginFeatures: List[Property[QPPair]] = propertyList(true)
