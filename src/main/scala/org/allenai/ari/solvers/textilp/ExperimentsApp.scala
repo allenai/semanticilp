@@ -214,7 +214,30 @@ object ExperimentsApp {
   }
 
   def testSquadPythonEvaluationScript() = {
-    println(SolverUtils.assignCreditSquad("chemistry earth", Seq("the chemistry of the world in champaign", "the chemistry of the computer science world")))
+    println(" ------- ")
+    println(SolverUtils.assignCreditSquad("chemistry earth", Seq("the chemistry of the world in champaign")))
+    println(SolverUtils.assignCreditSquadScalaVersion("chemistry earth", Seq("the chemistry of the world in champaign")))
+    println(" ---repetition1--- ")
+    println(SolverUtils.assignCreditSquad("chemistry earth", Seq("the chemistry chemistry chemistry of the world in champaign")))
+    println(SolverUtils.assignCreditSquadScalaVersion("chemistry earth", Seq("the chemistry chemistry chemistry of the world in champaign")))
+    println(" ---repetition2--- ")
+    println(SolverUtils.assignCreditSquad("chemistry earth earth earth", Seq("the chemistry of the world in champaign")))
+    println(SolverUtils.assignCreditSquadScalaVersion("chemistry earth earth earth", Seq("the chemistry of the world in champaign")))
+    println(" ---repetition3--- ")
+    println(SolverUtils.assignCreditSquad("chemistry chemistry chemistry earth", Seq("the chemistry of the world in champaign")))
+    println(SolverUtils.assignCreditSquadScalaVersion("chemistry chemistry chemistry earth", Seq("the chemistry of the world in champaign")))
+    println(" ---punctuation--- ")
+    println(SolverUtils.assignCreditSquad("chemistry ; ; . earth", Seq("the chemistry of the world in champaign")))
+    println(SolverUtils.assignCreditSquadScalaVersion("chemistry ; ; . earth", Seq("the chemistry of the world in champaign")))
+    println(" ---articles--- ")
+    println(SolverUtils.assignCreditSquad("the chemistry earth", Seq("the chemistry of the world in champaign")))
+    println(SolverUtils.assignCreditSquadScalaVersion("the chemistry earth", Seq("the chemistry of the world in champaign")))
+    println(" ---whitespace--- ")
+    println(SolverUtils.assignCreditSquad("         chemistry earth", Seq("the chemistry of the world in champaign")))
+    println(SolverUtils.assignCreditSquadScalaVersion("         chemistry earth", Seq("the chemistry of the world in champaign")))
+    println(" ---exact match--- ")
+    println(SolverUtils.assignCreditSquad("the chemistry earth", Seq("chemistry earth")))
+    println(SolverUtils.assignCreditSquadScalaVersion("the chemistry earth", Seq("chemistry earth")))
   }
 
   def testNERAnnotations() = {
@@ -289,10 +312,15 @@ object ExperimentsApp {
 //    endClassifier.test(SquadClassifierUtils.trainInstances)
 //    endClassifier.test(SquadClassifierUtils.testInstances)
 
-    insideClassifier.learn(10)
-    insideClassifier.save()
-    insideClassifier.test(SquadClassifierUtils.trainInstances)
-    insideClassifier.test(SquadClassifierUtils.devInstances)
+//    insideClassifier.learn(10)
+//    insideClassifier.save()
+//    insideClassifier.test(SquadClassifierUtils.trainInstances)
+//    insideClassifier.test(SquadClassifierUtils.devInstances)
+
+    pairClassifier.learn(20)
+    pairClassifier.save()
+    pairClassifier.test(SquadClassifierUtils.trainInstances)
+    pairClassifier.test(SquadClassifierUtils.devInstances)
   }
 
   def decodeClassifierResults() = {
@@ -313,7 +341,7 @@ object ExperimentsApp {
     insideClassifier.load()
     insideClassifier.test(SquadClassifierUtils.trainInstances)
     insideClassifier.test(SquadClassifierUtils.devInstances)
-    evaluateF1OfTopKScores(0.0, train = true, 10)
+    evaluateF1OfTopKScores(2.4, train = true, 10)
   }
 
   def main(args: Array[String]): Unit = {
@@ -405,7 +433,7 @@ object ExperimentsApp {
         println("Recall: " + avgR)
         println("AvgResult: " + avgCandidateLength)
         println("Ratio of answers with length 1: " + candSize.count(_ == 1))
-        println("F1: " + 2 * avgR * avgR  / (avgP + avgR))
+        println("F1: " + 2 * avgR * avgP  / (avgP + avgR))
         println(candSize)
       case 28 =>
         val qAndpPairs = trainReader.instances.flatMap { i => i.paragraphs.flatMap{p => p.questions.map(_ -> p)}}

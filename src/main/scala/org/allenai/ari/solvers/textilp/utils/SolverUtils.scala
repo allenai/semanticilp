@@ -217,6 +217,48 @@ object SolverUtils {
     (exactMatch, f1, 1.0)
   }
 
+  val articles = "\\b(a|an|the)\\b".r
+  val moreThanOneSpace = "\\s{2,}".r
+  def assignCreditSquadScalaVersion(predict: String, golds: Seq[String]): ((Double, Double, Double), Double) = {
+    def normalizeString(s: String) = {
+      def lowerCase(s: String): String = s.toLowerCase
+      def noPunctuation(s: String): String = s.replaceAll("[\\Q][(){},.;!?<>%\\E]", "")
+      def noArticles(s: String): String = articles.replaceAllIn(s, " ")
+      def removeExtraWhitespace(s: String): String = moreThanOneSpace.replaceAllIn(s, " ")
+      removeExtraWhitespace(noArticles(noPunctuation(lowerCase(s.trim)).trim).trim)
+    }
+
+    def exactMatch(p: String, g: String): Double = if(normalizeString(p) == normalizeString(g)) 1.0 else 0.0
+
+    def f1Score(p: String, g: String): (Double, Double, Double) = {
+      val pN = normalizeString(p)
+      val qN = normalizeString(g)
+      val pNormalized = pN.split("\\s")
+      val gNormalized = qN.split("\\s")
+      println("pNormalized: " + pNormalized.toSeq)
+      println("gNormalized: " + gNormalized.toSeq)
+      val pWordFreqMap = pNormalized.groupBy(a => a).map{case (k, v) => k -> v.length }
+      val gWordFreqMap = gNormalized.groupBy(a => a).map{case (k, v) => k -> v.length }
+      val numSame = pNormalized.toSet.intersect(gNormalized.toSet).toList.map(i => scala.math.min(pWordFreqMap(i), gWordFreqMap(i)) ).sum
+      println("numSame: " + numSame)
+      if(numSame == 0) {
+        (0.0, 0.0, 0.0)
+      }
+      else {
+        val Pre = numSame.toDouble / pNormalized.length
+        val Rec = numSame.toDouble / gNormalized.length
+        println("Pre: " + Pre)
+        println("Rec: " + Rec)
+        val f1 = 2 * Pre * Rec / (Pre + Rec)
+        (f1, Pre, Rec)
+      }
+    }
+
+    val bestF1PR = golds.map(g => f1Score(predict, g) ).maxBy(_._1)
+    val bestEM = golds.map(g => exactMatch(predict, g) ).max
+    bestF1PR -> bestEM
+  }
+
   def printMemoryDetails() = {
     val mb = 1024*1024
 

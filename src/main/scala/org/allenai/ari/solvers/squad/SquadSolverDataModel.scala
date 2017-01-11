@@ -310,11 +310,24 @@ object SquadSolverDataModel extends DataModel{
 
   val posLabelsOfSpan = property(pair) { qp: QPPair => getPPOSSpanLabel(qp).toList }
 
+  val posLabelsOfSpanConjWithLength = property(pair) { qp: QPPair =>
+    val length = qp.endTokenIdx - qp.beginTokenIdx
+    getPPOSSpanLabel(qp).sortBy(identity).map(_ + length).toList
+  }
+
+  val lemmaLabelsOfSpanConjWithLength = property(pair) { qp: QPPair =>
+    val length = qp.endTokenIdx - qp.beginTokenIdx
+    getPPOSSpanLabel(qp).sortBy(i => i).map(_ + length).toList
+  }
+
   val ontoLabelsOfSpan = property(pair) { qp: QPPair => getPOntoSpanLabel(qp).toList }
 
   val conllLabelsOfSpan = property(pair) { qp: QPPair => getPOntoSpanLabel(qp).toList }
 
-  val lemmaLabelsOfSpan = property(pair) { qp: QPPair => getPLemmaSpanLabel(qp).toList }
+  val lemmaLabelsOfSpan = property(pair) { qp: QPPair =>
+    //getPLemmaLabel(qp, begin = true)
+    getPLemmaSpanLabel(qp).toList.distinct.sortBy(i => i).toString
+  }
 
   val conj2 = (p1: DiscreteProperty[QPPair], p2: DiscreteProperty[QPPair]) => property(pair) { qp: QPPair =>
     p1(qp) + p2(qp)
@@ -450,7 +463,7 @@ object SquadSolverDataModel extends DataModel{
     )
   }
  // slidingWindowOfLemmaSizeWithinSentence(begin, 5),
-  val pairFeaturesWithContext = pairFeatures.map(p => conj2Collection(p, slidingWindowOfLemmaSizeWithinSentenceSpan(4)))
+  //val pairFeaturesWithContext = pairFeatures.map(p => conj2Collection(p, slidingWindowOfLemmaSizeWithinSentenceSpan(4)))
 
 }
 
@@ -466,7 +479,7 @@ class SquadClassifier(cType: String = "begin") extends Learnable[QPPair](SquadSo
   def cFeatures = cType match {
     case "begin" => beginFeatures
     case "end" => endFeatures
-    case "pair" => beginFeatures ++ endFeatures ++ pairFeatures ++ pairFeaturesWithContext
+    case "pair" => List(lemmaLabelsOfSpan)  // lengthOfSpan  pairFeatures //++ pairFeaturesWithContext ++   beginFeatures ++ endFeatures
     case "inside" => beginFeatures
     case _ => throw new Exception("Unknown classifier type")
   }
@@ -481,9 +494,13 @@ class SquadClassifier(cType: String = "begin") extends Learnable[QPPair](SquadSo
 
 object SquadClassifierUtils {
   val beginClassifier = new SquadClassifier("begin")
+  beginClassifier.modelSuffix = "begin"
   val endClassifier = new SquadClassifier("end")
+  endClassifier.modelSuffix = "end"
   val pairClassifier = new SquadClassifier("pair")
+  pairClassifier.modelSuffix = "pair"
   val insideClassifier = new SquadClassifier("inside")
+  insideClassifier.modelSuffix = "inside"
 
   private lazy val annotationUtils = new AnnotationUtils()
   private lazy val trainReader = new SQuADReader(Constants.squadTrainingDataFile, Some(annotationUtils.pipelineService), annotationUtils)
