@@ -82,6 +82,7 @@ object WikiUtils {
   lazy val wikiDataRedis = JsonQueryCache[String]("", "localhost", Protocol.DEFAULT_PORT, Protocol.DEFAULT_TIMEOUT)
 
   def wikiAskQuery(qStr: String, pStr: String, property: String, mostOccurrences: Int): Boolean = {
+    /*
     val qStrId = getWikiDataId(qStr)
     val pStrId = getWikiDataId(pStr)
     //println(s"qStr: $qStr /  qStrId: $qStrId / pStr: $pStr / pStrId: $pStrId")
@@ -113,6 +114,8 @@ object WikiUtils {
     }
 //    println(s"$qStr -> $property -> $pStr: $result")
     result
+    */
+    false
   }
 
   def wikiDataDistanceWithIds(e1: String, e2: String, property: String): Int = {

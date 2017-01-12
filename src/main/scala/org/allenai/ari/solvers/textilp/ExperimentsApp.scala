@@ -447,6 +447,62 @@ object ExperimentsApp {
       case 31 => decodeClassifierResults()
       case 32 => tuneF1InsideClassifier()
       case 33 => evaluateTopBestAnswers()
+      case 34 =>
+        // evaluate the candidate generation recall
+        val qAndpPairs = trainReader.instances.slice(0, 30).flatMap { i => i.paragraphs.slice(0,5).flatMap{p => p.questions.slice(0, 10).map(q => (q, p))}}.take(1000)
+        val pairsGrouped = qAndpPairs.groupBy(_._2)
+        val (fprList, emList, candidateSize) = pairsGrouped.zipWithIndex.flatMap{ case ((p, pairs), idx) =>
+          val candidates = CandidateGeneration.getCandidateAnswer(p.contextTAOpt.get)
+          println("Processed " + idx + " out of " + pairsGrouped.size)
+          println("candidates = " + candidates)
+            pairs.map{ case (q, _) =>
+              val goldCandidates = q.answers.map(_.answerText)
+              val (fpr, em) = candidates.map{ c => SolverUtils.assignCreditSquadScalaVersion(c, goldCandidates) }.unzip
+              val bestEM = (Seq(0.0) ++ em).max
+              val bestFPR = (Seq((0.0, 0.0, 0.0)) ++ fpr).maxBy(_._1)
+              println(s"EM: $bestEM  / bestFPR: $bestFPR ")
+              (bestFPR, bestEM, candidates.size)
+            }
+        }.toList.unzip3
+
+        val (f1List, pList, rList) = fprList.unzip3
+        val avgEM = emList.sum / emList.length
+        val avgP = pList.sum / pList.length
+        val avgR = rList.sum / rList.length
+        val avgF = f1List.sum / f1List.length
+        val avgCandidateLength = candidateSize.sum.toDouble / candidateSize.length
+        println("Overall size: " + pList.length)
+        println("EM: " + avgEM)
+        println("Precision: " + avgP)
+        println("Recall: " + avgR)
+        println("avgCandidateLength: " + avgCandidateLength)
+        println("Ratio of answers with length 1: " + candidateSize.count(_ == 1))
+        println(pList.length)
+      case 35 =>
+        // evaluate the candidate generation recall
+        val qAndpPairs = trainReader.instances.slice(0, 30).flatMap { i => i.paragraphs.slice(0,5).flatMap{p => p.questions.slice(0, 10).map(q => (q, p))}}.take(1000)
+        val pairsGrouped = qAndpPairs.groupBy(_._2)
+        val (pre, rec, candSize) = pairsGrouped.zipWithIndex.flatMap{ case ((p, pairs), idx) =>
+          val candidates = CandidateGeneration.getCandidateAnswer(p.contextTAOpt.get)
+          println("Processed " + idx + " out of " + pairsGrouped.size)
+          println("candidates = " + candidates)
+          pairs.map{ case (q, _) =>
+            val goldCandidates = q.answers.map(_.answerText).distinct.toSet
+            val pre = if (goldCandidates.intersect(candidates).nonEmpty) 1.0 else 0.0
+            val rec = if(candidates.nonEmpty) 1.0 else 0.0
+            (pre, rec, candidates.size)
+          }
+        }.toList.unzip3
+        val avgP = pre.sum / pre.length
+        val avgR = rec.sum / rec.length
+        val avgCandidateLength = candSize.sum.toDouble / candSize.length
+        println("Overall size: " + pre.length)
+        println("Precision: " + avgP)
+        println("Recall: " + avgR)
+        println("AvgResult: " + avgCandidateLength)
+        println("Ratio of answers with length 1: " + candSize.count(_ == 1))
+        println("F1: " + 2 * avgR * avgP  / (avgP + avgR))
+        println(candSize)
     }
   }
 }
