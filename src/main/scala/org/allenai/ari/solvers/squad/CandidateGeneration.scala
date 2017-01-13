@@ -1,10 +1,14 @@
 package org.allenai.ari.solvers.squad
 
+import java.io.File
+import java.util
 import java.util.regex.Pattern
 
-import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
-import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, TextAnnotation}
+import edu.illinois.cs.cogcomp.core.datastructures.{IntPair, Pair, ViewNames}
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, TextAnnotation, View}
+import edu.illinois.cs.cogcomp.core.datastructures.trees.Tree
 import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper
+import edu.illinois.cs.cogcomp.nlp.utilities.ParseUtils
 import edu.illinois.cs.cogcomp.saulexamples.nlp.QuestionTypeClassification.QuestionTypeAnnotator
 import org.allenai.ari.solvers.textilp.{Paragraph, Question}
 import org.allenai.ari.solvers.textilp.utils.WikiUtils
@@ -12,6 +16,7 @@ import org.allenai.ari.solvers.textilp.utils.WikiUtils.WikiDataProperties
 import org.allenai.common.cache.JsonQueryCache
 
 import scala.collection.mutable.ArrayBuffer
+import scala.io.Source
 
 object CandidateGeneration {
   import scala.collection.JavaConverters._
@@ -312,22 +317,22 @@ object CandidateGeneration {
 
   def getCandidateAnswer(contextTA: TextAnnotation): Set[String] = {
     val candidates = ArrayBuffer[Constituent]()
-    println(contextTA.getText)
     val pTA = contextTA
     val nounPhrases = contextTA.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala.
-      filter { ch => ch.getLabel.contains("N") || ch.getLabel.contains("J") || ch.getLabel.contains("V") }.map(_.getSurfaceForm)
+      filter { ch => ch.getLabel.contains("N") || ch.getLabel.contains("J") || ch.getLabel.contains("V") }
     val quotationExtractionPattern = "([\"'])(?:(?=(\\\\?))\\2.)*?\\1".r
     val stringsInsideQuotationMark = quotationExtractionPattern.findAllIn(contextTA.text)
     val paragraphNerConsConll = contextTA.getView(ViewNames.NER_CONLL).getConstituents.asScala.toList
     val paragraphNerConsOnto = contextTA.getView(ViewNames.NER_ONTONOTES).getConstituents.asScala.toList
     val paragraphWikiAnnotationOpt = wikifierRedis.get(contextTA.getText)
     val wikiMentionsInText = SerializationHelper.deserializeFromJson(paragraphWikiAnnotationOpt.get).getView(ViewNames.WIKIFIER).getConstituents.asScala.toList
-    val quant = if(contextTA.hasView(ViewNames.QUANTITIES)) {
-      contextTA.getView(ViewNames.QUANTITIES).getConstituents.asScala.map(_.getSurfaceForm)
+    val quant = if(true) {///if(contextTA.hasView(ViewNames.QUANTITIES)) {
+      contextTA.getView(ViewNames.QUANTITIES).getConstituents.asScala
     }
     else {
       Seq.empty
     }
+    val parseTreeCandidates = generateCandidates(contextTA)
     val paragraphQuantitiesCons = List.empty //paragraph.contextTAOpt.get.getView(ViewNames.QUANTITIES).getConstituents.asScala.toList
     val p = "-?\\d+".r // regex for finding all the numbers
     val numbers = p.findAllIn(contextTA.text)
@@ -345,8 +350,16 @@ object CandidateGeneration {
     wikiDataInstanceOfExtractor(candidates, wikiMentionsInText, WikiDataProperties.food)
     wikiDataInstanceOfExtractor(candidates, wikiMentionsInText, WikiDataProperties.person)
     wikiDataInstanceOfExtractor(candidates, wikiMentionsInText, WikiDataProperties.country)
-    candidates.++(nounPhrases ++ quant ++ paragraphNerConsConll ++ paragraphNerConsOnto ++ numbers ++ stringsInsideQuotationMark)
-    candidates.map(_.getSurfaceForm.trim).toSet
+    candidates.++=:(nounPhrases ++ quant ++ paragraphNerConsConll ++ paragraphNerConsOnto ++ parseTreeCandidates)
+    (candidates.map(_.getSurfaceForm.trim) ++ numbers ++ stringsInsideQuotationMark).toSet
+  }
+
+  def extractPOSPatterns(vu: View): Unit = {
+    val cons = vu.getConstituents.asScala
+  }
+
+  def extractChunkPatterns(): Unit = {
+
   }
 
   def postProcessCandidates(candidates: ArrayBuffer[Constituent], targetSet: Set[String]): Seq[String] = {
@@ -575,6 +588,58 @@ object CandidateGeneration {
     (shallowParseCons, paragraphQuantitiesCons, paragraphNerConsConll, paragraphNerConsOnto, wikiMentionsInText, wikiMentionsInQuestion, paragraphTokens)
   }
 
+  def getNewConstituent(ta: TextAnnotation, start: Int, end: Int): Constituent = {
+    val newConstituent = new Constituent("", 1.0, "CANDIDATES", ta, start, end)
+    //new Relation("ChildOf", predicateClone, newConstituent, 1.0)
+    newConstituent
+  }
+
+  // generates candiates using parse tree
+  def generateCandidates(ta: TextAnnotation): ArrayBuffer[Constituent] = {
+    val candidates = ArrayBuffer[Constituent]()
+    ta.sentences().asScala.indices.foreach { sentenceId =>
+      val tree = ParseUtils.getParseTree(ViewNames.PARSE_STANFORD, ta, sentenceId)
+      val currentNode = ParseUtils.getSpanLabeledTree(tree)
+      val sentenceStart = ta.getSentence(sentenceId).getStartSpan
+      val sentenceEnd = ta.getSentence(sentenceId).getEndSpan
+//      val currentNode = spanLabeledTree
+//      println("spanLabeledTree = " + spanLabeledTree)
+//      println("currentNode = " + currentNode)=
+      def getCandidatesRecursively(currentNode: Tree[Pair[String, IntPair]]): Unit = {
+//        println("Rec currentNode: " + currentNode)
+        if (!currentNode.isLeaf) {
+          val leaves = currentNode.getChildren.asScala
+          leaves.foreach { sibling =>
+            val siblingNode = sibling.getLabel
+            // do not take the predicate as the argument
+            val siblingSpan = siblingNode.getSecond
+            val siblingLabel = siblingNode.getFirst
+            val start = siblingSpan.getFirst + sentenceStart
+            val end = siblingSpan.getSecond + sentenceStart
+            candidates.+=(getNewConstituent(ta, start, end))
+            if (siblingLabel.startsWith("PP")) {
+              for (child <- sibling.getChildren.asScala) {
+                val candidateStart = child.getLabel.getSecond.getFirst + sentenceStart
+                val candidateEnd = child.getLabel.getSecond.getSecond + sentenceStart
+                candidates.+=(getNewConstituent(ta, candidateStart, candidateEnd))
+              }
+            }
+            getCandidatesRecursively(sibling)
+          }
+        }
+        else {
+          // do nothing
+        }
+      }
+      getCandidatesRecursively(currentNode)
+      //println(candidates.toSet.mkString("\n"))
+    }
+    candidates
+  }
+
   def dropWikiURL(url: String): String = url.replace("http://en.wikipedia.org/wiki/", "")
+
+  val stopwordsSet = Source.fromFile(new File("other/stopwords.txt")).getLines().toSet
+
 
 }

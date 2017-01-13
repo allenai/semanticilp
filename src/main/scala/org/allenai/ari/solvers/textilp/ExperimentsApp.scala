@@ -2,7 +2,7 @@ package org.allenai.ari.solvers.textilp
 
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
 import org.allenai.ari.solvers.squad.SquadClassifierUtils._
-import org.allenai.ari.solvers.squad.{CandidateGeneration, SquadClassifier, SquadClassifierUtils}
+import org.allenai.ari.solvers.squad.{CandidateGeneration, SquadClassifier, SquadClassifierUtils, TextAnnotationPatternExtractor}
 import org.allenai.ari.solvers.textilp.alignment.AlignmentFunction
 import org.allenai.ari.solvers.textilp.solvers.{LuceneSolver, SalienceSolver, TextILPSolver, TextSolver}
 import org.allenai.ari.solvers.textilp.utils.WikiUtils.WikiDataProperties
@@ -453,7 +453,9 @@ object ExperimentsApp {
         val pairsGrouped = qAndpPairs.groupBy(_._2)
         val (fprList, emList, candidateSize) = pairsGrouped.zipWithIndex.flatMap{ case ((p, pairs), idx) =>
           val candidates = CandidateGeneration.getCandidateAnswer(p.contextTAOpt.get)
+          println("==================================================")
           println("Processed " + idx + " out of " + pairsGrouped.size)
+          println("Paragraph: " + p.context)
           println("candidates = " + candidates)
             pairs.map{ case (q, _) =>
               val goldCandidates = q.answers.map(_.answerText)
@@ -461,6 +463,12 @@ object ExperimentsApp {
               val bestEM = (Seq(0.0) ++ em).max
               val bestFPR = (Seq((0.0, 0.0, 0.0)) ++ fpr).maxBy(_._1)
               println(s"EM: $bestEM  / bestFPR: $bestFPR ")
+              if(bestEM == 0.0) {
+                println("question: " + q.questionText)
+                println("correct answer: ")
+                println(q.answers)
+                println("-------")
+              }
               (bestFPR, bestEM, candidates.size)
             }
         }.toList.unzip3
@@ -471,10 +479,12 @@ object ExperimentsApp {
         val avgR = rList.sum / rList.length
         val avgF = f1List.sum / f1List.length
         val avgCandidateLength = candidateSize.sum.toDouble / candidateSize.length
+        println("------------")
         println("Overall size: " + pList.length)
         println("EM: " + avgEM)
         println("Precision: " + avgP)
         println("Recall: " + avgR)
+        println("F1: " + avgF)
         println("avgCandidateLength: " + avgCandidateLength)
         println("Ratio of answers with length 1: " + candidateSize.count(_ == 1))
         println(pList.length)
@@ -503,6 +513,41 @@ object ExperimentsApp {
         println("Ratio of answers with length 1: " + candSize.count(_ == 1))
         println("F1: " + 2 * avgR * avgP  / (avgP + avgR))
         println(candSize)
+      case 36 =>
+        // try getting substrees for tree
+        val qAndpPairs = trainReader.instances.slice(0, 30).flatMap { i => i.paragraphs.slice(0,5).flatMap{p => p.questions.slice(0, 10).map(q => (q, p))}}.take(1000)
+        //val stanfordParse = qAndpPairs.head._2.contextTAOpt.get.getView(ViewNames.PARSE_STANFORD)
+        println(qAndpPairs.head._2.context)
+        CandidateGeneration.generateCandidates(qAndpPairs.head._2.contextTAOpt.get)
+
+      case 37 => // getting
+        val qAndpPairs = trainReader.instances.slice(0, 30).flatMap { i => i.paragraphs.slice(0,5).flatMap{p => p.questions.slice(0, 10).map(q => (q, p))}}.take(1000)
+        val minAnswerLength = qAndpPairs.map{ case (q, p) =>
+          q.answers.map(_.answerText.split(" ").length).min
+        }
+        val bbb = minAnswerLength.groupBy(identity).map{ case (a, b) => a -> b.length }.toSeq.sortBy(_._1)
+        val str = bbb.map{case (a, b) => s"$a\t$b"}.mkString("\n")
+        println(str)
+
+      case 38 => // getting stopwords and answer intersections
+        val qAndpPairs = devReader.instances.flatMap { i => i.paragraphs.flatMap{p => p.questions.map(q => (q, p))}}
+        val answerStrings = qAndpPairs.flatMap{ case (q, p) =>
+          q.answers.map(_.answerText.toLowerCase)
+        }.toSet
+        println(answerStrings.intersect(CandidateGeneration.stopwordsSet).mkString("\n"))
+
+      case 39 => // finding pattersn in lists
+        val list = List("NNS", "VBG", "JJ", "NNS", "IN", "NNP", "NNP")
+        println(TextAnnotationPatternExtractor.findPattern(list, List("NNS", "VBG")))
+        println(TextAnnotationPatternExtractor.findPattern(list, List("NNS", "*", "VBG")))
+        println(TextAnnotationPatternExtractor.findPattern(list, List("NNS", "?", "VBG")))
+        println(TextAnnotationPatternExtractor.findPattern(list, List("NNS", "?", "JJ")))
+        println(TextAnnotationPatternExtractor.findPattern(list, List("VBG", "?", "NNS")))
+        println(TextAnnotationPatternExtractor.findPattern(list, List("JJ")))
+        println(TextAnnotationPatternExtractor.findPattern(list, List("VBG", "*", "IN")))
+        println(TextAnnotationPatternExtractor.findPattern(list, List("VBG", "*")))
+        println(TextAnnotationPatternExtractor.findPattern(list, List("Foo")))
+        println(TextAnnotationPatternExtractor.findPattern(list, List("VBG", "*", "Bar")))
     }
   }
 }

@@ -449,6 +449,10 @@ object SquadSolverDataModel extends DataModel{
       )
   }
 
+  // often longer questions need longer answers; this can be reflected in the context similarity, or directly in a length feature
+  // try removing the stopwords
+
+
   val beginFeatures: List[Property[QPPair]] = propertyList(true)
 
   val endFeatures: List[Property[QPPair]] = propertyList(false)

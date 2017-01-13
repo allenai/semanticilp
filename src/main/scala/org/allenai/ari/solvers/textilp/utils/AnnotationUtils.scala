@@ -44,16 +44,17 @@ class AnnotationUtils {
     DummyRedisClient
   }
 
-  val viewsToDisable = Set(USE_SRL_NOM, USE_SRL_VERB, USE_STANFORD_DEP, USE_STANFORD_PARSE, USE_QUANTIFIER)
+  val viewsToDisable = Set(USE_SRL_NOM, USE_SRL_VERB, USE_STANFORD_DEP, USE_QUANTIFIER)
   val viewsToAdd = Seq(ViewNames.POS, ViewNames.LEMMA, ViewNames.NER_CONLL, ViewNames.NER_ONTONOTES,
-    ViewNames.SHALLOW_PARSE/*, ViewNames.QUANTITIES*/)
+    ViewNames.SHALLOW_PARSE, ViewNames.PARSE_STANFORD, ViewNames.QUANTITIES)
 
   lazy val pipelineService = {
     println("Starting to build the pipeline service . . . ")
     val settings = new Properties()
-    settings.setProperty("cacheDirectory", "annotation-cache-textilp")
+    //settings.setProperty("cacheDirectory", "annotation-cache-textilp")
     //settings.setProperty("disableCache", Configurator.TRUE)
     viewsToDisable.foreach{ key => settings.setProperty(key.value, Configurator.FALSE) }
+    settings.setProperty(PipelineConfigurator.STFRD_MAX_SENTENCE_LENGTH.key, "1000")
     val rm = new ResourceManager(settings)
     //viewsToDisable.foreach { v => settings.setProperty(v.key, Configurator.FALSE) }
     val config = new PipelineConfigurator().getConfig(rm)
