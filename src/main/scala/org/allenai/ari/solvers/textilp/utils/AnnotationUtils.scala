@@ -80,9 +80,18 @@ class AnnotationUtils {
     if (redisAnnotation.isDefined) {
       SerializationHelper.deserializeFromJson(redisAnnotation.get)
     } else {
+//      println("------")
+//      println(string)
       //val textAnnotation = pipelineService.createAnnotatedTextAnnotation("", "", string)
       val textAnnotation = pipelineService.createBasicTextAnnotation("", "", string)
-      viewsToAdd.foreach{ vu => pipelineService.addView(textAnnotation, vu) }
+      try {
+        viewsToAdd.foreach { vu => pipelineService.addView(textAnnotation, vu) }
+      }
+      catch {
+        case e: java.lang.NullPointerException =>
+          println(s"Exception thrown . . . \nInput string: $string")
+          e.printStackTrace()
+      }
       //if (withQuantifier) quantifierAnnotator.addView(textAnnotation)
       synchronizedRedisClient.put(cacheKey, SerializationHelper.serializeToJson(textAnnotation))
       textAnnotation
@@ -165,9 +174,7 @@ class AnnotationUtils {
       case (ins, idx) =>
         println("Idx: " + idx + " / ratio: " + idx * 1.0 / reader.instances.size)
         ins.paragraphs.foreach { p =>
-
           val jointText = (p.context + p.questions.map {_.questionText}).mkString(" ")
-
           val ta = curatorService.createBasicTextAnnotation("", "", p.context)
           curatorService.addView(ta, ViewNames.WIKIFIER)
           val json = SerializationHelper.serializeToJson(ta)

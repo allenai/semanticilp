@@ -1,6 +1,8 @@
 package org.allenai.ari.solvers.textilp
 
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.SpanLabelView
+import edu.illinois.cs.cogcomp.core.utilities.DummyTextAnnotationGenerator
 import org.allenai.ari.solvers.squad.SquadClassifierUtils._
 import org.allenai.ari.solvers.squad.{CandidateGeneration, SquadClassifier, SquadClassifierUtils, TextAnnotationPatternExtractor}
 import org.allenai.ari.solvers.textilp.alignment.AlignmentFunction
@@ -523,7 +525,7 @@ object ExperimentsApp {
       case 37 => // getting
         val qAndpPairs = trainReader.instances.slice(0, 30).flatMap { i => i.paragraphs.slice(0,5).flatMap{p => p.questions.slice(0, 10).map(q => (q, p))}}.take(1000)
         val minAnswerLength = qAndpPairs.map{ case (q, p) =>
-          q.answers.map(_.answerText.split(" ").length).min
+          q.answers.map(_.answerText.split(" ").length).max
         }
         val bbb = minAnswerLength.groupBy(identity).map{ case (a, b) => a -> b.length }.toSeq.sortBy(_._1)
         val str = bbb.map{case (a, b) => s"$a\t$b"}.mkString("\n")
@@ -538,6 +540,8 @@ object ExperimentsApp {
 
       case 39 => // finding pattersn in lists
         val list = List("NNS", "VBG", "JJ", "NNS", "IN", "NNP", "NNP")
+//        val list = List("DT", "NN", "IN", "NN", "DT", "NNP", "NNP", "NN", "VBD", "IN", "NN",
+//          ".", "DT", "NN", "NN", "VBD", "VBN", "IN", "CD", ".", "DT", "VBG", "VBD", "NNP", "CC", "MD", "VB", "IN", "NNP", ".")
         println(TextAnnotationPatternExtractor.findPattern(list, List("NNS", "VBG")))
         println(TextAnnotationPatternExtractor.findPattern(list, List("NNS", "*", "VBG")))
         println(TextAnnotationPatternExtractor.findPattern(list, List("NNS", "?", "VBG")))
@@ -548,6 +552,11 @@ object ExperimentsApp {
         println(TextAnnotationPatternExtractor.findPattern(list, List("VBG", "*")))
         println(TextAnnotationPatternExtractor.findPattern(list, List("Foo")))
         println(TextAnnotationPatternExtractor.findPattern(list, List("VBG", "*", "Bar")))
+        println(TextAnnotationPatternExtractor.findPattern(list, List("NNS")))
+        println(TextAnnotationPatternExtractor.findPattern(list, List("IN", "NN")))
+      case 40 =>
+        val ta = DummyTextAnnotationGenerator.generateAnnotatedTextAnnotation(false, 3)
+        println(TextAnnotationPatternExtractor.extractPatterns(ta))
     }
   }
 }

@@ -17,11 +17,13 @@ import org.allenai.ari.solvers.squad.CandidateGeneration
 class SQuADReader(file: File, annotationServiceOpt: Option[AnnotatorService] = None, annotationUtils: AnnotationUtils) {
   private val jsonString = Source.fromFile(file).getLines().mkString
   private val jsonObject = Json.parse(jsonString)
+  private val extraTerms = Seq("[citation needed]", "[b]", "[a]", "[info]", "[update]", "[f]")
   val instances = (jsonObject \\ "data").head.as[JsArray].value.slice(0, 30).map { value =>
     val title = (value \ "title").as[String]
     val paragraphValues = (value \ "paragraphs").as[JsArray].value
     val paragraphs = paragraphValues.map { paragraphValue =>
       val context = (paragraphValue \ "context").as[String]
+      val contextCleaned = extraTerms.foldRight(context){ case (toDrop, newContext) => newContext.replace(toDrop, "") }
       val questions = (paragraphValue \ "qas").as[JsArray].value.map { qValue =>
         val question = (qValue \ "question").as[String]
         val id = (qValue \ "id").as[String]
@@ -45,11 +47,11 @@ class SQuADReader(file: File, annotationServiceOpt: Option[AnnotatorService] = N
       val contextAnnotation = annotationServiceOpt match {
         case None => None
         case Some(service) =>
-          val ta = annotationUtils.annotate(context)
+          val ta = annotationUtils.annotate(contextCleaned)
           //assert(ta.getAvailableViews.contains(ViewNames.QUANTITIES))
           Some(ta)
       }
-      Paragraph(context, questions, contextAnnotation)
+      Paragraph(contextCleaned, questions, contextAnnotation)
     }
     TopicGroup(title, paragraphs)
   }
