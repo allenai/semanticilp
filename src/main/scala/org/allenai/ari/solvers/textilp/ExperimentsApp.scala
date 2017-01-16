@@ -380,8 +380,11 @@ object ExperimentsApp {
       case 15 => dumpSQuADQuestionsOnDisk(devReader)
       case 16 => testCuratorAnnotation()
       case 17 => annotationUtils.processSQuADWithWikifier(trainReader)
-      case 18 => annotationUtils.processSQuADWithWikifierAndPutRedis(devReader)
-      case 19 => annotationUtils.verifyWikifierAnnotationsOnDisk(trainReader)
+      case 18 =>
+        // puts the result of the Wikifier in redis
+        annotationUtils.processSQuADWithWikifierAndPutRedis(devReader)
+      case 19 =>
+        annotationUtils.verifyWikifierAnnotationsOnDisk(trainReader)
       case 20 =>
         //val question = trainReader.instances.head.paragraphs.head.questions.head
         //println(trainReader.instances(1).paragraphs.head.questions.map(_.questionText).mkString("\n"))
@@ -489,7 +492,7 @@ object ExperimentsApp {
         println("F1: " + avgF)
         println("avgCandidateLength: " + avgCandidateLength)
         println("Ratio of answers with length 1: " + candidateSize.count(_ == 1))
-        println(pList.length)
+        println(s"$avgEM\t$avgP\t$avgR\t$avgF\t$avgCandidateLength\t${candidateSize.count(_ == 1)}\t${pList.length}")
       case 35 =>
         // evaluate the candidate generation recall
         val qAndpPairs = trainReader.instances.slice(0, 30).flatMap { i => i.paragraphs.slice(0,5).flatMap{p => p.questions.slice(0, 10).map(q => (q, p))}}.take(1000)

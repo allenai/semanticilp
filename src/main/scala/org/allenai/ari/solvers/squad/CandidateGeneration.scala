@@ -326,12 +326,13 @@ object CandidateGeneration {
     val paragraphNerConsOnto = contextTA.getView(ViewNames.NER_ONTONOTES).getConstituents.asScala.toList
     val paragraphWikiAnnotationOpt = wikifierRedis.get(contextTA.getText)
     val wikiMentionsInText = SerializationHelper.deserializeFromJson(paragraphWikiAnnotationOpt.get).getView(ViewNames.WIKIFIER).getConstituents.asScala.toList
-    val quant = if(true) {///if(contextTA.hasView(ViewNames.QUANTITIES)) {
+    val quant = if(false) {///if(contextTA.hasView(ViewNames.QUANTITIES)) {
       contextTA.getView(ViewNames.QUANTITIES).getConstituents.asScala
     }
     else {
       Seq.empty
     }
+    val posAndChunkPatternCandidates = TextAnnotationPatternExtractor.extractPatterns(contextTA)
     val parseTreeCandidates = generateCandidates(contextTA)
     val paragraphQuantitiesCons = List.empty //paragraph.contextTAOpt.get.getView(ViewNames.QUANTITIES).getConstituents.asScala.toList
     val p = "-?\\d+".r // regex for finding all the numbers
@@ -351,7 +352,7 @@ object CandidateGeneration {
     wikiDataInstanceOfExtractor(candidates, wikiMentionsInText, WikiDataProperties.person)
     wikiDataInstanceOfExtractor(candidates, wikiMentionsInText, WikiDataProperties.country)
     candidates.++=:(nounPhrases ++ quant ++ paragraphNerConsConll ++ paragraphNerConsOnto ++ parseTreeCandidates)
-    (candidates.map(_.getSurfaceForm.trim) ++ numbers ++ stringsInsideQuotationMark).toSet
+    (candidates.map(_.getSurfaceForm.trim) ++ numbers ++ stringsInsideQuotationMark ++ posAndChunkPatternCandidates).toSet
   }
 
   def extractPOSPatterns(vu: View): Unit = {
