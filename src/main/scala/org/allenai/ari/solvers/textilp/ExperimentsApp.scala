@@ -27,12 +27,13 @@ object ExperimentsApp {
 
   def testQuantifier(): Unit = {
     val ta = annotationUtils.pipelineService.createBasicTextAnnotation("", "",
-      "The annual NFL Experience was held at the Moscone Center in San Francisco. In addition, \"Super Bowl City\" opened on January 30 at Justin Herman Plaza on The Embarcadero, featuring games and activities that will highlight the Bay Area's technology, culinary creations, and cultural diversity. More than 1 million people are expected to attend the festivities in San Francisco during Super Bowl Week. San Francisco mayor Ed Lee said of the highly visible homeless presence in this area \"they are going to have to leave\". San Francisco city supervisor Jane Kim unsuccessfully lobbied for the NFL to reimburse San Francisco for city services in the amount of $5 million.")
+      " In 2010, there were concerns among Tajik officials that Islamic militarism in the east of the country was on the rise following the escape of 25 militants from a Tajik prison in August, an ambush that killed 28 Tajik soldiers in the Rasht Valley in September, and another ambush in the valley in October that killed 30 soldiers, followed by fighting outside Gharm that left 3 militants dead. To date the country's Interior Ministry asserts that the central government maintains full control over the country's east, and the military operation in the Rasht Valley was concluded in November 2010. However, fighting erupted again in July 2012. In 2015 Russia will send more troops to Tajikistan, as confirmed by a report of STRATFOR (magazine online)")
     annotationUtils.pipelineService.addView(ta, ViewNames.QUANTITIES)
     println(ta)
     println(ta.getAvailableViews)
     println(ta.getView(ViewNames.QUANTITIES))
     println(ta.getView(ViewNames.QUANTITIES).getConstituents.asScala.filter(_.getLabel.contains("Date")))
+    println(ta.getView(ViewNames.QUANTITIES).getConstituents.asScala.map(c => c.getSurfaceForm -> c.getLabel))
   }
 
   def testPipelineAnnotation(): Unit = {
@@ -185,24 +186,61 @@ object ExperimentsApp {
     println("Average score: " + perQuestionScore.sum / perQuestionScore.size)
   }
 
-  def evaluateTextilpOnSquad(reader: SQuADReader) = {
-    SolverUtils.printMemoryDetails()
-    val (exactMatch, f1, total) = reader.instances.slice(0, 30).zipWithIndex.flatMap {
-      case (ins, idx) =>
-        println("Idx: " + idx + " / ratio: " + idx * 1.0 / reader.instances.size)
-        ins.paragraphs.slice(0, 5).flatMap { p =>
-          p.contextTAOpt match {
-            case None => throw new Exception("The instance does not contain annotation . . . ")
-            case Some(annotation) =>
-              val candidateAnswers = CandidateGeneration.getCandidateAnswer(annotation).toSeq
-              p.questions.slice(0, 1).map { q =>
-                val (selected, _) = textILPSolver.solve(q.questionText, candidateAnswers, p.context)
-                SolverUtils.assignCreditSquad(candidateAnswers(selected.head), q.answers.map(_.answerText))
-              }
-          }
+  def evaluateTextSolverOnSquad(reader: SQuADReader, textSolver: TextSolver) = {
+    val qAndpPairs = reader.instances.slice(0, 20).flatMap { i => i.paragraphs.slice(0,20).flatMap{p => p.questions.slice(0, 2).map(q => (q, p))}}.take(1000)
+    val pairsGrouped = qAndpPairs.groupBy(_._2)
+    val resultLists = pairsGrouped.zipWithIndex.flatMap{ case ((p, pairs), idx) =>
+      val allCandidates = CandidateGeneration.getCandidateAnswer(p.contextTAOpt.get).filter(_.split(" ").length < 7)
+      println("==================================================")
+      println("Processed " + idx + " out of " + pairsGrouped.size)
+      println("Paragraph: " + p.context)
+      println("all candidates = " + allCandidates)
+      pairs.map{ case (q, _) =>
+        val goldCandidates = q.answers.map(_.answerText)
+        val allCandidatesMinusCorrectOnes = scala.util.Random.shuffle(allCandidates).diff(goldCandidates.toSet)
+        if(allCandidatesMinusCorrectOnes.size > 1) {
+          val candidates = allCandidatesMinusCorrectOnes.slice(0, 5).toSeq :+ goldCandidates.head
+          val correctIndex = math.min(allCandidatesMinusCorrectOnes.size, 5)
+          println("correct answer: " + goldCandidates.head)
+          println("question: " + q.questionText)
+          println("candidates: " + candidates)
+          println("length of allCandidatesMinusCorrectOnes: " + allCandidatesMinusCorrectOnes.size)
+          println("candidates.length: " + candidates.length)
+          println("correctIndex: " + correctIndex)
+          require(candidates.length == correctIndex + 1)
+          val (selected, _) = textSolver.solve(q.questionText, candidates, p.context)
+          val aristoScore = SolverUtils.assignCredit(selected, correctIndex, candidates.length)
+          val (fpr, em) = SolverUtils.assignCreditSquadScalaVersion(candidates(selected.headOption.getOrElse(0)), goldCandidates)
+          println("selected answers: " + selected)
+          println(s"EM: $em  / FPR: $fpr  / aristoScore: $aristoScore")
+          println("-------")
+          (fpr, em, (aristoScore, candidates.length))
         }
-    }.unzip3
-    println("Average exact match: " + exactMatch.sum / total.sum + "  /   Average f1: " + f1.sum / total.sum)
+        else {
+          ((0.0, 0.0, 0.0), 0.0, (0.0, 0))
+        }
+      }
+    }.toList.filter(_._3._2 > 2)
+
+    val (fprList, emList, scoreAndLength) = resultLists.unzip3
+    val (aristoScore, len) = scoreAndLength.unzip
+    val (f1List, pList, rList) = fprList.unzip3
+    val avgEM = emList.sum / emList.length
+    val avgP = pList.sum / pList.length
+    val avgR = rList.sum / rList.length
+    val avgF = f1List.sum / f1List.length
+    val avgAristoScore = aristoScore.sum / aristoScore.length
+    val avgLength = len.sum.toDouble / len.length
+
+    println("------------")
+    println("Overall size: " + pList.length)
+    println("EM: " + avgEM)
+    println("Precision: " + avgP)
+    println("Recall: " + avgR)
+    println("F1: " + avgF)
+    println("avgAristoScore: " + avgAristoScore)
+    println("avgLength: " + avgLength)
+    println(s"$avgEM\t$avgP\t$avgR\t$avgF\t$avgAristoScore\t${pList.length}")
   }
 
   def testTheDatastes() = {
@@ -376,13 +414,15 @@ object ExperimentsApp {
 //        println("==== regents train  ")
       case 12 => extractKnowledgeSnippet()
       case 13 => testSquadPythonEvaluationScript()
-      case 14 => evaluateTextilpOnSquad(trainReader)
+      case 14 =>
+        // evaluate any of the text solvers on the squad dataset
+        evaluateTextSolverOnSquad(trainReader, salienceSolver)
       case 15 => dumpSQuADQuestionsOnDisk(devReader)
       case 16 => testCuratorAnnotation()
       case 17 => annotationUtils.processSQuADWithWikifier(trainReader)
       case 18 =>
         // puts the result of the Wikifier in redis
-        annotationUtils.processSQuADWithWikifierAndPutRedis(devReader)
+        annotationUtils.processSQuADWithWikifierAndPutRedis(trainReader)
       case 19 =>
         annotationUtils.verifyWikifierAnnotationsOnDisk(trainReader)
       case 20 =>
@@ -423,7 +463,7 @@ object ExperimentsApp {
         val (pre, rec, candSize) = qAndpPairs.zipWithIndex.map{ case ((q, p), idx) =>
 //          val candidates = annotationUtils.getTargetPhrase(q, p).toSet
           //val candidates = annotationUtils.candidateGenerationWithQuestionTypeClassification(q, p)
-          val candidates = CandidateGeneration.getCandidateAnswer(p.contextTAOpt.get)
+          val candidates = CandidateGeneration.getTargetPhrase(q, p).toSet
           println("candidates = " + candidates)
           val goldCandidates = q.answers.map(_.answerText).toSet
           val pre = if (goldCandidates.intersect(candidates).nonEmpty) 1.0 else 0.0
@@ -456,27 +496,44 @@ object ExperimentsApp {
         // evaluate the candidate generation recall
         val qAndpPairs = trainReader.instances.slice(0, 30).flatMap { i => i.paragraphs.slice(0,5).flatMap{p => p.questions.slice(0, 10).map(q => (q, p))}}.take(1000)
         val pairsGrouped = qAndpPairs.groupBy(_._2)
-        val (fprList, emList, candidateSize) = pairsGrouped.zipWithIndex.flatMap{ case ((p, pairs), idx) =>
+        val resultLists = pairsGrouped.zipWithIndex.filter{ case ((p, pairs), idx) => idx == 149 }.flatMap{ case ((p, pairs), idx) =>
           val candidates = CandidateGeneration.getCandidateAnswer(p.contextTAOpt.get)
           println("==================================================")
           println("Processed " + idx + " out of " + pairsGrouped.size)
           println("Paragraph: " + p.context)
           println("candidates = " + candidates)
-            pairs.map{ case (q, _) =>
+          //if(idx == 149) {
+          if(false) {
+            pairs.map { case (q, _) =>
+              val ruleBased = CandidateGeneration.getTargetPhrase(q, p).toSet
+              //              val candidates = CandidateGeneration.candidateGenerationWithQuestionTypeClassification(q, p).toSet
+              //              println("candidates = " + candidates)
               val goldCandidates = q.answers.map(_.answerText)
-              val (fpr, em) = candidates.map{ c => SolverUtils.assignCreditSquadScalaVersion(c, goldCandidates) }.unzip
+              val (fpr, em) = candidates.map { c => SolverUtils.assignCreditSquadScalaVersion(c, goldCandidates) }.unzip
+              val (fprRuleBased, emRuleBased) = ruleBased.map { c => SolverUtils.assignCreditSquadScalaVersion(c, goldCandidates) }.unzip
               val bestEM = (Seq(0.0) ++ em).max
               val bestFPR = (Seq((0.0, 0.0, 0.0)) ++ fpr).maxBy(_._1)
+              val bestFPRRuleBased = (Seq((0.0, 0.0, 0.0)) ++ fprRuleBased).maxBy(_._1)
               println(s"EM: $bestEM  / bestFPR: $bestFPR ")
-              if(bestEM == 0.0) {
+              if (bestFPR._3 > 0.0 && (ruleBased.isEmpty || bestFPRRuleBased._3 == 0.0)) {
                 println("question: " + q.questionText)
                 println("correct answer: ")
-                println(q.answers)
+                println("rule-based" + ruleBased)
+                println("candidates" + candidates)
+                println("Gold: " + q.answers)
+                println("bestFPR: " + bestFPR + "  /  bestFPRRuleBased: " + bestFPRRuleBased)
                 println("-------")
               }
               (bestFPR, bestEM, candidates.size)
             }
-        }.toList.unzip3
+          }
+          else {
+            List.empty
+          }
+        }.toList
+
+        val (fprList, emList, candidateSize) = resultLists.unzip3
+        val (fprListNonEmpty, emListNonEmpty, candidateSizeNonEmpty) = resultLists.filter(_._3 > 0 ).unzip3
 
         val (f1List, pList, rList) = fprList.unzip3
         val avgEM = emList.sum / emList.length
@@ -484,6 +541,14 @@ object ExperimentsApp {
         val avgR = rList.sum / rList.length
         val avgF = f1List.sum / f1List.length
         val avgCandidateLength = candidateSize.sum.toDouble / candidateSize.length
+
+        val (f1ListNonEmpty, pListNonEmpty, rListNonEmpty) = fprListNonEmpty.unzip3
+        val avgEMNonEmpty = emList.sum / emListNonEmpty.length
+        val avgPNonEmpty = pListNonEmpty.sum / pListNonEmpty.length
+        val avgRNonEmpty = rListNonEmpty.sum / rListNonEmpty.length
+        val avgFNonEmpty = f1ListNonEmpty.sum / f1ListNonEmpty.length
+        val avgCandidateLengthNonEmpty = candidateSizeNonEmpty.sum.toDouble / candidateSizeNonEmpty.length
+
         println("------------")
         println("Overall size: " + pList.length)
         println("EM: " + avgEM)
@@ -493,6 +558,15 @@ object ExperimentsApp {
         println("avgCandidateLength: " + avgCandidateLength)
         println("Ratio of answers with length 1: " + candidateSize.count(_ == 1))
         println(s"$avgEM\t$avgP\t$avgR\t$avgF\t$avgCandidateLength\t${candidateSize.count(_ == 1)}\t${pList.length}")
+        println("------nonEmpty------")
+        println("Overall size: " + pListNonEmpty.length)
+        println("EM: " + avgEMNonEmpty)
+        println("Precision: " + avgPNonEmpty)
+        println("Recall: " + avgRNonEmpty)
+        println("F1: " + avgFNonEmpty)
+        println("avgCandidateLength: " + avgCandidateLengthNonEmpty)
+        println("Ratio of answers with length 1: " + candidateSizeNonEmpty.count(_ == 1))
+        println(s"$avgEMNonEmpty\t$avgPNonEmpty\t$avgRNonEmpty\t$avgFNonEmpty\t$avgCandidateLengthNonEmpty\t${candidateSizeNonEmpty.count(_ == 1)}\t${pListNonEmpty.length}")
       case 35 =>
         // evaluate the candidate generation recall
         val qAndpPairs = trainReader.instances.slice(0, 30).flatMap { i => i.paragraphs.slice(0,5).flatMap{p => p.questions.slice(0, 10).map(q => (q, p))}}.take(1000)
@@ -560,6 +634,89 @@ object ExperimentsApp {
       case 40 =>
         val ta = DummyTextAnnotationGenerator.generateAnnotatedTextAnnotation(false, 3)
         println(TextAnnotationPatternExtractor.extractPatterns(ta))
+      case 41 =>
+        val qAndpPairs = devReader.instances.flatMap { i => i.paragraphs.flatMap{p => p.questions.map(q => (q, p))}}
+        qAndpPairs.foreach{ case (q, p) =>
+          assert(q.qTAOpt.get.hasView(ViewNames.QUANTITIES), q.qTAOpt.get.text)
+          assert(p.contextTAOpt.get.hasView(ViewNames.QUANTITIES), p.contextTAOpt.get.text)
+        }
+      case 42 =>
+        // mixture of extractors
+        // evaluate the candidate generation recall
+        val qAndpPairs = trainReader.instances.slice(0, 30).flatMap { i => i.paragraphs.slice(0,5).flatMap{p => p.questions.slice(0, 10).map(q => (q, p))}}.take(1000)
+        val pairsGrouped = qAndpPairs.groupBy(_._2)
+        val resultLists = pairsGrouped.zipWithIndex.flatMap{ case ((p, pairs), idx) =>
+          val allCandidates = CandidateGeneration.getCandidateAnswer(p.contextTAOpt.get).filter(_.split(" ").length < 7)
+          println("==================================================")
+          println("Processed " + idx + " out of " + pairsGrouped.size)
+          println("Paragraph: " + p.context)
+          println("all candidates = " + allCandidates)
+          pairs.map{ case (q, _) =>
+            val ruleBased = CandidateGeneration.getTargetPhrase(q, p).toSet
+            //              val candidates = CandidateGeneration.candidateGenerationWithQuestionTypeClassification(q, p).toSet
+            println("ruleBased = " + ruleBased)
+            val candidates = if(ruleBased.isEmpty) allCandidates else ruleBased
+            println("candidates = " + candidates)
+            val goldCandidates = q.answers.map(_.answerText)
+            val (fpr, em) = candidates.map{ c => SolverUtils.assignCreditSquadScalaVersion(c, goldCandidates) }.unzip
+            val bestEM = (Seq(0.0) ++ em).max
+            val bestFPR = (Seq((0.0, 0.0, 0.0)) ++ fpr).maxBy(_._1)
+            println(s"EM: $bestEM  / bestFPR: $bestFPR ")
+            //if(bestEM == 0.0 && candidates.nonEmpty) {
+              println("question: " + q.questionText)
+              println("correct answer: ")
+              println(q.answers)
+              println("-------")
+            //}
+            (bestFPR, bestEM, candidates.size)
+          }
+        }.toList
+
+        val (fprList, emList, candidateSize) = resultLists.unzip3
+        val (fprListNonEmpty, emListNonEmpty, candidateSizeNonEmpty) = resultLists.filter(_._3 > 0 ).unzip3
+
+        val (f1List, pList, rList) = fprList.unzip3
+        val avgEM = emList.sum / emList.length
+        val avgP = pList.sum / pList.length
+        val avgR = rList.sum / rList.length
+        val avgF = f1List.sum / f1List.length
+        val avgCandidateLength = candidateSize.sum.toDouble / candidateSize.length
+
+        val (f1ListNonEmpty, pListNonEmpty, rListNonEmpty) = fprListNonEmpty.unzip3
+        val avgEMNonEmpty = emList.sum / emListNonEmpty.length
+        val avgPNonEmpty = pListNonEmpty.sum / pListNonEmpty.length
+        val avgRNonEmpty = rListNonEmpty.sum / rListNonEmpty.length
+        val avgFNonEmpty = f1ListNonEmpty.sum / f1ListNonEmpty.length
+        val avgCandidateLengthNonEmpty = candidateSizeNonEmpty.sum.toDouble / candidateSizeNonEmpty.length
+
+        println("------------")
+        println("Overall size: " + pList.length)
+        println("EM: " + avgEM)
+        println("Precision: " + avgP)
+        println("Recall: " + avgR)
+        println("F1: " + avgF)
+        println("avgCandidateLength: " + avgCandidateLength)
+        println("Ratio of answers with length 1: " + candidateSize.count(_ == 1))
+        println(s"$avgEM\t$avgP\t$avgR\t$avgF\t$avgCandidateLength\t${candidateSize.count(_ == 1)}\t${pList.length}")
+        println("------nonEmpty------")
+        println("Overall size: " + pListNonEmpty.length)
+        println("EM: " + avgEMNonEmpty)
+        println("Precision: " + avgPNonEmpty)
+        println("Recall: " + avgRNonEmpty)
+        println("F1: " + avgFNonEmpty)
+        println("avgCandidateLength: " + avgCandidateLengthNonEmpty)
+        println("Ratio of answers with length 1: " + candidateSizeNonEmpty.count(_ == 1))
+        println(s"$avgEMNonEmpty\t$avgPNonEmpty\t$avgRNonEmpty\t$avgFNonEmpty\t$avgCandidateLengthNonEmpty\t${candidateSizeNonEmpty.count(_ == 1)}\t${pListNonEmpty.length}")
+
+
+      case 43 =>
+        val strs = Seq("What was the US release date for Spectre?",
+          "New York City is the biggest city in the United States since what historical date?",
+          "New Amsterdam became the title of New York City in what past date?")
+        strs.foreach{ str =>
+          val ta = annotationUtils.annotate(str)
+          println(TextAnnotationPatternExtractor.whatSthDate(ta))
+        }
     }
   }
 }

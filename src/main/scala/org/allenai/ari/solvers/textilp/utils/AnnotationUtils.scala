@@ -129,19 +129,42 @@ class AnnotationUtils {
       case (ins, idx) =>
         println("Idx: " + idx + " / ratio: " + idx * 1.0 / reader.instances.size)
         ins.paragraphs.foreach { p =>
-          val ta = curatorService.createBasicTextAnnotation("", "", p.context)
-          curatorService.addView(ta, ViewNames.WIKIFIER)
-          val json = SerializationHelper.serializeToJson(ta)
-          CandidateGeneration.wikifierRedis.put(ta.getText, json)
-          p.questions.foreach { q =>
-            val ta = curatorService.createBasicTextAnnotation("", "", q.questionText)
+          val redisOutput = CandidateGeneration.wikifierRedis.get(p.context)
+          if(redisOutput.isEmpty) {
+            val ta = curatorService.createBasicTextAnnotation("", "", p.context)
             curatorService.addView(ta, ViewNames.WIKIFIER)
             val json = SerializationHelper.serializeToJson(ta)
             CandidateGeneration.wikifierRedis.put(ta.getText, json)
           }
+          p.questions.foreach { q =>
+            val redisOutput = CandidateGeneration.wikifierRedis.get(q.questionText)
+            if(redisOutput.isEmpty) {
+              val ta = curatorService.createBasicTextAnnotation("", "", q.questionText)
+              curatorService.addView(ta, ViewNames.WIKIFIER)
+              val json = SerializationHelper.serializeToJson(ta)
+              CandidateGeneration.wikifierRedis.put(ta.getText, json)
+            }
+          }
         }
     }
   }
+
+
+/*  def verifyWikifierAnnotationsOnDisk(reader: SQuADReader) = {
+    reader.instances.zipWithIndex.foreach {
+      case (ins, idx) =>
+        println("Idx: " + idx + " / ratio: " + idx * 1.0 / reader.instances.size)
+        ins.paragraphs.foreach { p =>
+          val redisOutput = CandidateGeneration.wikifierRedis.get(p.context)
+          require(redisOutput.isDefined)
+          p.questions.foreach { q =>
+            val redisOutput = CandidateGeneration.wikifierRedis.get(q.questionText)
+            require(redisOutput.isDefined)
+          }
+        }
+    }
+  }*/
+
 
   def processSQuADWithWikifier(reader: SQuADReader) = {
     import java.io._
