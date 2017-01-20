@@ -1,15 +1,18 @@
 package org.allenai.ari.solvers.textilp
 
+import edu.illinois.cs.cogcomp.McTest.MCTestBaseline
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
-import edu.illinois.cs.cogcomp.core.datastructures.textannotation.SpanLabelView
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, SpanLabelView}
 import edu.illinois.cs.cogcomp.core.utilities.DummyTextAnnotationGenerator
+import edu.illinois.cs.cogcomp.core.utilities.configuration.ResourceManager
+//import edu.illinois.cs.cogcomp.llm.comparators.LlmStringComparator
 import org.allenai.ari.solvers.squad.SquadClassifierUtils._
 import org.allenai.ari.solvers.squad.{CandidateGeneration, SquadClassifier, SquadClassifierUtils, TextAnnotationPatternExtractor}
 import org.allenai.ari.solvers.textilp.alignment.AlignmentFunction
 import org.allenai.ari.solvers.textilp.solvers.{LuceneSolver, SalienceSolver, TextILPSolver, TextSolver}
 import org.allenai.ari.solvers.textilp.utils.WikiUtils.WikiDataProperties
 import org.allenai.ari.solvers.textilp.utils._
-import org.elasticsearch.search.suggest.phrase.PhraseSuggestionBuilder.CandidateGenerator
+//import org.elasticsearch.search.suggest.phrase.PhraseSuggestionBuilder.CandidateGenerator
 import org.rogach.scallop._
 
 import scala.collection.JavaConverters._
@@ -27,7 +30,7 @@ object ExperimentsApp {
 
   def testQuantifier(): Unit = {
     val ta = annotationUtils.pipelineService.createBasicTextAnnotation("", "",
-      " In 2010, there were concerns among Tajik officials that Islamic militarism in the east of the country was on the rise following the escape of 25 militants from a Tajik prison in August, an ambush that killed 28 Tajik soldiers in the Rasht Valley in September, and another ambush in the valley in October that killed 30 soldiers, followed by fighting outside Gharm that left 3 militants dead. To date the country's Interior Ministry asserts that the central government maintains full control over the country's east, and the military operation in the Rasht Valley was concluded in November 2010. However, fighting erupted again in July 2012. In 2015 Russia will send more troops to Tajikistan, as confirmed by a report of STRATFOR (magazine online)")
+      "Helicopters will patrol the temporary no-fly zone around New Jersey's MetLife Stadium Sunday, with F-16s based in Atlantic City ready to be scrambled if an unauthorized aircraft does enter the restricted airspace.\n\nDown below, bomb-sniffing dogs will patrol the trains and buses that are expected to take approximately 30,000 of the 80,000-plus spectators to Sunday's Super Bowl between the Denver Broncos and Seattle Seahawks.\n\nThe Transportation Security Administration said it has added about two dozen dogs to monitor passengers coming in and out of the airport around the Super Bowl.\n\nOn Saturday, TSA agents demonstrated how the dogs can sniff out many different types of explosives. Once they do, they're trained to sit rather than attack, so as not to raise suspicion or create a panic.\n\nTSA spokeswoman Lisa Farbstein said the dogs undergo 12 weeks of training, which costs about $200,000, factoring in food, vehicles and salaries for trainers.\n\nDogs have been used in cargo areas for some time, but have just been introduced recently in passenger areas at Newark and JFK airports. JFK has one dog and Newark has a handful, Farbstein said.")
     annotationUtils.pipelineService.addView(ta, ViewNames.QUANTITIES)
     println(ta)
     println(ta.getAvailableViews)
@@ -416,7 +419,7 @@ object ExperimentsApp {
       case 13 => testSquadPythonEvaluationScript()
       case 14 =>
         // evaluate any of the text solvers on the squad dataset
-        evaluateTextSolverOnSquad(trainReader, salienceSolver)
+        evaluateTextSolverOnSquad(trainReader, luceneSolver)
       case 15 => dumpSQuADQuestionsOnDisk(devReader)
       case 16 => testCuratorAnnotation()
       case 17 => annotationUtils.processSQuADWithWikifier(trainReader)
@@ -494,41 +497,41 @@ object ExperimentsApp {
       case 33 => evaluateTopBestAnswers()
       case 34 =>
         // evaluate the candidate generation recall
-        val qAndpPairs = trainReader.instances.slice(0, 30).flatMap { i => i.paragraphs.slice(0,5).flatMap{p => p.questions.slice(0, 10).map(q => (q, p))}}.take(1000)
+        //val qAndpPairs = trainReader.instances.slice(0, 30).flatMap { i => i.paragraphs.slice(5,10).flatMap{p => p.questions.slice(0, 10).map(q => (q, p))}}.take(25)
+        val qAndpPairs = trainReader.instances.flatMap { i => i.paragraphs.flatMap{p => p.questions.map(q => (q, p))}}
         val pairsGrouped = qAndpPairs.groupBy(_._2)
-        val resultLists = pairsGrouped.zipWithIndex.filter{ case ((p, pairs), idx) => idx == 149 }.flatMap{ case ((p, pairs), idx) =>
-          val candidates = CandidateGeneration.getCandidateAnswer(p.contextTAOpt.get)
+        val resultLists = pairsGrouped.zipWithIndex.flatMap{ case ((p, pairs), idx) =>
+          val allCandidates = CandidateGeneration.getCandidateAnswer(p.contextTAOpt.get)
           println("==================================================")
           println("Processed " + idx + " out of " + pairsGrouped.size)
-          println("Paragraph: " + p.context)
-          println("candidates = " + candidates)
-          //if(idx == 149) {
-          if(false) {
+//          println("Paragraph: " + p.context)
+//          println("candidates = " + candidates)
             pairs.map { case (q, _) =>
-              val ruleBased = CandidateGeneration.getTargetPhrase(q, p).toSet
-              //              val candidates = CandidateGeneration.candidateGenerationWithQuestionTypeClassification(q, p).toSet
-              //              println("candidates = " + candidates)
-              val goldCandidates = q.answers.map(_.answerText)
-              val (fpr, em) = candidates.map { c => SolverUtils.assignCreditSquadScalaVersion(c, goldCandidates) }.unzip
-              val (fprRuleBased, emRuleBased) = ruleBased.map { c => SolverUtils.assignCreditSquadScalaVersion(c, goldCandidates) }.unzip
-              val bestEM = (Seq(0.0) ++ em).max
-              val bestFPR = (Seq((0.0, 0.0, 0.0)) ++ fpr).maxBy(_._1)
-              val bestFPRRuleBased = (Seq((0.0, 0.0, 0.0)) ++ fprRuleBased).maxBy(_._1)
-              println(s"EM: $bestEM  / bestFPR: $bestFPR ")
-              if (bestFPR._3 > 0.0 && (ruleBased.isEmpty || bestFPRRuleBased._3 == 0.0)) {
-                println("question: " + q.questionText)
-                println("correct answer: ")
-                println("rule-based" + ruleBased)
-                println("candidates" + candidates)
-                println("Gold: " + q.answers)
-                println("bestFPR: " + bestFPR + "  /  bestFPRRuleBased: " + bestFPRRuleBased)
-                println("-------")
-              }
-              (bestFPR, bestEM, candidates.size)
-            }
-          }
-          else {
-            List.empty
+              val topSenIds = SolverUtils.getSentenceScores(p, q).take(4).map(_._1)
+              val topSentences = topSenIds.map(p.contextTAOpt.get.getSentence(_)).mkString(" ")
+              val candidates = allCandidates.filter(topSentences.contains(_))
+//            val ruleBased = CandidateGeneration.getTargetPhrase(q, p).toSet
+            // val candidates = CandidateGeneration.candidateGenerationWithQuestionTypeClassification(q, p).toSet
+//            val candidates = ruleBased
+//            println("candidates = " + candidates)
+            val goldCandidates = q.answers.map(_.answerText)
+            val (fpr, em) = candidates.map { c => SolverUtils.assignCreditSquadScalaVersion(c, goldCandidates) }.unzip
+            //val (fprRuleBased, emRuleBased) = ruleBased.map { c => SolverUtils.assignCreditSquadScalaVersion(c, goldCandidates) }.unzip
+            val bestEM = (Seq(0.0) ++ em).max
+            val bestFPR = (Seq((0.0, 0.0, 0.0)) ++ fpr).maxBy(_._1)
+            //val bestFPRRuleBased = (Seq((0.0, 0.0, 0.0)) ++ fprRuleBased).maxBy(_._1)
+//            println(s"EM: $bestEM  / bestFPR: $bestFPR ")
+            //if (bestFPR._3 > 0.0 && (ruleBased.isEmpty || bestFPRRuleBased._3 == 0.0)) {
+/*            if (bestEM == 0.0 && candidates.nonEmpty) {
+              println("question: " + q.questionText)
+              println("correct answer: ")
+//              println("rule-based" + ruleBased)
+              println("candidates" + candidates)
+              println("Gold: " + q.answers)
+              println("bestFPR: " + bestFPR) // + "  /  bestFPRRuleBased: " + bestFPRRuleBased)
+              println("-------")
+            }*/
+            (bestFPR, bestEM, candidates.size)
           }
         }.toList
 
@@ -565,7 +568,7 @@ object ExperimentsApp {
         println("Recall: " + avgRNonEmpty)
         println("F1: " + avgFNonEmpty)
         println("avgCandidateLength: " + avgCandidateLengthNonEmpty)
-        println("Ratio of answers with length 1: " + candidateSizeNonEmpty.count(_ == 1))
+        println("Count of answers with length 1: " + candidateSizeNonEmpty.count(_ == 1))
         println(s"$avgEMNonEmpty\t$avgPNonEmpty\t$avgRNonEmpty\t$avgFNonEmpty\t$avgCandidateLengthNonEmpty\t${candidateSizeNonEmpty.count(_ == 1)}\t${pListNonEmpty.length}")
       case 35 =>
         // evaluate the candidate generation recall
@@ -708,7 +711,6 @@ object ExperimentsApp {
         println("Ratio of answers with length 1: " + candidateSizeNonEmpty.count(_ == 1))
         println(s"$avgEMNonEmpty\t$avgPNonEmpty\t$avgRNonEmpty\t$avgFNonEmpty\t$avgCandidateLengthNonEmpty\t${candidateSizeNonEmpty.count(_ == 1)}\t${pListNonEmpty.length}")
 
-
       case 43 =>
         val strs = Seq("What was the US release date for Spectre?",
           "New York City is the biggest city in the United States since what historical date?",
@@ -716,6 +718,81 @@ object ExperimentsApp {
         strs.foreach{ str =>
           val ta = annotationUtils.annotate(str)
           println(TextAnnotationPatternExtractor.whatSthDate(ta))
+        }
+      case 44 =>
+        // analyze distribution of the correct answer across sentences
+        val qAndpPairs = trainReader.instances.flatMap { i => i.paragraphs.flatMap{p => p.questions.map(q => (q, p))}}
+        val ranks = qAndpPairs.zipWithIndex.map{ case ((q, p), idx) =>
+          println("Doing " + idx + "  out of " + qAndpPairs.length)
+          val charStart = q.answers.head.answerStart
+          val c = p.contextTAOpt.get.getView(ViewNames.TOKENS).getConstituents.asScala.toList.filter(c => c.getStartCharOffset <= charStart + 2 && c.getEndCharOffset >= charStart + 2)
+          require(c.nonEmpty)
+          val goldAnswerSenId = p.contextTAOpt.get.getSentenceId(c.head)
+          val sentenceIdsAndScores = SolverUtils.getSentenceScores(p, q)
+//        println("sentenceIdsAndScores: " + sentenceIdsAndScores)
+          val corrctSenRank = sentenceIdsAndScores.zipWithIndex.collect{case a if a._1._1 == goldAnswerSenId => a._2 }
+//          println("corrctSenRank: " + corrctSenRank)
+          assert(corrctSenRank.length == 1)
+          corrctSenRank.head
+        }
+        println("avgRank: " + ranks.sum.toDouble / ranks.length)
+        ranks.groupBy(identity).toList.sortBy(a => a._1).foreach{case (rank, stuff) => println(s"rank: ${rank} : percentage: ${100.0 * stuff.length.toDouble / ranks.size}")}
+
+      case 45 =>
+        // get distribution of sentence length
+        val qAndpPairs = trainReader.instances.flatMap { i => i.paragraphs.flatMap{p => p.questions.map(q => (q, p))}}
+        val lenList = qAndpPairs.map{ case (_, p) =>  p.contextTAOpt.get.getNumberOfSentences }
+        println("avgLength: " + lenList.sum.toDouble / lenList.length)
+        lenList.groupBy(identity).toList.sortBy(a => a._1).foreach{case (rank, stuff) => println(s"sentenceLength: ${rank} : percentage: ${100.0 * stuff.length.toDouble / lenList.size}")}
+      case 46 =>
+
+//        val source = "The rain in Spain falls mainly on the plain."
+//        val target = "Spain has significant rainfall."
+//
+//        val configFile = "config/alternativeLlmConfig.txt"
+//        val llm = new LlmStringComparator( new ResourceManager( configFile )) // or, zero-argument constructor to use defaults
+//        val comparison = llm.compareStrings( source, target )
+//        val er = llm.determineEntailment( source, target)
+//        println("comparison: " + comparison)
+//        println("entailment: " + er)
+
+      case 47 =>
+        // see how the answers are distributied across sentences.
+        val qAndpPairs = trainReader.instances.flatMap { i => i.paragraphs.flatMap{p => p.questions.map(q => (q, p))}}
+        val lenList = qAndpPairs.map{ case (q, p) =>
+          val lemmaCons = p.contextTAOpt.get.getView(ViewNames.LEMMA).getConstituents.asScala.toList
+          q.answers.map{ ans =>
+            val charStart = ans.answerStart
+            val c = p.contextTAOpt.get.getView(ViewNames.TOKENS).getConstituents.asScala.toList.
+              filter(c => c.getStartCharOffset <= charStart + 2 && c.getEndCharOffset >= charStart + 2)
+            require(c.nonEmpty)
+            val goldAnswerSenId = p.contextTAOpt.get.getSentenceId(c.head)
+            goldAnswerSenId
+          }.toSet.size
+        }
+        println("avgLength: " + lenList.sum.toDouble / lenList.length)
+        lenList.groupBy(identity).toList.sortBy(a => a._1).foreach{case (rank, stuff) => println(s"sentenceLength: $rank : percentage: ${100.0 * stuff.length.toDouble / lenList.size}")}
+      case 48 =>
+        // test td-idf
+        val documentList = "some text" :: "some other text" :: "dummy test text" :: Nil
+        val tfIdf = new TfIdf(documentList)
+        for (document <- documentList) {
+          println(tfIdf.score("text", document))
+        }
+      case 49 =>
+        // test calculating td-idf for training data
+        import System.nanoTime
+        def profile[R](code: => R, t: Long = nanoTime) = (code, nanoTime - t)
+
+        val documentList = trainReader.instances.flatMap{_.paragraphs.map{ _.context  } }
+        val tfIdf = new TfIdf(documentList)
+        (0 to 10).foreach{ tryCount =>
+          val (result, time) = profile {
+            for (document <- documentList) {
+              tfIdf.score("the", document)
+            }
+          }
+          println(s"Try $tryCount: " + time / 1e9)
         }
     }
   }

@@ -3,10 +3,11 @@ package org.allenai.ari.solvers.textilp.utils
 import java.io.File
 import java.net.{InetSocketAddress, URLEncoder}
 
+import edu.illinois.cs.cogcomp.McTest.MCTestBaseline
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
-import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, TextAnnotation}
 import org.allenai.ari.solvers.textilp.alignment.KeywordTokenizer
-import org.allenai.ari.solvers.textilp.{Entity, EntityRelationResult}
+import org.allenai.ari.solvers.textilp.{Entity, EntityRelationResult, Paragraph, Question}
 import org.allenai.common.cache.JsonQueryCache
 import org.elasticsearch.action.search.SearchType
 import org.elasticsearch.client.transport.TransportClient
@@ -279,5 +280,34 @@ object SolverUtils {
     //Print Maximum available memory
     println("Max Memory:" + runtime.maxMemory() / mb)
   }
+
+
+  // sentence similarity stuff
+  //        val documentList = trainReader.instances.flatMap{_.paragraphs.map{_.context}}
+  //        val tfIdf = new TfIdf(documentList)
+  MCTestBaseline.readStopWords()
+  val stopwords = MCTestBaseline.stopWords.asScala.toSet
+  assert(stopwords.size > 20)
+  def getSimilarity(seq1: Seq[Constituent], seq2: Seq[Constituent], document: String): Double = {
+    //          MCTestBaseline.ScoreAnswers(normalize(seq1).toArray, normalize(seq2).mkString(" "), Array(""), MCTestBaseline.stopWords).head
+    val set2Normalized = normalize(seq2)
+    val set1Normalized = normalize(seq1)
+    //          normalize(seq1).intersect(set2Normalized).size.toDouble / set1Normalized.size
+    normalize(seq1).intersect(normalize(seq2)).size
+    //          normalize(seq1).intersect(normalize(seq2)).map(w => tfIdf.score(w, document)).sum
+  }
+
+  def normalize(seq: Seq[Constituent])= seq.map(_.getLabel.trim).toSet.diff(stopwords)
+
+  def getSentenceScores(p: Paragraph, q: Question): Seq[(Int, Double)] = {
+    val questionLemmaCons = q.qTAOpt.get.getView(ViewNames.LEMMA).getConstituents.asScala.toList
+    val lemmaCons = p.contextTAOpt.get.getView(ViewNames.LEMMA).getConstituents.asScala.toList
+    //          println("goldAnswerSenId:  " + goldAnswerSenId)
+    lemmaCons.groupBy(_.getSentenceId).map { case (id, consList) =>
+      // calculate similarity between the constituents and the question
+      id -> getSimilarity(consList, questionLemmaCons, p.context)
+    }.toSeq.sortBy(-_._2)
+  }
+
 
 }
