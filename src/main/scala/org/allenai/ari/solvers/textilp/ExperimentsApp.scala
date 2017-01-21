@@ -1,10 +1,15 @@
 package org.allenai.ari.solvers.textilp
 
+import java.io.File
+
 import edu.illinois.cs.cogcomp.McTest.MCTestBaseline
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, SpanLabelView}
 import edu.illinois.cs.cogcomp.core.utilities.DummyTextAnnotationGenerator
 import edu.illinois.cs.cogcomp.core.utilities.configuration.ResourceManager
+import org.allenai.ari.solvers.bioProccess.ProcessBankReader
+import org.allenai.ari.solvers.squad.SQuADReader
+import org.allenai.ari.solvers.textilp.solvers.SlidingWindowSolver
 //import edu.illinois.cs.cogcomp.llm.comparators.LlmStringComparator
 import org.allenai.ari.solvers.squad.SquadClassifierUtils._
 import org.allenai.ari.solvers.squad.{CandidateGeneration, SquadClassifier, SquadClassifierUtils, TextAnnotationPatternExtractor}
@@ -22,6 +27,7 @@ object ExperimentsApp {
   lazy val textILPSolver = new TextILPSolver(annotationUtils)
   lazy val salienceSolver = new SalienceSolver()
   lazy val luceneSolver = new LuceneSolver()
+  lazy val slidingWindowSolver = new SlidingWindowSolver()
 
   class ArgumentParser(args: Array[String]) extends ScallopConf(args) {
     val experimentType: ScallopOption[Int] = opt[Int]("type", descr = "Experiment type", required = true)
@@ -246,6 +252,30 @@ object ExperimentsApp {
     println(s"$avgEM\t$avgP\t$avgR\t$avgF\t$avgAristoScore\t${pList.length}")
   }
 
+  def evaluateTextSolverOnProcessBank(reader: ProcessBankReader, textSolver: TextSolver) = {
+    val qAndpPairs = reader.trainingInstances.flatMap { p => p.questions.map(q => (q, p))}
+    val resultLists = qAndpPairs.zipWithIndex.map{ case ((q, p), idx) =>
+      println("==================================================")
+      println("Processed " + idx + " out of " + qAndpPairs.size)
+//      println("Paragraph: " + p)
+      val candidates = q.answers.map(_.answerText)
+      val correctIndex = q.correctIdxOpt.get
+//          println("correct answer: " + goldCandidates.head)
+//          println("question: " + q.questionText)
+//          println("candidates: " + candidates)
+//          println("length of allCandidatesMinusCorrectOnes: " + allCandidatesMinusCorrectOnes.size)
+//          println("candidates.length: " + candidates.length)
+//          println("correctIndex: " + correctIndex)
+      val (selected, _) = textSolver.solve(q.questionText, candidates, p.context)
+      SolverUtils.assignCredit(selected, correctIndex, candidates.length)
+    }
+
+    val avgAristoScore = resultLists.sum / resultLists.length
+
+    println("------------")
+    println("avgAristoScore: " + avgAristoScore)
+  }
+
   def testTheDatastes() = {
     println("omnibusTrain: " + SolverUtils.omnibusTrain.length)
     println("omnibusTest: " + SolverUtils.omnibusTest.length)
@@ -390,6 +420,7 @@ object ExperimentsApp {
   def main(args: Array[String]): Unit = {
     lazy val trainReader = new SQuADReader(Constants.squadTrainingDataFile, Some(annotationUtils.pipelineService), annotationUtils)
     lazy val devReader = new SQuADReader(Constants.squadDevDataFile, Some(annotationUtils.pipelineService), annotationUtils)
+    lazy val processReader = new ProcessBankReader(Some(annotationUtils.pipelineService), annotationUtils)
     val parser = new ArgumentParser(args)
     parser.experimentType() match {
       case 1 => generateCandiateAnswers(devReader)
@@ -504,12 +535,13 @@ object ExperimentsApp {
           val allCandidates = CandidateGeneration.getCandidateAnswer(p.contextTAOpt.get)
           println("==================================================")
           println("Processed " + idx + " out of " + pairsGrouped.size)
-//          println("Paragraph: " + p.context)
+          println("Paragraph: " + p.context)
 //          println("candidates = " + candidates)
             pairs.map { case (q, _) =>
-              val topSenIds = SolverUtils.getSentenceScores(p, q).take(4).map(_._1)
+              val topSenIds = SolverUtils.getSentenceScores(p, q).take(1).map(_._1)
               val topSentences = topSenIds.map(p.contextTAOpt.get.getSentence(_)).mkString(" ")
               val candidates = allCandidates.filter(topSentences.contains(_))
+              println("candidates = " + candidates)
 //            val ruleBased = CandidateGeneration.getTargetPhrase(q, p).toSet
             // val candidates = CandidateGeneration.candidateGenerationWithQuestionTypeClassification(q, p).toSet
 //            val candidates = ruleBased
@@ -757,7 +789,7 @@ object ExperimentsApp {
 //        println("entailment: " + er)
 
       case 47 =>
-        // see how the answers are distributied across sentences.
+        // see how the answers are distributed across sentences.
         val qAndpPairs = trainReader.instances.flatMap { i => i.paragraphs.flatMap{p => p.questions.map(q => (q, p))}}
         val lenList = qAndpPairs.map{ case (q, p) =>
           val lemmaCons = p.contextTAOpt.get.getView(ViewNames.LEMMA).getConstituents.asScala.toList
@@ -794,6 +826,14 @@ object ExperimentsApp {
           }
           println(s"Try $tryCount: " + time / 1e9)
         }
+      case 50 =>
+        val allParagraphs = processReader.testInstances ++ processReader.trainingInstances
+        println("paragraphs: " + allParagraphs.length)
+        println("number of questions: " + allParagraphs.flatMap(_.questions).length)
+      case 51 =>
+        // evaluate processBank
+//        evaluateTextSolverOnProcessBank(processReader, textILPSolver)
+        evaluateTextSolverOnProcessBank(processReader, slidingWindowSolver)
     }
   }
 }

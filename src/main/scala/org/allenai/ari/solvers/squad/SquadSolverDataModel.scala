@@ -7,7 +7,7 @@ import edu.illinois.cs.cogcomp.lbjava.learn.{SparseAveragedPerceptron, SparseNet
 import edu.illinois.cs.cogcomp.saul.classifier.Learnable
 import edu.illinois.cs.cogcomp.saul.datamodel.DataModel
 import org.allenai.ari.solvers.textilp.{Paragraph, QPPair, Question}
-import org.allenai.ari.solvers.textilp.utils.{AnnotationUtils, Constants, SQuADReader, SolverUtils}
+import org.allenai.ari.solvers.textilp.utils.{AnnotationUtils, Constants, SolverUtils}
 
 import scala.collection.JavaConverters._
 import CandidateGeneration._

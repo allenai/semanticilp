@@ -1,14 +1,14 @@
-package org.allenai.ari.solvers.textilp.utils
+package org.allenai.ari.solvers.squad
+
+import java.io.File
 
 import edu.illinois.cs.cogcomp.annotation.AnnotatorService
+import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
 import org.allenai.ari.solvers.textilp._
+import org.allenai.ari.solvers.textilp.utils.AnnotationUtils
 import play.api.libs.json._
 
 import scala.io.Source
-import java.io.File
-
-import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
-import org.allenai.ari.solvers.squad.CandidateGeneration
 
 /** Reads the SQuAD data, given the location to the json
   * file containing the annotated data. More details here:

@@ -11,7 +11,7 @@ import edu.illinois.cs.cogcomp.pipeline.common.PipelineConfigurator
 import edu.illinois.cs.cogcomp.pipeline.common.PipelineConfigurator._
 import edu.illinois.cs.cogcomp.pipeline.main.PipelineFactory
 import edu.illinois.cs.cogcomp.saulexamples.nlp.QuestionTypeClassification.QuestionTypeAnnotator
-import org.allenai.ari.solvers.squad.CandidateGeneration
+import org.allenai.ari.solvers.squad.{CandidateGeneration, SQuADReader}
 import org.allenai.ari.solvers.textilp.{Paragraph, Question, TopicGroup}
 import org.allenai.common.cache.JsonQueryCache
 import redis.clients.jedis.{JedisPool, Protocol}
