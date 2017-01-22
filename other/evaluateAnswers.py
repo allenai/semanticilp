@@ -10,7 +10,7 @@ def evaluate(prediction, ground_truths):
     return str(1.0 * exact_match) + "\t" + str(f1)
 
 def main(argv):
-    # example run:  print(evaluate('chemistry', ['the physics', 'the chemistry']))
+    # example run:
     print(evaluate(argv[0], argv[1:]))
 
 if __name__ == '__main__':

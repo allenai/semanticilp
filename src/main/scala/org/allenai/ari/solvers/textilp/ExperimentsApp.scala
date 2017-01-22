@@ -4,23 +4,24 @@ import java.io.File
 
 import edu.illinois.cs.cogcomp.McTest.MCTestBaseline
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
-import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, SpanLabelView}
 import edu.illinois.cs.cogcomp.core.utilities.DummyTextAnnotationGenerator
 import edu.illinois.cs.cogcomp.core.utilities.configuration.ResourceManager
 import org.allenai.ari.solvers.bioProccess.ProcessBankReader
 import org.allenai.ari.solvers.squad.SQuADReader
 import org.allenai.ari.solvers.textilp.solvers.SlidingWindowSolver
-//import edu.illinois.cs.cogcomp.llm.comparators.LlmStringComparator
+import play.api.libs.json.Json
+
 import org.allenai.ari.solvers.squad.SquadClassifierUtils._
 import org.allenai.ari.solvers.squad.{CandidateGeneration, SquadClassifier, SquadClassifierUtils, TextAnnotationPatternExtractor}
 import org.allenai.ari.solvers.textilp.alignment.AlignmentFunction
 import org.allenai.ari.solvers.textilp.solvers.{LuceneSolver, SalienceSolver, TextILPSolver, TextSolver}
 import org.allenai.ari.solvers.textilp.utils.WikiUtils.WikiDataProperties
 import org.allenai.ari.solvers.textilp.utils._
-//import org.elasticsearch.search.suggest.phrase.PhraseSuggestionBuilder.CandidateGenerator
 import org.rogach.scallop._
 
 import scala.collection.JavaConverters._
+import ProcessBankReader._
+import org.allenai.ari.solvers.textilp.ResultJson._
 
 object ExperimentsApp {
   lazy val annotationUtils = new AnnotationUtils()
@@ -253,7 +254,7 @@ object ExperimentsApp {
   }
 
   def evaluateTextSolverOnProcessBank(reader: ProcessBankReader, textSolver: TextSolver) = {
-    val qAndpPairs = reader.trainingInstances.flatMap { p => p.questions.map(q => (q, p))}
+    val qAndpPairs = reader.trainingInstances.filterNotTemporals.filterNotTrueFalse.flatMap { p => p.questions.map(q => (q, p))}
     val resultLists = qAndpPairs.zipWithIndex.map{ case ((q, p), idx) =>
       println("==================================================")
       println("Processed " + idx + " out of " + qAndpPairs.size)
@@ -830,10 +831,28 @@ object ExperimentsApp {
         val allParagraphs = processReader.testInstances ++ processReader.trainingInstances
         println("paragraphs: " + allParagraphs.length)
         println("number of questions: " + allParagraphs.flatMap(_.questions).length)
+        println("number of training questions: " + processReader.trainingInstances.flatMap(_.questions).length)
+        println("number of testing questions: " + processReader.testInstances.flatMap(_.questions).length)
+        println("training instances: " + processReader.trainingInstances.length)
+        println("testing instances: " + processReader.testInstances.length)
+        println("non-true-false instances: " + allParagraphs.filterNotTrueFalse.flatMap(_.questions).length)
+        println("non-true-false training instances: " + processReader.trainingInstances.filterNotTrueFalse.flatMap(_.questions).length)
+        println("non-true-false testing instances: " + processReader.testInstances.filterNotTrueFalse.flatMap(_.questions).length)
+        println("training instances about order: " + processReader.trainingInstances.filterTemporals.flatMap(_.questions).length)
+        println("testing instances about order: " + processReader.testInstances.filterTemporals.flatMap(_.questions).length)
+        println("training / filterNotTemporals.filterNotTrueFalse: " + processReader.trainingInstances.filterNotTemporals.filterNotTrueFalse.flatMap(_.questions).length)
+        println("testing / filterNotTemporals.filterNotTrueFalse: " + processReader.testInstances.filterNotTemporals.filterNotTrueFalse.flatMap(_.questions).length)
       case 51 =>
         // evaluate processBank
 //        evaluateTextSolverOnProcessBank(processReader, textILPSolver)
         evaluateTextSolverOnProcessBank(processReader, slidingWindowSolver)
+      case 52 =>
+        // write processBank on disk as json
+        import java.io._
+        val pw = new PrintWriter(new File("processBank-train.json" ))
+        val json = Json.toJson(processReader.trainingInstances).toString
+        pw.write(json)
+        pw.close()
     }
   }
 }

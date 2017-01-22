@@ -55,6 +55,31 @@ object ResultJson {
 
   import play.api.libs.json._
 
+  // writing answer-paragraphs
+  implicit val answerWrites = new Writes[Answer] {
+    def writes(answer: Answer) = Json.arr(answer.answerText)
+  }
+
+  implicit val questionWrites = new Writes[Question] {
+    def writes(q: Question) = Json.obj(
+      "question" -> q.questionText,
+      "answers" -> q.answers,
+      "correctAns" -> q.correctIdxOpt.get
+    )
+  }
+
+  implicit val paragraphWrite = new Writes[Paragraph] {
+    def writes(p: Paragraph) = Json.obj(
+      "paragraphText" -> p.context,
+      "paragraphQuestions" -> p.questions
+    )
+  }
+
+  implicit val listOfparagraphWrite = new Writes[List[Paragraph]] {
+    def writes(p: List[Paragraph]) = Json.arr(p)
+  }
+
+  // writing entity relations
   implicit val entityWrites = new Writes[Entity] {
     def writes(entity: Entity) = Json.arr(entity.entityName, entity.surface, entity.boundaries.map(pair => Json.arr(pair._1, pair._2)))
   }

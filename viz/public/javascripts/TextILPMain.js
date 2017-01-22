@@ -134,9 +134,9 @@ function visualizationBratWithLog(solverLogJson){
     var relations = solverLogJsonNew.relations;
 
 
-    console.log(text);
-    console.log(entities);
-    console.log(solverLogJsonNew.entities.length);
+    // console.log(text);
+    // console.log(entities);
+    // console.log(solverLogJsonNew.entities.length);
     // console.log(relations);
 
     console.log("Applying the embed method ");

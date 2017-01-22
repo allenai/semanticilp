@@ -19,9 +19,9 @@ class ProcessBankFileReader(file: File, annotationServiceOpt: Option[AnnotatorSe
     val questions = (xml \\ "question").map { q =>
       println("----------")
       val qid = (q \ "qid").text.trim
-      val question = (q \ "q").text
-      val a0 = (q \ "a0").text
-      val a1 = (q \ "a1").text
+      val question = (q \ "q").text.replace("\n", "").trim
+      val a0 = (q \ "a0").text.replace("\n", "").trim
+      val a1 = (q \ "a1").text.replace("\n", "").trim
       val correct = (q \ "correct").text.toInt
       val answers = Seq(Answer(a0, -1), Answer(a1, -1))
       val questionAnnotation = annotationServiceOpt match {
@@ -64,4 +64,42 @@ class ProcessBankReader(annotationServiceOpt: Option[AnnotatorService] = None, a
   }
   val trainingInstances = paragraphs.take(150)
   val testInstances = paragraphs.slice(150, 200)
+}
+
+object ProcessBankReader{
+  val temporalKeywords = Set(" order", " first", " last", " ordering", " time")
+  val trueOrFalse = Set("true", "false", "True", "False")
+
+  implicit class ImplicitConversions(paragraphList: List[Paragraph]) {
+
+    // keeps only true-false questions
+    def filterTrueFalse: List[Paragraph] = {
+      paragraphList.map{ p =>
+        val filteredQuestions = p.questions.filter(q => q.answers.map(a => a.answerText).toSet.intersect(trueOrFalse).nonEmpty)
+        Paragraph(p.context, filteredQuestions, p.contextTAOpt)
+      }
+    }
+
+    def filterNotTrueFalse: List[Paragraph] = {
+      paragraphList.map{ p =>
+        val filteredQuestions = p.questions.filter(q => q.answers.map(a => a.answerText).toSet.intersect(trueOrFalse).isEmpty)
+        Paragraph(p.context, filteredQuestions, p.contextTAOpt)
+      }
+    }
+
+    // keeps only temporal questions
+    def filterTemporals: List[Paragraph] = {
+      paragraphList.map { p =>
+        val filteredQuestions = p.questions.filter(q => temporalKeywords.exists(q.questionText.contains))
+        Paragraph(p.context, filteredQuestions, p.contextTAOpt)
+      }
+    }
+
+    def filterNotTemporals: List[Paragraph] = {
+      paragraphList.map { p =>
+        val filteredQuestions = p.questions.filterNot(q => temporalKeywords.exists(q.questionText.contains))
+        Paragraph(p.context, filteredQuestions, p.contextTAOpt)
+      }
+    }
+  }
 }
