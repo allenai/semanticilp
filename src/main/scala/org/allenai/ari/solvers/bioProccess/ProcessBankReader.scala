@@ -68,9 +68,11 @@ class ProcessBankReader(annotationServiceOpt: Option[AnnotatorService] = None, a
 
 object ProcessBankReader{
   val temporalKeywords = Set(" order", " first", " last", " ordering", " time")
-  val trueOrFalse = Set("true", "false", "True", "False")
+  val trueAns = Set("true", "True", "Trure")
+  val falseAns = Set("false", "False")
+  val trueOrFalse = trueAns ++ falseAns
 
-  implicit class ImplicitConversions(paragraphList: List[Paragraph]) {
+  implicit class ImplicitConversionsFromParagraphs(paragraphList: List[Paragraph]) {
 
     // keeps only true-false questions
     def filterTrueFalse: List[Paragraph] = {
@@ -102,4 +104,12 @@ object ProcessBankReader{
       }
     }
   }
+
+  implicit class ImplicitConversionsFromQuestion(question: Question) {
+    def isTrueFalse: Boolean = question.answers.map(a => a.answerText.trim).toSet.intersect(trueOrFalse).nonEmpty
+    def isTemporal: Boolean = temporalKeywords.exists(question.questionText.contains)
+    def trueIndex: Int = question.answers.zipWithIndex.collectFirst{ case (a, i) if trueAns.contains(a.answerText.trim) => i }.getOrElse(-1)
+    def falseIndex: Int = question.answers.zipWithIndex.collectFirst{ case (a, i) if falseAns.contains(a.answerText.trim) => i }.getOrElse(-1)
+  }
+
 }

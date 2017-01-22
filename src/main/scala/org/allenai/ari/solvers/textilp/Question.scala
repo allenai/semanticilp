@@ -25,7 +25,11 @@ case class Answer(answerText: String, answerStart: Int)
 
 case class Entity(entityName: String, surface: String, boundaries: Seq[(Int, Int)])
 case class Relation(relationName: String, entity1: String, entity2: String, weight: Double)
-case class EntityRelationResult(fullString: String, entities: Seq[Entity], relations: Seq[Relation], explanation: String = "")
+case class EntityRelationResult(fullString: String,
+                                entities: Seq[Entity],
+                                relations: Seq[Relation],
+                                explanation: String = "",
+                                confidence: Double = -100.0)
 
 object ResultJson {
 //  val staticAlignmentResult = AlignmentResults(

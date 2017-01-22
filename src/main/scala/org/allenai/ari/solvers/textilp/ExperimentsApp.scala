@@ -254,24 +254,27 @@ object ExperimentsApp {
   }
 
   def evaluateTextSolverOnProcessBank(reader: ProcessBankReader, textSolver: TextSolver) = {
-    val qAndpPairs = reader.trainingInstances.filterNotTemporals.filterNotTrueFalse.flatMap { p => p.questions.map(q => (q, p))}
-    val resultLists = qAndpPairs.zipWithIndex.map{ case ((q, p), idx) =>
+    val qAndpPairs = reader.trainingInstances.filterTrueFalse.flatMap { p => p.questions.map(q => (q, p))}
+    val (resultLists, confidences) = qAndpPairs.zipWithIndex.map{ case ((q, p), idx) =>
       println("==================================================")
       println("Processed " + idx + " out of " + qAndpPairs.size)
-//      println("Paragraph: " + p)
+      println("Paragraph: " + p)
       val candidates = q.answers.map(_.answerText)
       val correctIndex = q.correctIdxOpt.get
 //          println("correct answer: " + goldCandidates.head)
-//          println("question: " + q.questionText)
-//          println("candidates: " + candidates)
+          println("question: " + q.questionText)
+          println("candidates: " + candidates)
 //          println("length of allCandidatesMinusCorrectOnes: " + allCandidatesMinusCorrectOnes.size)
 //          println("candidates.length: " + candidates.length)
 //          println("correctIndex: " + correctIndex)
-      val (selected, _) = textSolver.solve(q.questionText, candidates, p.context)
-      SolverUtils.assignCredit(selected, correctIndex, candidates.length)
-    }
+      val (selected, explanation) = textSolver.solve(q.questionText, candidates, p.context)
+      val correctLabel = q.answers(correctIndex).answerText
+      SolverUtils.assignCredit(selected, correctIndex, candidates.length) -> (explanation.confidence -> correctLabel)
+    }.unzip
 
     val avgAristoScore = resultLists.sum / resultLists.length
+    println(confidences.mkString("\n"))
+
 
     println("------------")
     println("avgAristoScore: " + avgAristoScore)
@@ -844,8 +847,8 @@ object ExperimentsApp {
         println("testing / filterNotTemporals.filterNotTrueFalse: " + processReader.testInstances.filterNotTemporals.filterNotTrueFalse.flatMap(_.questions).length)
       case 51 =>
         // evaluate processBank
-//        evaluateTextSolverOnProcessBank(processReader, textILPSolver)
-        evaluateTextSolverOnProcessBank(processReader, slidingWindowSolver)
+        evaluateTextSolverOnProcessBank(processReader, textILPSolver)
+//        evaluateTextSolverOnProcessBank(processReader, slidingWindowSolver)
       case 52 =>
         // write processBank on disk as json
         import java.io._

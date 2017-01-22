@@ -52,7 +52,7 @@ class AnnotationUtils {
     println("Starting to build the pipeline service . . . ")
     val settings = new Properties()
     //settings.setProperty("cacheDirectory", "annotation-cache-textilp")
-    //settings.setProperty("disableCache", Configurator.TRUE)
+    settings.setProperty("disableCache", Configurator.TRUE)
     viewsToDisable.foreach{ key => settings.setProperty(key.value, Configurator.FALSE) }
     settings.setProperty(PipelineConfigurator.STFRD_MAX_SENTENCE_LENGTH.key, "1000")
     val rm = new ResourceManager(settings)

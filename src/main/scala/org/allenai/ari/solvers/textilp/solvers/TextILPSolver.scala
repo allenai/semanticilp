@@ -11,6 +11,8 @@ import org.allenai.ari.solvers.textilp.utils.AnnotationUtils
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
 
+import org.allenai.ari.solvers.bioProccess.ProcessBankReader._
+
 object TextILPSolver {
   val epsilon = 0.001
   val oneActiveSentenceConstraint = true
@@ -45,6 +47,7 @@ object TextILPSolver {
   val essentialTermMaximalSetBottomK = 0
   val essentialTermMinimalSetSlack = 1
   val essentialTermMaximalSetSlack = 0
+  val trueFalseThreshold = 0.4 // this has to be tuned
 
   lazy val keywordTokenizer = KeywordTokenizer.Default
   lazy val aligner = new AlignmentFunction("Entailment", 0.1, keywordTokenizer, useRedisCache = false, useContextInRedisCache = false)
@@ -79,7 +82,9 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
   ): (Seq[Int], EntityRelationResult) = {
 
     println("starting to create the model  . . . ")
+    val isTrueFalseQuestion = q.isTrueFalse
 
+    val isTemporalQuestions = q.isTemporal
     require(q.qTAOpt.isDefined, "the annotatins for the question is not defined")
     require(p.contextTAOpt.isDefined, "the annotatins for the paragraph is not defined")
     val qTA = q.qTAOpt.getOrElse(throw new Exception("The annotation for the question not found . . . "))
@@ -98,19 +103,28 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
     } yield (qCons, pCons, x)
 
     // create paragraphToken-answerOption alignment edges
-    val paragraphAnswerAlignments = for {
-      pCons <- pTokens
-      ans <- q.answers
-      score = alignmentFunction.scoreCellCell(pCons.getSurfaceForm, ans.answerText)
-      x = ilpSolver.createBinaryVar("", score)
-    } yield (pCons, ans, x)
+    val paragraphAnswerAlignments = if(!isTrueFalseQuestion) {
+      for {
+        pCons <- pTokens
+        ans <- q.answers
+        score = alignmentFunction.scoreCellCell(pCons.getSurfaceForm, ans.answerText)
+        x = ilpSolver.createBinaryVar("", score)
+      } yield (pCons, ans, x)
+    } else {
+      List.empty
+    }
 
     // high-level variables
     // active answer options
-    val activeAnswerOptions = for {
-      ans <- q.answers
-      x = ilpSolver.createBinaryVar("", 0.0)
-    } yield (ans, x)
+    val activeAnswerOptions = if(!isTrueFalseQuestion) {
+      for {
+        ans <- q.answers
+        x = ilpSolver.createBinaryVar("", 0.0)
+      } yield (ans, x)
+    }
+    else {
+      List.empty
+    }
 
     def getVariablesConnectedToOption(ans: Answer): Seq[V] = {
       paragraphAnswerAlignments.filter { case (_, ansTmp, _) => ansTmp == ans }.map(_._3)
@@ -186,9 +200,11 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
 
     // constraints
     // alignment to only one option, i.e. there must be only one single active option
-    val activeAnsVars = activeAnswerOptions.map { case (ans, x) => x }
-    val activeAnsVarsCoeffs = Seq.fill(activeAnsVars.length)(1.0)
-    ilpSolver.addConsBasicLinear("onlyOneActiveOption", activeAnsVars, activeAnsVarsCoeffs, Some(1.0), Some(1.0))
+    if(activeAnswerOptions.nonEmpty) {
+      val activeAnsVars = activeAnswerOptions.map { case (ans, x) => x }
+      val activeAnsVarsCoeffs = Seq.fill(activeAnsVars.length)(1.0)
+      ilpSolver.addConsBasicLinear("onlyOneActiveOption", activeAnsVars, activeAnsVarsCoeffs, Some(1.0), Some(1.0))
+    }
 
     // have at most one active sentence
     val (_, sentenceVars) = activeSentences.unzip
@@ -226,9 +242,20 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
 //    }
 
     val selectedIndex = if(ilpSolver.getStatus == IlpStatusOptimal) {
-      activeAnswerOptions.zipWithIndex.collect { case ((ans, x), idx) if ilpSolver.getSolVal(x) > 1.0 - TextILPSolver.epsilon => idx }
+      println("Primal score: " + ilpSolver.getPrimalbound)
+      val trueIdx = q.trueIndex
+      val falseIdx = q.falseIndex
+      if(isTrueFalseQuestion) {
+        if(ilpSolver.getPrimalbound > TextILPSolver.trueFalseThreshold ) Seq(trueIdx) else Seq(falseIdx)
+      }
+      else {
+        println(">>>>>>> not true/false . .. ")
+        activeAnswerOptions.zipWithIndex.collect { case ((ans, x), idx) if ilpSolver.getSolVal(x) > 1.0 - TextILPSolver.epsilon => idx }
+      }
     }
     else {
+      println("Not optimal . . . ")
+      println("Status is not optimal. Status: "  + ilpSolver.getStatus)
       // if the program is not solver, say IDK
       Seq.empty
     }
@@ -337,6 +364,26 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
         }
     }
 
+    if(isTrueFalseQuestion) {
+      // add the answer option span manually
+      selectedIndex.foreach{ idx =>
+        val ansText = q.answers(idx).answerText
+        val oBeginIndex = choiceString.indexOf(ansText) + questionString.length + paragraphString.length
+        val oEndIndex = oBeginIndex + ansText.length
+        val span2 = (oBeginIndex, oEndIndex)
+        val t2 = if(!entityMap.contains(span2)) {
+          val t2 = "T" + eIter
+          entities += Entity(t2, ansText, Seq(span2))
+          eIter = eIter + 1
+          entityMap.put(span2, t2)
+          t2
+        }
+        else {
+          entityMap(span2)
+        }
+      }
+    }
+
     println("returning the answer  . . . ")
 
 //    val alignmentResult = AlignmentResults(
@@ -345,7 +392,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
 //      paragraphAlignments.values.toList
 //    )
 
-    val erView = EntityRelationResult(questionString + paragraphString + choiceString, entities, relations)
+    val erView = EntityRelationResult(questionString + paragraphString + choiceString, entities, relations, confidence = ilpSolver.getPrimalbound)
 
     selectedIndex -> erView
   }
