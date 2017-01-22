@@ -2,11 +2,11 @@ $(document).ready(function(){
     answerCollectionRadioButton();
     knowledgeRadioButton();
     solverTypeSelector();
-    loadSquadQuestionSamples();
+    loadSampleQuestion();
 });
 
 
-var loadSquadQuestionSamples = function () {
+var loadSampleQuestion = function () {
 
     // SQuAD questions
     var questionParagraphPairs = [];
@@ -63,7 +63,37 @@ var loadSquadQuestionSamples = function () {
         $("#knowLucene").prop("checked", true);
     });
 
+    // process bank questions
+    var processBankQuestionParagraphPairs = [];
+    $.getJSON("/assets/processBank-train.json", function (content) {
+        var questions = content[0].flatMap(function(a){ return a.paragraphQuestions.map(function(b){ return b.question })});
+
+        processBankQuestionParagraphPairs = content[0].flatMap(function(a){
+            return a.paragraphQuestions.map(function(b){ return [b.question, a.paragraphText, b.answers] })
+        });
+
+        var selectContent = "<option disabled selected value> -- process-bank questions: select one -- </option>";
+        questions.forEach(function (q, i) {
+            selectContent = selectContent + "<option value=" + i + ">" + q + "</option>"
+        });
+
+        $('#processbank-select').html(selectContent);
+    });
+
+    // set the select behavior
+    $("#processbank-select").change(function () {
+        var selectedIndex = $(this).prop("selectedIndex") - 1;
+        var question = processBankQuestionParagraphPairs[selectedIndex][0];
+        var snippet = processBankQuestionParagraphPairs[selectedIndex][1];
+        var optionsArray = processBankQuestionParagraphPairs[selectedIndex][2];
+        $("#questionString").val(question);
+        $("#knowTextArea").val(snippet);
+        var options = optionsArray.join(" // ");
+        $("#candidateTextArea").val(options);
+    });
 };
+
+//processbank-select
 
 // [B](f: (A) ⇒ [B]): [B]  ; Although the types in the arrays aren't strict (:
 Array.prototype.flatMap = function(lambda) {

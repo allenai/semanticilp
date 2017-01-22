@@ -3,9 +3,10 @@ package controllers
 import javax.inject._
 
 import models.StaticContent
+import org.allenai.ari.solvers.squad.CandidateGeneration
 import org.allenai.ari.solvers.textilp.ResultJson
 import org.allenai.ari.solvers.textilp.ResultJson._
-import org.allenai.ari.solvers.textilp.solvers.{LuceneSolver, SalienceSolver, TextILPSolver}
+import org.allenai.ari.solvers.textilp.solvers.{LuceneSolver, SalienceSolver, SlidingWindowSolver, TextILPSolver}
 import org.allenai.ari.solvers.textilp.utils.{AnnotationUtils, SolverUtils}
 import play.api.mvc._
 import play.api.libs.json._
@@ -18,6 +19,7 @@ class SolveQuestion @Inject() extends Controller {
 
   lazy val salienceSolver = new SalienceSolver()
   lazy val luceneSolver = new LuceneSolver()
+  lazy val slidingWindowSolver = new SlidingWindowSolver()
   lazy val annotationUtils = new AnnotationUtils()
   lazy val textilpSolver = new TextILPSolver(annotationUtils)
 
@@ -42,7 +44,7 @@ class SolveQuestion @Inject() extends Controller {
     val optionsPostProcessed = if(options.length < 2)  {
       // it's empty; get the candidate options automatically
       val ta = annotationUtils.annotate(snippet)
-      val generatedCandidates = SolverUtils.getCandidateAnswer(ta)
+      val generatedCandidates = CandidateGeneration.getCandidateAnswer(ta)
       println("Automatically extracted candidtes: " + generatedCandidates.mkString("//"))
       generatedCandidates.toSeq
     } else {
