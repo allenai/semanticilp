@@ -254,11 +254,11 @@ object ExperimentsApp {
   }
 
   def evaluateTextSolverOnProcessBank(reader: ProcessBankReader, textSolver: TextSolver) = {
-    val qAndpPairs = reader.trainingInstances.filterTrueFalse.flatMap { p => p.questions.map(q => (q, p))}
+    val qAndpPairs = reader.trainingInstances.filterTemporals.flatMap { p => p.questions.map(q => (q, p))}
     val (resultLists, confidences) = qAndpPairs.zipWithIndex.map{ case ((q, p), idx) =>
       println("==================================================")
       println("Processed " + idx + " out of " + qAndpPairs.size)
-      println("Paragraph: " + p)
+//      println("Paragraph: " + p)
       val candidates = q.answers.map(_.answerText)
       val correctIndex = q.correctIdxOpt.get
 //          println("correct answer: " + goldCandidates.head)
@@ -273,7 +273,7 @@ object ExperimentsApp {
     }.unzip
 
     val avgAristoScore = resultLists.sum / resultLists.length
-    println(confidences.mkString("\n"))
+//    println(confidences.mkString("\n"))
 
 
     println("------------")
@@ -856,6 +856,102 @@ object ExperimentsApp {
         val json = Json.toJson(processReader.trainingInstances).toString
         pw.write(json)
         pw.close()
+
+      case 53 =>
+        val list = List(
+          (4.3999999999999995,"False"),
+          (2.7,"False"),
+          (3.4750764029270083,"False"),
+          (5.218857060304387,"False"),
+          (1.0477330385949053,"False"),
+          (4.5930571385433705,"False"),
+          (3.3437923184743807,"True"),
+          (2.7,"False"),
+          (3.6,"True"),
+          (2.809181013882808,"True"),
+          (5.648828749431884,"True"),
+          (3.4526406493279973,"False"),
+          (1.7395776316755533,"False"),
+          (3.7264931111166786,"False"),
+          (1.2893678361840508,"False"),
+          (4.5,"True"),
+          (5.9301358980358305,"False"),
+          (2.2,"False"),
+          (3.485991220138836,"True"),
+          (3.2444444444444445,"True"),
+          (0.9250000000000002,"True"),
+          (3.15,"True"),
+          (4.2731863259819995,"False"),
+          (2.151320914317883,"True"),
+          (8.005681533783543,"True"),
+          (3.939583333333333,"False"),
+          (1.7999999999999998,"True"),
+          (5.9156939484738835,"False"),
+          (4.310374341315811,"True"),
+          (4.761922173960414,"False"),
+          (3.182963620204129,"False"),
+          (4.2629413735429855,"False"),
+          (1.8,"False"),
+          (5.074873212779324,"False"),
+          (3.870689655172414,"False"),
+          (4.9723028813491235,"True"),
+          (2.1213764230460206,"False"),
+          (2.920169715368538,"True"),
+          (2.9021705380360587,"False"),
+          (3.79074300885396,"True"),
+          (3.4870458569613514,"False"),
+          (2.7,"False"),
+          (1.5951587516273693,"True"),
+          (6.571601186200417,"False"),
+          (3.5839640474975885,"True"),
+          (3.3366683073589316,"False"),
+          (2.4577460878843156,"False"),
+          (3.104407228784471,"True"),
+          (5.015050279316102,"True"),
+          (2.49837698649533,"True"),
+          (1.9158550613496934,"True"),
+          (3.1539576632660427,"True"),
+          (4.363674432492519,"False"),
+          (5.235964520047501,"False"),
+          (7.222962975312836,"False"),
+          (2.0124976962260863,"False"),
+          (3.6338982139450016,"False"),
+          (3.6000000000000005,"False"),
+          (3.9948310926592665,"False"),
+          (4.1634212665934625,"False"),
+          (4.1634212665934625,"False"),
+          (3.1674055928451006,"True"),
+          (5.763105834435255,"True"),
+          (2.4392366532968626,"True"),
+          (5.891555633058751,"True"),
+          (3.287884160169278,"False"),
+          (3.5604433062795406,"True"),
+          (3.209980057902207,"False"),
+          (4.238858515254964,"False"),
+          (2.94196542911558,"True"),
+          (4.9,"True"),
+          (2.441374994683572,"False"),
+          (2.5476282748245622,"True"),
+          (3.6,"False"),
+          (6.476023508004646,"True"),
+          (4.250692787083008,"False"),
+          (2.7,"False"),
+          (2.719254816038015,"False"),
+          (7.922111564439183,"True"),
+          (3.210449039289768,"True"),
+          (4.702574658357156,"True"),
+          (4.908333333333333,"False"),
+          (1.6925790485359795,"True"),
+          (3.587123462131733,"False"),
+          (2.1560216095557894,"True"),
+          (5.696917807792232,"False")
+        )
+
+        (2.2 to 10.5 by 0.05).foreach{ th =>
+          val (pTrue, pFalse) = list.partition(_._1 > th)
+          val accuracy = (pTrue.count(_._2 == "True") + pFalse.count(_._2 == "False")).toDouble / list.length
+          println("Th: " + th  + "  / acc: " + accuracy)
+        }
     }
   }
 }

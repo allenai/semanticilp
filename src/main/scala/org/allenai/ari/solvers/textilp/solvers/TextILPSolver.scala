@@ -47,7 +47,7 @@ object TextILPSolver {
   val essentialTermMaximalSetBottomK = 0
   val essentialTermMinimalSetSlack = 1
   val essentialTermMaximalSetSlack = 0
-  val trueFalseThreshold = 0.4 // this has to be tuned
+  val trueFalseThreshold = 5.5 // this has to be tuned
 
   lazy val keywordTokenizer = KeywordTokenizer.Default
   lazy val aligner = new AlignmentFunction("Entailment", 0.1, keywordTokenizer, useRedisCache = false, useContextInRedisCache = false)
@@ -58,7 +58,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
     val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
 //    val ilpSolver = new IllinoisInference(new OJalgoHook)
 //    val ilpSolver = new IllinoisInference(new GurobiHook)
-    val answers = options.map(o => Answer(o, -1))
+    val answers = options.map(o => Answer(o, -1, Some(annotationUtils.annotate(o))))
 //    println("Tokenizing question .... ")
     val qTA = annotationUtils.pipelineService.createBasicTextAnnotation("", "", question)
     if(question.trim.nonEmpty) {
@@ -92,7 +92,17 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
     val qTokens = if(qTA.hasView(ViewNames.SHALLOW_PARSE)) qTA.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala else Seq.empty
     val pTokens = if(pTA.hasView(ViewNames.SHALLOW_PARSE)) pTA.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala else Seq.empty
 
+
     ilpSolver.setAsMaximization()
+
+    // whether to create the model with the tokenized version of the answer options
+    val tokenizeAnswers = if(q.isTemporal) true else false
+    val aTokens = if(tokenizeAnswers) {
+      q.answers.map(_.aTAOpt.get.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala.map(_.getSurfaceForm))
+    }
+    else {
+      Seq(q.answers.map(a => a.answerText))
+    }
 
     // create questionToken-paragraphToken alignment edges
     val questionParagraphAlignments = for {
@@ -104,12 +114,15 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
 
     // create paragraphToken-answerOption alignment edges
     val paragraphAnswerAlignments = if(!isTrueFalseQuestion) {
-      for {
-        pCons <- pTokens
-        ans <- q.answers
-        score = alignmentFunction.scoreCellCell(pCons.getSurfaceForm, ans.answerText)
-        x = ilpSolver.createBinaryVar("", score)
-      } yield (pCons, ans, x)
+        // create only multiple nodes at each answer option
+        for {
+          pCons <- pTokens
+          ansIdx <- aTokens.indices
+          ansConsIdx <- aTokens(ansIdx).indices
+          ansConsString = aTokens(ansIdx).apply(ansConsIdx)
+          score = alignmentFunction.scoreCellCell(pCons.getSurfaceForm, ansConsString)
+          x = ilpSolver.createBinaryVar("", score)
+        } yield (pCons, ansIdx, ansConsIdx, x)
     } else {
       List.empty
     }
@@ -118,21 +131,21 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
     // active answer options
     val activeAnswerOptions = if(!isTrueFalseQuestion) {
       for {
-        ans <- q.answers
+        ansIdx <- q.answers.indices
         x = ilpSolver.createBinaryVar("", 0.0)
-      } yield (ans, x)
+      } yield (ansIdx, x)
     }
     else {
       List.empty
     }
 
-    def getVariablesConnectedToOption(ans: Answer): Seq[V] = {
-      paragraphAnswerAlignments.filter { case (_, ansTmp, _) => ansTmp == ans }.map(_._3)
+    def getVariablesConnectedToOption(ansIdx: Int): Seq[V] = {
+      paragraphAnswerAlignments.filter { case (_, ansTmp, _, _) => ansTmp == ansIdx }.map(_._4)
     }
 
     def getVariablesConnectedToParagraphToken(c: Constituent): Seq[V] = {
       questionParagraphAlignments.filter { case (_, cTmp, _) => cTmp == c }.map(_._3) ++
-        paragraphAnswerAlignments.filter { case (cTmp, _, _) => cTmp == c }.map(_._3)
+        paragraphAnswerAlignments.filter { case (cTmp, _, _, _) => cTmp == c }.map(_._4)
     }
 
     def getVariablesConnectedToParagraphSentence(sentenceId: Int): Seq[V] = {
@@ -141,8 +154,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
 
     // variable must be active if anything connected to it is active
     activeAnswerOptions.foreach {
-      case (ans, x) =>
-        val connectedVariables = getVariablesConnectedToOption(ans)
+      case (ansIdx, x) =>
+        val connectedVariables = getVariablesConnectedToOption(ansIdx)
         val allVars = connectedVariables :+ x
         val coeffs = Seq.fill(connectedVariables.length)(-1.0) :+ 1.0
         ilpSolver.addConsBasicLinear("activeOptionVar", allVars, coeffs, None, Some(0.0))
@@ -325,7 +338,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
 //    }
 
     paragraphAnswerAlignments.foreach {
-      case (c1, c2, x) =>
+      case (c1, ansIdx, ansConsIdx, x) =>
         if (ilpSolver.getSolVal(x) > 1.0 - TextILPSolver.epsilon) {
 //          val pBeginIndex = paragraphString.indexOf(c1.getSurfaceForm) + questionString.length
 //          val pEndIndex = pBeginIndex + c1.getSurfaceForm.length
@@ -342,12 +355,13 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
             entityMap(span1)
           }
 
-          val oBeginIndex = choiceString.indexOf(c2.answerText) + questionString.length + paragraphString.length
-          val oEndIndex = oBeginIndex + c2.answerText.length
+          val ansString = aTokens(ansIdx)(ansConsIdx)
+          val oBeginIndex = choiceString.indexOf(ansString) + questionString.length + paragraphString.length
+          val oEndIndex = oBeginIndex + ansString.length
           val span2 = (oBeginIndex, oEndIndex)
           val t2 = if(!entityMap.contains(span2)) {
             val t2 = "T" + eIter
-            entities += Entity(t2, c2.answerText, Seq(span2))
+            entities += Entity(t2, ansString, Seq(span2))
             eIter = eIter + 1
             entityMap.put(span2, t2)
             t2

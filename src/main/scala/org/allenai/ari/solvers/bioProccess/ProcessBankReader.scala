@@ -11,6 +11,7 @@ import org.allenai.ari.solvers.textilp.{Answer, Paragraph, Question}
 import scala.xml.XML
 
 class ProcessBankFileReader(file: File, annotationServiceOpt: Option[AnnotatorService] = None, annotationUtils: AnnotationUtils) {
+  import ProcessBankReader._
   val instances = {
     val xml = XML.loadFile(file)
     println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
@@ -23,6 +24,8 @@ class ProcessBankFileReader(file: File, annotationServiceOpt: Option[AnnotatorSe
       val a0 = (q \ "a0").text.replace("\n", "").trim
       val a1 = (q \ "a1").text.replace("\n", "").trim
       val correct = (q \ "correct").text.toInt
+//      val a0TA = Some(annotationUtils.annotate(a0)) //if(question.isTemporal) Some(annotationUtils.annotate(a0)) else None
+//      val a1TA = Some(annotationUtils.annotate(a1)) //if(question.isTemporal) Some(annotationUtils.annotate(a1)) else None
       val answers = Seq(Answer(a0, -1), Answer(a1, -1))
       val questionAnnotation = annotationServiceOpt match {
         case None => None
@@ -112,4 +115,8 @@ object ProcessBankReader{
     def falseIndex: Int = question.answers.zipWithIndex.collectFirst{ case (a, i) if falseAns.contains(a.answerText.trim) => i }.getOrElse(-1)
   }
 
+  implicit class ImplicitConversionsFromAnswerString(str: String) {
+    def isTrueFalse: Boolean = trueOrFalse.contains(str)
+    def isTemporal: Boolean = temporalKeywords.exists(str.contains)
+  }
 }
