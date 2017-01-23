@@ -66,10 +66,15 @@ var loadSampleQuestion = function () {
     // process bank questions
     var processBankQuestionParagraphPairs = [];
     $.getJSON("/assets/processBank-train.json", function (content) {
-        var questions = content[0].flatMap(function(a){ return a.paragraphQuestions.map(function(b){ return b.question })});
+        var questions = content[0].flatMap(function(a){ return a.paragraphQuestions.map(function(b){ return b.question })}).sort();
 
         processBankQuestionParagraphPairs = content[0].flatMap(function(a){
             return a.paragraphQuestions.map(function(b){ return [b.question, a.paragraphText, b.answers] })
+        }).sort(function(c, d){
+            if( c[0] >= d[0] )
+                return 1;
+            else
+                return -1;
         });
 
         var selectContent = "<option disabled selected value> -- process-bank questions: select one -- </option>";
