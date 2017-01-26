@@ -11,7 +11,7 @@ import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper
 import edu.illinois.cs.cogcomp.nlp.utilities.ParseUtils
 import edu.illinois.cs.cogcomp.saulexamples.nlp.QuestionTypeClassification.QuestionTypeAnnotator
 import org.allenai.ari.solvers.textilp.{Paragraph, Question}
-import org.allenai.ari.solvers.textilp.utils.WikiUtils
+import org.allenai.ari.solvers.textilp.utils.{Constants, WikiUtils}
 import org.allenai.ari.solvers.textilp.utils.WikiUtils.WikiDataProperties
 import org.allenai.common.cache.JsonQueryCache
 
@@ -30,7 +30,7 @@ object CandidateGeneration {
 
   import redis.clients.jedis.Protocol
   import spray.json.DefaultJsonProtocol._
-  lazy val wikifierRedis = JsonQueryCache[String]("", "localhost", Protocol.DEFAULT_PORT, Protocol.DEFAULT_TIMEOUT)
+  lazy val wikifierRedis = JsonQueryCache[String]("", Constants.redisServer, Constants.redisPort, Protocol.DEFAULT_TIMEOUT)
 
   def containsOffset(c: Constituent, offset: Int): Boolean = {
     c.getEndCharOffset >= offset && c.getStartCharOffset <= offset

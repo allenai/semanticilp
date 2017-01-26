@@ -952,6 +952,37 @@ object ExperimentsApp {
           val accuracy = (pTrue.count(_._2 == "True") + pFalse.count(_._2 == "False")).toDouble / list.length
           println("Th: " + th  + "  / acc: " + accuracy)
         }
+
+      case 54 =>
+        // extract buggy squad examples:
+        val qAndpPairs = trainReader.instances.flatMap { i => i.paragraphs.flatMap{p => p.questions.map(q => (q, p))}}
+        qAndpPairs.foreach{ case (q, p) =>
+            val problematic = q.answers.exists{ ans =>
+              p.context.contains( s" ${ans.answerText} " )
+            }
+            if(problematic) {
+              println("annp: " + p.context)
+              println("q: " + q.questionText)
+              println("a: " + q.answers)
+            }
+        }
+
+      case 55 =>
+        // write the bioProcess questions on disk, as well as their predictions
+        import java.io._
+        val pw = new PrintWriter(new File("processBank-train.tsv" ))
+        val qAndpPairs = processReader.trainingInstances.filterTemporals.flatMap { p => p.questions.map(q => (q, p))}
+        qAndpPairs.zipWithIndex.foreach{ case ((q, p), idx) =>
+          println("==================================================")
+          println("Processed " + idx + " out of " + qAndpPairs.size)
+          val candidates = q.answers.map(_.answerText)
+          val correctIndex = q.correctIdxOpt.get
+          val (selected, explanation) = textILPSolver.solve(q.questionText, candidates, p.context)
+          val correctLabel = q.answers(correctIndex).answerText
+          val score = SolverUtils.assignCredit(selected, correctIndex, candidates.length)
+          pw.write(s"${q.questionText}\t${candidates.mkString("//")}\t${p.context}\t$correctIndex\t$score\n")
+        }
+        pw.close()
     }
   }
 }

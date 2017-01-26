@@ -18,10 +18,13 @@ class SQuADReader(file: File, annotationServiceOpt: Option[AnnotatorService] = N
   private val jsonString = Source.fromFile(file).getLines().mkString
   private val jsonObject = Json.parse(jsonString)
   private val extraTerms = Seq("[citation needed]", "[b]", "[a]", "[info]", "[update]", "[f]", "[page needed]")
-  val instances = (jsonObject \\ "data").head.as[JsArray].value.slice(0, 30).map { value =>
+  private val topicVals = (jsonObject \\ "data").head.as[JsArray].value
+  val instances = topicVals.zipWithIndex.map { case (value, topicIdx) =>
+    println(" >>>> processing topic " + topicIdx + " out of " + topicVals.size)
     val title = (value \ "title").as[String]
     val paragraphValues = (value \ "paragraphs").as[JsArray].value
-    val paragraphs = paragraphValues.map { paragraphValue =>
+    val paragraphs = paragraphValues.zipWithIndex.map { case (paragraphValue, idx) =>
+      println("Idx " + idx)
       val context = (paragraphValue \ "context").as[String]
       val contextCleaned = extraTerms.foldRight(context){ case (toDrop, newContext) => newContext.replace(toDrop, "") }
       val questions = (paragraphValue \ "qas").as[JsArray].value.map { qValue =>

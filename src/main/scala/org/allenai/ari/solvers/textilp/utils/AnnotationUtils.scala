@@ -38,7 +38,7 @@ class AnnotationUtils {
 
   // redis cache for annotations
   lazy val synchronizedRedisClient = if (Constants.useRedisCachingForAnnotation) {
-    JsonQueryCache[String]("", "localhost", Protocol.DEFAULT_PORT, Protocol.DEFAULT_TIMEOUT)
+    JsonQueryCache[String]("", Constants.redisServer, Constants.redisPort, Protocol.DEFAULT_TIMEOUT)
   } else {
     // use the dummy client, which always returns None for any query (and not using any Redis)
     DummyRedisClient
@@ -46,7 +46,7 @@ class AnnotationUtils {
 
   val viewsToDisable = Set(USE_SRL_NOM, USE_SRL_VERB, USE_STANFORD_DEP, USE_QUANTIFIER)
   val viewsToAdd = Seq(ViewNames.POS, ViewNames.LEMMA, ViewNames.NER_CONLL, ViewNames.NER_ONTONOTES,
-    ViewNames.SHALLOW_PARSE, ViewNames.PARSE_STANFORD, ViewNames.QUANTITIES)
+    ViewNames.SHALLOW_PARSE, ViewNames.PARSE_STANFORD/*, ViewNames.QUANTITIES*/)
 
   lazy val pipelineService = {
     println("Starting to build the pipeline service . . . ")

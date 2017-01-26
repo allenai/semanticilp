@@ -29,7 +29,7 @@ case class EntityRelationResult(fullString: String,
                                 entities: Seq[Entity],
                                 relations: Seq[Relation],
                                 explanation: String = "",
-                                confidence: Double = -100.0)
+                                confidence: Double = -100.0, log: String = "")
 
 object ResultJson {
 //  val staticAlignmentResult = AlignmentResults(
@@ -97,7 +97,8 @@ object ResultJson {
       "overalString" -> er.fullString,
       "entities" -> er.entities,
       "relations" -> er.relations,
-      "explanation" -> er.explanation
+      "explanation" -> er.explanation,
+      "log" -> er.log
     )
   }
 

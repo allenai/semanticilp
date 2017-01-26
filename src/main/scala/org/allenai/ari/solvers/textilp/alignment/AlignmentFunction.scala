@@ -5,6 +5,7 @@ import java.io.File
 import com.medallia.word2vec.Word2VecModel
 import com.redis.RedisClient
 import com.typesafe.config.ConfigFactory
+import org.allenai.ari.solvers.textilp.utils.Constants
 import org.allenai.common.Logging
 import org.allenai.entailment.Entailer
 import org.allenai.entailment.interface.{Entailment, Postag}
@@ -155,7 +156,7 @@ private class EntailmentSimilarity(
     useContextInRedisCaching: Boolean
 ) extends SimilarityType with Logging {
 
-  private val redisOpt = if (useRedisCache) Some(new RedisClient("localhost", 6379)) else None
+  private val redisOpt = if (useRedisCache) Some(new RedisClient(Constants.redisServer, Constants.redisPort)) else None
 
   def scoreTitleTitle(titleStr1: String, titleStr2: String, context1Opt: Option[String], context2Opt: Option[String]): Double = {
     val entailmentKey = if (useContextInRedisCaching) "titleTitleEnt||" else ""

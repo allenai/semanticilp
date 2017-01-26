@@ -79,7 +79,7 @@ object WikiUtils {
 
   import redis.clients.jedis.Protocol
   import spray.json.DefaultJsonProtocol._
-  lazy val wikiDataRedis = JsonQueryCache[String]("", "localhost", Protocol.DEFAULT_PORT, Protocol.DEFAULT_TIMEOUT)
+  lazy val wikiDataRedis = JsonQueryCache[String]("", Constants.redisServer, Constants.redisPort, Protocol.DEFAULT_TIMEOUT)
 
   def wikiAskQuery(qStr: String, pStr: String, property: String, mostOccurrences: Int): Boolean = {
     /*

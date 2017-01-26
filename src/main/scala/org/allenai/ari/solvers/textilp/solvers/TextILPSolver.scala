@@ -101,7 +101,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
       q.answers.map(_.aTAOpt.get.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala.map(_.getSurfaceForm))
     }
     else {
-      Seq(q.answers.map(a => a.answerText))
+      q.answers.map(a => Seq(a.answerText))
     }
 
     // create questionToken-paragraphToken alignment edges
@@ -152,7 +152,11 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
       pTokens.filter(_.getSentenceId == sentenceId).flatMap(getVariablesConnectedToParagraphToken)
     }
 
-    // variable must be active if anything connected to it is active
+    def getVariablesConnectedToQuestionToken(qCons: Constituent): Seq[V] = {
+      questionParagraphAlignments.filter { case (_, cTmp, _) => cTmp == qCons }.map(_._3)
+    }
+
+    // Answer option must be active if anything connected to it is active
     activeAnswerOptions.foreach {
       case (ansIdx, x) =>
         val connectedVariables = getVariablesConnectedToOption(ansIdx)
@@ -166,12 +170,11 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
         }
     }
 
-    // active sentences for the paragraph
+    // active paragraph constituent
     val activeParagraphConstituents = for {
       t <- pTokens
       x = ilpSolver.createBinaryVar("", 0.0)
     } yield (t, x)
-
     // the paragraph token is active if anything connected to it is active
     activeParagraphConstituents.foreach {
       case (ans, x) =>
@@ -191,13 +194,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
       s <- 0 until pTA.getNumberOfSentences
       x = ilpSolver.createBinaryVar("", 0.0)
     } yield (s, x)
-
-//    val activeSentenceVariablePerConstituet = {
-//      val paragraphConsToVar = activeSentences.toMap
-//      activeParagraphConstituents.map{ case (c, v) => c -> paragraphConsToVar(c.getSentenceId) }
-//    }.toMap
-
-    // the sentence variable is active if anything connected to it is active
+    // the paragraph constituent variable is active if anything connected to it is active
     activeSentences.foreach {
       case (ans, x) =>
         val connectedVariables = getVariablesConnectedToParagraphSentence(ans)
@@ -208,6 +205,25 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
           val vars = Seq(connectedVar, x)
           val coeffs = Seq(1.0, -1.0)
           ilpSolver.addConsBasicLinear("activeParagraphConsVar", vars, coeffs, None, Some(0.0))
+        }
+    }
+
+    // active sentences for the paragraph
+    val activeQuestionConstituents = for {
+      t <- qTokens
+      x = ilpSolver.createBinaryVar("activeQuestionCons", 0.0) //TODO: add weight for this?
+    } yield (t, x)
+    // the question token is active if anything connected to it is active
+    activeQuestionConstituents.foreach {
+      case (c, x) =>
+        val connectedVariables = getVariablesConnectedToQuestionToken(c)
+        val allVars = connectedVariables :+ x
+        val coeffs = Seq.fill(connectedVariables.length)(-1.0) :+ 1.0
+        ilpSolver.addConsBasicLinear("activeQuestionIneq1", allVars, coeffs, None, Some(0.0))
+        connectedVariables.foreach { connectedVar =>
+          val vars = Seq(connectedVar, x)
+          val coeffs = Seq(1.0, -1.0)
+          ilpSolver.addConsBasicLinear("activeQuestionIneq2", vars, coeffs, None, Some(0.0))
         }
     }
 
@@ -227,8 +243,13 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
     // sparsity parameters
     // alignment is preferred for lesser sentences
 
-    println("created the ilp model. Now solving it  . . . ")
+    // use at least k constituents in the question
+    // TODO: make this parameterized
+    val (_, questionVars) = activeQuestionConstituents.unzip
+    val questionVarsCoeffs = Seq.fill(questionVars.length)(1.0)
+    ilpSolver.addConsBasicLinear("activeQuestionConsVar", sentenceVars, sentenceVarsCoeffs, Some(1.0), Some(5.0))
 
+    println("created the ilp model. Now solving it  . . . ")
 //    println("Number of binary variables: " + ilpSolver.getNBinVars)
 //    println("Number of continuous variables: " + ilpSolver.getNContVars)
 //    println("Number of integer variables: " + ilpSolver.getNIntVars)
@@ -254,160 +275,182 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
 //        }
 //    }
 
-    val selectedIndex = if(ilpSolver.getStatus == IlpStatusOptimal) {
+    def stringifyVariableSequence(seq: Seq[(Int, V)]): String = {
+      seq.map{ case(id, x) => "id: " + id + " : " + ilpSolver.getSolVal(x) }.mkString(" / ")
+    }
+
+    def stringifyVariableSequence3(seq: Seq[(Constituent, V)])(implicit d: DummyImplicit): String = {
+      seq.map{ case(id, x) => "id: " + id.getSurfaceForm + " : " + ilpSolver.getSolVal(x) }.mkString(" / ")
+    }
+
+    def stringifyVariableSequence2(seq: Seq[(Constituent, Constituent, V)])(implicit d: DummyImplicit, d2: DummyImplicit): String = {
+      seq.map{ case(c1, c2, x) => "c1: " + c1.getSurfaceForm + ", c2: " + c2.getSurfaceForm + " -> " + ilpSolver.getSolVal(x) }.mkString(" / ")
+    }
+
+    def stringifyVariableSequence4(seq: Seq[(Constituent, Int, Int, V)]): String = {
+      seq.map{ case(c, i, j, x) => "c: " + c.getSurfaceForm + ", ansIdx: " + i + ", ansConsIdx: " + j + " -> " + ilpSolver.getSolVal(x) }.mkString(" / ")
+    }
+
+    if(ilpSolver.getStatus == IlpStatusOptimal) {
       println("Primal score: " + ilpSolver.getPrimalbound)
       val trueIdx = q.trueIndex
       val falseIdx = q.falseIndex
-      if(isTrueFalseQuestion) {
+      val selectedIndex = if(isTrueFalseQuestion) {
         if(ilpSolver.getPrimalbound > TextILPSolver.trueFalseThreshold ) Seq(trueIdx) else Seq(falseIdx)
       }
       else {
         println(">>>>>>> not true/false . .. ")
         activeAnswerOptions.zipWithIndex.collect { case ((ans, x), idx) if ilpSolver.getSolVal(x) > 1.0 - TextILPSolver.epsilon => idx }
       }
+      val questionBeginning = "Question: "
+      val paragraphBeginning = "|Paragraph: "
+      val questionString = questionBeginning + q.questionText
+      val choiceString = "|Options: " + q.answers.zipWithIndex.map{case (ans, key) => s" (${key+1}) " + ans.answerText}.mkString(" ")
+      val paragraphString = paragraphBeginning + p.context
+
+      val entities = ArrayBuffer[Entity]()
+      val relations = ArrayBuffer[Relation]()
+      var eIter = 0
+      var rIter = 0
+
+      val entityMap = scala.collection.mutable.Map[(Int, Int), String]()
+      val relationSet = scala.collection.mutable.Set[(String, String)]()
+
+      questionParagraphAlignments.foreach {
+        case (c1, c2, x) =>
+          if (ilpSolver.getSolVal(x) > 1.0 - TextILPSolver.epsilon) {
+            //          val qBeginIndex = questionString.indexOf(c1.getSurfaceForm)
+            val qBeginIndex = questionBeginning.length + c1.getStartCharOffset
+            val qEndIndex = qBeginIndex + c1.getSurfaceForm.length
+            val span1 = (qBeginIndex, qEndIndex)
+            val t1 = if(!entityMap.contains(span1)) {
+              val t1 = "T" + eIter
+              eIter = eIter + 1
+              entities += Entity(t1, c1.getSurfaceForm, Seq(span1))
+              entityMap.put(span1, t1)
+              t1
+            }
+            else {
+              entityMap(span1)
+            }
+
+            // val pBeginIndex = paragraphString.indexOf(c2.getSurfaceForm) + questionString.length
+            val pBeginIndex = c2.getStartCharOffset + questionString.length + paragraphBeginning.length
+            val pEndIndex = pBeginIndex + c2.getSurfaceForm.length
+            val span2 = (pBeginIndex, pEndIndex)
+            val t2 = if(!entityMap.contains(span2)) {
+              val t2 = "T" + eIter
+              eIter = eIter + 1
+              entities += Entity(t2, c2.getSurfaceForm, Seq(span2))
+              entityMap.put(span2, t2)
+              t2
+            }
+            else {
+              entityMap(span2)
+            }
+
+            if(!relationSet.contains((t1, t2))) {
+              relations += Relation("R" + rIter, t1, t2, ilpSolver.getVarObjCoeff(x))
+              rIter = rIter + 1
+              relationSet.add((t1, t2))
+            }
+          }
+      }
+
+      //    paragraphAnswerAlignments.foreach {
+      //      case (c1, c2, x) =>
+      //        if (ilpSolver.getSolVal(x) > 1.0 - epsilon) {
+      //          paragraphAlignments(c1).alignmentIds.+=(iter)
+      //          choiceAlignments(c2).alignmentIds.+=(iter)
+      //          iter = iter + 1
+      //        }
+      //    }
+
+      paragraphAnswerAlignments.foreach {
+        case (c1, ansIdx, ansConsIdx, x) =>
+          if (ilpSolver.getSolVal(x) > 1.0 - TextILPSolver.epsilon) {
+            //          val pBeginIndex = paragraphString.indexOf(c1.getSurfaceForm) + questionString.length
+            //          val pEndIndex = pBeginIndex + c1.getSurfaceForm.length
+            val pBeginIndex = c1.getStartCharOffset + questionString.length + paragraphBeginning.length
+            val pEndIndex = pBeginIndex + c1.getSurfaceForm.length
+            val span1 = (pBeginIndex, pEndIndex)
+            val t1 = if(!entityMap.contains(span1)) {
+              val t1 = "T" + eIter
+              entities += Entity(t1, c1.getSurfaceForm, Seq(span1))
+              entityMap.put(span1, t1)
+              eIter = eIter + 1
+              t1
+            } else {
+              entityMap(span1)
+            }
+
+            val ansString = aTokens(ansIdx)(ansConsIdx)
+            val oBeginIndex = choiceString.indexOf(ansString) + questionString.length + paragraphString.length
+            val oEndIndex = oBeginIndex + ansString.length
+            val span2 = (oBeginIndex, oEndIndex)
+            val t2 = if(!entityMap.contains(span2)) {
+              val t2 = "T" + eIter
+              entities += Entity(t2, ansString, Seq(span2))
+              eIter = eIter + 1
+              entityMap.put(span2, t2)
+              t2
+            }
+            else {
+              entityMap(span2)
+            }
+
+            if(!relationSet.contains((t1, t2))) {
+              relations += Relation("R" + rIter, t1, t2, ilpSolver.getVarObjCoeff(x))
+              rIter = rIter + 1
+              relationSet.add((t1, t2))
+            }
+          }
+      }
+
+      if(isTrueFalseQuestion) {
+        // add the answer option span manually
+        selectedIndex.foreach{ idx =>
+          val ansText = q.answers(idx).answerText
+          val oBeginIndex = choiceString.indexOf(ansText) + questionString.length + paragraphString.length
+          val oEndIndex = oBeginIndex + ansText.length
+          val span2 = (oBeginIndex, oEndIndex)
+          val t2 = if(!entityMap.contains(span2)) {
+            val t2 = "T" + eIter
+            entities += Entity(t2, ansText, Seq(span2))
+            eIter = eIter + 1
+            entityMap.put(span2, t2)
+            t2
+          }
+          else {
+            entityMap(span2)
+          }
+        }
+      }
+
+      println("returning the answer  . . . ")
+
+      //    val alignmentResult = AlignmentResults(
+      //      questionAlignments.values.toList,
+      //      choiceAlignments.values.toList,
+      //      paragraphAlignments.values.toList
+      //    )
+
+      val solvedAnswerLog = "activeAnswerOptions: " + stringifyVariableSequence(activeAnswerOptions) +
+        "  activeQuestionConstituents: " + stringifyVariableSequence3(activeQuestionConstituents) +
+        "  questionParagraphAlignments: " + stringifyVariableSequence2(questionParagraphAlignments) +
+        "  paragraphAnswerAlignments: " + stringifyVariableSequence4(paragraphAnswerAlignments) +
+        "  aTokens: " + aTokens.toString
+
+      val erView = EntityRelationResult(questionString + paragraphString + choiceString, entities, relations,
+        confidence = ilpSolver.getPrimalbound, log = solvedAnswerLog)
+      selectedIndex -> erView
     }
     else {
       println("Not optimal . . . ")
       println("Status is not optimal. Status: "  + ilpSolver.getStatus)
       // if the program is not solver, say IDK
-      Seq.empty
+      Seq.empty -> EntityRelationResult("INFEASIBLE", List.empty, List.empty)
     }
-
-    val questionBeginning = "Question: "
-    val paragraphBeginning = "|Paragraph: "
-    val questionString = questionBeginning + q.questionText
-    val choiceString = "|Options: " + q.answers.zipWithIndex.map{case (ans, key) => s" (${key+1}) " + ans.answerText}.mkString(" ")
-    val paragraphString = paragraphBeginning + p.context
-
-    val entities = ArrayBuffer[Entity]()
-    val relations = ArrayBuffer[Relation]()
-    var eIter = 0
-    var rIter = 0
-
-    val entityMap = scala.collection.mutable.Map[(Int, Int), String]()
-    val relationSet = scala.collection.mutable.Set[(String, String)]()
-
-    questionParagraphAlignments.foreach {
-      case (c1, c2, x) =>
-        if (ilpSolver.getSolVal(x) > 1.0 - TextILPSolver.epsilon) {
-//          val qBeginIndex = questionString.indexOf(c1.getSurfaceForm)
-          val qBeginIndex = questionBeginning.length + c1.getStartCharOffset
-          val qEndIndex = qBeginIndex + c1.getSurfaceForm.length
-          val span1 = (qBeginIndex, qEndIndex)
-          val t1 = if(!entityMap.contains(span1)) {
-            val t1 = "T" + eIter
-            eIter = eIter + 1
-            entities += Entity(t1, c1.getSurfaceForm, Seq(span1))
-            entityMap.put(span1, t1)
-            t1
-          }
-          else {
-             entityMap(span1)
-          }
-
-//          val pBeginIndex = paragraphString.indexOf(c2.getSurfaceForm) + questionString.length
-          val pBeginIndex = c2.getStartCharOffset + questionString.length + paragraphBeginning.length
-          val pEndIndex = pBeginIndex + c2.getSurfaceForm.length
-          val span2 = (pBeginIndex, pEndIndex)
-          val t2 = if(!entityMap.contains(span2)) {
-            val t2 = "T" + eIter
-            eIter = eIter + 1
-            entities += Entity(t2, c2.getSurfaceForm, Seq(span2))
-            entityMap.put(span2, t2)
-            t2
-          }
-          else {
-            entityMap(span2)
-          }
-
-          if(!relationSet.contains((t1, t2))) {
-            relations += Relation("R" + rIter, t1, t2, ilpSolver.getVarObjCoeff(x))
-            rIter = rIter + 1
-            relationSet.add((t1, t2))
-          }
-        }
-    }
-
-//    paragraphAnswerAlignments.foreach {
-//      case (c1, c2, x) =>
-//        if (ilpSolver.getSolVal(x) > 1.0 - epsilon) {
-//          paragraphAlignments(c1).alignmentIds.+=(iter)
-//          choiceAlignments(c2).alignmentIds.+=(iter)
-//          iter = iter + 1
-//        }
-//    }
-
-    paragraphAnswerAlignments.foreach {
-      case (c1, ansIdx, ansConsIdx, x) =>
-        if (ilpSolver.getSolVal(x) > 1.0 - TextILPSolver.epsilon) {
-//          val pBeginIndex = paragraphString.indexOf(c1.getSurfaceForm) + questionString.length
-//          val pEndIndex = pBeginIndex + c1.getSurfaceForm.length
-          val pBeginIndex = c1.getStartCharOffset + questionString.length + paragraphBeginning.length
-          val pEndIndex = pBeginIndex + c1.getSurfaceForm.length
-          val span1 = (pBeginIndex, pEndIndex)
-          val t1 = if(!entityMap.contains(span1)) {
-            val t1 = "T" + eIter
-            entities += Entity(t1, c1.getSurfaceForm, Seq(span1))
-            entityMap.put(span1, t1)
-            eIter = eIter + 1
-            t1
-          } else {
-            entityMap(span1)
-          }
-
-          val ansString = aTokens(ansIdx)(ansConsIdx)
-          val oBeginIndex = choiceString.indexOf(ansString) + questionString.length + paragraphString.length
-          val oEndIndex = oBeginIndex + ansString.length
-          val span2 = (oBeginIndex, oEndIndex)
-          val t2 = if(!entityMap.contains(span2)) {
-            val t2 = "T" + eIter
-            entities += Entity(t2, ansString, Seq(span2))
-            eIter = eIter + 1
-            entityMap.put(span2, t2)
-            t2
-          }
-          else {
-            entityMap(span2)
-          }
-
-          if(!relationSet.contains((t1, t2))) {
-            relations += Relation("R" + rIter, t1, t2, ilpSolver.getVarObjCoeff(x))
-            rIter = rIter + 1
-            relationSet.add((t1, t2))
-          }
-        }
-    }
-
-    if(isTrueFalseQuestion) {
-      // add the answer option span manually
-      selectedIndex.foreach{ idx =>
-        val ansText = q.answers(idx).answerText
-        val oBeginIndex = choiceString.indexOf(ansText) + questionString.length + paragraphString.length
-        val oEndIndex = oBeginIndex + ansText.length
-        val span2 = (oBeginIndex, oEndIndex)
-        val t2 = if(!entityMap.contains(span2)) {
-          val t2 = "T" + eIter
-          entities += Entity(t2, ansText, Seq(span2))
-          eIter = eIter + 1
-          entityMap.put(span2, t2)
-          t2
-        }
-        else {
-          entityMap(span2)
-        }
-      }
-    }
-
-    println("returning the answer  . . . ")
-
-//    val alignmentResult = AlignmentResults(
-//      questionAlignments.values.toList,
-//      choiceAlignments.values.toList,
-//      paragraphAlignments.values.toList
-//    )
-
-    val erView = EntityRelationResult(questionString + paragraphString + choiceString, entities, relations, confidence = ilpSolver.getPrimalbound)
-
-    selectedIndex -> erView
   }
+
 }
