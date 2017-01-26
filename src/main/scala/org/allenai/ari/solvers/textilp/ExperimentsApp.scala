@@ -10,7 +10,6 @@ import org.allenai.ari.solvers.bioProccess.ProcessBankReader
 import org.allenai.ari.solvers.squad.SQuADReader
 import org.allenai.ari.solvers.textilp.solvers.SlidingWindowSolver
 import play.api.libs.json.Json
-
 import org.allenai.ari.solvers.squad.SquadClassifierUtils._
 import org.allenai.ari.solvers.squad.{CandidateGeneration, SquadClassifier, SquadClassifierUtils, TextAnnotationPatternExtractor}
 import org.allenai.ari.solvers.textilp.alignment.AlignmentFunction
@@ -21,6 +20,8 @@ import org.rogach.scallop._
 
 import scala.collection.JavaConverters._
 import ProcessBankReader._
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.Constituent
+import edu.illinois.cs.cogcomp.edison.annotators.ClauseViewGenerator
 import org.allenai.ari.solvers.textilp.ResultJson._
 
 object ExperimentsApp {
@@ -44,6 +45,61 @@ object ExperimentsApp {
     println(ta.getView(ViewNames.QUANTITIES))
     println(ta.getView(ViewNames.QUANTITIES).getConstituents.asScala.filter(_.getLabel.contains("Date")))
     println(ta.getView(ViewNames.QUANTITIES).getConstituents.asScala.map(c => c.getSurfaceForm -> c.getLabel))
+  }
+
+  def testClauseView(): Unit = {
+    val ta = annotationUtils.pipelineService.createBasicTextAnnotation("", "",
+      "For example, many land plants today have a vascular system for transporting materials internally and a waterproof coating of wax on their leaves that slows the loss of water to the air. ")
+    annotationUtils.pipelineService.addView(ta, ViewNames.PARSE_STANFORD)
+    val cvg = new ClauseViewGenerator(ViewNames.PARSE_STANFORD, "clauses")
+    ta.addView(cvg)
+    println(ta.getAvailableViews)
+    println(ta.getView("clauses"))
+    println(ta.getView("clauses").getConstituents.asScala.map(c => c.getSurfaceForm -> c.getLabel).mkString("\n"))
+  }
+
+  def testStanfordDepView(): Unit = {
+    val ta = annotationUtils.pipelineService.createBasicTextAnnotation("", "",
+      "For example , many land plants today have a vascular system for transporting materials internally and a waterproof coating of wax on their leaves that slows the loss of water to the air .")
+    annotationUtils.pipelineService.addView(ta, ViewNames.DEPENDENCY_STANFORD)
+    annotationUtils.pipelineService.addView(ta, ViewNames.POS)
+    val tokens = ta.getView(ViewNames.DEPENDENCY_STANFORD).getConstituents.asScala
+    val posView = ta.getView(ViewNames.POS)
+    println(ta.getAvailableViews)
+    println(ta.getView(ViewNames.DEPENDENCY_STANFORD))
+    val verbs = Set("VB", "VBZ", "VBP")
+    println(tokens.map(c => c.getSurfaceForm -> c.getLabel + "  parents: " + c.getIncomingRelations.asScala.map(cc => cc.getSource.getSurfaceForm + ", " +  cc.getSource.getLabel +  posView.getConstituentsCovering(cc.getSource).get(0).getLabel) ).mkString("\n"))
+    val ands = tokens.filter{c => c.getSurfaceForm == "and" && verbs.contains(posView.getConstituentsCovering(c.getIncomingRelations.get(0).getSource).get(0).getLabel)}
+    val indices = 0 +: ands.map(_.getEndSpan) :+ ta.getTokens.length
+    val constitunes = indices.sliding(2).map{ list => new Constituent("", "", ta, list(0), list(1)) }
+    println(constitunes.map(_.getSurfaceForm).mkString("\n"))
+  }
+
+  def testIndependentClauseViewGenerator() = {
+    val sentences = Seq(
+      // independent
+      "Today is Thursday and the test is Friday.",
+      "She wants to travel the world and see wonderful sights.",
+      "All of us went to the movie, and we agreed it was enjoyable.",
+      "I like this class, and it is very interesting.",
+      "My professor is intelligent, and I've learned a lot from her.",
+      "My grandmother refuses to go to bed early, and I'm afraid she's going to catch a bad cold.",
+      "I will write a homework and will turn it in tomorrow",
+      "For example, many land plants today have a vascular system for transporting materials internally and a waterproof coating of wax on their leaves that slows the loss of water to the air. Early signs of these adaptations were present 420 million years ago, at which time small plants (about 10 cm high) existed that had a vascular system but lacked true roots or leaves.",
+      // not independent
+      "I enjoy sitting by the fireplace and reading.",
+      "Hiking and biking are my favorite summertime activities.",
+      "I like black and red sweatshirts"
+    )
+    val generator = new IndependentClauseViewGenerator("Generator")
+    sentences.foreach{ s =>
+      val ta = annotationUtils.pipelineService.createBasicTextAnnotation("", "", s)
+      annotationUtils.pipelineService.addView(ta, ViewNames.DEPENDENCY_STANFORD)
+      annotationUtils.pipelineService.addView(ta, ViewNames.POS)
+      ta.addView(generator)
+      println(ta.getAvailableViews)
+      println(ta.getView("Generator"))
+    }
   }
 
   def testPipelineAnnotation(): Unit = {
@@ -254,7 +310,7 @@ object ExperimentsApp {
   }
 
   def evaluateTextSolverOnProcessBank(reader: ProcessBankReader, textSolver: TextSolver) = {
-    val qAndpPairs = reader.trainingInstances.filterTemporals.flatMap { p => p.questions.map(q => (q, p))}
+    val qAndpPairs = reader.trainingInstances.filterNotTemporals.filterNotTrueFalse.flatMap { p => p.questions.map(q => (q, p))}
     val (resultLists, confidences) = qAndpPairs.zipWithIndex.map{ case ((q, p), idx) =>
       println("==================================================")
       println("Processed " + idx + " out of " + qAndpPairs.size)
@@ -269,12 +325,13 @@ object ExperimentsApp {
 //          println("correctIndex: " + correctIndex)
       val (selected, explanation) = textSolver.solve(q.questionText, candidates, p.context)
       val correctLabel = q.answers(correctIndex).answerText
-      SolverUtils.assignCredit(selected, correctIndex, candidates.length) -> (explanation.confidence -> correctLabel)
+      val score = SolverUtils.assignCredit(selected, correctIndex, candidates.length)
+      if(score < 0.5) println(" >>>>>>> Incorrect :" + score)
+      score -> (explanation.confidence -> correctLabel)
     }.unzip
 
     val avgAristoScore = resultLists.sum / resultLists.length
 //    println(confidences.mkString("\n"))
-
 
     println("------------")
     println("avgAristoScore: " + avgAristoScore)
@@ -852,7 +909,7 @@ object ExperimentsApp {
       case 52 =>
         // write processBank on disk as json
         import java.io._
-        val pw = new PrintWriter(new File("processBank-train.json" ))
+        val pw = new PrintWriter(new File("processBank-train2.json" ))
         val json = Json.toJson(processReader.trainingInstances).toString
         pw.write(json)
         pw.close()
@@ -971,18 +1028,22 @@ object ExperimentsApp {
         // write the bioProcess questions on disk, as well as their predictions
         import java.io._
         val pw = new PrintWriter(new File("processBank-train.tsv" ))
-        val qAndpPairs = processReader.trainingInstances.filterTemporals.flatMap { p => p.questions.map(q => (q, p))}
+        val qAndpPairs = processReader.trainingInstances.flatMap { p => p.questions.map(q => (q, p))}
         qAndpPairs.zipWithIndex.foreach{ case ((q, p), idx) =>
           println("==================================================")
           println("Processed " + idx + " out of " + qAndpPairs.size)
           val candidates = q.answers.map(_.answerText)
           val correctIndex = q.correctIdxOpt.get
-          val (selected, explanation) = textILPSolver.solve(q.questionText, candidates, p.context)
+          //val (selected, explanation) = textILPSolver.solve(q.questionText, candidates, p.context)
           val correctLabel = q.answers(correctIndex).answerText
-          val score = SolverUtils.assignCredit(selected, correctIndex, candidates.length)
-          pw.write(s"${q.questionText}\t${candidates.mkString("//")}\t${p.context}\t$correctIndex\t$score\n")
+          //val score = SolverUtils.assignCredit(selected, correctIndex, candidates.length)
+//          pw.write(s"${q.questionText}\t${candidates.mkString("//")}\t${p.context}\t$correctIndex\t$score\n")
+          pw.write(s"${q.questionText}\t${candidates.mkString("//")}\t${p.context}\t$correctIndex\n")
         }
         pw.close()
+      case 56 => testClauseView()
+      case 57 => testStanfordDepView()
+      case 58 => testIndependentClauseViewGenerator()
     }
   }
 }

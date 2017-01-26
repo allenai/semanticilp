@@ -50,7 +50,7 @@ object TextILPSolver {
   val trueFalseThreshold = 5.5 // this has to be tuned
 
   lazy val keywordTokenizer = KeywordTokenizer.Default
-  lazy val aligner = new AlignmentFunction("Entailment", 0.1, keywordTokenizer, useRedisCache = false, useContextInRedisCache = false)
+  lazy val aligner = new AlignmentFunction("Entailment", 0.2, keywordTokenizer, useRedisCache = false, useContextInRedisCache = false)
 }
 
 class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
@@ -96,7 +96,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
     ilpSolver.setAsMaximization()
 
     // whether to create the model with the tokenized version of the answer options
-    val tokenizeAnswers = if(q.isTemporal) true else false
+    val tokenizeAnswers = true //if(q.isTemporal) true else false
     val aTokens = if(tokenizeAnswers) {
       q.answers.map(_.aTAOpt.get.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala.map(_.getSurfaceForm))
     }
@@ -153,7 +153,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
     }
 
     def getVariablesConnectedToQuestionToken(qCons: Constituent): Seq[V] = {
-      questionParagraphAlignments.filter { case (_, cTmp, _) => cTmp == qCons }.map(_._3)
+      questionParagraphAlignments.filter { case (cTmp, _, _) => cTmp == qCons }.map(_._3)
     }
 
     // Answer option must be active if anything connected to it is active
@@ -208,10 +208,10 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
         }
     }
 
-    // active sentences for the paragraph
+    // active questions cons
     val activeQuestionConstituents = for {
       t <- qTokens
-      x = ilpSolver.createBinaryVar("activeQuestionCons", 0.0) //TODO: add weight for this?
+      x = ilpSolver.createBinaryVar("activeQuestionCons", 0.1) //TODO: add weight for this?
     } yield (t, x)
     // the question token is active if anything connected to it is active
     activeQuestionConstituents.foreach {
@@ -247,7 +247,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
     // TODO: make this parameterized
     val (_, questionVars) = activeQuestionConstituents.unzip
     val questionVarsCoeffs = Seq.fill(questionVars.length)(1.0)
-    ilpSolver.addConsBasicLinear("activeQuestionConsVar", sentenceVars, sentenceVarsCoeffs, Some(1.0), Some(5.0))
+    ilpSolver.addConsBasicLinear("activeQuestionConsVar", questionVars, questionVarsCoeffs, Some(1.0), Some(3.0))
 
     println("created the ilp model. Now solving it  . . . ")
 //    println("Number of binary variables: " + ilpSolver.getNBinVars)

@@ -3,6 +3,7 @@ package controllers
 import javax.inject._
 
 import models.StaticContent
+import org.allenai.ari.solvers.bioProccess.ProcessBankReader
 import org.allenai.ari.solvers.squad.CandidateGeneration
 import org.allenai.ari.solvers.textilp.ResultJson
 import org.allenai.ari.solvers.textilp.ResultJson._
@@ -36,7 +37,7 @@ class SolveQuestion @Inject() extends Controller {
     val solverType = (request.body \ "solverType").as[JsString].value
     val question = (request.body \ "question").as[JsString].value
     val options = (request.body \ "options").as[JsString].value
-    val snippet = (request.body \ "snippet").as[JsString].value
+    val snippet = ProcessBankReader.normalizeText((request.body \ "snippet").as[JsString].value)
 
     println("Options: " + options)
     println("Snippet: " + snippet)

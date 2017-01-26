@@ -15,7 +15,7 @@ class ProcessBankFileReader(file: File, annotationServiceOpt: Option[AnnotatorSe
   val instances = {
     val xml = XML.loadFile(file)
     println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-    val text = (xml \\ "text").head.text.trim
+    val text = normalizeText((xml \\ "text").head.text)
     println("text: " + text)
     val questions = (xml \\ "question").map { q =>
       println("----------")
@@ -74,6 +74,8 @@ object ProcessBankReader{
   val trueAns = Set("true", "True", "Trure")
   val falseAns = Set("false", "False")
   val trueOrFalse = trueAns ++ falseAns
+
+  def normalizeText(str: String): String = str.trim.replaceAll("\\(Figure .*\\)", "").replaceAll("\\(see Figure .*\\)", "")
 
   implicit class ImplicitConversionsFromParagraphs(paragraphList: List[Paragraph]) {
 
