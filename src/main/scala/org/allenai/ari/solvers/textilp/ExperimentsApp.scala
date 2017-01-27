@@ -310,7 +310,7 @@ object ExperimentsApp {
   }
 
   def evaluateTextSolverOnProcessBank(reader: ProcessBankReader, textSolver: TextSolver) = {
-    val qAndpPairs = reader.trainingInstances.filterNotTemporals.filterNotTrueFalse.flatMap { p => p.questions.map(q => (q, p))}
+    val qAndpPairs = reader.trainingInstances.filterTemporals.flatMap { p => p.questions.map(q => (q, p))}
     val (resultLists, confidences) = qAndpPairs.zipWithIndex.map{ case ((q, p), idx) =>
       println("==================================================")
       println("Processed " + idx + " out of " + qAndpPairs.size)
@@ -1051,6 +1051,15 @@ object ExperimentsApp {
         val listOfP = List(Paragraph("par1", listOfQs, None), Paragraph("par1", listOfQs, None))
         val json = Json.toJson(listOfP).toString
         println(json)
+      case 60 =>
+        // test extarction of the constituent after "without "
+        val ta = annotationUtils.pipelineService.createAnnotatedTextAnnotation("", "", "What happens without Donuld Trump?")
+        val toks = ta.getView(ViewNames.TOKENS).getConstituents.asScala
+        val withoutTok = toks.filter(_.getSurfaceForm == "without").head
+        val after = toks.filter(c => c.getStartSpan >= withoutTok.getStartSpan).minBy(_.getStartSpan)
+        println(after)
+      case 61 =>
+
     }
   }
 }

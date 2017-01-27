@@ -70,10 +70,43 @@ class ProcessBankReader(annotationServiceOpt: Option[AnnotatorService] = None, a
 }
 
 object ProcessBankReader{
-  val temporalKeywords = Set(" order", " first", " last", " ordering", " time")
+  val temporalKeywords = Set(" order", " first", " last", " ordering", " time", " final")
   val trueAns = Set("true", "True", "Trure")
   val falseAns = Set("false", "False")
   val trueOrFalse = trueAns ++ falseAns
+  val causeTriggers = Set(
+    "what initiates",
+    "what allows ", // example: What allows microtubules to continue to overlap even though they are pushed apart?
+    "What directly ", // example: What directly pushes spindle poles apart?
+    "directly causes the ", // example:  What directly causes the final cellular response?
+    "what caused ", // example: What caused adaptations?
+    "which of the following is caused by", // example: Which of the following is caused by the increased frequency of individuals with favorable adaptations?
+    "what is required for" // example: What is required for sequencing?
+  )
+
+  val resultTriggers = Set(
+    "would happen without",
+    " is the result of",
+    "produces what",
+    "what would happen if",
+    "what happens when ",
+    "what can happen after",
+    "what is the immediate effect of",
+    "what would happen without",
+    "what is caused by ",
+    "what would happen without ", // example: What would happen without NADPH?
+    "what would happen if ",
+    "what would happen without ",
+    "what is the result of ",
+    "what is caused by ",
+    "what causes ",  // What causes one or more extra sets of chromosomes?
+    "what is created by ",
+    " lead to?", // example: What does descent with modification eventually lead to?
+    " cause?", // example: What does the unequal ability of individuals to survive and reproduce cause?
+    "what has caused ", // example: What has caused massive increases in speed and decreases in the cost of sequencing?
+    "what is the result of ", // example: What is the result of the founder effect?
+    " causes what?" // example: Gene flow causes what?)
+  )
 
   def normalizeText(str: String): String = str.trim.replaceAll("\\(Figure .*\\)", "").replaceAll("\\(see Figure .*\\)", "")
 
@@ -108,6 +141,20 @@ object ProcessBankReader{
         Paragraph(p.context, filteredQuestions, p.contextTAOpt)
       }
     }
+
+    def filterCauseQuestions: List[Paragraph] = {
+      paragraphList.map { p =>
+        val filteredQuestions = p.questions.filter(q => q.isCauseQuestion)
+        Paragraph(p.context, filteredQuestions, p.contextTAOpt)
+      }
+    }
+
+    def filterCResultQuestions: List[Paragraph] = {
+      paragraphList.map { p =>
+        val filteredQuestions = p.questions.filter(q => q.isForCResultQuestion)
+        Paragraph(p.context, filteredQuestions, p.contextTAOpt)
+      }
+    }
   }
 
   implicit class ImplicitConversionsFromQuestion(question: Question) {
@@ -115,6 +162,14 @@ object ProcessBankReader{
     def isTemporal: Boolean = temporalKeywords.exists(question.questionText.contains)
     def trueIndex: Int = question.answers.zipWithIndex.collectFirst{ case (a, i) if trueAns.contains(a.answerText.trim) => i }.getOrElse(-1)
     def falseIndex: Int = question.answers.zipWithIndex.collectFirst{ case (a, i) if falseAns.contains(a.answerText.trim) => i }.getOrElse(-1)
+
+
+    def isCauseQuestion: Boolean = causeTriggers.exists(question.questionText.toLowerCase.contains)
+
+    def isForCResultQuestion: Boolean = resultTriggers.exists(question.questionText.toLowerCase.contains)
+
+    // commented out to make it less confusing
+    //def causalQuestion: Boolean = lookingForCauseQuestion || lookingForCResultQuestion
   }
 
   implicit class ImplicitConversionsFromAnswerString(str: String) {

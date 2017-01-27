@@ -249,6 +249,23 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
     val questionVarsCoeffs = Seq.fill(questionVars.length)(1.0)
     ilpSolver.addConsBasicLinear("activeQuestionConsVar", questionVars, questionVarsCoeffs, Some(1.0), Some(3.0))
 
+    // if anything comes after " without " it should be aligned definitely
+    // example: What would happen without annealing?
+    if(q.questionText.contains(" without ")) {
+      println(" >>> Adding constraint to use the term after `without`")
+      val withoutTok = qTokens.filter(_.getSurfaceForm == "without").head
+      println("withoutTok: " + withoutTok)
+      val after = qTokens.filter(c => c.getStartSpan > withoutTok.getStartSpan).minBy(_.getStartSpan)
+      println("after: " + after)
+      val afterVariableOpt = activeQuestionConstituents.collectFirst{case (c, v) if c == after => v}
+      println("afterVariableOpt = " + afterVariableOpt)
+      afterVariableOpt match {
+        case Some(afterVariable) =>
+          ilpSolver.addConsBasicLinear("termAfterWithoutMustBeAligned", Seq(afterVariable), Seq(1.0), Some(1.0), None)
+        case None =>  // do nothing
+      }
+    }
+
     println("created the ilp model. Now solving it  . . . ")
 //    println("Number of binary variables: " + ilpSolver.getNBinVars)
 //    println("Number of continuous variables: " + ilpSolver.getNContVars)

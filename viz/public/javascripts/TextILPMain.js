@@ -68,6 +68,10 @@ var loadSampleQuestion = function () {
     $.getJSON("/assets/processBank-train.json", function (content) {
         var questions = content[0].flatMap(function(a){ return a.paragraphQuestions.map(function(b){ return b.question })}).sort();
 
+        console.log("questions");
+        console.log(questions);
+        console.log(questions.length);
+
         processBankQuestionParagraphPairs = content[0].flatMap(function(a){
             return a.paragraphQuestions.map(function(b){ return [b.question, a.paragraphText, b.answers] })
         }).sort(function(c, d){
