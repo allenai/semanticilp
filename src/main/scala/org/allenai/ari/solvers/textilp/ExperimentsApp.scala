@@ -1044,6 +1044,13 @@ object ExperimentsApp {
       case 56 => testClauseView()
       case 57 => testStanfordDepView()
       case 58 => testIndependentClauseViewGenerator()
+      case 59 =>
+        // answerText: String, answerStart: Int, aTAOpt: Option[TextAnnotation] = None
+        val q = Question("", "", Seq(Answer("AnsText", 1, None)), None, correctIdxOpt = Some(1))
+        val listOfQs = List(q, q, q)
+        val listOfP = List(Paragraph("par1", listOfQs, None), Paragraph("par1", listOfQs, None))
+        val json = Json.toJson(listOfP).toString
+        println(json)
     }
   }
 }

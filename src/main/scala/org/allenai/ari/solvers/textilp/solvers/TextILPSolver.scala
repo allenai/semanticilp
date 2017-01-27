@@ -132,7 +132,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
     val activeAnswerOptions = if(!isTrueFalseQuestion) {
       for {
         ansIdx <- q.answers.indices
-        x = ilpSolver.createBinaryVar("", 0.0)
+        x = ilpSolver.createBinaryVar("activeAnsOptId" + ansIdx, 0.0)
       } yield (ansIdx, x)
     }
     else {
@@ -162,11 +162,11 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
         val connectedVariables = getVariablesConnectedToOption(ansIdx)
         val allVars = connectedVariables :+ x
         val coeffs = Seq.fill(connectedVariables.length)(-1.0) :+ 1.0
-        ilpSolver.addConsBasicLinear("activeOptionVar", allVars, coeffs, None, Some(0.0))
+        ilpSolver.addConsBasicLinear("activeOptionVarImplesOneActiveConnectedEdge", allVars, coeffs, None, Some(0.0))
         connectedVariables.foreach { connectedVar =>
           val vars = Seq(connectedVar, x)
           val coeffs = Seq(1.0, -1.0)
-          ilpSolver.addConsBasicLinear("activeOptionVar", vars, coeffs, None, Some(0.0))
+          ilpSolver.addConsBasicLinear("activeConnectedEdgeImpliesOneAnswerOption", vars, coeffs, None, Some(0.0))
         }
     }
 
@@ -260,7 +260,16 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
 
     println("Done solving the model  . . . ")
 
-//    // extracting the solution
+
+    activeAnswerOptions.foreach {
+      case (ansIdx, x) =>
+        println("============================ \nAnsIdx: " + ansIdx)
+        val connectedVariables = getVariablesConnectedToOption(ansIdx).toList
+        println(s" ## Variables connect to ansIndex ")
+        println(connectedVariables.map{x => ilpSolver.getSolVal(x).toString}.toSet)
+    }
+
+        //    // extracting the solution
 //    val questionAlignments = qTokens.map { c => c -> TermAlignment(c.getSurfaceForm) }.toMap
 //    val choiceAlignments = q.answers.map { c => c -> TermAlignment(c.answerText) }.toMap
 //    val paragraphAlignments = pTokens.map { c => c -> TermAlignment(c.getSurfaceForm) }.toMap
@@ -385,7 +394,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
             }
 
             val ansString = aTokens(ansIdx)(ansConsIdx)
-            val oBeginIndex = choiceString.indexOf(ansString) + questionString.length + paragraphString.length
+            val ansswerBeginIdx = choiceString.indexOf(q.answers(ansIdx).answerText)
+            val oBeginIndex = choiceString.indexOf(ansString, ansswerBeginIdx) + questionString.length + paragraphString.length
             val oEndIndex = oBeginIndex + ansString.length
             val span2 = (oBeginIndex, oEndIndex)
             val t2 = if(!entityMap.contains(span2)) {

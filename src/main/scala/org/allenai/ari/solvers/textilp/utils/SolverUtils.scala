@@ -121,7 +121,7 @@ object SolverUtils {
   }
 
   lazy val elasticWebRedisCache = if (Constants.useRedisCachingForElasticSearch) {
-    JsonQueryCache[String]("elastic:", Constants.redisServer, Constants.redisPort, Protocol.DEFAULT_TIMEOUT)
+    JsonQueryCache[String]("elastic:", Constants.redisServer, Constants.redisPort, timeoutMillis = Constants.timeout)
   } else {
     // use the dummy client, which always returns None for any query (and not using any Redis)
     DummyRedisClient

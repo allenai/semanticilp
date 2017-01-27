@@ -30,7 +30,7 @@ object CandidateGeneration {
 
   import redis.clients.jedis.Protocol
   import spray.json.DefaultJsonProtocol._
-  lazy val wikifierRedis = JsonQueryCache[String]("", Constants.redisServer, Constants.redisPort, Protocol.DEFAULT_TIMEOUT)
+  lazy val wikifierRedis = JsonQueryCache[String]("", Constants.redisServer, Constants.redisPort, timeoutMillis = Constants.timeout)
 
   def containsOffset(c: Constituent, offset: Int): Boolean = {
     c.getEndCharOffset >= offset && c.getStartCharOffset <= offset

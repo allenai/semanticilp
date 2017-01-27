@@ -38,7 +38,7 @@ class AnnotationUtils {
 
   // redis cache for annotations
   lazy val synchronizedRedisClient = if (Constants.useRedisCachingForAnnotation) {
-    JsonQueryCache[String]("", Constants.redisServer, Constants.redisPort, Protocol.DEFAULT_TIMEOUT)
+    JsonQueryCache[String]("", Constants.redisServer, Constants.redisPort, timeoutMillis = Constants.timeout)
   } else {
     // use the dummy client, which always returns None for any query (and not using any Redis)
     DummyRedisClient

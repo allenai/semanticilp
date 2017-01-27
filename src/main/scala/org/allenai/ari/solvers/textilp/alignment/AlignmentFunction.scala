@@ -156,7 +156,7 @@ private class EntailmentSimilarity(
     useContextInRedisCaching: Boolean
 ) extends SimilarityType with Logging {
 
-  private val redisOpt = if (useRedisCache) Some(new RedisClient(Constants.redisServer, Constants.redisPort)) else None
+  private val redisOpt = if (useRedisCache) Some(new RedisClient(Constants.redisServer, Constants.redisPort, timeout = Constants.timeout)) else None
 
   def scoreTitleTitle(titleStr1: String, titleStr2: String, context1Opt: Option[String], context2Opt: Option[String]): Double = {
     val entailmentKey = if (useContextInRedisCaching) "titleTitleEnt||" else ""

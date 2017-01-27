@@ -14,6 +14,7 @@ object Constants {
 
   val redisServer = "tableilp16c1.dev.ai2"
   val redisPort = Protocol.DEFAULT_PORT
+  val timeout = 20000
 
   val pipelineAnnotationCache = ""
 
