@@ -51,6 +51,20 @@ object TextILPSolver {
 
   lazy val keywordTokenizer = KeywordTokenizer.Default
   lazy val aligner = new AlignmentFunction("Entailment", 0.2, keywordTokenizer, useRedisCache = false, useContextInRedisCache = false)
+
+  def getMaxScore(qCons: Seq[Constituent], pCons: Seq[Constituent]): Double = {
+    val scoreList = qCons.flatMap{ qC =>
+      pCons.map{ pC =>
+        val score2 = TextILPSolver.aligner.scoreCellCell(pC.getSurfaceForm, qC.getSurfaceForm)
+        ///println(s"pC: $pC / qC: $qC / score: $score2")
+        score2
+      }
+    }
+    //println("maxScore: " + maxScore)
+    //println("-----------------------")
+    scoreList.max
+//    scoreList.sum / scoreList.length
+  }
 }
 
 class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
@@ -91,7 +105,6 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
     val pTA = p.contextTAOpt.getOrElse(throw new Exception("The annotation for the paragraph not found . . . "))
     val qTokens = if(qTA.hasView(ViewNames.SHALLOW_PARSE)) qTA.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala else Seq.empty
     val pTokens = if(pTA.hasView(ViewNames.SHALLOW_PARSE)) pTA.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala else Seq.empty
-
 
     ilpSolver.setAsMaximization()
 
@@ -155,6 +168,18 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
     def getVariablesConnectedToQuestionToken(qCons: Constituent): Seq[V] = {
       questionParagraphAlignments.filter { case (cTmp, _, _) => cTmp == qCons }.map(_._3)
     }
+
+    /*
+    // inter-sentence alignments
+    // any sentences (that are at most k-sentences apart; k = 2 for now) can be aligned together.
+    val maxIntraSentenceDistance = 2
+    val intraSentenceAlignments = for{
+      beginSentence <- 0 until (pTA.getNumberOfSentences - maxIntraSentenceDistance)
+      offset <- 0 until maxIntraSentenceDistance
+      endSentence = beginSentence + offset
+      x = ilpSolver.createBinaryVar(s"interSentenceAlignment/$beginSentence/$endSentence", 0.0)
+    } yield (beginSentence, endSentence, x)
+    */
 
     // Answer option must be active if anything connected to it is active
     activeAnswerOptions.foreach {
@@ -242,6 +267,30 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
 
     // sparsity parameters
     // alignment is preferred for lesser sentences
+
+    // for result questions ...
+    if(q.questionText.isForCResultQuestion && activeAnswerOptions.length == 2) {
+      def getClosestIndex(qCons: Seq[Constituent], pCons: Seq[Constituent]): Int = {
+        pCons.map{ c =>
+          TextILPSolver.getMaxScore(qCons, Seq(c))
+        }.zipWithIndex.maxBy(_._1)._2
+      }
+
+      val qIdx = getClosestIndex(qTokens, pTokens)
+      val ans1Cons = q.answers(0).aTAOpt.get.getView(ViewNames.TOKENS).asScala.toList
+      val ans2Cons = q.answers(1).aTAOpt.get.getView(ViewNames.TOKENS).asScala.toList
+      val a1Idx = getClosestIndex(ans1Cons, pTokens)
+      val a2Idx = getClosestIndex(ans2Cons, pTokens)
+      // at least one of the answers happens before the question
+      if (a1Idx < qIdx ) {
+        // a2 should be the answer
+        ilpSolver.addConsBasicLinear("resultReasoning-secondAnswerMustBeCorrect", Seq(activeAnswerOptions(1)._2), Seq(1.0), Some(1.0), None)
+      }
+      if (a2Idx  < qIdx) {
+        // a1 should be the answer
+        ilpSolver.addConsBasicLinear("resultReasoning-secondAnswerMustBeCorrect", Seq(activeAnswerOptions(0)._2), Seq(1.0), Some(1.0), None)
+      }
+    }
 
     // use at least k constituents in the question
     // TODO: make this parameterized

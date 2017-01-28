@@ -10,7 +10,7 @@ import org.allenai.ari.solvers.textilp.{Answer, Paragraph, Question}
 
 import scala.xml.XML
 
-class ProcessBankFileReader(file: File, annotationServiceOpt: Option[AnnotatorService] = None, annotationUtils: AnnotationUtils) {
+class ProcessBankFileReader(file: File, annotate: Boolean, annotationUtils: AnnotationUtils) {
   import ProcessBankReader._
   val instances = {
     val xml = XML.loadFile(file)
@@ -24,35 +24,37 @@ class ProcessBankFileReader(file: File, annotationServiceOpt: Option[AnnotatorSe
       val a0 = (q \ "a0").text.replace("\n", "").trim
       val a1 = (q \ "a1").text.replace("\n", "").trim
       val correct = (q \ "correct").text.toInt
-//      val a0TA = Some(annotationUtils.annotate(a0)) //if(question.isTemporal) Some(annotationUtils.annotate(a0)) else None
-//      val a1TA = Some(annotationUtils.annotate(a1)) //if(question.isTemporal) Some(annotationUtils.annotate(a1)) else None
-      val answers = Seq(Answer(a0, -1), Answer(a1, -1))
-      val questionAnnotation = annotationServiceOpt match {
-        case None => None
-        case Some(service) =>
-          val ta = annotationUtils.annotate(question)
-          CandidateGeneration.questionTypeClassification.addView(ta)
-          //assert(ta.getAvailableViews.contains(ViewNames.QUANTITIES))
-          assert(ta.getAvailableViews.contains(ViewNames.LEMMA))
-          assert(ta.getAvailableViews.contains(CandidateGeneration.questionTypeClassification.finalViewName))
-          Some(ta)
+      val a0TA = if(annotate) Some(annotationUtils.pipelineService.createBasicTextAnnotation("", "", a0)) else None
+      val a1TA = if(annotate) Some(annotationUtils.pipelineService.createBasicTextAnnotation("", "", a1)) else None
+      val answers = Seq(Answer(a0, -1, a0TA), Answer(a1, -1, a1TA))
+      val questionAnnotation = if(annotate) {
+        val ta = annotationUtils.annotate(question)
+        CandidateGeneration.questionTypeClassification.addView(ta)
+        //assert(ta.getAvailableViews.contains(ViewNames.QUANTITIES))
+        assert(ta.getAvailableViews.contains(ViewNames.LEMMA))
+        assert(ta.getAvailableViews.contains(CandidateGeneration.questionTypeClassification.finalViewName))
+        Some(ta)
+      }
+      else {
+        None
       }
       println("question: " + question)
       println("answers: " + answers)
       Question(question, qid, answers, questionAnnotation, Some(correct))
     }
-    val contextAnnotation = annotationServiceOpt match {
-      case None => None
-      case Some(service) =>
-        val ta = annotationUtils.annotate(text)
+    val contextAnnotation = if(annotate) {
+      val ta = annotationUtils.annotate(text)
         //assert(ta.getAvailableViews.contains(ViewNames.QUANTITIES))
-        Some(ta)
+      Some(ta)
+    }
+    else {
+      None
     }
     Paragraph(text, questions, contextAnnotation)
   }
 }
 
-class ProcessBankReader(annotationServiceOpt: Option[AnnotatorService] = None, annotationUtils: AnnotationUtils) {
+class ProcessBankReader(annotate: Boolean, annotationUtils: AnnotationUtils) {
   private val d = new File("other/questionSets/biologicalProcesses/qa/")
   private val files = if (d.exists && d.isDirectory) {
     d.listFiles.filter(_.isFile).toList
@@ -62,7 +64,7 @@ class ProcessBankReader(annotationServiceOpt: Option[AnnotatorService] = None, a
   private val paragraphs = files.filter(_.getName != ".DS_Store").map{ f =>
     // .DS_Store
     println(f)
-    val processQuestions = new ProcessBankFileReader(f, Some(annotationUtils.pipelineService), annotationUtils)
+    val processQuestions = new ProcessBankFileReader(f, annotate, annotationUtils)
     processQuestions.instances
   }
   val trainingInstances = paragraphs.take(150)
@@ -77,10 +79,9 @@ object ProcessBankReader{
   val causeTriggers = Set(
     "what initiates",
     "what allows ", // example: What allows microtubules to continue to overlap even though they are pushed apart?
-    "What directly ", // example: What directly pushes spindle poles apart?
+    "what directly ", // example: What directly pushes spindle poles apart?
     "directly causes the ", // example:  What directly causes the final cellular response?
     "what caused ", // example: What caused adaptations?
-    "which of the following is caused by", // example: Which of the following is caused by the increased frequency of individuals with favorable adaptations?
     "what is required for" // example: What is required for sequencing?
   )
 
@@ -99,13 +100,14 @@ object ProcessBankReader{
     "what would happen without ",
     "what is the result of ",
     "what is caused by ",
+    "which of the following is caused by", // example: Which of the following is caused by the increased frequency of individuals with favorable adaptations?
     "what causes ",  // What causes one or more extra sets of chromosomes?
     "what is created by ",
     " lead to?", // example: What does descent with modification eventually lead to?
     " cause?", // example: What does the unequal ability of individuals to survive and reproduce cause?
     "what has caused ", // example: What has caused massive increases in speed and decreases in the cost of sequencing?
     "what is the result of ", // example: What is the result of the founder effect?
-    " causes what?" // example: Gene flow causes what?)
+    " causes what?" // example: Gene flow causes what?
   )
 
   def normalizeText(str: String): String = str.trim.replaceAll("\\(Figure .*\\)", "").replaceAll("\\(see Figure .*\\)", "")
@@ -162,12 +164,8 @@ object ProcessBankReader{
     def isTemporal: Boolean = temporalKeywords.exists(question.questionText.contains)
     def trueIndex: Int = question.answers.zipWithIndex.collectFirst{ case (a, i) if trueAns.contains(a.answerText.trim) => i }.getOrElse(-1)
     def falseIndex: Int = question.answers.zipWithIndex.collectFirst{ case (a, i) if falseAns.contains(a.answerText.trim) => i }.getOrElse(-1)
-
-
     def isCauseQuestion: Boolean = causeTriggers.exists(question.questionText.toLowerCase.contains)
-
     def isForCResultQuestion: Boolean = resultTriggers.exists(question.questionText.toLowerCase.contains)
-
     // commented out to make it less confusing
     //def causalQuestion: Boolean = lookingForCauseQuestion || lookingForCResultQuestion
   }
@@ -175,5 +173,7 @@ object ProcessBankReader{
   implicit class ImplicitConversionsFromAnswerString(str: String) {
     def isTrueFalse: Boolean = trueOrFalse.contains(str)
     def isTemporal: Boolean = temporalKeywords.exists(str.contains)
+    def isCauseQuestion: Boolean = causeTriggers.exists(str.toLowerCase.contains)
+    def isForCResultQuestion: Boolean = resultTriggers.exists(str.toLowerCase.contains)
   }
 }

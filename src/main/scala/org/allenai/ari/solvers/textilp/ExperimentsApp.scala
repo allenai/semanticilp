@@ -309,8 +309,8 @@ object ExperimentsApp {
     println(s"$avgEM\t$avgP\t$avgR\t$avgF\t$avgAristoScore\t${pList.length}")
   }
 
-  def evaluateTextSolverOnProcessBank(reader: ProcessBankReader, textSolver: TextSolver) = {
-    val qAndpPairs = reader.trainingInstances.filterTemporals.flatMap { p => p.questions.map(q => (q, p))}
+  def evaluateTextSolverOnProcessBank(list: List[Paragraph], textSolver: TextSolver) = {
+    val qAndpPairs = list.flatMap { p => p.questions.map(q => (q, p))}
     val (resultLists, confidences) = qAndpPairs.zipWithIndex.map{ case ((q, p), idx) =>
       println("==================================================")
       println("Processed " + idx + " out of " + qAndpPairs.size)
@@ -481,7 +481,7 @@ object ExperimentsApp {
   def main(args: Array[String]): Unit = {
     lazy val trainReader = new SQuADReader(Constants.squadTrainingDataFile, Some(annotationUtils.pipelineService), annotationUtils)
     lazy val devReader = new SQuADReader(Constants.squadDevDataFile, Some(annotationUtils.pipelineService), annotationUtils)
-    lazy val processReader = new ProcessBankReader(Some(annotationUtils.pipelineService), annotationUtils)
+    lazy val processReader = new ProcessBankReader(false, annotationUtils)
     val parser = new ArgumentParser(args)
     parser.experimentType() match {
       case 1 => generateCandiateAnswers(devReader)
@@ -904,8 +904,18 @@ object ExperimentsApp {
         println("testing / filterNotTemporals.filterNotTrueFalse: " + processReader.testInstances.filterNotTemporals.filterNotTrueFalse.flatMap(_.questions).length)
       case 51 =>
         // evaluate processBank
-        evaluateTextSolverOnProcessBank(processReader, textILPSolver)
-//        evaluateTextSolverOnProcessBank(processReader, slidingWindowSolver)
+        evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterTemporals, textILPSolver)
+        println("filterTemporals: ")
+
+        evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterCauseQuestions, textILPSolver)
+        println("filterCauseQuestions: ")
+
+        evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterCResultQuestions, textILPSolver)
+        println("filterCResultQuestions: ")
+
+        evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
+        println("no-temporals/no true or false: ")
+      //        evaluateTextSolverOnProcessBank(processReader, slidingWindowSolver)
       case 52 =>
         // write processBank on disk as json
         import java.io._
@@ -1059,7 +1069,81 @@ object ExperimentsApp {
         val after = toks.filter(c => c.getStartSpan >= withoutTok.getStartSpan).minBy(_.getStartSpan)
         println(after)
       case 61 =>
+        var inHowManyCasesThatOneReasonAppearsBeforeQuestionTheCorrectAnsTheLatter = 0
+        var inHowManyCasesThatOneReasonAppearsBeforeQuestion = 0
+        // analyze the result questions
+        def getClosestIndex(qCons: Seq[Constituent], pCons: Seq[Constituent]): Int = {
+          pCons.map{ c =>
+            TextILPSolver.getMaxScore(qCons, Seq(c))
+          }.zipWithIndex.maxBy(_._1)._2
+        }
+        val paragraphs = processReader.trainingInstances.filterCResultQuestions
+        val list = paragraphs.flatMap{ p =>
+          val pCons = p.contextTAOpt.get.getView(ViewNames.SHALLOW_PARSE).asScala.toList
+          p.questions.map{ q =>
+            val qCons = q.qTAOpt.get.getView(ViewNames.SHALLOW_PARSE).asScala.toList
+            val qIdx = getClosestIndex(qCons, pCons)
+            val ans1Cons = q.answers(0).aTAOpt.get.getView(ViewNames.TOKENS).asScala.toList
+            val ans2Cons = q.answers(1).aTAOpt.get.getView(ViewNames.TOKENS).asScala.toList
+            val a1Idx = getClosestIndex(ans1Cons, pCons)
+            val a2Idx = getClosestIndex(ans2Cons, pCons)
+            val k = 0
+            if(a1Idx < qIdx - k || a2Idx < qIdx - k) { // at least one of the answers happens before the question
+              inHowManyCasesThatOneReasonAppearsBeforeQuestion += 1
+              if (a1Idx + k< qIdx && q.correctIdxOpt.get == 1) {
+                inHowManyCasesThatOneReasonAppearsBeforeQuestionTheCorrectAnsTheLatter += 1
+              }
+              if (a2Idx + k < qIdx && q.correctIdxOpt.get == 0) {
+                inHowManyCasesThatOneReasonAppearsBeforeQuestionTheCorrectAnsTheLatter += 1
+              }
+            }
+            val doesCorrectIdxAppearsLater = if((q.correctIdxOpt.get == 0 && a1Idx >= a2Idx) || (q.correctIdxOpt.get == 1 && a1Idx <= a2Idx)) 1 else 0
+            println(q.questionText)
+            println(s"$a1Idx\t$a2Idx\t${q.correctIdxOpt.get}\t$doesCorrectIdxAppearsLater\t${2*(a2Idx - a1Idx)*(q.correctIdxOpt.get - 0.5)}\t${qIdx}\n")
+            doesCorrectIdxAppearsLater
+          }
+        }
+        val ratio1 = inHowManyCasesThatOneReasonAppearsBeforeQuestionTheCorrectAnsTheLatter.toDouble / inHowManyCasesThatOneReasonAppearsBeforeQuestion
+        val ratio2 = list.sum.toDouble / list.length
+        println("ratio1: " + ratio1)
+        println("ratio2: " + ratio2)
+        println("inHowManyCasesThatOneReasonAppearsBeforeQuestion: " + inHowManyCasesThatOneReasonAppearsBeforeQuestion)
+        println("list.length: " + list.length)
 
+        // with Max
+        // ratio1: 0.85
+        // ratio2: 0.6194690265486725
+        // inHowManyCasesThatOneReasonAppearsBeforeQuestion: 80
+        // list.length: 113
+
+        // ratio1: 0.8404255319148937
+        // ratio2: 0.6194690265486725
+        // inHowManyCasesThatOneReasonAppearsBeforeQuestion: 94
+        // list.length: 113
+
+        // with Avg
+        // ratio1: 0.8513513513513513
+        // ratio2: 0.6902654867256637
+        // inHowManyCasesThatOneReasonAppearsBeforeQuestion: 74
+        // list.length: 113
+
+      case 62 =>
+        def getClosestIndex(qCons: Seq[Constituent], pCons: Seq[Constituent]): Int = {
+          pCons.map{ c =>
+            println("c: " + c)
+            val score = TextILPSolver.getMaxScore(qCons, Seq(c))
+            println("score: " + score)
+            score
+          }.zipWithIndex.maxBy(_._1)._2
+        }
+        // test extarction of the constituent after "without "
+        val pTA = annotationUtils.pipelineService.createAnnotatedTextAnnotation("", "",
+          "After gametes fuse and form a diploid zygote, meiosis occurs without a multicellular diploid offspring developing. Meiosis produces not gametes but haploid cells that then divide by mitosis and give rise to either unicellular descendants or a haploid multicellular adult organism. Subsequently, the haploid organism carries out further mitoses, producing the cells that develop into gametes.")
+        val aTA = annotationUtils.pipelineService.createAnnotatedTextAnnotation("", "", "Haploid cells would not be produced")
+        val pCons = pTA.getView(ViewNames.SHALLOW_PARSE).asScala.toList
+        val ans1Cons = aTA.getView(ViewNames.TOKENS).asScala.toList
+        val a1Idx = getClosestIndex(ans1Cons, pCons)
+        println("a1Idx: " + a1Idx)
     }
   }
 }
