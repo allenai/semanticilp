@@ -1,0 +1,4176 @@
+@PREAMBLE{ "\providecommand{\CNFX}[1]{ {\em{\textrm{(#1)}}}}" }
+@PREAMBLE{ "\providecommand{\CNFSoCG}{\CNFX{SoCG}}" }
+@PREAMBLE{ "\providecommand{\CNFCCCG}{\CNFX{CCCG}}" }
+@PREAMBLE{ "\providecommand{\CNFFOCS}{\CNFX{FOCS}}" }
+@PREAMBLE{ "\providecommand{\CNFSODA}{\CNFX{SODA}}" }
+@PREAMBLE{ "\providecommand{\CNFSTOC}{\CNFX{STOC}}" }
+@PREAMBLE{ "\providecommand{\CNFPODS}{\CNFX{PODS}}" }
+@PREAMBLE{ "\providecommand{\CNFISAAC}{\CNFX{ISAAC}}" }
+@PREAMBLE{ "\providecommand{\CNFFSTTCS}{\CNFX{FSTTCS}}" }
+@PREAMBLE{ "\providecommand{\CNFIJCAI}{\CNFX{IJCAI}}" }
+@PREAMBLE{ "\providecommand{\CNFBROADNETS}{\CNFX{BROADNETS}}" }
+@PREAMBLE{ "\providecommand{\CNFCCC}{\CNFX{CCC}}" }
+@PREAMBLE{ "\providecommand{\CNFECCC}{\CNFX{ECCC}}" }
+@PREAMBLE{ "\providecommand{\CNFEC}{\CNFX{EC}}" }
+@PREAMBLE{ "\providecommand{\CNFITCS}{\CNFX{ITCS}}" }
+@PREAMBLE{ "\providecommand{\CNFIPCO}{\CNFX{IPCO}}" }
+@PREAMBLE{ "\providecommand{\CNFKDD}{\CNFX{KDD}}" }
+@PREAMBLE{ "\providecommand{\CNFLICS}{\CNFX{LICS}}" }
+@PREAMBLE{ "\providecommand{\CNFEC}{\CNFX{EC}}" }
+@PREAMBLE{ "\providecommand{\CNFICALP}{\CNFX{ICALP}}" }
+@PREAMBLE{ "\providecommand{\CNFESA}{\CNFX{ESA}}" }
+
+@STRING{COLT_2003="Proc. 16th Conf. on Learning Theory\CNFX{COLT}"}
+@STRING{COLT_2004="Proc. 17th Conf. on Learning Theory\CNFX{COLT}"}
+@STRING{COLT_2005="Proc. 18th Conf. on Learning Theory\CNFX{COLT}"}
+@STRING{COLT_2006="Proc. 19th Conf. on Learning Theory\CNFX{COLT}"}
+@STRING{COLT_2007="Proc. 20th Conf. on Learning Theory\CNFX{COLT}"}
+@STRING{COLT_2008="Proc. 21st Conf. on Learning Theory\CNFX{COLT}"}
+@STRING{COLT_2009="Proc. 22nd Conf. on Learning Theory\CNFX{COLT}"}
+@STRING{COLT_2010="Proc. 23rd Conf. on Learning Theory\CNFX{COLT}"}
+@STRING{COLT_2011="Proc. 24th Conf. on Learning Theory\CNFX{COLT}"}
+@STRING{COLT_2012="Proc. 25th Conf. on Learning Theory\CNFX{COLT}"}
+@STRING{COLT_2013="Proc. 26th Conf. on Learning Theory\CNFX{COLT}"}
+@STRING{COLT_2014="Proc. 27th Conf. on Learning Theory\CNFX{COLT}"}
+@STRING{COLT_2015="Proc. 28th Conf. on Learning Theory\CNFX{COLT}"}
+@STRING{COLT_2016="Proc. 29th Conf. on Learning Theory\CNFX{COLT}"}
+@STRING{SODA_2011="Proceed. 22nd ACM-SIAM symposium on Discrete Algorithms\CNFX{SODA}"}
+@STRING{STOC_2002="Proc. 24th ACM symposium on Theory of computing\CNFX{STOC}"}
+@STRING{STOC_2003="Proc. 25th ACM symposium on Theory of computing\CNFX{STOC}"}
+@STRING{STOC_2004="Proc. 26th ACM symposium on Theory of computing\CNFX{STOC}"}
+@STRING{STOC_2005="Proc. 27th ACM symposium on Theory of computing\CNFX{STOC}"}
+@STRING{STOC_2006="Proc. 28th ACM symposium on Theory of computing\CNFX{STOC}"}
+@STRING{STOC_2007="Proc. 29th ACM symposium on Theory of computing\CNFX{STOC}"}
+@STRING{STOC_2008="Proc. 30th ACM symposium on Theory of computing\CNFX{STOC}"}
+@STRING{STOC_2009="Proc. 31st ACM symposium on Theory of computing\CNFX{STOC}"}
+@STRING{STOC_2010="Proc. 32nd ACM symposium on Theory of computing\CNFX{STOC}"}
+@STRING{STOC_2011="Proc. 33th ACM symposium on Theory of computing\CNFX{STOC}"}
+@STRING{STOC_2012="Proc. 34th ACM symposium on Theory of computing\CNFX{STOC}"}
+@STRING{STOC_2013="Proc. 35th ACM symposium on Theory of computing\CNFX{STOC}"}
+@STRING{STOC_2014="Proc. 36th ACM symposium on Theory of computing\CNFX{STOC}"}
+@STRING{STOC_2015="Proc. 37th ACM symposium on Theory of computing\CNFX{STOC}"}
+@STRING{STOC_2016="Proc. 38th ACM symposium on Theory of computing\CNFX{STOC}"}
+@STRING{STOC_2017="Proc. 39th ACM symposium on Theory of computing\CNFX{STOC}"}
+@string{JMLR      = "J. Mach. Learn. Research"}
+@string{ALGORITHMICA = "Algorithmica"}
+@STRING{FTML	  = "Found. Trends Mach. Learn." }
+@string{JACM   	  = "J. Assoc. Comput. Mach."}
+@string{NIPS_2000 = "Adv. Neural Info. Proc. Sys. 13\CNFX{NIPS}"}
+@string{NIPS_2001 = "Adv. Neural Info. Proc. Sys. 14\CNFX{NIPS}"}
+@string{NIPS_2002 = "Adv. Neural Info. Proc. Sys. 15\CNFX{NIPS}"}
+@string{NIPS_2003 = "Adv. Neural Info. Proc. Sys. 16\CNFX{NIPS}"}
+@string{NIPS_2004 = "Adv. Neural Info. Proc. Sys. 17\CNFX{NIPS}"}
+@string{NIPS_2005 = "Adv. Neural Info. Proc. Sys. 18\CNFX{NIPS}"}
+@string{NIPS_2006 = "Adv. Neural Info. Proc. Sys. 19\CNFX{NIPS}"}
+@string{NIPS_2007 = "Adv. Neural Info. Proc. Sys. 20\CNFX{NIPS}"}
+@string{NIPS_2008 = "Adv. Neural Info. Proc. Sys. 21\CNFX{NIPS}"}
+@string{NIPS_2009 = "Adv. Neural Info. Proc. Sys. 22\CNFX{NIPS}"}
+@string{NIPS_2010 = "Adv. Neural Info. Proc. Sys. 23\CNFX{NIPS}"}
+@string{NIPS_2011 = "Adv. Neural Info. Proc. Sys. 24\CNFX{NIPS}"}
+@string{NIPS_2012 = "Adv. Neural Info. Proc. Sys. 25\CNFX{NIPS}"}
+@string{NIPS_2013 = "Adv. Neural Info. Proc. Sys. 26\CNFX{NIPS}"}
+@string{NIPS_2014 = "Adv. Neural Info. Proc. Sys. 27\CNFX{NIPS}"}
+@string{NIPS_2015 = "Adv. Neural Info. Proc. Sys. 28\CNFX{NIPS}"}
+@string{NIPS_2016 = "Adv. Neural Info. Proc. Sys. 29\CNFX{NIPS}"}
+@STRING{ICML_1994= "Proc. 11th Int. Conf. Mach. Learning\CNFX{ICML}" }
+@STRING{ICML_1995= "Proc. 12th Int. Conf. Mach. Learning\CNFX{ICML}" }
+@STRING{ICML_1996= "Proc. 13th Int. Conf. Mach. Learning\CNFX{ICML}" }
+@STRING{ICML_1997= "Proc. 14th Int. Conf. Mach. Learning\CNFX{ICML}" }
+@STRING{ICML_1998= "Proc. 15th Int. Conf. Mach. Learning\CNFX{ICML}" }
+@STRING{ICML_1999= "Proc. 16th Int. Conf. Mach. Learning\CNFX{ICML}" }
+@STRING{ICML_2000= "Proc. 17th Int. Conf. Mach. Learning\CNFX{ICML}" }
+@STRING{ICML_2001= "Proc. 18th Int. Conf. Mach. Learning\CNFX{ICML}" }
+@STRING{ICML_2002= "Proc. 19th Int. Conf. Mach. Learning\CNFX{ICML}" }
+@STRING{ICML_2003= "Proc. 20th Int. Conf. Mach. Learning\CNFX{ICML}" }
+@STRING{ICML_2004= "Proc. 21st Int. Conf. Mach. Learning\CNFX{ICML}" }
+@STRING{ICML_2005= "Proc. 22nd Int. Conf. Mach. Learning\CNFX{ICML}" }
+@STRING{ICML_2006= "Proc. 23th Int. Conf. Mach. Learning\CNFX{ICML}" }
+@STRING{ICML_2007= "Proc. 24th Int. Conf. Mach. Learning\CNFX{ICML}" }
+@STRING{ICML_2008= "Proc. 25th Int. Conf. Mach. Learning\CNFX{ICML}" }
+@STRING{ICML_2009= "Proc. 26th Int. Conf. Mach. Learning\CNFX{ICML}" }
+@STRING{ICML_2010= "Proc. 27th Int. Conf. Mach. Learning\CNFX{ICML}" }
+@STRING{ICML_2011= "Proc. 28th Int. Conf. Mach. Learning\CNFX{ICML}" }
+@STRING{ICML_2012= "Proc. 29th Int. Conf. Mach. Learning\CNFX{ICML}" }
+@STRING{ICML_2013= "Proc. 30th Int. Conf. Mach. Learning\CNFX{ICML}" }
+@STRING{ICML_2014= "Proc. 31th Int. Conf. Mach. Learning\CNFX{ICML}" }
+@STRING{ICML_2015= "Proc. 32st Int. Conf. Mach. Learning\CNFX{ICML}" }
+@STRING{ICML_2016= "Proc. 33nd Int. Conf. Mach. Learning\CNFX{ICML}" }
+@STRING{ICML_2017= "Proc. 34rd Int. Conf. Mach. Learning\CNFX{ICML}" }
+@string{KDD_2013 = "Proc. 19th ACM Conf. Knowl. Disc. and Data Mining\CNFKDD"}
+@string{KDD_2014 = "Proc. 20th ACM Conf. Knowl. Disc. and Data Mining\CNFKDD"}
+@STRING{ITA		 = "Information Theory and Applications Workshop\CNFX{ITA}" }
+@STRING{JCSS	 = "J. Comput. Sys. Sci." }
+@string{MLJ 	 = "Mach. Learn. J."}
+@string{MPROG    = "Math. Prog."}
+@string{SIOPT    = "SIAM J. Optim."}
+@STRING{ORL	     = "Oper. Res. Lett." }
+@string{WWW_2009 = "Proceedings of the 19th international conference on WORLd Wide Web\CNFX{WWW}"}
+@string{SICOMP = "SIAM Journal on Computing \CNFX{SICOMP}"}
+@STRING{IJCAI_2012="Proc. 21st Int. Joint Conf. on Artificial Intelligence\CNFX{IJCAI}"}
+@STRING{IJCAI_2013="Proc. 22nd Int. Joint Conf. on Artificial Intelligence\CNFX{IJCAI}"}
+@STRING{IJCAI_2014="Proc. 23rd Int. Joint Conf. on Artificial Intelligence\CNFX{IJCAI}"}
+@STRING{IJCAI_2015="Proc. 24th Int. Joint Conf. on Artificial Intelligence\CNFX{IJCAI}"}
+@STRING{aaai_2013="Proc. 27th Conf. on Artificial Intelligence \CNFX{AAAI}"}
+@STRING{aaai_2014="Proc. 28th Conf. on Artificial Intelligence \CNFX{AAAI}"}
+@STRING{aaai_2015="Proc. 29th Conf. on Artificial Intelligence \CNFX{AAAI}"}
+@STRING{aaai_2016="Proc. 30th Conf. on Artificial Intelligence \CNFX{AAAI}"}
+@string{IEEE-IT 	 = "{IEEE} Trans. on Info. Theory"}
+@string{clt 	 = "Comp. Learning Theory"}
+@string{alt 	 = "Alg. Learning Theory"}
+
+
+@inproceedings{	ab-ojdl-14,
+	title =        {Optimal Jamming using Delayed Learning},
+	author =       {S. Amuru and R. M. Buehrer},
+	booktitle =    {2014 IEEE Military Comm.  Conf.\CNFX{MILCOM}},
+	pages =        {1528--1533},
+	year =         2014,
+	organization = {IEEE}
+}
+
+@article{	abf-finite-02,
+	title =        {Finite-time analysis of the multiarmed bandit
+	problem},
+	author =       {P. Auer and N. Cesa-Bianchi and P. Fischer},
+	journal =      {Machine learning},
+	volume =       47,
+	number =       {2-3},
+	pages =        {235--256},
+	year =         2002,
+	publisher =    {Springer}
+}
+
+@article{ahk-mwum-12,
+	author =       {Sanjeev Arora and Elad Hazan and Satyen Kale},
+	title =        {The Multiplicative Weights Update Method: a
+	Meta-Algorithm and Applications},
+	journal =      {Theory of Computing},
+	volume =       8,
+	number =       1,
+	year =         2012,
+	pages =        {121-164},
+	ee =           {http://dx.doi.org/10.4086/toc.2012.v008a006}
+}
+
+@InCollection{	  b-oaml-98,
+	author =       {A. Blum},
+	title =        {On-line algorithms in machine learning},
+	booktitle =    {Online algorithms},
+	publisher =    {Springer Berlin Heidelberg},
+	year =         1998,
+	editor =       {A. Fiat and G. Woeginger},
+	volume =       1442,
+	series =       {LNCS},
+	chapter =      14,
+	pages =        {306--325}
+}
+
+@Article{	  bc-mabp-12,
+	title =        {Regret Analysis of Stochastic and NonSTOChastic
+	Multi-armed Bandit Problems},
+	journal =      FTML,
+	volume =       5,
+	numer =        1,
+	year =         2012,
+	pages =        122,
+	author =       {S. Bubeck and N. {Cesa-Bianchi}}
+}
+
+@Unpublished{	  bn-mco-13,
+	author =       {A. {Ben-Tal} and A. Nemirovski},
+	title =        {Lectures on Modern Convex Optimization},
+	note =         {Available online at
+	\url{http://www2.isye.gatech.edu/~nemirovs/Lect_ModConvOpt.pdf}},
+	month =        {Fall Semester},
+	year =         2013
+}
+
+@Article{bsk-sodso-03,
+	author =       {A. Blum and S. Chawla and A. Kalai},
+	title =        {Static optimality and dynamic search optimality in
+	lists and trees},
+	journal =      ALGORITHMICA,
+	year =         2003,
+	volume =       36,
+	number =       3,
+	pages =        {249--260}
+}
+
+@Article{	  bt-md-03,
+	author =       {A. Beck and M. Teboulle},
+	title =        {Mirror descent and nonlinear projected subgradient
+	methods for convex optimization},
+	journal =      ORL,
+	year =         2003,
+	volume =       31,
+	pages =        {161--175}
+}
+
+@Article{c-up-91,
+	author =       {T. M. Cover},
+	title =        {Universal portfolios},
+	journal =      {Math. Finance},
+	year =         1991,
+	volume =       1,
+	number =       1,
+	pages =        {1--29}
+}
+
+@Article{cfhhsw-huea-97,
+	author =       {N. {Cesa-Bianchi} and Y. Freund and D. Haussler and
+	D.P. Helmbold and R.E. Schapire and M.K. Warmuth},
+	title =        {How to use expert advice},
+	journal =      JACM,
+	year =         1997,
+	volume =       44,
+	number =       3,
+	pages =        {426--485},
+}
+
+@Article{cs-aoacr-03,
+	author =       {K. Crammer and Y. Singer},
+	title =        {A family of additive online algorithms for category
+	ranking},
+	journal =      JMLR,
+	year =         2003,
+	volume =       3,
+	pages =        {1025--1058}
+}
+
+@article{dgsx-odopmb-12,
+	title =        {Optimal distributed online prediction using
+	mini-batches},
+	author =       {O. Dekel and R. {Gilad-Bachrach} and O. Shamir and
+	L. Xiao},
+	journal =      jmlr,
+	volume =       13,
+	number =       1,
+	pages =        {165--202},
+	year =         2012,
+}
+
+@Article{dhs-asm-11,
+	author =       {J. Duchi and E. Hazan and Y. Singer},
+	title =        {Adaptive subgradient methods for online learning and
+	STOChastic optimization},
+	journal =      JMLR,
+	year =         2011,
+	volume =       12,
+	pages =        {2121--2159},
+	month =        jul
+}
+
+@inproceedings{	djm-eopds-13,
+	title =        {Estimation, Optimization, and Parallelism when Data
+	is Sparse},
+	author =       {J. Duchi and M.I. Jordan and B. McMahan},
+	booktitle =    nips_2013,
+	pages =        {2832--2840},
+	year =         2013,
+}
+
+@inproceedings{f-pdaf-14,
+	title =        {Practical Lessons from Predicting Clicks on Ads at
+	Facebook},
+	author =       {X. He and J. Pan and O. Jin and T. Xu and B. Liu and
+	T. Xu and Y. Shi and A. Atallah and R. Herbrich and
+	S. Bowers and J. {Quiñonero Candela}},
+	booktitle =    kdd_2014,
+	pages =        {1--9},
+	year =         2014,
+	organization = {ACM}
+}
+
+@InProceedings{g-acp-13,
+	author =       {H. B. McMahan and G. Holt and D. Sculley and
+	M. Young and D. Ebner and J. Grady and L. Nie and
+	T. Phillips and E. Davydov and D. Golovin and
+	S. Chikkerur and D. Liu and M. Wattenberg and
+	A. M. Hrafnkelsson and T. Boulous and J. Kubica},
+	title =        {Ad click prediction: a view from the trenches},
+	booktitle =    KDD_2013,
+	year =         2013,
+	pages =        {1222-1230}
+}
+
+@Unpublished{hazan2015intro,
+	author =       {E. Hazan},
+	title =        {Introduction to Online Convex Optimization},
+	note =         {Internet draft available at
+	\url{http://ocobook.cs.princeton.edu}},
+	ee =           {http://ocobook.cs.princeton.edu},
+	year =         2015
+}
+
+@article{	hak-logarithmic-07,
+	title =        {Logarithmic regret algorithms for online convex
+	optimization},
+	author =       {E. Hazan and A. Agarwal and S. Kale},
+	journal =      MLJ,
+	volume =       69,
+	number =       {2-3},
+	pages =        {169--192},
+	year =         2007,
+	publisher =    {Springer}
+}
+
+@InProceedings{	  hk-ecu-08,
+	author =       {E. Hazan and S. Kale},
+	title =        {Extracting certainty from uncertainty: Regret
+	bounded by variation in costs},
+	booktitle =    COLT_2008,
+	year =         2008,
+	pages =        {57--68}
+}
+
+@inproceedings{	hk-projectionFree-12,
+	author =       {E. Hazan and S. Kale},
+	booktitle =    ICML_2012,
+	title =        {Projection-free Online Learning.},
+	year =         2012
+}
+
+@Book{hl-cama1-93,
+	author =    {J.B. {Hiriart-Urruty} and C. Lemaréchal},
+	title =        {Convex analysis and Minimization Algorithms {I}},
+	publisher =    {{Springer}-{Verlag}},
+	year =         1993,
+	volume =    305,
+	series =    {Grundlehren der mathematischen Wissenschaften}}
+
+@Book{hl-cama2-93,
+	author =    {J.B. {Hiriart-Urruty} and C. Lemaréchal},
+	title =        {Convex analysis and Minimization Algorithms {II}},
+	publisher =    {{Springer}-{Verlag}},
+	year =         1993,
+	volume =    306,
+	series =    {Grundlehren der mathematischen Wissenschaften}}
+
+@Article{hs-bpdt-97,
+	author =       {D. Helmbold and R. Schapire},
+	title =        {Predicting nearly as well as the best pruning of a
+	decision tree},
+	journal =      MLJ,
+	year =         1997,
+	volume =       27,
+	number =       1,
+	pages =        {61--68},
+}
+
+@inproceedings{	hzkls-demab-13,
+	title =        {Distributed exploration in multi-armed bandits},
+	author =       {E. Hillel and Z. Karnin and T. Koren and R. Lempel
+	and O. Somekh},
+	booktitle =    nips_2013,
+	pages =        {854--862},
+	year =         2013
+}
+
+@inproceedings{jgs-oldf-13,
+	author =       {P. Joulani and A. György and C. Szepesvári},
+	title =        {Online Learning under Delayed Feedback.},
+	booktitle =    ICML_2013,
+	volume =       28,
+	year =         2013
+}
+
+@Article{kalai2005perturbedLeader,
+	title =        {Efficient algorithms for online decision problems},
+	author =       {A. Kalai and S. Vempala},
+	journal =      JCSS,
+	year =         2005,
+	volume =       71,
+	pages =        {291--307},
+	note =         {Extended abstract in } # COLT_2003 # {, 2003}
+}
+
+@inproceedings{lsz-slf-09,
+	title =        {Slow Learners are Fast},
+	author =       {J. Langford and A. J. Smola and M. Zinkevich},
+	booktitle =    NIPS_2009,
+	pages =        {2331--2339},
+	year =         2009,
+	url =
+	{http://papers.nips.cc/paper/3888-slow-learners-are-fast.pdf}
+}
+
+@inproceedings{lz-dmabmdp-10,
+	title =        {Decentralized multi-armed bandit with multiple
+	distributed players},
+	author =       {K. Liu and Q. Zhao},
+	booktitle =    ita,
+	pages =        {1--10},
+	year =         2010,
+	organization = {IEEE}
+}
+
+@inproceedings{	m-delayed-05,
+	title =        {On-line learning with delayed label feedback},
+	author =       {C. Mesterharm},
+	booktitle =    alt,
+	pages =        {399--413},
+	year =         2005,
+	organization = {Springer}
+}
+
+@InProceedings{	  ms-dta-14,
+	author =       {H.B. {McMahan} and M. Streeter},
+	title =        {Delay-Tolerant Algorithms for Asynchronous
+	Distributed Online Learning},
+	booktitle =    nips_2014,
+	year =         2014,
+	pages =        {2915--2923}
+}
+
+@inproceedings{	msj-odsb-14,
+	title =        {On-demand, spot, or both: Dynamic resource
+	allocation for executing batch jobs in the cloud},
+	author =       {I. Menache and O. Shamir and N. Jain},
+	booktitle =    {11th Int. Conf. on Autonomic Comput.\CNFX{ICAC}},
+	year =         2014,
+}
+
+@Book{n-co-04,
+	author =       {Y. Nesterov},
+	title =        {Introductory lectures on convex optimization},
+	publisher =    {Springer},
+	year =         2004,
+	volume =       87,
+	series =       {Applied Optim.}
+}
+
+@inproceedings{ngsa-omdpbf-10,
+	title =        {Online Markov decision processes under bandit
+	feedback},
+	author =       {G. Neu and A. Antos and A. Gy{\"o}rgy and
+	C. Szepesv{\'a}ri},
+	booktitle =    nips_2010,
+	pages =        {1804--1812},
+	year =         2010
+}
+
+@Book{		  ny-pcmeo-83,
+	author =       {A.S. Nemirovski and D.B. Yudin},
+	title =        {Problem complexity and method efficiency in
+	optimization},
+	publisher =    {John Wiley \& Sons},
+	year =         1983,
+	series =       {Wiley-Interscience Series in Discrete Mathematics}
+}
+
+@article{	pjylh-gasgd-13,
+	title =        {GPU asynchronous STOChastic gradient descent to
+	speed up neural network training},
+	author =       {T. Paine and H. Jin and J. Yang and Z. Lin and
+	T. Huang},
+	journal =      {arXiv preprint arXiv:1312.6186},
+	year =         2013
+}
+
+@Book{		  r-ca-70,
+	author =       {R. T. Rockafeller},
+	title =        {Convex Analysis},
+	publisher =    {Princeton University Press},
+	year =         1970,
+	series =       {Princeton Mathematical Series}
+}
+
+@article{	rc-keeping-14,
+	title =        {Keeping Things that Matter: An Exploration on
+	Delayed Feedback Online Learning},
+	author =       {Ribeiro, Marco Tulio and Cano, Ignacio},
+	year =         2013
+}
+
+@InProceedings{	  rrwn-h-11,
+	author =       {B. Recht and C. Re and S. Wright and F. Niu},
+	title =        {Hogwild: a lock-free approach to parallelizing
+	STOChastic gradient descent},
+	booktitle =    nips_2011,
+	year =         2011,
+	pages =        {693--701}
+}
+
+@inproceedings{	rss-stronglyConvex-12,
+	author =       {A. Rakhlin and O. Shamir and K. Sridharan},
+	title =        {Making Gradient Descent Optimal for Strongly Convex
+	Stochastic Optimization},
+	booktitle =    ICML_2012,
+	year =         2012,
+	url =          {http://ICML.cc/discuss/2012/261.html}
+}
+
+@Article{	  s-oloco-11,
+	author =       {S. {Shalev-Shwartz}},
+	title =        {Online learning and online convex optimization},
+	journal =      FTML,
+	year =         2011,
+	volume =       4,
+	number =       2,
+	pages =        {107--194}
+}
+
+@PhDThesis{	  s-thesis,
+	author =       {S. {Shalev-Shwartz}},
+	title =        {Online Learning: Theory, algorithms, and
+	applications},
+	school =       {The Hebrew University of Jerusalem},
+	year =         2007,
+	ee =
+	{http://www.cs.huji.ac.il/~shais/papers/ShalevThesis07.pdf},
+	month =        {July}
+}
+
+@phdthesis{		sh-online-07,
+	title =        {Online learning: Theory, algorithms, and
+	applications},
+	author =       {S. Shalev-Shwartz},
+	school =       {Hebrew University},
+	year =         2007
+}
+
+@Article{	  ss-pdpolo-07,
+	author =       {Y. Singer and S. {Shalev-Shwartz}},
+	title =        {A Primal-dual perspective of onine learning
+	algoritmhs},
+	journal =      {Mach. Learn.},
+	year =         2007,
+	volume =       69,
+	pages =        {115--142}
+}
+
+@Article{st-sabst-85,
+	author =       {D.D. Sleator and R.E. Tarjan},
+	title =        {Self-Adjusting Binary search trees},
+	journal =      JACM,
+	year =         1985,
+	volume =       32,
+	number =       3,
+	pages =        {652--686},
+}
+
+@Article{st-stm-97,
+	author =       {N. Shavit and D. Touitou},
+	title =        {Software transactional memory},
+	journal =      {Dist. Comput.},
+	year =         1997,
+	volume =       10,
+	number =       2,
+	pages =        {99--116}
+}
+
+@inproceedings{szh-sgc-13,
+	author =       {O. Shamir and T. Zhang},
+	title =        {Stochastic Gradient Descent for Non-smooth
+	Optimization: Convergence Results and Optimal
+	Averaging Schemes},
+	booktitle =    icml_2013,
+	pages =        {71--79},
+	year =         2013
+}
+
+@article{	t-loupea-33,
+	title =        {On the likelihood that one unknown probability
+	exceeds another in view of the evidence of two
+	samples},
+	author =       {Thompson, William R},
+	journal =      {Biometrika},
+	pages =        {285--294},
+	year =         1933,
+	publisher =    {JSTOR}
+}
+
+@Article{tw-pkmu-03,
+	author =       {E. Takimoto and M. Warmuth},
+	title =        {Path Kernels and Multiplicative Updates},
+	journal =      JMLR,
+	year =         2003,
+	volume =       4,
+	pages =        {773--818},
+}
+
+@InCollection{	  v-naarm-12,
+	author =       {R. Vershynin},
+	title =        {Introduction to the non-asymptotic analysis of
+	random matrices},
+	booktitle =    {Compressed Sensing, Theory and Applications},
+	year =         2012,
+	editor =       {Y. Eldar and G. Kutynick},
+	chapter =      5,
+	pages =        {210--168},
+	publisher =    {Cambridge Univ. Press}
+}
+
+@Article{wo-dpis-02,
+	author =       {M.J. Weinberger and E. Ordentlich},
+	title =        {On delayed prediction of individual sequences},
+	journal =      {IEEE Trans. Inf. Theory},
+	year =         2002,
+	volume =       48,
+	number =       7,
+	pages =        {1959--1976}
+}
+
+@Book{		  z-cagvs-02,
+	author =       {C. Zălinescu},
+	title =        {Convex analysis in general vector spaces},
+	publisher =    {World Scientific},
+	year =         2002
+}
+
+@InProceedings{z-ocp-03,
+	author =       {M. Zinkevich},
+	title =        {Online Convex Programming and Generalized
+	Infinitesimal Gradient Ascent},
+	booktitle =    ICML_2003,
+	pages =        {928--936},
+	year =         2003
+}
+
+@inproceedings{zels-psgd-10,
+	title =        {Parallelized STOChastic gradient descent},
+	author =       {M. Zinkevich and M. Weimer and L. Li and
+	A. J. Smola},
+	booktitle =    NIPS_2010,
+	pages =        {2595--2603},
+	year =         2010
+}
+
+@PhdThesis{r-thesis,
+	author =       {D. Riabko},
+	title =        {On the flexibility of theoretical models for pattern
+	recognition},
+	school =       {University of London},
+	year =         2005,
+	month =     {April}}
+
+
+@inproceedings{dcr-asco-15,
+  author    = {S. Chaturapruek and
+               J. C. Duchi and
+               C. R{\'{e}}},
+  title     = {Asynchronous stochastic convex optimization: the noise is in the noise
+               and {SGD} don't care},
+  booktitle = nips_2015,
+  pages     = {1531--1539},
+  year      = {2015},
+  url       = {http://papers.nips.cc/paper/6031-asynchronous-stochastic-convex-optimization-the-noise-is-in-the-noise-and-sgd-dont-care},
+  timestamp = {Fri, 08 Apr 2016 19:32:53 +0200},
+  biburl    = {http://dblp2.uni-trier.de/rec/bib/conf/nips/ChaturapruekDR15},
+  bibsource = {dblp computer science bibliography, http://dblp.org}
+}
+
+
+@Article{w-cda-15,
+	author =       {S. J. Wright},
+	title =        {Coordinate descent Algorithms},
+	journal =      MPROG,
+	series = {B},
+	year =         2015,
+	volume =    151,
+	number =    {3--34}}
+
+@Article{lwrbs-apscda-15,
+	author =       {J. Liu and S. J. Wright and C. Ré and V. Bittorf and S. Sridhar},
+	title =        {An asynchronous parallel STOChastic coordiante descent algorithm},
+	journal =      JMLR,
+	year =         2015,
+	volume =    16,
+	pages =     {285--322}}
+
+
+@Book{bt-pdc-89,
+	author =    {D. P. Bertsekas and J. N. Tsitsiklis},
+	title =        {Parallel and Distributed Computation: Numerical Methods},
+	publisher =    {Prentice-Hall},
+	year =         1989
+}
+
+
+@Article{bmn-osmdom-01,
+	author =       {A. {Ben-Tal} and T. Margalit and A. Nemirovski},
+	title =        {The ordered subsets mirror descent optimization method with applications to tomography},
+	journal =      SIOPT,
+	year =         2001,
+	volume =    12,
+	number =    1,
+	pages =     {79--108}}
+
+
+@inproceedings{lz-epochgreedy-08,
+	title={The epoch-greedy algorithm for multi-armed bandits with side information},
+	author={Langford, John and Zhang, Tong},
+	booktitle=NIPS_2008,
+	pages={817--824},
+	year={2008}
+}
+
+@article{cesa2004generalization,
+	title={On the generalization ability of on-line learning algorithms},
+	author={Cesa-Bianchi, Nicolo and Conconi, Alex and Gentile, Claudio},
+	journal={Information Theory, IEEE Transactions on},
+	volume={50},
+	number={9},
+	pages={2050--2057},
+	year={2004},
+	publisher={IEEE}
+}
+
+@inproceedings{jaggi2013revisiting,
+	title={Revisiting Frank-Wolfe: Projection-free sparse convex optimization},
+	author={Jaggi, Martin},
+	booktitle={Proceedings of the 30th International Conference on Machine Learning (ICML-13)},
+	pages={427--435},
+	year={2013}
+}
+
+@article{frank1956algorithm,
+	title={An algorithm for quadratic programming},
+	author={Frank, Marguerite and Wolfe, Philip},
+	journal={Naval research logistics quarterly},
+	volume={3},
+	number={1-2},
+	pages={95--110},
+	year={1956},
+	publisher={Wiley Online Library}
+}
+
+@article{blumer1989learnability,
+  title={Learnability and the Vapnik-Chervonenkis dimension},
+  author={Blumer, Anselm and Ehrenfeucht, Andrzej and Haussler, David and Warmuth, Manfred K},
+  journal={Journal of the ACM (JACM)},
+  volume={36},
+  number={4},
+  pages={929--965},
+  year={1989},
+  publisher={ACM}
+}
+
+@article{valiant1984theory,
+  title={A theory of the learnable},
+  author={Valiant, Leslie G},
+  journal={Communications of the ACM},
+  volume={27},
+  number={11},
+  pages={1134--1142},
+  year={1984},
+  publisher={ACM}
+}
+
+@article{agrawal1995sample,
+	title={Sample mean based index policies with O (log n) regret for the multi-armed bandit problem},
+	author={Agrawal, Rajeev},
+	journal={Advances in Applied Probability},
+	pages={1054--1078},
+	year={1995},
+	publisher={JSTOR}
+}
+
+@inproceedings{agrawal2014bandits,
+	title={Bandits with concave rewards and convex knapsacks},
+	author={Agrawal, Shipra and Devanur, Nikhil R},
+	booktitle={Proceedings of the fifteenth ACM conference on Economics and computation},
+	pages={989--1006},
+	year={2014},
+	organization={ACM}
+}
+
+@inproceedings{l-contextual-2010,
+	title={A contextual-bandit approach to personalized news article recommendation},
+	author={Li, Lihong and Chu, Wei and Langford, John and Schapire, Robert E},
+	booktitle= WWW_2010,
+	pages={661--670},
+	year={2010},
+	organization={ACM}
+}
+
+@article{a-confidencebounds-03,
+	title={Using confidence bounds for exploitation-exploration trade-offs},
+	author={Auer, Peter},
+	journal= JMLR,
+	volume={3},
+	pages={397--422},
+	year={2003},
+	publisher={JMLR. org}
+}
+
+@inproceedings{badanidiyuru2013bandits,
+	title={Bandits with knapsacks},
+	author={Badanidiyuru, Ashwinkumar and Kleinberg, Robert and Slivkins, Aleksandrs},
+	booktitle={Foundations of Computer Science (FOCS), 2013 IEEE 54th Annual Symposium on},
+	pages={207--216},
+	year={2013},
+	organization={IEEE}
+}
+
+@article{littlestone1988learning,
+  title={Learning quickly when irrelevant attributes abound: A new linear-threshold algorithm},
+  author={Littlestone, Nick},
+  journal={Machine learning},
+  volume={2},
+  number={4},
+  pages={285--318},
+  year={1988},
+  publisher={Springer}
+}
+
+@article{lari1990estimation,
+  title={The estimation of STOChastic context-free grammars using the inside-outside algorithm},
+  author={Lari, Karim and Young, Steve J},
+  journal={Computer speech \& language},
+  volume={4},
+  number={1},
+  pages={35--56},
+  year={1990},
+  publisher={Elsevier}
+}
+
+@article{myerson1981optimal,
+	title={Optimal auction design},
+	author={Myerson, Roger B},
+	journal={Mathematics of operations research},
+	volume={6},
+	number={1},
+	pages={58--73},
+	year={1981},
+	publisher={INFORMS}
+}
+
+@book{rumelhart1988parallel,
+  title={Parallel distributed processing},
+  author={Rumelhart, David E and McClelland, James L and PDP Research Group and others},
+  volume={1},
+  year={1988},
+  publisher={IEEE}
+}
+
+@book{mccarthy1963programs,
+  title={Programs with common sense},
+  author={McCarthy, John},
+  year={1963},
+  publisher={Defense Technical Information Center}
+}
+
+@inproceedings{chang2011inference,
+  title={Inference protocols for coreference resolution},
+  author={Chang, Kai-Wei and Samdani, Rajhans and Rozovskaya, Alla and Rizzolo, Nick and Sammons, Mark and Roth, Dan},
+  booktitle={Proceedings of the Fifteenth Conference on Computational Natural Language Learning: Shared Task},
+  pages={40--44},
+  year={2011},
+  organization={Association for Computational Linguistics}
+}
+
+@article{moitraalgorithmic,
+  title={Algorithmic Aspects of Machine Learning},
+  author={Moitra, Ankur}
+}
+
+@techreport{winograd-procedures-1971,
+  title={Procedures as a representation for data in a computer program for understanding natural language},
+  author={Winograd, Terry},
+  year={1971},
+  institution={Massachusetts Institute of Technology}
+}
+
+@inproceedings{touretzky1985symbols,
+  title={Symbols among the neurons: Details of a connectionist inference architecture},
+  author={Touretzky, David S and Hinton, Geoffrey E},
+  booktitle={IJCAI},
+  volume={85},
+  pages={238--243},
+  year={1985}
+}
+
+@inproceedings{levesque2011winograd,
+  title={The Winograd schema challenge.},
+  author={Levesque, Hector J and Davis, Ernest and Morgenstern, Leora},
+  booktitle={AAAI Spring Symposium: Logical Formalizations of Commonsense Reasoning},
+  year={2011}
+}
+
+@article{tesauro1995temporal,
+  title={Temporal difference learning and TD-Gammon},
+  author={Tesauro, Gerald},
+  journal={Communications of the ACM},
+  volume={38},
+  number={3},
+  pages={58--68},
+  year={1995}
+}
+
+@article{turing1950computing,
+  title={Computing machinery and intelligence},
+  author={Turing, Alan M},
+  journal={Mind},
+  pages={433--460},
+  year={1950},
+  publisher={JSTOR}
+}
+
+@article{watkins1992q,
+  title={Q-learning},
+  author={Watkins, Christopher JCH and Dayan, Peter},
+  journal={Machine learning},
+  volume={8},
+  number={3-4},
+  pages={279--292},
+  year={1992},
+  publisher={Springer}
+}
+
+@inproceedings{freund1995desicion,
+  title={A desicion-theoretic generalization of on-line learning and an application to boosting},
+  author={Freund, Y. and Schapire, R. E.},
+  booktitle=clt,
+  pages={23--37},
+  year={1995},
+  organization={Springer}
+}
+
+@article{chang2013question,
+  title={Question answering using enhanced lexical semantic models},
+  author={Chang, Wen-tau Yih Ming-Wei and Pastusiak, Christopher Meek Andrzej},
+  year={2013}
+}
+
+@inproceedings{chambers2008unsupervised,
+  title={Unsupervised Learning of Narrative Event Chains.},
+  author={Chambers, Nathanael and Jurafsky, Daniel},
+  booktitle={ACL},
+  pages={789--797},
+  year={2008},
+  organization={Citeseer}
+}
+
+
+@inproceedings{chambers2009unsupervised,
+  title={Unsupervised learning of narrative schemas and their participants},
+  author={Chambers, Nathanael and Jurafsky, Dan},
+  booktitle={Proceedings of the Joint Conference of the 47th Annual Meeting of the ACL and the 4th International Joint Conference on Natural Language Processing of the AFNLP: Volume 2-Volume 2},
+  pages={602--610},
+  year={2009},
+  organization={Association for Computational Linguistics}
+}
+
+@article{liu2004conceptnet,
+  title={ConceptNet—a practical commonsense reasoning tool-kit},
+  author={Liu, Hugo and Singh, Push},
+  journal={BT technology journal},
+  volume={22},
+  number={4},
+  pages={211--226},
+  year={2004},
+  publisher={Springer}
+}
+
+@inproceedings{shahaf2013information,
+  title={Information cartography: creating zoomable, large-scale maps of information},
+  author={Shahaf, Dafna and Yang, Jaewon and Suen, Caroline and Jacobs, Jeff and Wang, Heidi and Leskovec, Jure},
+  booktitle={Proceedings of the 19th ACM SIGKDD international conference on Knowledge discovery and data mining},
+  pages={1097--1105},
+  year={2013},
+  organization={ACM}
+}
+
+@inproceedings{shahaf2012metro,
+  title={Metro maps of science},
+  author={Shahaf, Dafna and Guestrin, Carlos and Horvitz, Eric},
+  booktitle={Proceedings of the 18th ACM SIGKDD international conference on Knowledge discovery and data mining},
+  pages={1122--1130},
+  year={2012},
+  organization={ACM}
+}
+
+@article{andreasgrounding,
+  title={Grounding Language with Points and Paths in Continuous Spaces},
+  author={Andreas, Jacob and Klein, Dan}
+}
+
+@article{raghavancross,
+  title={Cross-narrative temporal ordering of medical events},
+  author={Raghavan, Preethi and Fosler-Lussier, Eric and Elhadad, No{\'e}mie and Lai, Albert M}
+}
+
+@inproceedings{balasubramanian2013generating,
+  title={Generating Coherent Event Schemas at Scale.},
+  author={Balasubramanian, Niranjan and Soderland, Stephen and Mausam, Oren Etzioni and Etzioni, Oren},
+  booktitle={EMNLP},
+  pages={1721--1731},
+  year={2013}
+}
+
+@article{schapire1999improved,
+  title={Improved boosting algorithms using confidence-rated predictions},
+  author={Schapire, Robert E and Singer, Yoram},
+  journal={Machine learning},
+  volume={37},
+  number={3},
+  pages={297--336},
+  year={1999},
+  publisher={Springer}
+}
+
+@InProceedings{ARAKI14.963,
+  author = {Jun Araki and Zhengzhong Liu and Eduard Hovy and Teruko Mitamura},
+  title = {Detecting Subevent Structure for Event Coreference Resolution},
+  booktitle = {Proceedings of the Ninth International Conference on Language Resources and Evaluation (LREC'14)},
+  year = {2014},
+  month = {may},
+  date = {26-31},
+  address = {Reykjavik, Iceland},
+  editor = {Nicoletta Calzolari (Conference Chair) and Khalid Choukri and Thierry Declerck and Hrafn Loftsson and Bente Maegaard and Joseph Mariani and Asuncion Moreno and Jan Odijk and Stelios Piperidis},
+  publisher = {European Language Resources Association (ELRA)},
+  isbn = {978-2-9517408-8-4},
+  language = {english}
+ }
+
+ @book{fagin2003reasoning,
+  title={Reasoning about knowledge},
+  author={Fagin, Ronald and Moses, Yoram and Halpern, Joseph Y and Vardi, Moshe Y},
+  year={2003},
+  publisher={MIT press}
+}
+
+ @article{sowa1999knowledge,
+  title={Knowledge representation: logical, philosophical, and computational foundations},
+  author={Sowa, John F},
+  year={1999},
+  publisher={Course Technology}
+}
+
+@article{rakhlin2009lecture,
+  title={Lecture notes on online learning},
+  author={Rakhlin, Alexander and Tewari, A},
+  journal={Draft, April},
+  year={2009}
+}
+
+@inproceedings{taskar2005learning,
+  title={Learning structured prediction models: A large margin approach},
+  author={Taskar, Ben and Chatalbashev, Vassil and Koller, Daphne and Guestrin, Carlos},
+  booktitle={Proceedings of the 22nd international conference on Machine learning},
+  pages={896--903},
+  year={2005},
+  organization={ACM}
+}
+
+@inproceedings{tsochantaridis2004support,
+  title={Support vector machine learning for interdependent and structured output spaces},
+  author={Tsochantaridis, Ioannis and Hofmann, Thomas and Joachims, Thorsten and Altun, Yasemin},
+  booktitle={Proceedings of the twenty-first international conference on Machine learning},
+  pages={104},
+  year={2004},
+  organization={ACM}
+}
+
+@ARTICLE{alvarez2011computationally,
+  author = {{\'A}lvarez, M.A. and Lawrence, N.D.},
+  title = {Computationally efficient convolved multiple output gaussian processes},
+  journal = {Journal of Machine Learning Research},
+  year = {2011},
+  volume = {12},
+  pages = {1425--1466}
+}
+
+@incollection{altun2006unifying,
+  title={Unifying divergence minimization and statistical inference via convex duality},
+  author={Altun, Yasemin and Smola, Alex},
+  booktitle={Learning theory},
+  pages={139--153},
+  year={2006},
+  publisher={Springer}
+}
+
+@book{manning1999foundations,
+  title={Foundations of statistical natural language processing},
+  author={Manning, Christopher D and Sch{\"u}tze, Hinrich},
+  volume={999},
+  year={1999},
+  publisher={MIT Press}
+}
+
+@article{kschischang2001factor,
+  title={Factor graphs and the sum-product algorithm},
+  author={Kschischang, Frank R and Frey, Brendan J and Loeliger, H-A},
+  journal={Information Theory, IEEE Transactions on},
+  volume={47},
+  number={2},
+  pages={498--519},
+  year={2001},
+  publisher={IEEE}
+}
+
+
+@article{neal2000markov,
+  title={Markov chain sampling methods for Dirichlet process mixture models},
+  author={Neal, Radford M},
+  journal={Journal of computational and graphical statistics},
+  volume={9},
+  number={2},
+  pages={249--265},
+  year={2000},
+  publisher={Taylor \& Francis Group}
+}
+
+@inproceedings{frey2002extending,
+  title={Extending factor graphs so as to unify directed and undirected graphical models},
+  author={Frey, Brendan J},
+  booktitle={Proceedings of the Nineteenth conference on Uncertainty in Artificial Intelligence},
+  pages={257--264},
+  year={2002},
+  organization={Morgan Kaufmann Publishers Inc.}
+}
+
+@article{minka2005divergence,
+  title={Divergence measures and message passing},
+  author={Minka, Tom and others},
+  journal={Microsoft Research Cambridge, Tech. Rep. MSR-TR-2005-173},
+  year={2005}
+}
+
+@article{suttonEP,
+  title={Expectation Propagation in Factor Graphs:A tutorial},
+  author={Charles Sutton},
+  year={2005}
+}
+
+
+@ARTICLE{alvarez2008sparse,
+  author = {Alvarez, M. and Lawrence, N.},
+  title = {Sparse convolved Gaussian processes for multi-output regression},
+  year = {2008}
+}
+
+@article{clark-elementary-2015,
+	title={Elementary school science and math tests as a driver for {AI: Take the Aristo Challenge}},
+	author={Clark, Peter},
+	journal={Twenty-Seventh IAAI Conference},
+	year={2015}
+}
+
+@inproceedings{kwr-saul-2015,
+	author = {P. Kordjamshidi and D. Roth and H. Wu},
+	title = {Saul: Towards Declarative Learning Based Programming},
+	booktitle = IJCAI_2015,
+	month = {7},
+	year = {2015},
+	url = "http://cogcomp.cs.illinois.edu/papers/KordjamshidiRoWu15.pdf",
+}
+
+@ARTICLE{andrews2010hidden,
+  author = {Andrews, Mark and Vigliocco, Gabriella},
+  title = {The hidden Markov topic model: A probabilistic model of semantic
+	representation},
+  journal = {Topics in Cognitive Science},
+  year = {2010},
+  volume = {2},
+  pages = {101--113},
+  number = {1},
+  publisher = {Wiley Online Library}
+}
+
+@INPROCEEDINGS{andrzejewski2009latent,
+  author = {Andrzejewski, David and Zhu, Xiaojin},
+  title = {Latent Dirichlet Allocation with topic-in-set knowledge},
+  booktitle = {Proceedings of the NAACL HLT 2009 Workshop on Semi-Supervised Learning
+	for Natural Language Processing},
+  year = {2009},
+  pages = {43--48},
+  organization = {Association for Computational Linguistics}
+}
+
+@INPROCEEDINGS{andrzejewski2009incorporating,
+  author = {Andrzejewski, David and Zhu, Xiaojin and Craven, Mark},
+  title = {Incorporating domain knowledge into topic modeling via Dirichlet
+	forest priors},
+  booktitle = {Proceedings of the 26th Annual International Conference on Machine
+	Learning},
+  year = {2009},
+  pages = {25--32},
+  organization = {ACM}
+}
+
+@INPROCEEDINGS{andrzejewski2011framework,
+  author = {Andrzejewski, David and Zhu, Xiaojin and Craven, Mark and Recht,
+	Benjamin},
+  title = {A framework for incorporating general domain knowledge into latent
+	Dirichlet allocation using first-order logic},
+  booktitle = {Proceedings of the Twenty-Second international joint conference on
+	Artificial Intelligence-Volume Volume Two},
+  year = {2011},
+  pages = {1171--1177},
+  organization = {AAAI Press}
+}
+
+@INPROCEEDINGS{asuncion2009smoothing,
+  author = {Asuncion, Arthur and Welling, Max and Smyth, Padhraic and Teh, Yee
+	Whye},
+  title = {On smoothing and inference for topic models},
+  booktitle = {Proceedings of the Twenty-Fifth Conference on Uncertainty in Artificial
+	Intelligence},
+  year = {2009},
+  pages = {27--34},
+  organization = {AUAI Press}
+}
+
+@BOOK{banko2009open,
+  title = {Open information extraction for the web},
+  publisher = {University of Washington},
+  year = {2009},
+  author = {Banko, Michele and Cafarella, Michael J and Soderland, Stephen and
+	Broadhead, Matt and Etzioni, Oren}
+}
+
+@ARTICLE{baxter1997bayesian,
+  author = {Baxter, J.},
+  title = {A Bayesian/information theoretic model of learning to learn via multiple
+	task sampling},
+  journal = {Machine Learning},
+  year = {1997},
+  volume = {28},
+  pages = {7--39},
+  number = {1},
+  publisher = {Springer}
+}
+
+@PHDTHESIS{beal2003variational,
+  author = {Beal, M.J.},
+  title = {Variational algorithms for approximate Bayesian inference},
+  school = {PhD thesis, Gatsby Computational Neuroscience Unit, University College
+	London},
+  year = {2003}
+}
+
+@ARTICLE{Beal2002,
+  author = {Beal, Matthew J and Ghahramani, Zoubin and Rasmussen, Carl Edward},
+  title = {The infinite hidden Markov model},
+  journal = {Advances in neural information processing systems},
+  year = {2002},
+  volume = {14},
+  pages = {577--584}
+}
+
+@ARTICLE{beal2002infinite,
+  author = {Beal, Matthew J and Ghahramani, Zoubin and Rasmussen, Carl Edward},
+  title = {The infinite hidden Markov model},
+  journal = {Advances in neural information processing systems},
+  year = {2002},
+  volume = {14},
+  pages = {577--584}
+}
+
+@ARTICLE{ben2003exploiting,
+  author = {Ben-David, S. and Schuller, R.},
+  title = {Exploiting task relatedness for multiple task learning},
+  journal = {Learning Theory and Kernel Machines},
+  year = {2003},
+  pages = {567--580},
+  publisher = {Springer}
+}
+
+@ARTICLE{Bengio03aneural,
+  author = {Yoshua Bengio and Réjean Ducharme and Pascal Vincent and Christian
+	Jauvin},
+  title = {A Neural Probabilistic Language Model},
+  journal = {JOURNAL OF MACHINE LEARNING RESEARCH},
+  year = {2003},
+  volume = {3},
+  pages = {1137--1155}
+}
+
+@INPROCEEDINGS{bengio2009curriculum,
+  author = {Bengio, Yoshua and Louradour, J{\'e}r{\^o}me and Collobert, Ronan
+	and Weston, Jason},
+  title = {Curriculum learning},
+  booktitle = {Proceedings of the 26th annual international conference on machine
+	learning},
+  year = {2009},
+  pages = {41--48},
+  organization = {ACM}
+}
+
+@INPROCEEDINGS{berg2010painless,
+  author = {Berg-Kirkpatrick, Taylor and Bouchard-C{\^o}t{\'e}, Alexandre and
+	DeNero, John and Klein, Dan},
+  title = {Painless unsupervised learning with features},
+  booktitle = {Human Language Technologies: The 2010 Annual Conference of the North
+	American Chapter of the Association for Computational Linguistics},
+  year = {2010},
+  pages = {582--590},
+  organization = {Association for Computational Linguistics}
+}
+
+@BOOK{bishop2006pattern,
+  title = {Pattern recognition and machine learning},
+  publisher = {springer New York},
+  year = {2006},
+  author = {Bishop, C.M.},
+  volume = {4}
+}
+
+@INPROCEEDINGS{bishop2000relevance,
+  author = {Bishop, C.M.},
+  title = {The relevance vector machine},
+  booktitle = {Advances in Neural Information Processing Systems 12},
+  year = {2000}
+}
+
+@ARTICLE{Blei2006,
+  author = {Blei, D. and Lafferty, J.},
+  title = {Correlated topic models},
+  journal = {Advances in neural information processing systems},
+  year = {2006},
+  volume = {18},
+  pages = {147},
+  publisher = {MIT; 1998}
+}
+
+@ARTICLE{Blei2006a,
+  author = {Blei, D. and Lafferty, J.},
+  title = {Correlated topic models},
+  journal = {Advances in neural information processing systems},
+  year = {2006},
+  volume = {18},
+  pages = {147},
+  publisher = {MIT; 1998}
+}
+
+@ARTICLE{Blei2006b,
+  author = {Blei, D. and Lafferty, J.},
+  title = {Correlated topic models},
+  journal = {Advances in neural information processing systems},
+  year = {2006},
+  volume = {18},
+  pages = {147},
+  publisher = {MIT; 1998}
+}
+
+@ARTICLE{blei2006correlated,
+  author = {Blei, D. and Lafferty, J.},
+  title = {Correlated topic models},
+  journal = {Advances in neural information processing systems},
+  year = {2006},
+  volume = {18},
+  pages = {147},
+  publisher = {MIT; 1998}
+}
+
+@INCOLLECTION{Blei2008,
+  author = {David Blei and Jon McAuliffe},
+  title = {Supervised Topic Models},
+  booktitle = {Advances in Neural Information Processing Systems 20},
+  publisher = {MIT Press},
+  year = {2008},
+  editor = {J.C. Platt and D. Koller and Y. Singer and S. Roweis},
+  pages = {121--128},
+  address = {Cambridge, MA}
+}
+
+@INCOLLECTION{Blei2008a,
+  author = {David Blei and Jon McAuliffe},
+  title = {Supervised Topic Models},
+  booktitle = {Advances in Neural Information Processing Systems 20},
+  publisher = {MIT Press},
+  year = {2008},
+  editor = {J.C. Platt and D. Koller and Y. Singer and S. Roweis},
+  pages = {121--128},
+  address = {Cambridge, MA}
+}
+
+@INCOLLECTION{SupvervisedTopicNIPS2007,
+  author = {David Blei and Jon McAuliffe},
+  title = {Supervised Topic Models},
+  booktitle = {Advances in Neural Information Processing Systems 20},
+  publisher = {MIT Press},
+  year = {2008},
+  editor = {J.C. Platt and D. Koller and Y. Singer and S. Roweis},
+  pages = {121--128},
+  address = {Cambridge, MA}
+}
+
+@ARTICLE{Blei2003,
+  author = {Blei, D.M. and Ng, A.Y. and Jordan, M.I.},
+  title = {Latent dirichlet allocation},
+  journal = {the Journal of machine Learning research},
+  year = {2003},
+  volume = {3},
+  pages = {993--1022},
+  publisher = {JMLR. org}
+}
+
+@ARTICLE{Blei2003a,
+  author = {Blei, D.M. and Ng, A.Y. and Jordan, M.I.},
+  title = {Latent dirichlet allocation},
+  journal = {the Journal of machine Learning research},
+  year = {2003},
+  volume = {3},
+  pages = {993--1022},
+  publisher = {JMLR. org}
+}
+
+@ARTICLE{Blei2003b,
+  author = {Blei, D.M. and Ng, A.Y. and Jordan, M.I.},
+  title = {Latent dirichlet allocation},
+  journal = {the Journal of machine Learning research},
+  year = {2003},
+  volume = {3},
+  pages = {993--1022},
+  publisher = {JMLR. org}
+}
+
+@ARTICLE{blei2003latent,
+  author = {Blei, D.M. and Ng, A.Y. and Jordan, M.I.},
+  title = {Latent dirichlet allocation},
+  journal = {the Journal of machine Learning research},
+  year = {2003},
+  volume = {3},
+  pages = {993--1022},
+  publisher = {JMLR. org}
+}
+
+@ARTICLE{blei2010nested,
+  author = {Blei, David M and Griffiths, Thomas L and Jordan, Michael I},
+  title = {The nested chinese restaurant process and bayesian nonparametric
+	inference of topic hierarchies},
+  journal = {Journal of the ACM (JACM)},
+  year = {2010},
+  volume = {57},
+  pages = {7},
+  number = {2},
+  publisher = {ACM}
+}
+
+@ARTICLE{Blei2006c,
+  author = {Blei, David M and Jordan, Michael I},
+  title = {Variational inference for Dirichlet process mixtures},
+  journal = {Bayesian Analysis},
+  year = {2006},
+  volume = {1},
+  pages = {121--143},
+  number = {1},
+  publisher = {International Society for Bayesian Analysis}
+}
+
+
+@INPROCEEDINGS{blei2003modeling,
+  author = {Blei, David M and Jordan, Michael I},
+  title = {Modeling annotated data},
+  booktitle = {Proceedings of the 26th annual international ACM SIGIR conference
+	on Research and development in informaion retrieval},
+  year = {2003},
+  pages = {127--134},
+  organization = {ACM}
+}
+
+@ARTICLE{blitzer2005hierarchical,
+  author = {Blitzer, John and Weinberger, Kilian and Saul, Lawrence K and Pereira,
+	Fernando CN},
+  title = {Hierarchical distributed representations for statistical language
+	modeling},
+  journal = {Advances in Neural Information Processing Systems},
+  year = {2005},
+  volume = {18}
+}
+
+@ARTICLE{bonilla2008multi,
+  author = {Bonilla, E. and Chai, K.M. and Williams, C.},
+  title = {Multi-task Gaussian process prediction},
+  journal = {Advances in Neural Information Processing Systems},
+  year = {2008},
+  volume = {20},
+  number = {October},
+  publisher = {Citeseer}
+}
+
+@ARTICLE{Bordes-et-al-AISTATS2012,
+  author = {Bordes, Antoine and Glorot, Xavier and Weston, Jason and Bengio,
+	Yoshua},
+  title = {Joint Learning of Words and Meaning Representations for Open-Text
+	Semantic Parsing},
+  journal = {Proceedings of the 15th International Conference on Artificial Intelligence
+	and Statistics (AISTATS)},
+  year = {2012}
+}
+
+@ARTICLE{boydsyntactic,
+  author = {Boyd-Graber, Jordan and Blei, David},
+  title = {Syntactic Topic Models Supplement}
+}
+
+@INPROCEEDINGS{boyd2007topic,
+  author = {Boyd-Graber, Jordan and Blei, David and Zhu, Xiaojin},
+  title = {A topic model for word sense disambiguation},
+  booktitle = {Proceedings of the 2007 Joint Conference on Empirical Methods in
+	Natural Language Processing and Computational Natural Language Learning
+	(EMNLP-CoNLL)},
+  year = {2007},
+  pages = {1024--1033}
+}
+
+@ARTICLE{boyd2010syntactic,
+  author = {Boyd-Graber, Jordan and Blei, David M},
+  title = {Syntactic topic models},
+  journal = {arXiv preprint arXiv:1002.4665},
+  year = {2010}
+}
+
+@INPROCEEDINGS{boyd2009reading,
+  author = {Boyd-Graber, Jonathan and Chang, Jordan and Gerrish, Sean and Wang,
+	Chong and Blei, David},
+  title = {Reading tea leaves: How humans interpret topic models},
+  booktitle = {Proceedings of the 23rd Annual Conference on Neural Information Processing
+	Systems},
+  year = {2009}
+}
+
+@INPROCEEDINGS{Boyd-Graber2009,
+  author = {Boyd-Graber, Jonathan and Chang, Jordan and Gerrish, Sean and Wang,
+	Chong and Blei, David},
+  title = {Reading tea leaves: How humans interpret topic models},
+  booktitle = {Proceedings of the 23rd Annual Conference on Neural Information Processing
+	Systems},
+  year = {2009}
+}
+
+@INPROCEEDINGS{Boyd-Graber2009a,
+  author = {Boyd-Graber, Jonathan and Chang, Jordan and Gerrish, Sean and Wang,
+	Chong and Blei, David},
+  title = {Reading tea leaves: How humans interpret topic models},
+  booktitle = {Proceedings of the 23rd Annual Conference on Neural Information Processing
+	Systems},
+  year = {2009}
+}
+
+@ARTICLE{boyle2008gaussian,
+  author = {Boyle, P.},
+  title = {Gaussian processes for regression and optimisation},
+  year = {2008},
+  publisher = {Victoria University of Wellington}
+}
+
+@ARTICLE{boyle2005dependent,
+  author = {Boyle, P. and Frean, M.},
+  title = {Dependent gaussian processes},
+  journal = {Advances in Neural Information Processing Systems},
+  year = {2005},
+  volume = {17},
+  pages = {217--224},
+  publisher = {of}
+}
+
+@ARTICLE{boyle2005multiple,
+  author = {Boyle, P. and Frean, M.},
+  title = {Multiple output Gaussian process regression},
+  year = {2005},
+  publisher = {Citeseer}
+}
+
+@INPROCEEDINGS{Bunescu2005,
+  author = {Bunescu, Razvan C and Mooney, Raymond J},
+  title = {A shortest path dependency kernel for relation extraction},
+  booktitle = {Proceedings of the conference on Human Language Technology and Empirical
+	Methods in Natural Language Processing},
+  year = {2005},
+  pages = {724--731},
+  organization = {Association for Computational Linguistics}
+}
+
+@INPROCEEDINGS{bunescu2005shortest,
+  author = {Bunescu, Razvan C and Mooney, Raymond J},
+  title = {A shortest path dependency kernel for relation extraction},
+  booktitle = {Proceedings of the conference on Human Language Technology and Empirical
+	Methods in Natural Language Processing},
+  year = {2005},
+  pages = {724--731},
+  organization = {Association for Computational Linguistics}
+}
+
+@ARTICLE{caruana1997multitask,
+  author = {Caruana, R.},
+  title = {Multitask learning},
+  journal = {Machine learning},
+  year = {1997},
+  volume = {28},
+  pages = {41--75},
+  number = {1},
+  publisher = {Springer}
+}
+
+@MANUAL{Cevher2008,
+  title = {Variational Bayes Approximation},
+  author = {Cevher, Volkan},
+  organization = {Rice University},
+  year = {2008},
+  note = {Lecture notes of Graphical Models course},
+  owner = {khashabi-09125501905},
+  timestamp = {2012.02.11}
+}
+
+@INPROCEEDINGS{chopra2012weakly,
+  author = {Chopra, Sumit and Bangalore, Srinivas},
+  title = {Weakly supervised neural networks for Part-Of-Speech tagging},
+  booktitle = {Acoustics, Speech and Signal Processing (ICASSP), 2012 IEEE International
+	Conference on},
+  year = {2012},
+  pages = {1965--1968},
+  organization = {IEEE}
+}
+
+@ARTICLE{cohen2010covariance,
+  author = {Cohen, Shay B and Smith, Noah A},
+  title = {Covariance in unsupervised learning of probabilistic grammars},
+  journal = {The Journal of Machine Learning Research},
+  year = {2010},
+  volume = {11},
+  pages = {3017--3051},
+  publisher = {JMLR. org}
+}
+
+@INPROCEEDINGS{collobert2008unified,
+  author = {Collobert, Ronan and Weston, Jason},
+  title = {A unified architecture for natural language processing: Deep neural
+	networks with multitask learning},
+  booktitle = {Proceedings of the 25th international conference on Machine learning},
+  year = {2008},
+  pages = {160--167},
+  organization = {ACM}
+}
+
+@ARTICLE{collobert2011natural,
+  author = {Collobert, Ronan and Weston, Jason and Bottou, L{\'e}on and Karlen,
+	Michael and Kavukcuoglu, Koray and Kuksa, Pavel},
+  title = {Natural language processing (almost) from scratch},
+  journal = {The Journal of Machine Learning Research},
+  year = {2011},
+  volume = {12},
+  pages = {2493--2537},
+  publisher = {JMLR. org}
+}
+
+@ARTICLE{csato2002gaussian,
+  author = {Csat{\'o}, L.},
+  title = {Gaussian processes: iterative sparse approximations},
+  year = {2002}
+}
+
+@ARTICLE{csato2002sparse,
+  author = {Csat{\'o}, L. and Opper, M.},
+  title = {Sparse on-line Gaussian processes},
+  journal = {Neural Computation},
+  year = {2002},
+  volume = {14},
+  pages = {641--668},
+  number = {3},
+  publisher = {MIT Press}
+}
+
+@INPROCEEDINGS{culotta2004dependency,
+  author = {Culotta, Aron and Sorensen, Jeffrey},
+  title = {Dependency tree kernels for relation extraction},
+  booktitle = {Proceedings of the 42nd Annual Meeting on Association for Computational
+	Linguistics},
+  year = {2004},
+  pages = {423},
+  organization = {Association for Computational Linguistics}
+}
+
+@ARTICLE{damoulas2008probabilistic,
+  author = {Damoulas, T. and Girolami, M.A.},
+  title = {Probabilistic multi-class multi-kernel learning: On protein fold
+	recognition and remote homology detection},
+  journal = {Bioinformatics},
+  year = {2008},
+  volume = {24},
+  pages = {1264},
+  number = {10},
+  publisher = {Oxford Univ Press}
+}
+
+@INPROCEEDINGS{darling2011theoretical,
+  author = {Darling, William M},
+  title = {A Theoretical and Practical Implementation Tutorial on Topic Modeling
+	and Gibbs Sampling},
+  booktitle = {Proceedings of the 49th Annual Meeting of the Association for Computational
+	Linguistics: Human Language Technologies},
+  year = {2011},
+  pages = {642--647}
+}
+
+@INPROCEEDINGS{dreyer2011discovering,
+  author = {Dreyer, Markus and Eisner, Jason},
+  title = {Discovering morphological paradigms from plain text using a Dirichlet
+	process mixture model},
+  booktitle = {Proceedings of the Conference on Empirical Methods in Natural Language
+	Processing},
+  year = {2011},
+  pages = {616--627},
+  organization = {Association for Computational Linguistics}
+}
+
+@ARTICLE{duchi2007properties,
+  author = {Duchi, J.},
+  title = {Properties of the Trace and Matrix Derivatives},
+  journal = {Tutorial},
+  year = {2007},
+  url = {http://www.cs.berkeley.edu/~jduchi/projects/matrix_prop.pdf}
+}
+
+@ARTICLE{raginskyLearningTheory,
+  author = {Raginsky, Maxim},
+  title = {Lecture notes: ECE 299: Statistical Learning Theory},
+  journal = {Tutorial},
+  year = {2011},
+  url = {http://maxim.ece.illinois.edu/teaching/spring11/schedule.html}
+}
+
+@ARTICLE{rothMachineLearning546,
+  author = {Dan Roth},
+  title = {CS546 at UIUC: Machine Learning for NLP, Homework.},
+  year = {2012},
+  url = {http://l2r.cs.uiuc.edu/~danr/Teaching/CS546-13/}
+}
+
+
+
+@INPROCEEDINGS{evgeniou2004regularized,
+  author = {Evgeniou, T. and Pontil, M.},
+  title = {Regularized multi--task learning},
+  booktitle = {Proceedings of the tenth ACM SIGKDD international conference on Knowledge
+	discovery and data mining},
+  year = {2004},
+  pages = {109--117},
+  organization = {ACM}
+}
+
+@MISC{fletcher2008relevance,
+  author = {Fletcher, T.},
+  title = {Relevance vector machines explained},
+  year = {2008}
+}
+
+@MISC{friedman2008elements,
+  author = {Friedman, J. and Hastie, T. and Tibshirani, R.},
+  title = {The Elements of Statistical Learning},
+  year = {2008},
+  publisher = {Spinger}
+}
+
+@INPROCEEDINGS{friedman2000gaussian,
+  author = {Friedman, N. and Nachman, I.},
+  title = {Gaussian process networks},
+  booktitle = {Proceedings of the Sixteenth conference on Uncertainty in artificial
+	intelligence},
+  year = {2000},
+  pages = {211--219},
+  organization = {Morgan Kaufmann Publishers Inc.}
+}
+
+@ARTICLE{ganchev2010posterior,
+  author = {Ganchev, Kuzman and Gra{\c{c}}a, Joao and Gillenwater, Jennifer and
+	Taskar, Ben},
+  title = {Posterior regularization for structured latent variable models},
+  journal = {The Journal of Machine Learning Research},
+  year = {2010},
+  volume = {99},
+  pages = {2001--2049},
+  publisher = {MIT Press}
+}
+
+@INPROCEEDINGS{getoor2006latent,
+  author = {Getoor, Indrajit Bhattacharya Lise},
+  title = {A Latent Dirichlet Model for Unsupervised Entity Resolution},
+  booktitle = {Proceedings of the Sixth SIAM International Conference on Data Mining},
+  year = {2006},
+  pages = {47}
+}
+
+@PHDTHESIS{gibbs1997bayesian,
+  author = {Gibbs, M.N.},
+  title = {Bayesian Gaussian processes for regression and classification},
+  year = {1997}
+}
+
+@ARTICLE{gibbs1997efficient,
+  author = {Gibbs, M. and MacKay, D.J.C.},
+  title = {Efficient implementation of Gaussian processes},
+  year = {1997}
+}
+
+@ARTICLE{gilks1995adaptive,
+  author = {Gilks, W.R. and Best, NG and Tan, KKC},
+  title = {Adaptive rejection Metropolis sampling within Gibbs sampling},
+  journal = {Applied Statistics},
+  year = {1995},
+  pages = {455--472},
+  publisher = {JSTOR}
+}
+
+@ARTICLE{gilks1992adaptive,
+  author = {Gilks, W.R. and Wild, P.},
+  title = {Adaptive rejection sampling for Gibbs sampling},
+  journal = {Applied Statistics},
+  year = {1992},
+  pages = {337--348},
+  publisher = {JSTOR}
+}
+
+@INPROCEEDINGS{goller1996learning,
+  author = {Goller, Christoph and Kuchler, Andreas},
+  title = {Learning task-dependent distributed representations by backpropagation
+	through structure},
+  booktitle = {Neural Networks, 1996., IEEE International Conference on},
+  year = {1996},
+  volume = {1},
+  pages = {347--352},
+  organization = {IEEE}
+}
+
+@ARTICLE{green1987penalized,
+  author = {Green, P.J.},
+  title = {Penalized likelihood for general semi-parametric regression models},
+  journal = {International Statistical Review/Revue Internationale de Statistique},
+  year = {1987},
+  pages = {245--259},
+  publisher = {JSTOR}
+}
+
+@ARTICLE{griffiths2011indian,
+  author = {Griffiths, Thomas L and Ghahramani, Zoubin},
+  title = {The indian buffet process: An introduction and review},
+  journal = {Journal of Machine Learning Research},
+  year = {2011},
+  volume = {12},
+  pages = {1185--1224}
+}
+
+@ARTICLE{Griffiths2005,
+  author = {Griffiths, Thomas L and Steyvers, Mark and Blei, David M and Tenenbaum,
+	Joshua B},
+  title = {Integrating topics and syntax},
+  journal = {Advances in neural information processing systems},
+  year = {2005},
+  volume = {17},
+  pages = {537--544}
+}
+
+@ARTICLE{griffiths2005integrating,
+  author = {Griffiths, Thomas L and Steyvers, Mark and Blei, David M and Tenenbaum,
+	Joshua B},
+  title = {Integrating topics and syntax},
+  journal = {Advances in neural information processing systems},
+  year = {2005},
+  volume = {17},
+  pages = {537--544}
+}
+
+@ARTICLE{gruber2007hidden,
+  author = {Gruber, Amit and Rosen-Zvi, Michal and Weiss, Yair},
+  title = {Hidden topic Markov models},
+  journal = {Artificial Intelligence and Statistics (AISTATS)},
+  year = {2007}
+}
+
+@INPROCEEDINGS{guo2011semantic,
+  author = {Guo, Weiwei and Diab, Mona},
+  title = {Semantic topic models: Combining word distributional statistics and
+	dictionary definitions},
+  booktitle = {Proceedings of the Conference on Empirical Methods in Natural Language
+	Processing},
+  year = {2011},
+  pages = {552--561},
+  organization = {Association for Computational Linguistics}
+}
+
+@INPROCEEDINGS{Haghighi2007,
+  author = {Haghighi, Aria and Klein, Dan},
+  title = {Unsupervised coreference resolution in a nonparametric bayesian model},
+  booktitle = {ANNUAL MEETING-ASSOCIATION FOR COMPUTATIONAL LINGUISTICS},
+  year = {2007},
+  volume = {45},
+  number = {1},
+  pages = {848}
+}
+
+@INPROCEEDINGS{Haghighi2007a,
+  author = {Haghighi, Aria and Klein, Dan},
+  title = {Unsupervised coreference resolution in a nonparametric bayesian model},
+  booktitle = {ANNUAL MEETING-ASSOCIATION FOR COMPUTATIONAL LINGUISTICS},
+  year = {2007},
+  volume = {45},
+  number = {1},
+  pages = {848}
+}
+
+@INPROCEEDINGS{haghighi2007unsupervised,
+  author = {Haghighi, Aria and Klein, Dan},
+  title = {Unsupervised coreference resolution in a nonparametric bayesian model},
+  booktitle = {ANNUAL MEETING-ASSOCIATION FOR COMPUTATIONAL LINGUISTICS},
+  year = {2007},
+  volume = {45},
+  number = {1},
+  pages = {848}
+}
+
+@ARTICLE{hastings1970monte,
+  author = {Hastings, W.K.},
+  title = {Monte Carlo sampling methods using Markov chains and their applications},
+  journal = {Biometrika},
+  year = {1970},
+  volume = {57},
+  pages = {97--109},
+  number = {1},
+  publisher = {Biometrika Trust}
+}
+
+@INPROCEEDINGS{hendrickx2009semeval,
+  author = {Hendrickx, Iris and Kim, Su Nam and Kozareva, Zornitsa and Nakov,
+	Preslav and {\'O} S{\'e}aghdha, Diarmuid and Pad{\'o}, Sebastian
+	and Pennacchiotti, Marco and Romano, Lorenza and Szpakowicz, Stan},
+  title = {Semeval-2010 task 8: Multi-way classification of semantic relations
+	between pairs of nominals},
+  booktitle = {Proceedings of the Workshop on Semantic Evaluations: Recent Achievements
+	and Future Directions},
+  year = {2009},
+  pages = {94--99},
+  organization = {Association for Computational Linguistics}
+}
+
+@INPROCEEDINGS{heskes2000empirical,
+  author = {Heskes, T.},
+  title = {Empirical Bayes for learning to learn},
+  booktitle = {MACHINE LEARNING-INTERNATIONAL WORKSHOP THEN CONFERENCE-},
+  year = {2000},
+  pages = {367--374}
+}
+
+@INPROCEEDINGS{heskes1998solving,
+  author = {Heskes, T.},
+  title = {Solving a huge number of similar tasks: a combination of multi-task
+	learning and a hierarchical Bayesian approach},
+  booktitle = {Proceedings of the Fifteenth International Conference on Machine
+	Learning},
+  year = {1998},
+  pages = {233--241}
+}
+
+@ARTICLE{higdon1998process,
+  author = {Higdon, D.},
+  title = {A process-convolution approach to modelling temperatures in the North
+	Atlantic Ocean},
+  journal = {Environmental and Ecological Statistics},
+  year = {1998},
+  volume = {5},
+  pages = {173--190},
+  number = {2},
+  publisher = {Springer}
+}
+
+@INPROCEEDINGS{hofmann1999probabilistic,
+  author = {Hofmann, Thomas},
+  title = {Probabilistic latent semantic indexing},
+  booktitle = {Proceedings of the 22nd annual international ACM SIGIR conference
+	on Research and development in information retrieval},
+  year = {1999},
+  pages = {50--57},
+  organization = {ACM}
+}
+
+@INPROCEEDINGS{HuangEtAl2012,
+  author = {Eric H. Huang and Richard Socher and Christopher D. Manning and Andrew
+	Y. Ng},
+  title = {{Improving Word Representations via Global Context and Multiple Word
+	Prototypes}},
+  booktitle = {Annual Meeting of the Association for Computational Linguistics (ACL)},
+  year = {2012}
+}
+
+@MISC{Huang2009,
+  author = {Huang, JONATHAN and Malisiewicz, TOMASZ},
+  title = {Fitting a hierarchical logistic normal distribution},
+  year = {2009}
+}
+
+@MISC{Huang2009a,
+  author = {Huang, JONATHAN and Malisiewicz, TOMASZ},
+  title = {Fitting a hierarchical logistic normal distribution},
+  year = {2009}
+}
+
+@MISC{Huang2009b,
+  author = {Huang, JONATHAN and Malisiewicz, TOMASZ},
+  title = {Fitting a hierarchical logistic normal distribution},
+  year = {2009}
+}
+
+@MISC{huang2009fitting,
+  author = {Huang, JONATHAN and Malisiewicz, TOMASZ},
+  title = {Fitting a hierarchical logistic normal distribution},
+  year = {2009}
+}
+
+@INPROCEEDINGS{jagarlamudi2012incorporating,
+  author = {Jagarlamudi, Jagadeesh and Daum{\'e} III, Hal and Udupa, Raghavendra},
+  title = {Incorporating lexical priors into topic models},
+  booktitle = {Proceedings of the 13th Conference of the European Chapter of the
+	Association for Computational Linguistics},
+  year = {2012},
+  pages = {204--213},
+  organization = {Association for Computational Linguistics}
+}
+
+@ARTICLE{jawanpuria1multi,
+  author = {Jawanpuria, P. and Nath, J.S.},
+  title = {Multi-task Multiple Kernel Learning},
+  journal = {interpretation},
+  volume = {1},
+  pages = {2sl}
+}
+
+@ARTICLE{jeruchim1984techniques,
+  author = {Jeruchim, M.},
+  title = {Techniques for estimating the bit error rate in the simulation of
+	digital communication systems},
+  journal = {Selected Areas in Communications, IEEE Journal on},
+  year = {1984},
+  volume = {2},
+  pages = {153--170},
+  number = {1},
+  publisher = {IEEE}
+}
+
+@ARTICLE{jordan1999introduction,
+  author = {Jordan, M.I. and Ghahramani, Z. and Jaakkola, T.S. and Saul, L.K.},
+  title = {An introduction to variational methods for graphical models},
+  journal = {Machine learning},
+  year = {1999},
+  volume = {37},
+  pages = {183--233},
+  number = {2},
+  publisher = {Springer}
+}
+
+@ARTICLE{kass1995bayes,
+  author = {Kass, R.E. and Raftery, A.E.},
+  title = {Bayes factors},
+  journal = {Journal of the american statistical association},
+  year = {1995},
+  pages = {773--795},
+  publisher = {JSTOR}
+}
+
+@INPROCEEDINGS{kataria2011context,
+  author = {Kataria, Saurabh and Mitra, Prasenjit and Caragea, Cornelia and Giles,
+	C Lee},
+  title = {Context sensitive topic models for author influence in document networks},
+  booktitle = {Proceedings of the Twenty-Second international joint conference on
+	Artificial Intelligence-Volume Volume Three},
+  year = {2011},
+  pages = {2274--2280},
+  organization = {AAAI Press}
+}
+
+@INPROCEEDINGS{kataria2011entity,
+  author = {Kataria, Saurabh S and Kumar, Krishnan S and Rastogi, Rajeev and
+	Sen, Prithviraj and Sengamedu, Srinivasan H},
+  title = {Entity disambiguation with hierarchical topic models},
+  booktitle = {Proceedings of KDD},
+  year = {2011}
+}
+
+@ARTICLE{keerthi2006matching,
+  author = {Keerthi, S. and Chu, W.},
+  title = {A matching pursuit approach to sparse Gaussian process regression},
+  journal = {Advances in neural information processing systems},
+  year = {2006},
+  volume = {18},
+  pages = {643},
+  publisher = {MIT; 1998}
+}
+
+@INPROCEEDINGS{kim2012etm,
+  author = {Kim, Hyungsul and Sun, Yizhou and Hockenmaier, Julia and Han, Jiawei},
+  title = {ETM: Entity Topic Models for Mining Documents Associated with Entities},
+  booktitle = {Data Mining (ICDM), 2012 IEEE 12th International Conference on},
+  year = {2012},
+  pages = {349--358},
+  organization = {IEEE}
+}
+
+@INPROCEEDINGS{klein2003accurate,
+  author = {Klein, Dan and Manning, Christopher D},
+  title = {Accurate unlexicalized parsing},
+  booktitle = {Proceedings of the 41st Annual Meeting on Association for Computational
+	Linguistics-Volume 1},
+  year = {2003},
+  pages = {423--430},
+  organization = {Association for Computational Linguistics}
+}
+
+@INPROCEEDINGS{koiran1994efficient,
+  author = {Koiran, P.},
+  title = {Efficient learning of continuous neural networks},
+  booktitle = {Proceedings of the seventh annual conference on Computational learning
+	theory},
+  year = {1994},
+  pages = {348--355},
+  organization = {ACM}
+}
+
+@BOOK{koller2009probabilistic,
+  title = {Probabilistic graphical models: principles and techniques},
+  publisher = {The MIT Press},
+  year = {2009},
+  author = {Koller, D. and Friedman, N.}
+}
+
+@INPROCEEDINGS{koller1999general,
+  author = {Koller, D. and Lerner, U. and Angelov, D.},
+  title = {A general algorithm for approximate inference and its application
+	to hybrid Bayes nets},
+  booktitle = {Proceedings of the Fifteenth conference on Uncertainty in artificial
+	intelligence},
+  year = {1999},
+  pages = {324--333},
+  organization = {Morgan Kaufmann Publishers Inc.}
+}
+
+@ARTICLE{kullback1951information,
+  author = {Kullback, S. and Leibler, R.A.},
+  title = {On information and sufficiency},
+  journal = {The Annals of Mathematical Statistics},
+  year = {1951},
+  volume = {22},
+  pages = {79--86},
+  number = {1},
+  publisher = {JSTOR}
+}
+
+@book{ernst1969gps,
+  title={GPS: A case study in generality and problem solving},
+  author={Ernst, George W and Newell, Allen},
+  year={1969},
+  publisher={Academic Pr}
+}
+
+@ARTICLE{lacoste2008disclda,
+  author = {Lacoste-Julien, Simon and Sha, Fei and Jordan, Michael I},
+  title = {DiscLDA: Discriminative learning for dimensionality reduction and
+	classification},
+  journal = {Advances in Neural Information Processing Systems (NIPS)},
+  year = {2008},
+  volume = {21}
+}
+
+@ARTICLE{lafferty2001conditional,
+  author = {Lafferty, John and McCallum, Andrew and Pereira, Fernando CN},
+  title = {Conditional random fields: Probabilistic models for segmenting and
+	labeling sequence data},
+  series = icml_2001,
+  year = {2001}
+}
+
+@article{yedidia2005constructing,
+  title={Constructing free-energy approximations and generalized belief propagation algorithms},
+  author={Yedidia, Jonathan S and Freeman, William T and Weiss, Yair},
+  journal={Information Theory, IEEE Transactions on},
+  volume={51},
+  number={7},
+  pages={2282--2312},
+  year={2005},
+  publisher={IEEE}
+}
+
+@inproceedings{burkett2012fast,
+  title={Fast inference in phrase extraction models with belief propagation},
+  author={Burkett, David and Klein, Dan},
+  booktitle={Proceedings of the 2012 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies},
+  pages={29--38},
+  year={2012},
+  organization={Association for Computational Linguistics}
+}
+
+@inproceedings{cromieres2009alignment,
+  title={An alignment algorithm using belief propagation and a structure-based distortion model},
+  author={Cromieres, Fabien and Kurohashi, Sadao},
+  booktitle={Proceedings of the 12th Conference of the European Chapter of the Association for Computational Linguistics},
+  pages={166--174},
+  year={2009},
+  organization={Association for Computational Linguistics}
+}
+
+@inproceedings{martins2010turbo,
+  title={Turbo parsers: Dependency parsing by approximate variational inference},
+  author={Martins, Andr{\'e} FT and Smith, Noah A and Xing, Eric P and Aguiar, Pedro MQ and Figueiredo, M{\'a}rio AT},
+  booktitle={Proceedings of the 2010 Conference on Empirical Methods in Natural Language Processing},
+  pages={34--44},
+  year={2010},
+  organization={Association for Computational Linguistics}
+}
+
+@inproceedings{smith2008dependency,
+  title={Dependency parsing by belief propagation},
+  author={Smith, David A and Eisner, Jason},
+  booktitle={Proceedings of the Conference on Empirical Methods in Natural Language Processing},
+  pages={145--156},
+  year={2008},
+  organization={Association for Computational Linguistics}
+}
+
+@inproceedings{MooijKappen_UAI_05,
+  author    = "Joris M. Mooij and Hilbert J. Kappen",
+  title     = "Sufficient conditions for convergence of Loopy Belief Propagation",
+  booktitle = "Proceedings of the 21st Annual Conference on Uncertainty in Artificial Intelligence (UAI-05)",
+  year      = 2005,
+  pages     = {396-403},
+  publisher = "AUAI Press",
+  address   = "Corvallis, Oregon",
+  editor    = "F. Bacchus and T. Jaakkola"
+}
+
+@article{MooijKappen_IEEETIT_07,
+  author    = "Joris M. Mooij and Hilbert J. Kappen",
+  journal   = "IEEE Transactions on Information Theory",
+  title     = "Sufficient Conditions for Convergence of the Sum-Product Algorithm",
+  volume    = 53,
+  number    = 12,
+  month     = Dec,
+  year      = 2007,
+  pages     = "4422-4437",
+  doi       = "10.1109/TIT.2007.909166"
+}
+
+@inproceedings{mcdonald2005non,
+  title={Non-projective dependency parsing using spanning tree algorithms},
+  author={McDonald, Ryan and Pereira, Fernando and Ribarov, Kiril and Haji{\v{c}}, Jan},
+  booktitle={Proceedings of the conference on Human Language Technology and Empirical Methods in Natural Language Processing},
+  pages={523--530},
+  year={2005},
+  organization={Association for Computational Linguistics}
+}
+
+@ARTICLE{lauritzen1992propagation,
+  author = {Lauritzen, S.L.},
+  title = {Propagation of probabilities, means, and variances in mixed graphical
+	association models},
+  journal = {Journal of the American Statistical Association},
+  year = {1992},
+  pages = {1098--1108},
+  publisher = {JSTOR}
+}
+
+@ARTICLE{lawrence2006gaussian,
+  author = {Lawrence, N.D. and Jordan, M.I.},
+  title = {Gaussian processes and the null-category noise model},
+  journal = {Semi-Supervised Learning},
+  year = {2006}
+}
+@book{cucker2007learning,
+  title={Learning theory: an approximation theory viewpoint},
+  author={Cucker, Felipe and Zhou, Ding Xuan},
+  number={24},
+  year={2007},
+  publisher={Cambridge University Press}
+}
+
+@article{yedidia2003understanding,
+  title={Understanding belief propagation and its generalizations},
+  author={Yedidia, Jonathan S and Freeman, William T and Weiss, Yair},
+  journal={Exploring artificial intelligence in the new millennium},
+  volume={8},
+  pages={236--239},
+  year={2003},
+  publisher={chapter}
+}
+
+@incollection{dagan2006pascal,
+  title={The pascal recognising textual entailment challenge},
+  author={Dagan, Ido and Glickman, Oren and Magnini, Bernardo},
+  booktitle={Machine Learning Challenges. Evaluating Predictive Uncertainty, Visual Object Classification, and Recognising Tectual Entailment},
+  pages={177--190},
+  year={2006},
+  publisher={Springer}
+}
+
+@ARTICLE{lawrence2005semi,
+  author = {Lawrence, N.D. and Jordan, M.I.},
+  title = {Semi-supervised learning via Gaussian processes},
+  journal = {Advances in neural information processing systems},
+  year = {2005},
+  volume = {17},
+  pages = {753--760},
+  publisher = {Citeseer}
+}
+
+@INPROCEEDINGS{lawrence2004learning,
+  author = {Lawrence, N.D. and Platt, J.C.},
+  title = {Learning to learn with the informative vector machine},
+  booktitle = {Proceedings of the twenty-first international conference on Machine
+	learning},
+  year = {2004},
+  pages = {65},
+  organization = {ACM}
+}
+
+@ARTICLE{lawrence2005extensions,
+  author = {Lawrence, N. and Platt, J. and Jordan, M.},
+  title = {Extensions of the informative vector machine},
+  journal = {Deterministic and Statistical Methods in Machine Learning},
+  year = {2005},
+  pages = {56--87},
+  publisher = {Springer}
+}
+
+@ARTICLE{lawrence2005informative,
+  author = {Lawrence, N.D. and Seeger, M. and Herbrich, R.},
+  title = {The informative vector machine: A practical probabilistic alternative
+	to the support vector machine},
+  journal = {Dept. Computer Science, University of Sheffield, Tech. Rep},
+  year = {2005}
+}
+
+@ARTICLE{lawrence2002fast,
+  author = {Lawrence, N.D. and Seeger, M. and Herbrich, R.},
+  title = {Fast sparse Gaussian process methods: The informative vector machine},
+  journal = {Advances in neural information processing systems},
+  year = {2002},
+  volume = {15},
+  pages = {609--616}
+}
+
+@INPROCEEDINGS{lawrence2009non,
+  author = {Lawrence, N.D. and Urtasun, R.},
+  title = {Non-linear matrix factorization with Gaussian processes},
+  booktitle = {Proceedings of the 26th Annual International Conference on Machine
+	Learning},
+  year = {2009},
+  pages = {601--608},
+  organization = {ACM}
+}
+
+@ARTICLE{lee2002flexible,
+  author = {Lee, H.K.H. and Holloman, C.H. and Calder, C.A. and Higdon, D.M.},
+  title = {Flexible Gaussian processes via convolution},
+  journal = {Duke University},
+  year = {2002}
+}
+
+@ARTICLE{li2012erd,
+  author = {Li, Dingcheng and Somasundaran, Swapna and Chakraborty, Amit},
+  title = {ERD-MedLDA: Entity relation detection using supervised topic models
+	with maximum margin learning},
+  journal = {Natural Language Engineering},
+  year = {2012},
+  volume = {18},
+  pages = {263},
+  number = {2}
+}
+
+@INPROCEEDINGS{Li2005,
+  author = {Li, Wei and McCallum, Andrew},
+  title = {Semi-supervised sequence modeling with syntactic topic models},
+  booktitle = {Proceedings of the National Conference on Artificial Intelligence},
+  year = {2005},
+  volume = {20},
+  number = {2},
+  pages = {813},
+  organization = {Menlo Park, CA; Cambridge, MA; London; AAAI Press; MIT Press; 1999}
+}
+
+@INPROCEEDINGS{Li2005a,
+  author = {Li, Wei and McCallum, Andrew},
+  title = {Semi-supervised sequence modeling with syntactic topic models},
+  booktitle = {Proceedings of the National Conference on Artificial Intelligence},
+  year = {2005},
+  volume = {20},
+  number = {2},
+  pages = {813},
+  organization = {Menlo Park, CA; Cambridge, MA; London; AAAI Press; MIT Press; 1999}
+}
+
+@INPROCEEDINGS{li2005semi,
+  author = {Li, Wei and McCallum, Andrew},
+  title = {Semi-supervised sequence modeling with syntactic topic models},
+  booktitle = {Proceedings of the National Conference on Artificial Intelligence},
+  year = {2005},
+  volume = {20},
+  number = {2},
+  pages = {813},
+  organization = {Menlo Park, CA; Cambridge, MA; London; AAAI Press; MIT Press; 1999}
+}
+
+@INPROCEEDINGS{Liang2007,
+  author = {Liang, Percy and Petrov, Slav and Jordan, Michael and Klein, Dan},
+  title = {The infinite PCFG using hierarchical Dirichlet processes},
+  booktitle = {Proceedings of the 2007 Joint Conference on Empirical Methods in
+	Natural Language Processing and Computational Natural Language Learning
+	(EMNLP-CoNLL)},
+  year = {2007},
+  pages = {688--697}
+}
+
+@INPROCEEDINGS{liang2007infinite,
+  author = {Liang, Percy and Petrov, Slav and Jordan, Michael and Klein, Dan},
+  title = {The infinite PCFG using hierarchical Dirichlet processes},
+  booktitle = {Proceedings of the 2007 Joint Conference on Empirical Methods in
+	Natural Language Processing and Computational Natural Language Learning
+	(EMNLP-CoNLL)},
+  year = {2007},
+  pages = {688--697}
+}
+
+@INPROCEEDINGS{lu2008opinion,
+  author = {Lu, Yue and Zhai, Chengxiang},
+  title = {Opinion integration through semi-supervised topic modeling},
+  booktitle = {Proceedings of the 17th international conference on WORLd wide web},
+  year = {2008},
+  pages = {121--130},
+  organization = {ACM}
+}
+
+@ARTICLE{mackay1995probable,
+  author = {MacKay, D.J.C.},
+  title = {Probable networks and plausible predictions-a review of practical
+	Bayesian methods for supervised neural networks},
+  journal = {Network: Computation in Neural Systems},
+  year = {1995},
+  volume = {6},
+  pages = {469--505},
+  number = {3},
+  publisher = {Informa UK Ltd UK}
+}
+
+@ARTICLE{mackay1999comparison,
+  author = {MacKay, D.J.C. and others},
+  title = {Comparison of approximate methods for handling hyperparameters},
+  journal = {Neural computation},
+  year = {1999},
+  volume = {11},
+  pages = {1035--1068},
+  number = {5},
+  publisher = {Citeseer}
+}
+
+@INPROCEEDINGS{mao2012sshlda,
+  author = {Mao, Xian-Ling and Ming, Zhao-Yan and Chua, Tat-Seng and Li, Si and
+	Yan, Hongfei and Li, Xiaoming},
+  title = {SSHLDA: a semi-supervised hierarchical topic model},
+  booktitle = {Proceedings of the 2012 Joint Conference on Empirical Methods in
+	Natural Language Processing and Computational Natural Language Learning},
+  year = {2012},
+  pages = {800--809},
+  organization = {Association for Computational Linguistics}
+}
+
+@BOOK{maybeck1979STOChastic,
+  title = {Stochastic models, estimation and control},
+  publisher = {Academic Pr},
+  year = {1979},
+  author = {Maybeck, P.S.},
+  volume = {1}
+}
+
+@ARTICLE{McCallum2005,
+  author = {McCallum, Andrew and Corrada-Emmanuel, Andr{\'e}s and Wang, Xuerui},
+  title = {The author-recipient-topic model for topic and role discovery in
+	social networks: Experiments with enron and academic email},
+  year = {2005}
+}
+
+@ARTICLE{mccallum2005author,
+  author = {McCallum, Andrew and Corrada-Emmanuel, Andr{\'e}s and Wang, Xuerui},
+  title = {The author-recipient-topic model for topic and role discovery in
+	social networks: Experiments with enron and academic email},
+  year = {2005}
+}
+
+@ARTICLE{melkumyan2009multi,
+  author = {Melkumyan, A. and Ramos, F.},
+  title = {Multi-kernel Gaussian processes},
+  journal = {Neural Information Processing Systems (NIPS). MIT Press},
+  year = {2009}
+}
+
+@ARTICLE{melkumyan2009sparse,
+  author = {Melkumyan, A. and Ramos, F.},
+  title = {A sparse covariance function for exact gaussian process inference
+	in large datasets},
+  journal = {The 21st IJCAI},
+  year = {2009}
+}
+
+@ARTICLE{metropolis1953equation,
+  author = {Metropolis, N. and Rosenbluth, A.W. and Rosenbluth, M.N. and Teller,
+	A.H. and Teller, E.},
+  title = {Equation of state calculations by fast computing machines},
+  journal = {The journal of chemical physics},
+  year = {1953},
+  volume = {21},
+  pages = {1087}
+}
+
+@ARTICLE{micchelli2004kernels,
+  author = {Micchelli, C.A. and Pontil, M.},
+  title = {Kernels for multi-task learning},
+  journal = {Advances in Neural Information Processing Systems},
+  year = {2004},
+  volume = {17},
+  pages = {921--928}
+}
+
+@ARTICLE{micchelli2004regularized,
+  author = {Micchelli, C.A. and Pontil, M.},
+  title = {Regularized multi-task learning},
+  year = {2004},
+  publisher = {Citeseer}
+}
+
+@INPROCEEDINGS{mimno2011optimizing,
+  author = {Mimno, David and Wallach, Hanna M and Talley, Edmund and Leenders,
+	Miriam and McCallum, Andrew},
+  title = {Optimizing semantic coherence in topic models},
+  booktitle = {Proceedings of the Conference on Empirical Methods in Natural Language
+	Processing},
+  year = {2011},
+  pages = {262--272},
+  organization = {Association for Computational Linguistics}
+}
+
+@ARTICLE{minka2004power,
+  author = {Minka, Thomas},
+  title = {Power ep},
+  journal = {Dep. Statistics, Carnegie Mellon University, Pittsburgh, PA, Tech.
+	Rep},
+  year = {2004}
+}
+
+@INPROCEEDINGS{Minka2001,
+  author = {Minka, T.P.},
+  title = {Expectation propagation for approximate Bayesian inference},
+  booktitle = {Proceedings of the Seventeenth conference on Uncertainty in artificial
+	intelligence},
+  year = {2001},
+  pages = {362--369},
+  organization = {Morgan Kaufmann Publishers Inc.}
+}
+
+@PHDTHESIS{minka2001family,
+  author = {Minka, T.P.},
+  title = {A family of algorithms for approximate Bayesian inference},
+  school = {Massachusetts Institute of Technology},
+  year = {2001}
+}
+
+@INPROCEEDINGS{minka2001expectation,
+  author = {Minka, Thomas P},
+  title = {Expectation propagation for approximate Bayesian inference},
+  booktitle = {Proceedings of the Seventeenth conference on Uncertainty in artificial
+	intelligence},
+  year = {2001},
+  pages = {362--369},
+  organization = {Morgan Kaufmann Publishers Inc.}
+}
+
+@INPROCEEDINGS{Mintz2009,
+  author = {Mintz, Mike and Bills, Steven and Snow, Rion and Jurafsky, Dan},
+  title = {Distant supervision for relation extraction without labeled data},
+  booktitle = {Proceedings of the Joint Conference of the 47th Annual Meeting of
+	the ACL and the 4th International Joint Conference on Natural Language
+	Processing of the AFNLP: Volume 2-Volume 2},
+  year = {2009},
+  pages = {1003--1011},
+  organization = {Association for Computational Linguistics}
+}
+
+@INPROCEEDINGS{Mintz2009a,
+  author = {Mintz, Mike and Bills, Steven and Snow, Rion and Jurafsky, Dan},
+  title = {Distant supervision for relation extraction without labeled data},
+  booktitle = {Proceedings of the Joint Conference of the 47th Annual Meeting of
+	the ACL and the 4th International Joint Conference on Natural Language
+	Processing of the AFNLP: Volume 2-Volume 2},
+  year = {2009},
+  pages = {1003--1011},
+  organization = {Association for Computational Linguistics}
+}
+
+@INPROCEEDINGS{mintz2009distant,
+  author = {Mintz, Mike and Bills, Steven and Snow, Rion and Jurafsky, Dan},
+  title = {Distant supervision for relation extraction without labeled data},
+  booktitle = {Proceedings of the Joint Conference of the 47th Annual Meeting of
+	the ACL and the 4th International Joint Conference on Natural Language
+	Processing of the AFNLP: Volume 2-Volume 2},
+  year = {2009},
+  pages = {1003--1011},
+  organization = {Association for Computational Linguistics}
+}
+
+@ARTICLE{mitchell2008vector,
+  author = {Mitchell, Jeff and Lapata, Mirella},
+  title = {Vector-based models of semantic composition},
+  journal = {proceedings of ACL-08: HLT},
+  year = {2008},
+  pages = {236--244},
+  publisher = {Columbus, OH}
+}
+
+@ARTICLE{mnih2009scalable,
+  author = {Mnih, Andriy and Hinton, Geoffrey E},
+  title = {A scalable hierarchical distributed language model},
+  journal = {Advances in neural information processing systems},
+  year = {2009},
+  volume = {21},
+  pages = {1081--1088}
+}
+
+@ARTICLE{mnih2012fast,
+  author = {Mnih, Andriy and Teh, Yee Whye},
+  title = {A fast and simple algorithm for training neural probabilistic language
+	models},
+  journal = {arXiv preprint arXiv:1206.6426},
+  year = {2012}
+}
+
+@INPROCEEDINGS{mukherjee2012aspect,
+  author = {Mukherjee, Arjun and Liu, Bing},
+  title = {Aspect extraction through semi-supervised modeling},
+  booktitle = {Proceedings of the 50th Annual Meeting of the Association for Computational
+	Linguistics: Long Papers-Volume 1},
+  year = {2012},
+  pages = {339--348},
+  organization = {Association for Computational Linguistics}
+}
+
+@ARTICLE{neal1997monte,
+  author = {Neal, R.M.},
+  title = {Monte Carlo implementation of Gaussian process models for Bayesian
+	regression and classification},
+  journal = {Arxiv preprint physics/9701026},
+  year = {1997}
+}
+
+@BOOK{neal1996bayesian,
+  title = {Bayesian learning for neural networks},
+  publisher = {Springer Verlag},
+  year = {1996},
+  author = {Neal, R.M.},
+  volume = {118}
+}
+
+@INPROCEEDINGS{newman2006statistical,
+  author = {Newman, David and Chemudugunta, Chaitanya and Smyth, Padhraic},
+  title = {Statistical entity-topic models},
+  booktitle = {Proceedings of the 12th ACM SIGKDD international conference on Knowledge
+	discovery and data mining},
+  year = {2006},
+  pages = {680--686},
+  organization = {ACM}
+}
+
+@INPROCEEDINGS{nilsback2008automated,
+  author = {Nilsback, M.E. and Zisserman, A.},
+  title = {Automated flower classification over a large number of classes},
+  booktitle = {Computer Vision, Graphics \& Image Processing, 2008. ICVGIP'08. Sixth
+	Indian Conference on},
+  year = {2008},
+  pages = {722--729},
+  organization = {IEEE}
+}
+
+@ARTICLE{opper2008improving,
+  author = {Opper, Manfred and Paquet, Ulrich and Winther, Ole},
+  title = {Improving on expectation propagation},
+  journal = {Advances in Neural Information Processing Systems (NIPS)},
+  year = {2008},
+  volume = {2008},
+  pages = {8--13}
+}
+
+@ARTICLE{opper2000gaussian,
+  author = {Opper, M. and Winther, O.},
+  title = {Gaussian processes for classification: Mean-field algorithms},
+  journal = {Neural Computation},
+  year = {2000},
+  volume = {12},
+  pages = {2655--2684},
+  number = {11},
+  publisher = {MIT Press}
+}
+
+@INPROCEEDINGS{Osborne2008,
+  author = {Osborne, M. A. and Roberts, S. J. and Rogers, A. and Ramchurn, S.
+	D. and Jennings, N. R.},
+  title = {Towards Real-Time Information Processing of Sensor Network Data Using
+	Computationally Efficient Multi-output Gaussian Processes},
+  booktitle = {Proceedings of the 7th international conference on Information processing
+	in sensor networks},
+  year = {2008},
+  series = {IPSN '08},
+  pages = {109--120},
+  address = {Washington, DC, USA},
+  publisher = {IEEE Computer Society},
+  acmid = {1372727},
+  doi = {http://dx.doi.org/10.1109/IPSN.2008.25},
+  isbn = {978-0-7695-3157-1},
+  keywords = {sensor network, Gaussian processes, information processing},
+  numpages = {12},
+  url = {http://dx.doi.org/10.1109/IPSN.2008.25}
+}
+
+@INPROCEEDINGS{pacheco2012improved,
+  author = {Pacheco, Jason L and Sudderth, Erik B},
+  title = {Improved variational inference for tracking in clutter},
+  booktitle = {Statistical Signal Processing Workshop (SSP), 2012 IEEE},
+  year = {2012},
+  pages = {852--855},
+  organization = {IEEE}
+}
+
+@article{auer2002nonSTOChastic,
+  title={The nonSTOChastic multiarmed bandit problem},
+  author={Auer, Peter and Cesa-Bianchi, Nicolo and Freund, Yoav and Schapire, Robert E},
+  journal=SICOMP,
+  volume={32},
+  number={1},
+  pages={48--77},
+  year={2002},
+  publisher={SIAM}
+}
+
+@INPROCEEDINGS{paul2012factorial,
+  author = {Paul, Michael and Dredze, Mark},
+  title = {Factorial LDA: Sparse Multi-Dimensional Text Models},
+  booktitle = {Advances in Neural Information Processing Systems 25},
+  year = {2012},
+  pages = {2591--2599}
+}
+
+@ARTICLE{petterson2011word,
+  author = {Petterson, James and Smola, AJ and Caetano, Tiberio and Buntine,
+	Wray and Narayanamurthy, Shravan},
+  title = {Word features for latent Dirichlet allocation},
+  year = {2011}
+}
+
+@INPROCEEDINGS{pilz2009named,
+  author = {Pilz, Anja and Paa{\ss}, Gerhard},
+  title = {Named entity resolution using automatically extracted semantic information},
+  booktitle = {Workshop on Knowledge Discovery, Data Mining, and Machine Learning},
+  year = {2009},
+  pages = {84--91}
+}
+
+@ARTICLE{psorakis2010multiclass,
+  author = {Psorakis, I. and Damoulas, T. and Girolami, M.A.},
+  title = {Multiclass relevance vector machines: Sparsity and accuracy},
+  journal = {IEEE Transactions on Neural Networks},
+  year = {2010},
+  volume = {21},
+  pages = {1588--1598},
+  number = {10},
+  publisher = {IEEE}
+}
+
+@ARTICLE{punyakanok2001use,
+  author = {Punyakanok, Vasin and Roth, Dan},
+  title = {The use of classifiers in sequential inference},
+  journal = {arXiv preprint cs/0111003},
+  year = {2001}
+}
+
+@INPROCEEDINGS{putthividhya2009independent,
+  author = {Putthividhya, Duangmanee Pew and Attias, Hagai T and Nagarajan, Srikantan},
+  title = {Independent factor topic models},
+  booktitle = {Proceedings of the 26th Annual International Conference on Machine
+	Learning},
+  year = {2009},
+  pages = {833--840},
+  organization = {ACM}
+}
+
+@ARTICLE{quinonero2005unifying,
+  author = {Quinonero-Candela, J. and Rasmussen, C.E.},
+  title = {A unifying view of sparse approximate Gaussian process regression},
+  journal = {The Journal of Machine Learning Research},
+  year = {2005},
+  volume = {6},
+  pages = {1939--1959},
+  publisher = {JMLR. org}
+}
+
+@ARTICLE{raftery1992many,
+  author = {Raftery, A.E. and Lewis, S.},
+  title = {How many iterations in the Gibbs sampler},
+  journal = {Bayesian statistics},
+  year = {1992},
+  volume = {4},
+  pages = {763--773},
+  number = {2}
+}
+
+@INPROCEEDINGS{Ramage2009,
+  author = {Ramage, Daniel and Hall, David and Nallapati, Ramesh and Manning,
+	Christopher D},
+  title = {Labeled LDA: A supervised topic model for credit attribution in multi-labeled
+	corpora},
+  booktitle = {Proceedings of the 2009 Conference on Empirical Methods in Natural
+	Language Processing: Volume 1-Volume 1},
+  year = {2009},
+  pages = {248--256},
+  organization = {Association for Computational Linguistics}
+}
+
+@INPROCEEDINGS{ramage2009labeled,
+  author = {Ramage, Daniel and Hall, David and Nallapati, Ramesh and Manning,
+	Christopher D},
+  title = {Labeled LDA: A supervised topic model for credit attribution in multi-labeled
+	corpora},
+  booktitle = {Proceedings of the 2009 Conference on Empirical Methods in Natural
+	Language Processing: Volume 1-Volume 1},
+  year = {2009},
+  pages = {248--256},
+  organization = {Association for Computational Linguistics}
+}
+
+@INPROCEEDINGS{ramage2011partially,
+  author = {Ramage, Daniel and Manning, Christopher D and Dumais, Susan},
+  title = {Partially labeled topic models for interpretable text mining},
+  booktitle = {Proceedings of the 17th ACM SIGKDD international conference on Knowledge
+	discovery and data mining},
+  year = {2011},
+  pages = {457--465},
+  organization = {ACM}
+}
+
+@ARTICLE{rasmussen2001occam,
+  author = {Rasmussen, C.E. and Ghahramani, Z.},
+  title = {Occam's razor},
+  journal = {Advances in neural information processing systems},
+  year = {2001},
+  pages = {294--300},
+  publisher = {MIT; 1998}
+}
+
+@ARTICLE{rasmussen2010gaussian,
+  author = {Rasmussen, C.E. and Nickisch, H.},
+  title = {Gaussian processes for machine learning (GPML) toolbox},
+  journal = {The Journal of Machine Learning Research},
+  year = {2010},
+  volume = {11},
+  pages = {3011--3015},
+  publisher = {JMLR. org}
+}
+
+@ARTICLE{rasmussen38gaussian,
+  author = {Rasmussen, C.E. and Williams, CKI},
+  title = {Gaussian Processes for Machine Learning},
+  journal = {The MIT Press, Cambridge, MA, USA},
+  year = {2006},
+  volume = {38},
+  pages = {715--719}
+}
+
+@INCOLLECTION{SocherEtAl2013:CVG,
+  author = {{Richard Socher and John Bauer and Christopher D. Manning and Andrew
+	Y. Ng}},
+  title = {{Parsing With Compositional Vector Grammars}},
+  booktitle = {{ACL}},
+  year = {2013}
+}
+
+@INCOLLECTION{Riedel2010,
+  author = {Riedel, Sebastian and Yao, Limin and McCallum, Andrew},
+  title = {Modeling relations and their mentions without labeled text},
+  booktitle = {Machine Learning and Knowledge Discovery in Databases},
+  publisher = {Springer},
+  year = {2010},
+  pages = {148--163}
+}
+
+@INCOLLECTION{riedel2010modeling,
+  author = {Riedel, Sebastian and Yao, Limin and McCallum, Andrew},
+  title = {Modeling relations and their mentions without labeled text},
+  booktitle = {Machine Learning and Knowledge Discovery in Databases},
+  publisher = {Springer},
+  year = {2010},
+  pages = {148--163}
+}
+
+@ARTICLE{Roth2007,
+  author = {Roth, Dan and Yih, Wen-tau},
+  title = {Global inference for entity and relation identification via a linear
+	programming formulation},
+  journal = {Introduction to Statistical Relational Learning},
+  year = {2007},
+  pages = {553--580},
+  publisher = {The MIT Press}
+}
+
+@ARTICLE{roth2007global,
+  author = {Roth, Dan and Yih, Wen-tau},
+  title = {Global inference for entity and relation identification via a linear
+	programming formulation},
+  journal = {Introduction to Statistical Relational Learning},
+  year = {2007},
+  pages = {553--580},
+  publisher = {The MIT Press}
+}
+
+@ARTICLE{rubin2012statistical,
+  author = {Rubin, Timothy N and Chambers, America and Smyth, Padhraic and Steyvers,
+	Mark},
+  title = {Statistical topic models for multi-label document classification},
+  journal = {Machine learning},
+  year = {2012},
+  volume = {88},
+  pages = {157--208},
+  number = {1-2},
+  publisher = {Springer}
+}
+
+@INPROCEEDINGS{sarikaya2009tied,
+  author = {Sarikaya, Ruhi and Afify, Mohamed and Kingsbury, Brian},
+  title = {Tied-mixture language modeling in continuous space},
+  booktitle = {Proceedings of Human Language Technologies: The 2009 Annual Conference
+	of the North American Chapter of the Association for Computational
+	Linguistics},
+  year = {2009},
+  pages = {459--467},
+  organization = {Association for Computational Linguistics}
+}
+
+@INPROCEEDINGS{seeger2003fast,
+  author = {Seeger, M. and Williams, C.K.I. and Lawrence, N.D.},
+  title = {Fast forward selection to speed up sparse Gaussian process regression},
+  booktitle = {Workshop on AI and Statistics},
+  year = {2003},
+  volume = {9},
+  pages = {2003}
+}
+
+@ARTICLE{seeger2010fast,
+  author = {Seeger, Matthias W and Nickisch, Hannes},
+  title = {Fast convergent algorithms for expectation propagation approximate
+	Bayesian inference},
+  journal = {arXiv preprint arXiv:1012.3584},
+  year = {2010}
+}
+
+@INPROCEEDINGS{sen2012collective,
+  author = {Sen, Prithviraj},
+  title = {Collective context-aware topic models for entity disambiguation},
+  booktitle = {Proceedings of the 21st international conference on WORLd Wide Web},
+  year = {2012},
+  pages = {729--738},
+  organization = {ACM}
+}
+
+@article{k-rnn-2013,
+	title={On the Recursive Neural Networks for Relation Extraction and Entity Recognition},
+	author={\textbf{Khashabi}, \textbf{Daniel}},
+	year={2013},
+	note =         {Available online at {\footnotesize \url{https://www.ideals.illinois.edu/handle/2142/46992}}},
+}
+
+@article{kbrp-mctest-2014,
+	title={Some Notes on Modeling the Semantic Flow of Narratives},
+	author={\textbf{Khashabi}, \textbf{Daniel} and Burges, Christopher JC and Pastusiak, Erin Renshaw Andrzej},
+	note = {Available online at {\footnotesize \url{http://web.engr.illinois.edu/~khashab2/files/2014_Semantics_MCTest/2014_mctest_experiments.pdf}}},
+	year={2014}
+}
+
+@article{knjf-joint-2014,
+	title={Joint Demosaicing and Denoising via Learned Nonparametric Random Fields},
+	author={\textbf{Khashabi}, \textbf{Daniel} and Nowozin, Sebastian and Jancsary, Jeremy and Fitzgibbon, Andrew W},
+	journal={Image Processing, IEEE Transactions on},
+	volume={23},
+	number={12},
+	pages={4968--4981},
+	year={2014},
+	publisher={IEEE}
+}
+
+@inproceedings{nktnj-atnn-2011,
+	title={Adaptive tiled neural networks},
+	author={Nokhbeh-Zaeem, Mohammad and \textbf{Khashabi}, \textbf{Daniel} and Talebi, Heidar Ali and Navabi, Sh and Jabbarvaziri, F},
+	booktitle={Systems, Man, and Cybernetics (SMC), 2011 IEEE International Conference on},
+	pages={2543--2548},
+	year={2011},
+	organization={IEEE}
+}
+
+@article{khardonRoth-l2r-1997,
+  title={Learning to reason},
+  author={Khardon, Roni and Roth, Dan},
+  journal={Journal of the ACM (JACM)},
+  volume={44},
+  number={5},
+  pages={697--725},
+  year={1997},
+  publisher={ACM}
+}
+
+@article{bottou2014machine,
+  title={From machine learning to machine reasoning},
+  author={Bottou, L{\'e}on},
+  journal={Machine learning},
+  volume={94},
+  number={2},
+  pages={133--149},
+  year={2014},
+  publisher={Springer}
+}
+
+@article{kwll-clusteringSideInformation-2015,
+	title={Clustering With Side Information: From a Probabilistic Model to a Deterministic Algorithm},
+	author={\textbf{Khashabi}, \textbf{Daniel} and Liu, Jeffrey Yufei and Wieting, John and Liang, Feng},
+	journal={arXiv preprint arXiv:1508.06235},
+	year={2015}
+}
+
+@InProceedings{pkr-hardCoref-2015,
+	author    = {Peng, Haoruo  and  \textbf{Khashabi}, \textbf{Daniel}  and  Roth, Dan},
+	title     = {Solving Hard Coreference Problems},
+	booktitle = {Proceedings of the 2015 Conference of the North American Chapter of the Association for Computational Linguistics: Human Language Technologies},
+	month     = {May--June},
+	year      = {2015},
+	address   = {Denver, Colorado},
+	publisher = {Association for Computational Linguistics},
+	pages     = {809--819},
+	url       = {http://www.aclweb.org/anthology/N15-1082}
+}
+
+
+@article{cekkstt-combiningSolvers-2016,
+	title={Combining Retrieval, Statistics, and Inference to Answer Elementary Science Questions},
+	author={Clark, Peter and Etzioni, Oren and \textbf{Khashabi}, \textbf{D.} and Khot, Tushar and Sabharwal, Ashish and Tafjord, Oyvind and Turney, Peter},
+	booktitle = {Proceedings of The Conference on Artificial Intelligence (AAAI)},
+	organization = {AAAI Press},
+	year={2016}
+}
+
+@article{fkpwr-profiler-2015,
+	title={ILLINOIS-PROFILER: Knowledge Schemas at Scale},
+	author={Fei, Z. and \textbf{Khashabi}, \textbf{D.} and Peng, Haoruo and Wu, Hao and Roth, Dan},
+	booktitle = {IJCAI Workshop on Cognitive Knowledge Acquisition and Applications (Cognitum 2015)},
+	year={2015}
+}
+
+@inproceedings{qk-onlineLearningAdversarialDelays-2015,
+	title={Online Learning with Adversarial Delays},
+	author={Quanrud, K. and \textbf{Khashabi}, \textbf{D.}},
+	booktitle={Advances in Neural Information Processing Systems},
+	pages={1270--1278},
+	year={2015}
+}
+
+@TECHREPORT{ShahrbafKhashabi11a,
+  author = {Shahrbaf, M. and Khashabi, D.},
+  title = {Facial Feature Tracking, Extraction and Reduction},
+  institution = {Amirkabir University of Technology(Tehran Polytechnic)},
+  year = {2011},
+  note = {Under the supervision of Mahdi M. Kalayeh and Hamid Sheikhzadeh Nadjar},
+  url = {http://www.khashabi.myproxima.ir/2011_RVM_Facial_Feature/2011_internship_report.pdf}
+}
+
+@INPROCEEDINGS{Shao2009,
+  author = {Shao, Yuanlong and Zhou, Yuan and He, Xiaofei and Cai, Deng and Bao,
+	Hujun},
+  title = {Semi-supervised topic modeling for image annotation},
+  booktitle = {Proceedings of the 17th ACM international conference on Multimedia},
+  year = {2009},
+  pages = {521--524},
+  organization = {ACM}
+}
+
+@INPROCEEDINGS{shao2009semi,
+  author = {Shao, Yuanlong and Zhou, Yuan and He, Xiaofei and Cai, Deng and Bao,
+	Hujun},
+  title = {Semi-supervised topic modeling for image annotation},
+  booktitle = {Proceedings of the 17th ACM international conference on Multimedia},
+  year = {2009},
+  pages = {521--524},
+  organization = {ACM}
+}
+
+@PHDTHESIS{sharifi2009semi,
+  author = {Sharifi, Mehrbod},
+  title = {Semi-supervised extraction of entity aspects using topic models},
+  school = {Carnegie Mellon University},
+  year = {2009}
+}
+
+@INPROCEEDINGS{shinyama2006preemptive,
+  author = {Shinyama, Yusuke and Sekine, Satoshi},
+  title = {Preemptive information extraction using unrestricted relation discovery},
+  booktitle = {Proceedings of the main conference on Human Language Technology Conference
+	of the North American Chapter of the Association of Computational
+	Linguistics},
+  year = {2006},
+  pages = {304--311},
+  organization = {Association for Computational Linguistics}
+}
+
+@INPROCEEDINGS{shu2009latent,
+  author = {Shu, Liangcai and Long, Bo and Meng, Weiyi},
+  title = {A latent topic model for complete entity resolution},
+  booktitle = {Data Engineering, 2009. ICDE'09. IEEE 25th International Conference
+	on},
+  year = {2009},
+  pages = {880--891},
+  organization = {IEEE}
+}
+
+@ARTICLE{silverman1985some,
+  author = {Silverman, B.W.},
+  title = {Some aspects of the spline smoothing approach to non-parametric regression
+	curve fitting},
+  journal = {Journal of the Royal Statistical Society. Series B (Methodological)},
+  year = {1985},
+  pages = {1--52},
+  publisher = {JSTOR}
+}
+
+@ARTICLE{smith1993bayesian,
+  author = {Smith, A.F.M. and Roberts, G.O.},
+  title = {Bayesian computation via the Gibbs sampler and related Markov chain
+	Monte Carlo methods},
+  journal = {Journal of the Royal Statistical Society. Series B (Methodological)},
+  year = {1993},
+  pages = {3--23},
+  publisher = {JSTOR}
+}
+
+@INPROCEEDINGS{smola2001sparse,
+  author = {Smola, A.J. and Bartlett, P.},
+  title = {Sparse greedy Gaussian process regression},
+  booktitle = {Advances in Neural Information Processing Systems 13},
+  year = {2001}
+}
+
+@ARTICLE{snelson2006sparse,
+  author = {Snelson, E. and Ghahramani, Z.},
+  title = {Sparse Gaussian processes using pseudo-inputs},
+  year = {2006}
+}
+
+@INCOLLECTION{SocherEtAl2011:PoolRAE,
+  author = {Richard Socher and Eric H. Huang and Jeffrey Pennington and Andrew
+	Y. Ng and Christopher D. Manning},
+  title = {Dynamic Pooling and Unfolding Recursive Autoencoders for Paraphrase
+	Detection},
+  booktitle = {Advances in Neural Information Processing Systems 24},
+  year = {2011}
+}
+
+@INPROCEEDINGS{Socher2012,
+  author = {Socher, Richard and Huval, Brody and Manning, Christopher D and Ng,
+	Andrew Y},
+  title = {Semantic compositionality through recursive matrix-vector spaces},
+  booktitle = {Proceedings of the 2012 Joint Conference on Empirical Methods in
+	Natural Language Processing and Computational Natural Language Learning},
+  year = {2012},
+  pages = {1201--1211},
+  organization = {Association for Computational Linguistics}
+}
+
+@INPROCEEDINGS{socher2012semantic,
+  author = {Socher, Richard and Huval, Brody and Manning, Christopher D and Ng,
+	Andrew Y},
+  title = {Semantic compositionality through recursive matrix-vector spaces},
+  booktitle = {Proceedings of the 2012 Joint Conference on Empirical Methods in
+	Natural Language Processing and Computational Natural Language Learning},
+  year = {2012},
+  pages = {1201--1211},
+  organization = {Association for Computational Linguistics}
+}
+
+@INPROCEEDINGS{SocherEtAl2011:RNN,
+  author = {Richard Socher and Cliff C. Lin and Andrew Y. Ng and Christopher
+	D. Manning},
+  title = {{Parsing Natural Scenes and Natural Language with Recursive Neural
+	Networks}},
+  booktitle = {Proceedings of the 26th International Conference on Machine Learning
+	(ICML)},
+  year = {2011}
+}
+
+@INPROCEEDINGS{socher2010learning,
+  author = {Socher, Richard and Manning, Christopher D and Ng, Andrew Y},
+  title = {Learning continuous phrase representations and syntactic parsing
+	with recursive neural networks},
+  booktitle = {Proceedings of the NIPS-2010 Deep Learning and Unsupervised Feature
+	Learning Workshop},
+  year = {2010}
+}
+
+@INPROCEEDINGS{socher2011semi,
+  author = {Socher, Richard and Pennington, Jeffrey and Huang, Eric H and Ng,
+	Andrew Y and Manning, Christopher D},
+  title = {Semi-supervised recursive autoencoders for predicting sentiment distributions},
+  booktitle = {Proceedings of the Conference on Empirical Methods in Natural Language
+	Processing},
+  year = {2011},
+  pages = {151--161},
+  organization = {Association for Computational Linguistics}
+}
+
+@INPROCEEDINGS{srikumar2012amortizing,
+  author = {Srikumar, Vivek and Kundu, Gourab and Roth, Dan},
+  title = {On amortizing inference cost for structured prediction},
+  booktitle = {Proceedings of the 2012 Joint Conference on Empirical Methods in
+	Natural Language Processing and Computational Natural Language Learning},
+  year = {2012},
+  pages = {1114--1124},
+  organization = {Association for Computational Linguistics}
+}
+
+@INPROCEEDINGS{Steyvers2004,
+  author = {Steyvers, Mark and Smyth, Padhraic and Rosen-Zvi, Michal and Griffiths,
+	Thomas},
+  title = {Probabilistic author-topic models for information discovery},
+  booktitle = {Proceedings of the tenth ACM SIGKDD international conference on Knowledge
+	discovery and data mining},
+  year = {2004},
+  pages = {306--315},
+  organization = {ACM}
+}
+
+@INPROCEEDINGS{steyvers2004probabilistic,
+  author = {Steyvers, Mark and Smyth, Padhraic and Rosen-Zvi, Michal and Griffiths,
+	Thomas},
+  title = {Probabilistic author-topic models for information discovery},
+  booktitle = {Proceedings of the tenth ACM SIGKDD international conference on Knowledge
+	discovery and data mining},
+  year = {2004},
+  pages = {306--315},
+  organization = {ACM}
+}
+
+@INPROCEEDINGS{surdeanu2012multi,
+  author = {Surdeanu, Mihai and Tibshirani, Julie and Nallapati, Ramesh and Manning,
+	Christopher D},
+  title = {Multi-instance multi-label learning for relation extraction},
+  booktitle = {Proceedings of the 2012 Joint Conference on Empirical Methods in
+	Natural Language Processing and Computational Natural Language Learning},
+  year = {2012},
+  pages = {455--465},
+  organization = {Association for Computational Linguistics}
+}
+
+@INPROCEEDINGS{teh2005semiparametric,
+  author = {Teh, Y.W. and Seeger, M. and Jordan, M.I.},
+  title = {Semiparametric latent factor models},
+  booktitle = {Workshop on Artificial Intelligence and Statistics},
+  year = {2005},
+  volume = {10},
+  pages = {333--340},
+  organization = {Citeseer}
+}
+
+@ARTICLE{thayananthan2005template,
+  author = {Thayananthan, A.},
+  title = {Template-based pose estimation and tracking of 3D hand motion},
+  journal = {Cambridge, UK: Department of Engineering, University of Cambridge},
+  year = {2005}
+}
+
+@ARTICLE{thayananthan2008pose,
+  author = {Thayananthan, A. and Navaratnam, R. and Stenger, B. and Torr, P.H.S.
+	and Cipolla, R.},
+  title = {Pose estimation and tracking using multivariate regression},
+  journal = {Pattern Recognition Letters},
+  year = {2008},
+  volume = {29},
+  pages = {1302--1310},
+  number = {9},
+  publisher = {Elsevier}
+}
+
+@ARTICLE{thayananthan2006multivariate,
+  author = {Thayananthan, A. and Navaratnam, R. and Stenger, B. and Torr, P.
+	and Cipolla, R.},
+  title = {Multivariate relevance vector machines for tracking},
+  journal = {Computer Vision--ECCV 2006},
+  year = {2006},
+  pages = {124--138},
+  publisher = {Springer}
+}
+
+@ARTICLE{tipping2002analysis,
+  author = {Tipping, A.C.F.M.E. and Faul, AC},
+  title = {Analysis of sparse Bayesian learning},
+  journal = {Advances in Neural Information Processing Systems},
+  year = {2002},
+  volume = {14},
+  pages = {383--389}
+}
+
+@ARTICLE{tipping2001sparse,
+  author = {Tipping, M.E.},
+  title = {Sparse Bayesian learning and the relevance vector machine},
+  journal = {The Journal of Machine Learning Research},
+  year = {2001},
+  volume = {1},
+  pages = {211--244},
+  publisher = {JMLR. org}
+}
+
+@INPROCEEDINGS{tipping2003fast,
+  author = {Tipping, M.E. and Faul, A. and others},
+  title = {Fast marginal likelihood maximisation for sparse Bayesian models},
+  booktitle = {Proceedings of the ninth international workshop on artificial intelligence
+	and statistics},
+  year = {2003},
+  volume = {1},
+  number = {3},
+  organization = {Jan}
+}
+
+@ARTICLE{Titsias2011,
+  author = {Titsias,M.K. and Lázaro-Gredilla, M.},
+  title = {Spike and Slab Variational Inference for Multi-Task and Multiple
+	Kernel Learning},
+  journal = {Advances in Neural Information Processing Systems(NIPS 2011)},
+  year = {2011}
+}
+
+@ARTICLE{tresp2000bayesian,
+  author = {Tresp, V.},
+  title = {A Bayesian committee machine},
+  journal = {Neural Computation},
+  year = {2000},
+  volume = {12},
+  pages = {2719--2741},
+  number = {11},
+  publisher = {MIT Press}
+}
+
+@INPROCEEDINGS{Turian:2010:WRS:1858681.1858721,
+  author = {Turian, Joseph and Ratinov, Lev and Bengio, Yoshua},
+  title = {Word representations: a simple and general method for semi-supervised
+	learning},
+  booktitle = {Proceedings of the 48th Annual Meeting of the Association for Computational
+	Linguistics},
+  year = {2010},
+  series = {ACL '10},
+  pages = {384--394},
+  address = {Stroudsburg, PA, USA},
+  publisher = {Association for Computational Linguistics},
+  acmid = {1858721},
+  location = {Uppsala, Sweden},
+  numpages = {11},
+  url = {http://dl.acm.org/citation.cfm?id=1858681.1858721}
+}
+
+@ARTICLE{vijayakumar2005incremental,
+  author = {Vijayakumar, S. and D'souza, A. and Schaal, S.},
+  title = {Incremental online learning in high dimensions},
+  journal = {Neural Computation},
+  year = {2005},
+  volume = {17},
+  pages = {2602--2634},
+  number = {12},
+  publisher = {MIT Press}
+}
+
+@ARTICLE{vijayakumar2002statistical,
+  author = {Vijayakumar, S. and D'souza, A. and Shibata, T. and Conradt, J. and
+	Schaal, S.},
+  title = {Statistical learning for humanoid robots},
+  journal = {Autonomous Robots},
+  year = {2002},
+  volume = {12},
+  pages = {55--69},
+  number = {1},
+  publisher = {Springer}
+}
+
+@INPROCEEDINGS{vijayakumar2000locally,
+  author = {Vijayakumar, S. and Schaal, S.},
+  title = {Locally weighted projection regression: An O (n) algorithm for incremental
+	real time learning in high dimensional space},
+  booktitle = {Proceedings of the Seventeenth International Conference on Machine
+	Learning (ICML 2000)},
+  year = {2000},
+  volume = {1},
+  pages = {288--293}
+}
+
+@ARTICLE{wahba1999bias,
+  author = {Wahba, G. and Lin, X. and Gao, F. and Xiang, D. and Klein, R. and
+	Klein, B.},
+  title = {The bias-variance tradeoff and the randomized GACV},
+  journal = {Advances in Neural Information Processing Systems},
+  year = {1999},
+  volume = {11},
+  number = {5}
+}
+
+@article{wiegerinck2003fractional,
+  title={Fractional belief propagation},
+  author={Wiegerinck, Wim and Heskes, Tom and others},
+  journal={Advances in Neural Information Processing Systems},
+  pages={455--462},
+  year={2003},
+  publisher={MIT; 1998}
+}
+
+@article{minka2001ep,
+  title={The EP energy function and minimization schemes},
+  author={Minka, Thomas P},
+  journal={See www. stat. cmu. edu/\~{} minka/papers/learning. html},
+  year={2001}
+}
+
+@article{kuss2005assessing,
+  title={Assessing approximate inference for binary Gaussian process classification},
+  author={Kuss, Malte and Rasmussen, Carl Edward},
+  journal={The Journal of Machine Learning Research},
+  volume={6},
+  pages={1679--1704},
+  year={2005},
+  publisher={JMLR. org}
+}
+
+@InProceedings{ICML2013_qi13,
+   url = {http://jmlr.org/proceedings/papers/v28/qi13.pdf},
+   booktitle = {Proceedings of the 30th International Conference on Machine Learning (ICML-13)},
+   editor = {Sanjoy Dasgupta and David McAllester},
+   publisher = {JMLR Workshop and Conference Proceedings},
+   volume = {28},
+   number = {3},
+   month = {May},
+   year = {2013},
+   title = {Message passing with l1 penalized KL minimization},
+   author = {Qi, Yuan and Guo, Yandong},
+   pages = {262-270},
+   abstract = {Bayesian inference is often hampered by large computational expense. As a generalization of belief propagation (BP), expectation propagation (EP) approximates exact Bayesian computation with efficient message passing updates. However, when an approximation family used by EP is far from exact posterior distributions, message passing may lead to poor approximation quality and suffer from divergence. To address this issue, we propose an approximate inference method, relaxed expectation propagation(REP), based on a new divergence with a l1 penalty. Minimizing this penalized divergence adaptively relaxes EP's moment matching requirement for message passing. We apply REP to Gaussian process classification and experimental results demonstrate significant improvement of REP over EP and alpha-divergence based power EP -- in terms of algorithmic stability, estimation accuracy, and predictive performance. Furthermore, we develop relaxed belief propagation(RBP), a special case of REP, to conduct inference on discrete Markov random fields (MRFs). Our results show improved estimation accuracy of RBP over BP and fractional BP when interactions between MRF nodes are strong.}
+   }
+
+@ARTICLE{wainwright2008graphical,
+  author = {Wainwright, Martin J and Jordan, Michael I},
+  title = {Graphical models, exponential families, and variational inference},
+  journal = {Foundations and Trends{\textregistered} in Machine Learning},
+  year = {2008},
+  volume = {1},
+  pages = {1--305},
+  number = {1-2},
+  publisher = {Now Publishers Inc.}
+}
+
+@INPROCEEDINGS{wallach2006topic,
+  author = {Wallach, Hanna M},
+  title = {Topic modeling: beyond bag-of-words},
+  booktitle = {Proceedings of the 23rd international conference on Machine learning},
+  year = {2006},
+  pages = {977--984},
+  organization = {ACM}
+}
+
+@INPROCEEDINGS{wang2009markov,
+  author = {Wang, Chong and Thiesson, Bo and Meek, Christopher and Blei, David},
+  title = {Markov topic models},
+  booktitle = {The Twelfth International Conference on Artificial Intelligence and
+	Statistics (AISTATS)},
+  year = {2009},
+  pages = {583--590},
+  organization = {Citeseer}
+}
+
+@INPROCEEDINGS{wang2008re,
+  author = {Wang, Mengqiu},
+  title = {A re-examination of dependency path kernels for relation extraction},
+  booktitle = {Proceedings of IJCNLP},
+  year = {2008},
+  volume = {8}
+}
+
+@INPROCEEDINGS{weston2008deep,
+  author = {Weston, Jason and Ratle, Fr{\'e}d{\'e}ric and Collobert, Ronan},
+  title = {Deep learning via semi-supervised embedding},
+  booktitle = {Proceedings of the 25th international conference on Machine learning},
+  year = {2008},
+  pages = {1168--1175},
+  organization = {ACM}
+}
+
+@ARTICLE{williams1998bayesian,
+  author = {Williams, C.K.I. and Barber, D.},
+  title = {Bayesian classification with Gaussian processes},
+  journal = {Pattern Analysis and Machine Intelligence, IEEE Transactions on},
+  year = {1998},
+  volume = {20},
+  pages = {1342--1351},
+  number = {12},
+  publisher = {IEEE}
+}
+
+@ARTICLE{williams1996gaussian,
+  author = {Williams, C.K.I. and Rasmussen, C.E.},
+  title = {Gaussian processes for regression},
+  year = {1996},
+  publisher = {Massachusetts Institute of Technology Press (MIT Press)}
+}
+
+@INPROCEEDINGS{williams2001using,
+  author = {Williams, C. and Seeger, M.},
+  title = {Using the Nystr{\"o}m method to speed up kernel machines},
+  booktitle = {Advances in Neural Information Processing Systems 13},
+  year = {2001}
+}
+
+@INPROCEEDINGS{yao2011structured,
+  author = {Yao, Limin and Haghighi, Aria and Riedel, Sebastian and McCallum,
+	Andrew},
+  title = {Structured relation discovery using generative models},
+  booktitle = {Proceedings of the Conference on Empirical Methods in Natural Language
+	Processing},
+  year = {2011},
+  pages = {1456--1466},
+  organization = {Association for Computational Linguistics}
+}
+
+@INPROCEEDINGS{yao2012unsupervised,
+  author = {Yao, Limin and Riedel, Sebastian and McCallum, Andrew},
+  title = {Unsupervised relation discovery with sense disambiguation},
+  booktitle = {Proceedings of the 50th Annual Meeting of the Association for Computational
+	Linguistics: Long Papers-Volume 1},
+  year = {2012},
+  pages = {712--720},
+  organization = {Association for Computational Linguistics}
+}
+
+@INPROCEEDINGS{yu2005learning,
+  author = {Yu, K. and Tresp, V. and Schwaighofer, A.},
+  title = {Learning Gaussian processes from multiple tasks},
+  booktitle = {Proceedings of the 22nd international conference on Machine learning},
+  year = {2005},
+  pages = {1012--1019},
+  organization = {ACM}
+}
+
+@INCOLLECTION{zhai2011constrained,
+  author = {Zhai, Zhongwu and Liu, Bing and Xu, Hua and Jia, Peifa},
+  title = {Constrained LDA for grouping product features in opinion mining},
+  booktitle = {Advances in Knowledge Discovery and Data Mining},
+  publisher = {Springer},
+  year = {2011},
+  pages = {448--459}
+}
+
+@ARTICLE{zhang2007maximum,
+  author = {Zhang, H.},
+  title = {Maximum-likelihood estimation for multivariate spatial linear coregionalization
+	models},
+  journal = {Environmetrics},
+  year = {2007},
+  volume = {18},
+  pages = {125--139},
+  number = {2},
+  publisher = {Wiley Online Library}
+}
+
+@INCOLLECTION{zhang2012hybrid,
+  author = {Zhang, Yanning and Wei, Wei},
+  title = {A hybrid semi-supervised topic model},
+  booktitle = {Intelligent Science and Intelligent Data Engineering},
+  publisher = {Springer},
+  year = {2012},
+  pages = {309--317}
+}
+
+@INPROCEEDINGS{zhao2005extracting,
+  author = {Zhao, Shubin and Grishman, Ralph},
+  title = {Extracting relations with integrated information using kernel methods},
+  booktitle = {Proceedings of the 43rd Annual Meeting on Association for Computational
+	Linguistics},
+  year = {2005},
+  pages = {419--426},
+  organization = {Association for Computational Linguistics}
+}
+
+@ARTICLE{zhou2009non,
+  author = {Zhou, M. and Chen, H. and Paisley, J. and Ren, L. and Sapiro, G.
+	and Carin, L.},
+  title = {Non-Parametric Bayesian Dictionary Learning for Sparse Image Representations
+	1},
+  year = {2009},
+  publisher = {Citeseer}
+}
+
+@ARTICLE{zhu2012medlda,
+  author = {Zhu, Jun and Ahmed, Amr and Xing, Eric P},
+  title = {Medlda: maximum margin supervised topic models},
+  journal = {The Journal of Machine Learning Research},
+  year = {2012},
+  volume = {13},
+  pages = {2237--2278}
+}
+
+@INPROCEEDINGS{zhu2009medlda,
+  author = {Zhu, Jun and Ahmed, Amr and Xing, Eric P},
+  title = {MedLDA: maximum margin supervised topic models for regression and
+	classification},
+  booktitle = {Proceedings of the 26th Annual International Conference on Machine
+	Learning},
+  year = {2009},
+  pages = {1257--1264},
+  organization = {ACM}
+}
+
+@INPROCEEDINGS{zhu2011conditional,
+  author = {Zhu, Jun and Lao, Ni and Chen, Ning and Xing, Eric P},
+  title = {Conditional topical coding: an efficient topic model conditioned
+	on rich features},
+  booktitle = {Proceedings of the 17th ACM SIGKDD international conference on Knowledge
+	discovery and data mining},
+  year = {2011},
+  pages = {475--483},
+  organization = {ACM}
+}
+
+@ARTICLE{zhu2010conditional,
+  author = {Zhu, Jun and Xing, Eric P},
+  title = {Conditional topic random fields}
+}
+
+@ARTICLE{zhuang2013regularized,
+  author = {Zhuang, Liansheng and Gao, Haoyuan and Luo, Jiebo and Lin, Zhouchen},
+  title = {Regularized semi-supervised latent dirichlet allocation for visual
+	concept learning},
+  journal = {Neurocomputing},
+  year = {2013},
+  publisher = {Elsevier}
+}
+
+@inproceedings{AwasthiBHU15,
+  author    = {Pranjal Awasthi and
+               Maria{-}Florina Balcan and
+               Nika Haghtalab and
+               Ruth Urner},
+  title     = {Efficient Learning of Linear Separators under Bounded Noise},
+  booktitle = COLT_2015,
+  pages     = {167--190},
+  year      = {2015},
+  url       = {http://jmlr.org/proceedings/papers/v40/Awasthi15b.html},
+  timestamp = {Mon, 06 Jul 2015 08:31:46 +0200},
+  biburl    = {http://dblp2.uni-trier.de/rec/bib/conf/COLT/AwasthiBHU15},
+  bibsource = {dblp computer science bibliography, http://dblp.org}
+}
+
+@article{daniely2014ptas,
+  title={A PTAS for agnostically learning halfspaces},
+  author={Daniely, Amit},
+  journal=COLT_2014,
+  year={2014}
+}
+
+@article{daniely2015complexity,
+  title={Complexity theoretic limitations on learning halfspaces},
+  author={Daniely, Amit},
+  journal=STOC_2016,
+  year={2015}
+}
+
+@article{zhang2015learning,
+  title={Learning Halfspaces and Neural Networks with Random Initialization},
+  author={Zhang, Yuchen and Lee, Jason D and Wainwright, Martin J and Jordan, Michael I},
+  journal={arXiv preprint arXiv:1511.07948},
+  year={2015}
+}
+
+@article{daniely16dualview,
+  author = {A. Daniely and R. Frostig and Y. Singer},
+  journal = {arXiv preprint arXiv:1602.05897},
+  title = {Toward deeper understanding of neural networks: the power of initialization and a dual view on expressivity},
+  year = {2016},
+}
+
+@article{feldman2012agnostic,
+  title={Agnostic learning of monomials by halfspaces is hard},
+  author={Feldman, Vitaly and Guruswami, Venkatesan and Raghavendra, Prasad and Wu, Yi},
+  journal=SICOMP,
+  volume={41},
+  number={6},
+  pages={1558--1590},
+  year={2012},
+  publisher={SIAM}
+}
+
+@article{klivans2009maliciousNoise,
+  title={Learning halfspaces with malicious noise},
+  author={Klivans, Adam R and Long, Philip M and Servedio, Rocco A},
+  journal=JMLR,
+  volume={10},
+  pages={2715--2740},
+  year={2009},
+  publisher={JMLR.org}
+}
+
+@article{guruswami2009hardness,
+  title={Hardness of learning halfspaces with noise},
+  author={Guruswami, Venkatesan and Raghavendra, Prasad},
+  journal=SICOMP,
+  volume={39},
+  number={2},
+  pages={742--765},
+  year={2009},
+  publisher={SIAM}
+}
+
+@techreport{shalev2009agnostically,
+  title={Agnostically learning halfspaces with margin errors},
+  author={Shalev-Shwartz, Shai and Shamir, Ohad and Sridharan, Karthik},
+  year={2009},
+  institution={Toyota Technological Institute},
+  NUMBER = {TTIC-TR-2009-4}
+}
+
+@article{kalai2008agnostically,
+  title={Agnostically learning halfspaces},
+  author={Kalai, Adam Tauman and Klivans, Adam R and Mansour, Yishay and Servedio, Rocco A},
+  journal=SICOMP,
+  volume={37},
+  number={6},
+  pages={1777--1805},
+  year={2008},
+  publisher={SIAM}
+}
+
+@inproceedings{awasthi2014localization,
+ author = {Awasthi, Pranjal and Balcan, Maria Florina and Long, Philip M.},
+ title = {The Power of Localization for Efficiently Learning Linear Separators with Noise},
+ booktitle = STOC_2014,
+ series = {STOC '14},
+ year = {2014},
+ isbn = {978-1-4503-2710-7},
+ location = {New York, New York},
+ pages = {449--458},
+ numpages = {10},
+ url = {http://doi.acm.org/10/1145/2591796.2591839},
+ doi = {10/1145/2591796.2591839},
+ acmid = {2591839},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {adversarial label noise, malicious noise, noise tolerant learning, passive and active learning},
+}
+
+@inproceedings{daniely2014improper,
+  author    = {Amit Daniely and
+               Nati Linial and
+               Shai Shalev{-}Shwartz},
+  title     = {From average case complexity to improper learning complexity},
+  booktitle = {Symposium on Theory of Computing, {STOC} 2014, New York, NY, USA,
+               May 31 - June 03, 2014},
+  pages     = {441--448},
+  year      = {2014},
+  url       = {http://doi.acm.org/10.1145/2591796.2591820},
+  doi       = {10.1145/2591796.2591820},
+  timestamp = {Wed, 18 Jun 2014 08:38:28 +0200},
+  biburl    = {http://dblp.uni-trier.de/rec/bib/conf/stoc/DanielyLS14},
+  bibsource = {dblp computer science bibliography, http://dblp.org}
+}
+
+@article{blum1998polynomial,
+  title={A polynomial-time algorithm for learning noisy linear threshold functions},
+  author={Blum, Avrim and Frieze, Alan and Kannan, Ravi and Vempala, Santosh},
+  journal={Algorithmica},
+  volume={22},
+  number={1-2},
+  pages={35--52},
+  year={1998},
+  publisher={Springer}
+}
+
+@article{blum1992training,
+  title={Training a 3-node neural network is NP-complete},
+  author={Blum, Avrim L and Rivest, Ronald L},
+  journal={Neural Networks},
+  volume={5},
+  number={1},
+  pages={117--127},
+  year={1992},
+  publisher={Elsevier}
+}
+
+@article{blum2003noise,
+  title={Noise-tolerant learning, the parity problem, and the statistical query model},
+  author={Blum, Avrim and Kalai, Adam and Wasserman, Hal},
+  journal={Journal of the ACM (JACM)},
+  volume={50},
+  number={4},
+  pages={506--519},
+  year={2003},
+  publisher={ACM}
+}
+
+@inproceedings{birnbaum2012learning,
+  title={Learning halfspaces with the zero-one loss: time-accuracy tradeoffs},
+  author={Birnbaum, Aharon and Shwartz, Shai S},
+  booktitle={Advances in Neural Information Processing Systems},
+  pages={926--934},
+  year={2012}
+}
+
+@article{massart2006risk,
+  title={Risk bounds for statistical learning},
+  author={Massart, Pascal and N{\'e}d{\'e}lec, {\'E}lodie},
+  journal={The Annals of Statistics},
+  pages={2326--2366},
+  year={2006},
+  publisher={JSTOR}
+}
+
+@article{kearns1994toward,
+  title={Toward efficient agnostic learning},
+  author={Kearns, Michael J and Schapire, Robert E and Sellie, Linda M},
+  journal=MLJ,
+  volume={17},
+  number={2-3},
+  pages={115--141},
+  year={1994},
+  publisher={Springer}
+}
+
+@article{kearns1993learning,
+  title={Learning in the presence of malicious errors},
+  author={Kearns, Michael and Li, Ming},
+  journal=SICOMP,
+  volume={22},
+  number={4},
+  pages={807--837},
+  year={1993},
+  publisher={SIAM}
+}
+
+@InProceedings{klivans2014hardLearningProblems,
+  author =	{Adam Klivans and Pravesh Kothari},
+  title =	{{Embedding Hard Learning Problems Into Gaussian Space}},
+  booktitle = {Approximation, Randomization, and Combinatorial Optimization. Algorithms and Techniques (APPROX/RANDOM 2014)},
+  pages =	{793--809},
+  series =	{Leibniz International Proceedings in Informatics (LIPIcs)},
+  ISBN =	{978-3-939897-74-3},
+  ISSN =	{1868-8969},
+  year =	{2014},
+  volume =	{28},
+  editor =	{Klaus Jansen and Jos{\'e} D. P. Rolim and Nikhil R. Devanur and Cristopher Moore},
+  publisher =	{Schloss Dagstuhl--Leibniz-Zentrum fuer Informatik},
+  address =	{Dagstuhl, Germany},
+  URL =		{http://drops.dagstuhl.de/opus/volltexte/2014/4739},
+  URN =		{urn:nbn:de:0030-drops-47391},
+  doi =		{http://dx.doi.org/10.4230/LIPIcs.APPROX-RANDOM.2014.793},
+  annote =	{Keywords: distribution-specific hardness of learning, gaussian space, halfspace-learning, agnostic learning}
+}
+
+@inproceedings{diakonikolas2010bounded,
+  title={Bounded independence fools degree-2 threshold functions},
+  author={Diakonikolas, Ilias and Kane, Daniel M and Nelson, Jelani},
+  booktitle={Foundations of Computer Science (FOCS), 2010 51st Annual IEEE Symposium on},
+  pages={11--20},
+  year={2010},
+  organization={IEEE}
+}
+
+@inproceedings{long2011algorithms,
+  title={Algorithms and hardness results for parallel large margin learning},
+  author={Long, Phil and Servedio, Rocco},
+  booktitle={Advances in Neural Information Processing Systems},
+  pages={1314--1322},
+  year={2011}
+}
+
+@article{shalev2011learning,
+  title={Learning kernel-based halfspaces with the 0-1 loss},
+  author={Shalev-Shwartz, Shai and Shamir, Ohad and Sridharan, Karthik},
+  journal={SIAM Journal on Computing},
+  volume={40},
+  number={6},
+  pages={1623--1646},
+  year={2011},
+  publisher={SIAM}
+}
+
+@inproceedings{feldman2006new,
+  title={New results for learning noisy parities and halfspaces},
+  author={Feldman, Vitaly and Gopalan, Parikshit and Khot, Subhash and Ponnuswami, Ashok Kumar},
+  booktitle={Foundations of Computer Science, 2006. FOCS'06. 47th Annual IEEE Symposium on},
+  pages={563--574},
+  year={2006},
+  organization={IEEE}
+}
+
+@article{daniely2014complexity,
+  title={Complexity theoretic limitations on learning DNF's},
+  author={Daniely, A. and Shalev-Shwatz, S.},
+  journal={arXiv preprint arXiv:1404.3378},
+  year={2014}
+}
+
+@article{hazan2014beyond,
+  title={Beyond the regret minimization barrier: optimal algorithms for stochastic strongly-convex optimization},
+  author={Hazan, E. and Kale, S.},
+  journal=JMLR,
+  volume={15},
+  number={1},
+  pages={2489--2512},
+  year={2014},
+  publisher={JMLR.org}
+}
+
+@article{rakhlin2011making,
+  title={Making gradient descent optimal for strongly convex stochastic optimization},
+  author={Rakhlin, A. and Shamir, O. and Sridharan, K.},
+  journal={arXiv preprint arXiv:1109.5647},
+  year={2011}
+}
+
+
+@article{arjevani2015lower,
+  title={On Lower and Upper Bounds for Smooth and Strongly Convex Optimization Problems},
+  author={Arjevani, Y. and Shalev-Shwartz, S. and Shamir, O.},
+  journal={arXiv preprint arXiv:1503.06833},
+  year={2015}
+}
+
+
+@inproceedings{quanrud2015online,
+  title={Online Learning with Adversarial Delays},
+  author={Quanrud, K. and Khashabi, D.},
+  booktitle=nips_2016,
+  pages={1270--1278},
+  year={2015}
+}
+
+@article{gentile2003robustness,
+  title={The robustness of the p-norm algorithms},
+  author={Gentile, C.},
+  journal={Machine Learning},
+  volume={53},
+  number={3},
+  pages={265--299},
+  year={2003},
+  publisher={Springer}
+}
+
+@inproceedings{gordon1999regret,
+  title={Regret bounds for prediction problems},
+  author={Gordon, G. J.},
+  booktitle={Proceedings of the twelfth annual conference on Computational learning theory},
+  pages={29--40},
+  year={1999},
+  organization={ACM}
+}
+
+@article{shalev2011pegasos,
+  title={Pegasos: Primal estimated sub-gradient solver for svm},
+  author={Shalev-Shwartz, S. and Singer, Y. and Srebro, N. and Cotter, A.},
+  journal={Mathematical programming},
+  volume={127},
+  number={1},
+  pages={3--30},
+  year={2011},
+  publisher={Springer}
+}
+
+@inproceedings{shalev2009stochastic,
+  title={Stochastic Convex Optimization.},
+  author={Shalev-Shwartz, S. and Shamir, O. and Srebro, N. and Sridharan, K.},
+  booktitle=colt_2009,
+  year={2009}
+}
+
+@article{agrawal2012lowerbounds,
+  author    = {A. Agarwal and
+               P. L. Bartlett and
+               P. Ravikumar and
+               M. J. Wainwright},
+  title     = {Information-Theoretic Lower Bounds on the Oracle Complexity of Stochastic
+               Convex Optimization},
+  journal   = IEEE-IT,
+  volume    = {58},
+  number    = {5},
+  pages     = {3235--3249},
+  year      = {2012},
+  url       = {http://dx.doi.org/10.1109/TIT.2011.2182178},
+  doi       = {10.1109/TIT.2011.2182178},
+  timestamp = {Fri, 08 Apr 2016 19:32:51 +0200},
+  biburl    = {http://dblp.uni-trier.de/rec/bib/journals/tit/AgarwalBRW12},
+  bibsource = {dblp computer science bibliography, http://dblp.org}
+}
+
+@article{robbins1951stochastic,
+  title={A stochastic approximation method},
+  author={Robbins, H. and Monro, S.},
+  journal={The annals of mathematical statistics},
+  pages={400--407},
+  year={1951},
+  publisher={JSTOR}
+}
+
+@article{cesa2016delay,
+  title={Delay and Cooperation in Nonstochastic Bandits},
+  author={Cesa-Bianchi, N. and Gentile, C. and Mansour, Y. and Minora, A.},
+  journal={arXiv preprint arXiv:1602.04741},
+  year={2016}
+}
+
+@inproceedings{joulani2016unified,
+  author    = {P. Joulani and
+               A. Gy{\"{o}}rgy and
+               C. Szepesv{\'{a}}ri},
+  title     = {Delay-Tolerant Online Convex Optimization: Unified Analysis and Adaptive-Gradient
+               Algorithms},
+  booktitle = aaai_2016,
+  pages     = {1744--1750},
+  year      = {2016},
+  url       = {http://www.aaai.org/ocs/index.php/AAAI/AAAI16/paper/view/12549},
+  timestamp = {Thu, 21 Apr 2016 19:28:00 +0200},
+  biburl    = {http://dblp.uni-trier.de/rec/bib/conf/aaai/JoulaniGS16},
+  bibsource = {dblp computer science bibliography, http://dblp.org}
+}
+
+@article{mania2015perturbed,
+  title={Perturbed Iterate Analysis for Asynchronous Stochastic Optimization},
+  author={Mania, H. and Pan, X. and Papailiopoulos, D. and Recht, B. and Ramchandran, K. and Jordan, M. I.},
+  journal={arXiv preprint arXiv:1507.06970},
+  year={2015}
+}
+
+@article{sra2015adadelay,
+  title={AdaDelay: Delay Adaptive Distributed Stochastic Convex Optimization},
+  author={Sra, S. and Yu, A. W. and Li, M. and Smola, A. J.},
+  journal={arXiv preprint arXiv:1508.05003},
+  year={2015}
+}
+
+@article{sirb2016decentralized,
+  title={Decentralized Consensus Algorithm with Delayed and Stochastic Gradients},
+  author={Sirb, B. and Ye, X.},
+  journal={arXiv preprint arXiv:1604.05649},
+  year={2016}
+}
+
+@book{shalev2014understanding,
+  title={Understanding machine learning: From theory to algorithms},
+  author={Shalev-Shwartz, Shai and Ben-David, Shai},
+  year={2014},
+  publisher={Cambridge University Press}
+}
+
+@book{mohri2012foundations,
+  title={Foundations of machine learning},
+  author={Mohri, Mehryar and Rostamizadeh, Afshin and Talwalkar, Ameet},
+  year={2012},
+  publisher={MIT press}
+}
+
+@article{rosenblatt1958perceptron,
+  title={The perceptron: a probabilistic model for information storage and organization in the brain.},
+  author={Rosenblatt, Frank},
+  journal={Psychological review},
+  volume={65},
+  number={6},
+  pages={386},
+  year={1958},
+  publisher={American Psychological Association}
+}
+
+@article{awasthi2010improved,
+  title={Improved guarantees for agnostic learning of disjunctions},
+  author={Awasthi, Pranjal and Blum, Avrim and Sheffet, Or},
+  booktitle = colt_2010,
+  year={2010}
+}
+
+@inproceedings{feldman2006optimal,
+  title={Optimal hardness results for maximizing agreements with monomials},
+  author={Feldman, Vitaly},
+  booktitle={Computational Complexity, 2006. CCC 2006. Twenty-First Annual IEEE Conference on},
+  pages={9--pp},
+  year={2006},
+  organization={IEEE}
+}
+
+@article{ben2003difficulty,
+  title={On the difficulty of approximately maximizing agreements},
+  author={Ben-David, Shai and Eiron, Nadav and Long, Philip M},
+  journal={Journal of Computer and System Sciences},
+  volume={66},
+  number={3},
+  pages={496--514},
+  year={2003},
+  publisher={Elsevier}
+}
+
+@book{kearns1994introduction,
+  title={An introduction to computational learning theory},
+  author={Kearns, Michael J and Vazirani, Umesh Virkumar},
+  year={1994},
+  publisher={MIT press}
+}
+
+@article{pitt1988computational,
+  title={Computational limitations on learning from examples},
+  author={Pitt, Leonard and Valiant, Leslie G},
+  journal={Journal of the ACM (JACM)},
+  volume={35},
+  number={4},
+  pages={965--984},
+  year={1988},
+  publisher={ACM}
+}
+
+@article{angluin1988learning,
+  title={Learning from noisy examples},
+  author={Angluin, Dana and Laird, Philip},
+  journal={Machine Learning},
+  volume={2},
+  number={4},
+  pages={343--370},
+  year={1988},
+  publisher={Springer}
+}
+
+@book{davis1975interpolation,
+  title={Interpolation and approximation},
+  author={Davis, Philip J},
+  year={1975},
+  publisher={Courier Corporation}
+}
+
+@article{cortes1995support,
+  title={Support-vector networks},
+  author={Cortes, Corinna and Vapnik, Vladimir},
+  journal={Machine learning},
+  volume={20},
+  number={3},
+  pages={273--297},
+  year={1995},
+  publisher={Springer}
+}
+
+
+@inproceedings{simon2001efficient,
+  title={Efficient Learning of Linear Perceptrons},
+  author={Simon, Shai Ben-David Hans Ulrich},
+  booktitle=nips_2000,
+  volume={13},
+  pages={189},
+  year={2001},
+  organization={MIT Press}
+}
+
+@inproceedings{bartlett2002localized,
+  title={Localized rademacher complexities},
+  author={Bartlett, Peter L and Bousquet, Olivier and Mendelson, Shahar},
+  booktitle={Computational Learning Theory},
+  pages={44--58},
+  year={2002},
+  organization={Springer}
+}
+
+@book{karp1972reducibility,
+  title={Reducibility among combinatorial problems},
+  author={Karp, Richard M},
+  year={1972},
+  publisher={Springer}
+}
