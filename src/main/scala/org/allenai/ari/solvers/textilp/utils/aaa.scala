@@ -7,13 +7,13 @@
   \usepackage{amsthm}%
   \usepackage[strict]{changepage}%
   \usepackage{graphicx}%
-  \usepackage[colorlinks=true,linkcolor=blue,ocgcolorlinks]{hyperref}%
-  %\usepackage{cancel}%
-  \usepackage[usenames,dvipsnames]{color}%
-  %\usepackage{verbatim}%
-  %\usepackage{paralist}%
-  %\usepackage{xparse}%
-  %\usepackage{xstring} %
+  % \usepackage[colorlinks=true,linkcolor=blue,ocgcolorlinks]{hyperref}%
+  \usepackage{cancel}%
+  % \usepackage[usenames,dvipsnames]{color}%
+  \usepackage{verbatim}%
+  \usepackage{paralist}%
+  \usepackage{xparse}%
+  \usepackage{xstring} %
   \usepackage{environ}%
   \usepackage{framed}%
   \usepackage{mleftright}%
@@ -26,7 +26,12 @@
   % \usepackage{placeins} %
   \usepackage[sectionbib]{chapterbib} %
   \usepackage{xspace}                 %
-  \usepackage[ruled,vlined]{algorithm2e}
+  \usepackage{adjustbox}
+\usepackage{rotating} % for vertical tables
+  % just add:
+  % \begin{sidewaystable}
+% \end{sidewaystable}
+
 
 \renewcommand*{\thefootnote}{\fnsymbol{footnote}}
 
@@ -71,9 +76,10 @@
 \newcommand{\sign}[1]{\text{sign}\left( #1 \right)}
 \newcommand{\expec}[2]{\mathbb{E}_{#1}\brac{#2}}
 \newcommand{\var}[2]{\mathbb{V}_{#1}\brac{#2}}
-\newcommand{\Error}[2]{\text{Err}_{#1}(#2)}
 \newcommand{\err}{\text{Err}_{\D}(h)}
 \newcommand{\errOpt}{\text{Err}_{\D}(h^*)}
+\newcommand{\errEmp}{\widehat{\text{Err}}_{\D}(h)}
+\newcommand{\error}[2]{\text{Err}_{#1}(#2)}
 \newcommand{\bra}[1]{ \left\lbrace #1 \right\rbrace }
 \newcommand{\brac}[1]{\left[ #1 \right]}
 \newcommand{\abs}[1]{\left| #1 \right|}
@@ -85,6 +91,8 @@
 \newcommand{\set}[1]{\left\lbrace #1 \right\rbrace}
 \newcommand{\tr}{\mathrm{tr}}
 \newcommand{\sconv}{\sigma} %
+  \newcommand{\R}{\mathbb{R}} %
+
 
 %% Complexity
   \newcommand{\Th}[1]{\Theta \paran{#1}}
@@ -92,6 +100,8 @@
 \newcommand{\oh}[1]{o \paran{#1}}
 \newcommand{\Om}[1]{\Omega \paran{#1}}
 \newcommand{\poly}[1]{\text{poly}\paran{#1}}
+\newcommand{\np}{\textbf{NP}}
+\newcommand{\p}{\textbf{P}}
 
 
 %%%%%%%%%%%%%%%% MATH COMMANDS %%%%%%%%%%%%%%%%
@@ -99,14 +109,16 @@
 
 \newcommand{\fix}{\marginpar{FIX}} %
   \newcommand{\new}{\marginpar{NEW}} %
-  %% indicator function
-\newcommand{\indicate}[1]{I_{\bracketsof{#1}}}
+  \newcommand{\indicate}[1]{I_{\bracketsof{#1}}}
 \newcommand{\delivered}{\mathcal{F}}
 \newcommand{\deliveredat}[1]{\delivered_{#1}}
 \newcommand{\totaldelay}{D}
 \newcommand{\delayedleader}{\leader^{\operatorname{d}}} %
   \newcommand{\drunkdelayedleader}{\drunkleader^{\operatorname{d}}} %
 
+
+% opposite of \checkmark
+\newcommand{\xmark}{\times}
 
 %%%%%%%% Calculus %%%%%%%%
 
@@ -298,56 +310,23 @@
 
 %%%%%%%% LEARNING THEORY %%%%%%%%
 
+\newcommand{\x}{\boldsymbol{x}}
+\newcommand{\w}{\boldsymbol{w}}
+\newcommand{\Hy}{\mathcal{H}}
+\newcommand{\linSep}{h_{\w}(\x)}
+\newcommand{\linSepOpt}{h_{\w^*}(\x)}
+% data distribution
+\newcommand{\D}{\mathcal{D}}
+% marginals
+  \newcommand{\Dx}{\mathcal{D}_X}
+\newcommand{\Dy}{\mathcal{D}_Y}
+
 \newcommand{\loss}{\ell} %
-  \newcommand{\A}{\mathcal{A}} %
-  \newcommand{\C}{\mathcal{C}} %
-  \newcommand{\F}{\mathcal{F}} %
-  \newcommand{\G}{\mathcal{G}} %
-  \newcommand{\Hy}{\mathcal{H}} %
-  \newcommand{\K}{\mathcal{K}} %
-  \newcommand{\X}{\mathcal{X}} %
-  \newcommand{\Y}{\mathcal{Y}} %
-  \newcommand{\Z}{\mathcal{Z}} %
-  \newcommand{\U}{\mathcal{U}} %
-  \newcommand{\Po}{\mathcal{P}}
-\newcommand{\Dx}{D_\mathcal{X}} %
-  \newcommand{\Dy}{D_\mathcal{Y}} %
-  \newcommand{\Dxy}{D_\mathcal{X \times Y}} %
-  \newcommand{\ndim}[1]{\text{nDim}(#1)} %
-  \newcommand{\samples}{S = \set{(x_i, y_i)}_{i=1}^m \in (\X \times \Y)^m  } %
-  \newcommand{\x}{\mathbf{x}} %
-  \newcommand{\y}{\mathbf{y}}
-\newcommand{\w}{\mathbf{w}}
-
-% polynomial
-  \newcommand{\size}[1]{\text{size}\paran{#1}}
-
-%%
-\newcommand{\risk}{R(h)} %
-  %\newcommand{\empRisk}[2][h, ]{\hat{R}_{#2}(#1)} %
-  \DeclareDocumentCommand{\empRisk}{ O{h} O{} }{\hat{R}_{#2}(#1)}
-
-
-% Rademacher complexities
-\newcommand{\rmacher}[3][]{\mathfrak{R}^{#1}_{#2}(#3)}
-\newcommand{\empRmacher}[3][]{\hat{\mathfrak{R}}^{#1}_{#2}(#3)}
-
-%% margin-related stuff
-  \newcommand{\margin}{\rho_h\paran{x,y}} %
-  \newcommand{\marginDef}[1][]{ h(x_{#1},y) - \max_{y' \neq y} h(x_{#1},y') } %
-  \newcommand{\marginLoss}{\ell_\rho(\margin)}
-
-
-%% vc dimension stuff
-  \newcommand{\growth}[2]{\Pi_{#1}(#2)}
 
 %%%% Follow-The-Leader %%%%
-
-\newcommand{\leader}{y}                 %
+  \newcommand{\leader}{y}                 %
   \newcommand{\lazyleader}{\overline{\leader}} %
-
-\newcommand{\prophet}{z}        %
-
+  \newcommand{\prophet}{z}        %
 
 % Drunk prophet
 \newcommand{\drunkprophet}{\tilde{\prophet}} %
@@ -369,11 +348,6 @@
   \newcommand{\experts}{n} %
   \newcommand{\expert}{i} %
   \newcommand{\roundexpertcost}{\costfor{\expert}{\round}}
-
-
-%% covering number
-\newcommand{\covering}[1]{\mathcal{N} (#1)}
-
 
 
 %%%%%%%%%%%%%%%% ALGORITHMS %%%%%%%%%%%%%%%%
@@ -461,8 +435,6 @@
   %% Theorems
 
   \newtheorem{lemma}{Lemma}[section]
-  \newtheorem{definition}{Definition}[section]
-  \newtheorem{proposition}{Proposition}[section]
   \newtheorem{theorem}[lemma]{Theorem}
   \newtheorem{corollary}[lemma]{Corollary}
   \newtheorem{conjecture}[lemma]{Conjecture}
@@ -549,8 +521,13 @@
     \newcommand{\labelequation}[1]{\label{equation:#1}}
   \newcommand{\refequation}[1]{equation \hyperref[equation:#1]{(\ref*{equation:#1})}}
 
-  \newcommand{\labelexercise}[1]{\label{exercise:#1}}
+  % Exercise
+    \newcommand{\labelexercise}[1]{\label{exercise:#1}}
   \newcommand{\refexercise}[1]{exercise \ref{exercise:#1}}
+
+  % Algorithm
+    \newcommand{\labelalgorithm}[1]{\label{algorithm:#1}}
+  \newcommand{\refalgorithm}[1]{algorithm \ref{algorithm:#1}}
 
   \renewcommand{\qedsymbol}{$\blacksquare$}
 
@@ -593,9 +570,3 @@
   % Editing notes
   \newcommand{\note}[1]{{\large\bfseries\ttfamily\color{red}#1}}
   \newcommand{\daniel}[1]{{\large\bfseries\ttfamily\color{blue}#1}}
-
-
-  %% to add reference to a footnote
-  \makeatletter
-    \newcommand\footnoteref[1]{\protected@xdef\@thefnmark{\ref{#1}}\@footnotemark}
-  \makeatother
