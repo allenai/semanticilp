@@ -23,7 +23,7 @@ class ScipSolver(
   private val ScipMax = 1e+20
 
   // initialization: load JNI library
-  logger.debug("Java library path = " + System.getProperty("java.library.path"))
+  //logger.debug("Java library path = " + System.getProperty("java.library.path"))
   JniScipLibraryLoader.loadLibrary()
 
   // initialization: create various handlers in the SCIP environment
@@ -495,8 +495,8 @@ class ScipSolver(
     // now do branch-and-bound search using solve()
     env.solve(scip)
 
-    logger.info(s"Solution status: $getStatus")
-    logger.info(s"Objective value: $getPrimalbound")
+//    logger.info(s"Solution status: $getStatus")
+//    logger.info(s"Objective value: $getPrimalbound")
   }
 
   /** Reset after calling solve() so that more constraint may be added */

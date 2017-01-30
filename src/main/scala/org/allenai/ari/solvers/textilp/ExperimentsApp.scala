@@ -28,7 +28,7 @@ import scala.io.Source
 
 object ExperimentsApp {
   lazy val annotationUtils = new AnnotationUtils()
-  lazy val textILPSolver = new TextILPSolver(annotationUtils)
+  lazy val textILPSolver = new TextILPSolver(annotationUtils, 0.4)
   lazy val salienceSolver = new SalienceSolver()
   lazy val luceneSolver = new LuceneSolver()
   lazy val slidingWindowSolver = new SlidingWindowSolver()
@@ -321,7 +321,7 @@ object ExperimentsApp {
       val correctIndex = q.correctIdxOpt.get
 //          println("correct answer: " + goldCandidates.head)
           println("question: " + q.questionText)
-          println("candidates: " + candidates)
+//          println("candidates: " + candidates)
 //          println("length of allCandidatesMinusCorrectOnes: " + allCandidatesMinusCorrectOnes.size)
 //          println("candidates.length: " + candidates.length)
 //          println("correctIndex: " + correctIndex)
@@ -912,12 +912,19 @@ object ExperimentsApp {
 //        evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterCauseQuestions, textILPSolver)
 //        println("filterCauseQuestions: ")
 
-        evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterCResultQuestions, textILPSolver)
-        println("filterCResultQuestions: ")
+
+//        evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterCResultQuestions, textILPSolver)
+//        println("filterCResultQuestions: ")
 //
+
         evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
         println("no-temporals/no true or false: ")
-      //        evaluateTextSolverOnProcessBank(processReader, slidingWindowSolver)
+//        (0.5 to 1.0 by 0.1).foreach{ th =>
+//          lazy val solver = new TextILPSolver(annotationUtils, th, verbose = false)
+//          evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, solver)
+//          println("no-temporals/no true or false/th: " + th)
+//        }
+      // evaluateTextSolverOnProcessBank(processReader, slidingWindowSolver)
       case 52 =>
         // write processBank on disk as json
         import java.io._

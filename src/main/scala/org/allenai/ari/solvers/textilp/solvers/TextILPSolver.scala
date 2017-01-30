@@ -50,12 +50,11 @@ object TextILPSolver {
   val trueFalseThreshold = 5.5 // this has to be tuned
 
   lazy val keywordTokenizer = KeywordTokenizer.Default
-  lazy val aligner = new AlignmentFunction("Entailment", 0.2, keywordTokenizer, useRedisCache = false, useContextInRedisCache = false)
 
   def getMaxScore(qCons: Seq[Constituent], pCons: Seq[Constituent]): Double = {
     val scoreList = qCons.flatMap{ qC =>
       pCons.map{ pC =>
-        val score2 = TextILPSolver.aligner.scoreCellCell(pC.getSurfaceForm, qC.getSurfaceForm)
+        val score2 = offlineAligner.scoreCellCell(pC.getSurfaceForm, qC.getSurfaceForm)
         ///println(s"pC: $pC / qC: $qC / score: $score2")
         score2
       }
@@ -65,9 +64,14 @@ object TextILPSolver {
     scoreList.max
 //    scoreList.sum / scoreList.length
   }
+
+  lazy val offlineAligner = new AlignmentFunction("Entailment", 0.2, TextILPSolver.keywordTokenizer, useRedisCache = false, useContextInRedisCache = false)
 }
 
-class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
+class TextILPSolver(annotationUtils: AnnotationUtils, alignmentThreshold: Double, verbose: Boolean = true) extends TextSolver {
+
+  lazy val aligner = new AlignmentFunction("Entailment", alignmentThreshold, TextILPSolver.keywordTokenizer, useRedisCache = false, useContextInRedisCache = false)
+
   def solve(question: String, options: Seq[String], snippet: String): (Seq[Int], EntityRelationResult) = {
     val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
 //    val ilpSolver = new IllinoisInference(new OJalgoHook)
@@ -85,7 +89,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
       annotationUtils.pipelineService.addView(pTA, ViewNames.SHALLOW_PARSE)
     }
     val p = Paragraph(snippet, Seq(q), Some(pTA))
-    createILPModel(q, p, ilpSolver, TextILPSolver.aligner)
+    createILPModel(q, p, ilpSolver, aligner)
   }
 
   def createILPModel[V <: IlpVar](
@@ -95,7 +99,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
     alignmentFunction: AlignmentFunction
   ): (Seq[Int], EntityRelationResult) = {
 
-    println("starting to create the model  . . . ")
+    if(verbose) println("starting to create the model  . . . ")
     val isTrueFalseQuestion = q.isTrueFalse
 
     val isTemporalQuestions = q.isTemporal
@@ -287,6 +291,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
     // intra-sentence alignments
     // any sentences (that are at most k-sentences apart; k = 2 for now) can be aligned together.
 /*
+
     val maxIntraSentenceDistance = 2
     val intraSentenceAlignments = for{
       beginSentence <- 0 until (pTA.getNumberOfSentences - maxIntraSentenceDistance)
@@ -295,8 +300,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
       x = ilpSolver.createBinaryVar(s"interSentenceAlignment/$beginSentence/$endSentence", 0.0)
     } yield (beginSentence, endSentence, x)
     // co-reference
-
 */
+
 
     // alignment between the constituents
 
@@ -309,13 +314,13 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
     // if anything comes after " without " it should be aligned definitely
     // example: What would happen without annealing?
     if(q.questionText.contains(" without ")) {
-      println(" >>> Adding constraint to use the term after `without`")
+      if(verbose) println(" >>> Adding constraint to use the term after `without`")
       val withoutTok = qTokens.filter(_.getSurfaceForm == "without").head
-      println("withoutTok: " + withoutTok)
+      if(verbose) println("withoutTok: " + withoutTok)
       val after = qTokens.filter(c => c.getStartSpan > withoutTok.getStartSpan).minBy(_.getStartSpan)
-      println("after: " + after)
+      if(verbose) println("after: " + after)
       val afterVariableOpt = activeQuestionConstituents.collectFirst{case (c, v) if c == after => v}
-      println("afterVariableOpt = " + afterVariableOpt)
+      if(verbose) println("afterVariableOpt = " + afterVariableOpt)
       afterVariableOpt match {
         case Some(afterVariable) =>
           ilpSolver.addConsBasicLinear("termAfterWithoutMustBeAligned", Seq(afterVariable), Seq(1.0), Some(1.0), None)
@@ -323,7 +328,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
       }
     }
 
-    println("created the ilp model. Now solving it  . . . ")
+    if(verbose) println("created the ilp model. Now solving it  . . . ")
 //    println("Number of binary variables: " + ilpSolver.getNBinVars)
 //    println("Number of continuous variables: " + ilpSolver.getNContVars)
 //    println("Number of integer variables: " + ilpSolver.getNIntVars)
@@ -332,15 +337,16 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
     // solving and extracting the answer
     ilpSolver.solve()
 
-    println("Done solving the model  . . . ")
+    if(verbose) println("Done solving the model  . . . ")
 
-
-    activeAnswerOptions.foreach {
-      case (ansIdx, x) =>
-        println("============================ \nAnsIdx: " + ansIdx)
-        val connectedVariables = getVariablesConnectedToOption(ansIdx).toList
-        println(s" ## Variables connect to ansIndex ")
-        println(connectedVariables.map{x => ilpSolver.getSolVal(x).toString}.toSet)
+    if(verbose) {
+      activeAnswerOptions.foreach {
+        case (ansIdx, x) =>
+          println("============================ \nAnsIdx: " + ansIdx)
+          val connectedVariables = getVariablesConnectedToOption(ansIdx).toList
+          println(s" ## Variables connect to ansIndex ")
+          println(connectedVariables.map { x => ilpSolver.getSolVal(x).toString }.toSet)
+      }
     }
 
         //    // extracting the solution
@@ -375,14 +381,14 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
     }
 
     if(ilpSolver.getStatus == IlpStatusOptimal) {
-      println("Primal score: " + ilpSolver.getPrimalbound)
+      if(verbose) println("Primal score: " + ilpSolver.getPrimalbound)
       val trueIdx = q.trueIndex
       val falseIdx = q.falseIndex
       val selectedIndex = if(isTrueFalseQuestion) {
         if(ilpSolver.getPrimalbound > TextILPSolver.trueFalseThreshold ) Seq(trueIdx) else Seq(falseIdx)
       }
       else {
-        println(">>>>>>> not true/false . .. ")
+        if(verbose) println(">>>>>>> not true/false . .. ")
         activeAnswerOptions.zipWithIndex.collect { case ((ans, x), idx) if ilpSolver.getSolVal(x) > 1.0 - TextILPSolver.epsilon => idx }
       }
       val questionBeginning = "Question: "
@@ -511,7 +517,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
         }
       }
 
-      println("returning the answer  . . . ")
+      if(verbose) println("returning the answer  . . . ")
 
       //    val alignmentResult = AlignmentResults(
       //      questionAlignments.values.toList,
@@ -530,8 +536,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
       selectedIndex -> erView
     }
     else {
-      println("Not optimal . . . ")
-      println("Status is not optimal. Status: "  + ilpSolver.getStatus)
+      if(verbose) println("Not optimal . . . ")
+      if(verbose) println("Status is not optimal. Status: "  + ilpSolver.getStatus)
       // if the program is not solver, say IDK
       Seq.empty -> EntityRelationResult("INFEASIBLE", List.empty, List.empty)
     }
