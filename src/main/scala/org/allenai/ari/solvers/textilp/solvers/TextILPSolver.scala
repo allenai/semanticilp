@@ -169,18 +169,6 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
       questionParagraphAlignments.filter { case (cTmp, _, _) => cTmp == qCons }.map(_._3)
     }
 
-    /*
-    // inter-sentence alignments
-    // any sentences (that are at most k-sentences apart; k = 2 for now) can be aligned together.
-    val maxIntraSentenceDistance = 2
-    val intraSentenceAlignments = for{
-      beginSentence <- 0 until (pTA.getNumberOfSentences - maxIntraSentenceDistance)
-      offset <- 0 until maxIntraSentenceDistance
-      endSentence = beginSentence + offset
-      x = ilpSolver.createBinaryVar(s"interSentenceAlignment/$beginSentence/$endSentence", 0.0)
-    } yield (beginSentence, endSentence, x)
-    */
-
     // Answer option must be active if anything connected to it is active
     activeAnswerOptions.foreach {
       case (ansIdx, x) =>
@@ -217,7 +205,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
     // active sentences for the paragraph
     val activeSentences = for {
       s <- 0 until pTA.getNumberOfSentences
-      x = ilpSolver.createBinaryVar("", 0.0)
+      x = ilpSolver.createBinaryVar("activeSentence:" + s, -2.0)
     } yield (s, x)
     // the paragraph constituent variable is active if anything connected to it is active
     activeSentences.foreach {
@@ -261,9 +249,13 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
     }
 
     // have at most one active sentence
-    val (_, sentenceVars) = activeSentences.unzip
-    val sentenceVarsCoeffs = Seq.fill(sentenceVars.length)(1.0)
-    ilpSolver.addConsBasicLinear("activeParagraphConsVar", sentenceVars, sentenceVarsCoeffs, Some(0.0), Some(1.0))
+    if(true) {
+      val (_, sentenceVars) = activeSentences.unzip
+      val sentenceVarsCoeffs = Seq.fill(sentenceVars.length)(1.0)
+      ilpSolver.addConsBasicLinear("maxActiveParagraphConsVar", sentenceVars, sentenceVarsCoeffs, Some(0.0), Some(2.0))
+    } else {
+      // do nothing
+    }
 
     // sparsity parameters
     // alignment is preferred for lesser sentences
@@ -282,15 +274,31 @@ class TextILPSolver(annotationUtils: AnnotationUtils) extends TextSolver {
       val a1Idx = getClosestIndex(ans1Cons, pTokens)
       val a2Idx = getClosestIndex(ans2Cons, pTokens)
       // at least one of the answers happens before the question
-      if (a1Idx < qIdx ) {
+      if (a1Idx < qIdx && a2Idx > qIdx ) {
         // a2 should be the answer
         ilpSolver.addConsBasicLinear("resultReasoning-secondAnswerMustBeCorrect", Seq(activeAnswerOptions(1)._2), Seq(1.0), Some(1.0), None)
       }
-      if (a2Idx  < qIdx) {
+      if (a2Idx < qIdx && a1Idx > qIdx) {
         // a1 should be the answer
-        ilpSolver.addConsBasicLinear("resultReasoning-secondAnswerMustBeCorrect", Seq(activeAnswerOptions(0)._2), Seq(1.0), Some(1.0), None)
+        ilpSolver.addConsBasicLinear("resultReasoning-firstAnswerMustBeCorrect", Seq(activeAnswerOptions(0)._2), Seq(1.0), Some(1.0), None)
       }
     }
+
+    // intra-sentence alignments
+    // any sentences (that are at most k-sentences apart; k = 2 for now) can be aligned together.
+/*
+    val maxIntraSentenceDistance = 2
+    val intraSentenceAlignments = for{
+      beginSentence <- 0 until (pTA.getNumberOfSentences - maxIntraSentenceDistance)
+      offset <- 0 until maxIntraSentenceDistance
+      endSentence = beginSentence + offset
+      x = ilpSolver.createBinaryVar(s"interSentenceAlignment/$beginSentence/$endSentence", 0.0)
+    } yield (beginSentence, endSentence, x)
+    // co-reference
+
+*/
+
+    // alignment between the constituents
 
     // use at least k constituents in the question
     // TODO: make this parameterized

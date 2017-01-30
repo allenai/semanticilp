@@ -4,7 +4,7 @@ import java.io.File
 
 import edu.illinois.cs.cogcomp.McTest.MCTestBaseline
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
-import edu.illinois.cs.cogcomp.core.utilities.DummyTextAnnotationGenerator
+import edu.illinois.cs.cogcomp.core.utilities.{DummyTextAnnotationGenerator, SerializationHelper}
 import edu.illinois.cs.cogcomp.core.utilities.configuration.ResourceManager
 import org.allenai.ari.solvers.bioProccess.ProcessBankReader
 import org.allenai.ari.solvers.squad.SQuADReader
@@ -20,9 +20,11 @@ import org.rogach.scallop._
 
 import scala.collection.JavaConverters._
 import ProcessBankReader._
-import edu.illinois.cs.cogcomp.core.datastructures.textannotation.Constituent
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, TextAnnotation}
 import edu.illinois.cs.cogcomp.edison.annotators.ClauseViewGenerator
 import org.allenai.ari.solvers.textilp.ResultJson._
+
+import scala.io.Source
 
 object ExperimentsApp {
   lazy val annotationUtils = new AnnotationUtils()
@@ -904,15 +906,15 @@ object ExperimentsApp {
         println("testing / filterNotTemporals.filterNotTrueFalse: " + processReader.testInstances.filterNotTemporals.filterNotTrueFalse.flatMap(_.questions).length)
       case 51 =>
         // evaluate processBank
-        evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterTemporals, textILPSolver)
-        println("filterTemporals: ")
-
-        evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterCauseQuestions, textILPSolver)
-        println("filterCauseQuestions: ")
+//        evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterTemporals, textILPSolver)
+//        println("filterTemporals: ")
+//
+//        evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterCauseQuestions, textILPSolver)
+//        println("filterCauseQuestions: ")
 
         evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterCResultQuestions, textILPSolver)
         println("filterCResultQuestions: ")
-
+//
         evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
         println("no-temporals/no true or false: ")
       //        evaluateTextSolverOnProcessBank(processReader, slidingWindowSolver)
@@ -1069,63 +1071,64 @@ object ExperimentsApp {
         val after = toks.filter(c => c.getStartSpan >= withoutTok.getStartSpan).minBy(_.getStartSpan)
         println(after)
       case 61 =>
-        var inHowManyCasesThatOneReasonAppearsBeforeQuestionTheCorrectAnsTheLatter = 0
-        var inHowManyCasesThatOneReasonAppearsBeforeQuestion = 0
-        // analyze the result questions
-        def getClosestIndex(qCons: Seq[Constituent], pCons: Seq[Constituent]): Int = {
-          pCons.map{ c =>
-            TextILPSolver.getMaxScore(qCons, Seq(c))
-          }.zipWithIndex.maxBy(_._1)._2
-        }
-        val paragraphs = processReader.trainingInstances.filterCResultQuestions
-        val list = paragraphs.flatMap{ p =>
-          val pCons = p.contextTAOpt.get.getView(ViewNames.SHALLOW_PARSE).asScala.toList
-          p.questions.map{ q =>
-            val qCons = q.qTAOpt.get.getView(ViewNames.SHALLOW_PARSE).asScala.toList
-            val qIdx = getClosestIndex(qCons, pCons)
-            val ans1Cons = q.answers(0).aTAOpt.get.getView(ViewNames.TOKENS).asScala.toList
-            val ans2Cons = q.answers(1).aTAOpt.get.getView(ViewNames.TOKENS).asScala.toList
-            val a1Idx = getClosestIndex(ans1Cons, pCons)
-            val a2Idx = getClosestIndex(ans2Cons, pCons)
-            val k = 0
-            if(a1Idx < qIdx - k || a2Idx < qIdx - k) { // at least one of the answers happens before the question
-              inHowManyCasesThatOneReasonAppearsBeforeQuestion += 1
-              if (a1Idx + k< qIdx && q.correctIdxOpt.get == 1) {
-                inHowManyCasesThatOneReasonAppearsBeforeQuestionTheCorrectAnsTheLatter += 1
-              }
-              if (a2Idx + k < qIdx && q.correctIdxOpt.get == 0) {
-                inHowManyCasesThatOneReasonAppearsBeforeQuestionTheCorrectAnsTheLatter += 1
-              }
-            }
-            val doesCorrectIdxAppearsLater = if((q.correctIdxOpt.get == 0 && a1Idx >= a2Idx) || (q.correctIdxOpt.get == 1 && a1Idx <= a2Idx)) 1 else 0
-            println(q.questionText)
-            println(s"$a1Idx\t$a2Idx\t${q.correctIdxOpt.get}\t$doesCorrectIdxAppearsLater\t${2*(a2Idx - a1Idx)*(q.correctIdxOpt.get - 0.5)}\t${qIdx}\n")
-            doesCorrectIdxAppearsLater
+        def experiment(k: Int, j: Int) = {
+          var inHowManyCasesThatOneReasonAppearsBeforeQuestionTheCorrectAnsTheLatter = 0
+          var inHowManyCasesThatOneReasonAppearsBeforeQuestion = 0
+          // analyze the result questions
+          def getClosestIndex(qCons: Seq[Constituent], pCons: Seq[Constituent]): Int = {
+            pCons.map { c =>
+              TextILPSolver.getMaxScore(qCons, Seq(c))
+            }.zipWithIndex.maxBy(_._1)._2
           }
+          val paragraphs = processReader.trainingInstances.filterCResultQuestions
+          val list = paragraphs.flatMap { p =>
+            val pCons = p.contextTAOpt.get.getView(ViewNames.SHALLOW_PARSE).asScala.toList
+            p.questions.map { q =>
+              val qCons = q.qTAOpt.get.getView(ViewNames.SHALLOW_PARSE).asScala.toList
+              val qIdx = getClosestIndex(qCons, pCons)
+              val ans1Cons = q.answers(0).aTAOpt.get.getView(ViewNames.TOKENS).asScala.toList
+              val ans2Cons = q.answers(1).aTAOpt.get.getView(ViewNames.TOKENS).asScala.toList
+              val a1Idx = getClosestIndex(ans1Cons, pCons)
+              val a2Idx = getClosestIndex(ans2Cons, pCons)
+              if (a1Idx < qIdx - k && a2Idx > qIdx + j) {
+                // at least one of the answers happens before the question
+                inHowManyCasesThatOneReasonAppearsBeforeQuestion += 1
+                if (q.correctIdxOpt.get == 1) {
+                  inHowManyCasesThatOneReasonAppearsBeforeQuestionTheCorrectAnsTheLatter += 1
+                }
+              }
+              if (a2Idx < qIdx - k && a1Idx > qIdx + j) {
+                inHowManyCasesThatOneReasonAppearsBeforeQuestion += 1
+                if (q.correctIdxOpt.get == 0) {
+                  inHowManyCasesThatOneReasonAppearsBeforeQuestionTheCorrectAnsTheLatter += 1
+                }
+              }
+              val doesCorrectIdxAppearsLater = if ((q.correctIdxOpt.get == 0 && a1Idx >= a2Idx) || (q.correctIdxOpt.get == 1 && a1Idx <= a2Idx)) 1 else 0
+              //println(q.questionText)
+              //println(s"$a1Idx\t$a2Idx\t${q.correctIdxOpt.get}\t$doesCorrectIdxAppearsLater\t${2*(a2Idx - a1Idx)*(q.correctIdxOpt.get - 0.5)}\t${qIdx}\n")
+              doesCorrectIdxAppearsLater
+            }
+          }
+          println("k: " + k + " / j: " + j)
+          val ratio1 = inHowManyCasesThatOneReasonAppearsBeforeQuestionTheCorrectAnsTheLatter.toDouble / inHowManyCasesThatOneReasonAppearsBeforeQuestion
+          val ratio2 = list.sum.toDouble / list.length
+          println("list.length: " + list.length)
+          println("ratio1: " + ratio1)
+          println("ratio2: " + ratio2)
+          println("inHowManyCasesThatOneReasonAppearsBeforeQuestion: " + inHowManyCasesThatOneReasonAppearsBeforeQuestion)
+          println("list.length: " + list.length)
+          println("-----------------------")
         }
-        val ratio1 = inHowManyCasesThatOneReasonAppearsBeforeQuestionTheCorrectAnsTheLatter.toDouble / inHowManyCasesThatOneReasonAppearsBeforeQuestion
-        val ratio2 = list.sum.toDouble / list.length
-        println("ratio1: " + ratio1)
-        println("ratio2: " + ratio2)
-        println("inHowManyCasesThatOneReasonAppearsBeforeQuestion: " + inHowManyCasesThatOneReasonAppearsBeforeQuestion)
-        println("list.length: " + list.length)
 
-        // with Max
-        // ratio1: 0.85
-        // ratio2: 0.6194690265486725
-        // inHowManyCasesThatOneReasonAppearsBeforeQuestion: 80
-        // list.length: 113
+         for{
+           k <- 0 to 7 by 1
+           j <- 0 to 10 by 1
+         }
+           experiment(k, j)
 
-        // ratio1: 0.8404255319148937
-        // ratio2: 0.6194690265486725
-        // inHowManyCasesThatOneReasonAppearsBeforeQuestion: 94
-        // list.length: 113
-
-        // with Avg
-        // ratio1: 0.8513513513513513
-        // ratio2: 0.6902654867256637
-        // inHowManyCasesThatOneReasonAppearsBeforeQuestion: 74
-        // list.length: 113
+      // a few good selections
+      // k: 0 / j: 5	0.8	30
+      // k: 6 / j: 0	0.75	32
 
       case 62 =>
         def getClosestIndex(qCons: Seq[Constituent], pCons: Seq[Constituent]): Int = {
@@ -1144,6 +1147,138 @@ object ExperimentsApp {
         val ans1Cons = aTA.getView(ViewNames.TOKENS).asScala.toList
         val a1Idx = getClosestIndex(ans1Cons, pCons)
         println("a1Idx: " + a1Idx)
+      case 63 =>
+        // processes the bio-Process data with curator coref
+        val separator = "<><><><>"
+        import java.io._
+        val pw = new PrintWriter(new File("bioProcessCoref.txt"))
+        val list = processReader.trainingInstances ++ processReader.testInstances
+        list.zipWithIndex.foreach { case (p, idx) =>
+          println(" ===  processed " + idx + " out of  " + list.size )
+          val ta = annotationUtils.annotateWithCuratorCorefAndCache(p.context)
+          //          annotationUtils.curatorService.addView(ta, ViewNames.COREF_HEAD)
+          //          annotationUtils.curatorService.addView(ta, ViewNames.COREF_EXTENT)
+          val json = SerializationHelper.serializeToJson(ta)
+          pw.write(json + separator)
+          println(ta.getAvailableViews)
+        }
+        pw.close()
+      case 64 =>
+        // reading the saved coref-textAnnotations from disk
+        val separator = "<><><><>"
+        // reads in the bio-process data
+        val lines = Source.fromFile(new File("bioProcessCoref.txt")).getLines().mkString.split(separator)
+        lines.foreach{ l =>
+          try {
+            val ta = SerializationHelper.deserializeFromJson(l)
+            println(ta.getAvailableViews)
+          }
+          catch {
+            case e: Exception =>
+              println("catching the excepton . . . ")
+              println(l)
+          }
+        }
+      case 65 =>
+        val list = processReader.trainingInstances ++ processReader.testInstances
+        val ta = annotationUtils.bioProcessCorefMap.apply(list.head.context)
+
+      case 66 =>
+        val paragraph = "Second, the presence of X-gal in the medium allows us to distinguish colonies with recombinant plasmids from those with nonrecombinant plasmids. Colonies containing nonrecombinant plasmids have the lacZ gene intact and will produce functional beta-galactosidase. These colonies will be blue because the enzyme hydrolyzes the X-gal in the medium, forming a blue product. In contrast, no functional beta-galactosidase is produced in colonies containing recombinant plasmids with foreign DNA inserted into the lacZ gene; these colonies will therefore be white."
+        val ta = annotationUtils.bioProcessCorefMap.apply(paragraph)
+        val cons = ta.getView(ViewNames.COREF).getConstituents.asScala
+        cons.foreach{ c =>
+          println("c: " +  c + " " + c.getLabel + " / " + c.getIncomingRelations.asScala.foreach{ e => e.getSource } + " / " + c.getOutgoingRelations.asScala.foreach{ e => e.getTarget } )
+        }
+
+        for{
+          sen1 <- - 0 until ta.getNumberOfSentences
+          sen2 <- - 0 until ta.getNumberOfSentences
+        } {
+          println(s"Sen1: $sen1 - Sen2: $sen2 - " + twoSentencesAreCoreferred(ta, sen1, sen2))
+        }
+
+        def twoSentencesAreCoreferred(ta: TextAnnotation, sen1: Int, sen2: Int): Int = {
+          if(sen1 != sen2) {
+            val toks = ta.getView(ViewNames.COREF).asScala
+            val toksInSen1 = toks.filter(_.getSentenceId == sen1)
+            val toksInSen2 = toks.filter(_.getSentenceId == sen2)
+            toksInSen1.map(_.getLabel).toSet.intersect(toksInSen2.map(_.getLabel).toSet).size
+          }
+          else {
+            0
+          }
+        }
+      case 67 =>
+        var a = 0
+        var b = 0
+        // analyze the result questions
+        def getClosestIndex(qCons: Seq[Constituent], pCons: Seq[Constituent]): Int = {
+          pCons.map{ c =>
+            TextILPSolver.getMaxScore(qCons, Seq(c))
+          }.zipWithIndex.maxBy(_._1)._2
+        }
+        val paragraphs = processReader.trainingInstances.filterCauseQuestions
+        val list = paragraphs.flatMap{ p =>
+          val pCons = p.contextTAOpt.get.getView(ViewNames.SHALLOW_PARSE).asScala.toList
+          p.questions.map{ q =>
+            val qCons = q.qTAOpt.get.getView(ViewNames.SHALLOW_PARSE).asScala.toList
+            val qIdx = getClosestIndex(qCons, pCons)
+            val ans1Cons = q.answers(0).aTAOpt.get.getView(ViewNames.TOKENS).asScala.toList
+            val ans2Cons = q.answers(1).aTAOpt.get.getView(ViewNames.TOKENS).asScala.toList
+            val a1Idx = getClosestIndex(ans1Cons, pCons)
+            val a2Idx = getClosestIndex(ans2Cons, pCons)
+/*            if(a1Idx < qIdx || a2Idx < qIdx) {
+              // at least one of the answers happens before the question
+              a += 1
+              if (a1Idx < qIdx && q.correctIdxOpt.get == 0) {
+                b += 1
+              }
+              if (a2Idx < qIdx && q.correctIdxOpt.get == 1) {
+                b += 1
+              }
+            }*/
+
+/*              // at least one of the answers happens before the question
+              if (a1Idx < qIdx && a2Idx > qIdx ) {
+                a += 1
+                if(q.correctIdxOpt.get == 0) b += 1
+              }
+              if (a2Idx < qIdx && a1Idx > qIdx) {
+                a += 1
+                if(q.correctIdxOpt.get == 1) b += 1
+              }*/
+
+            // at least one of the answers happens before the question
+//            if (a1Idx < qIdx && a2Idx > qIdx ) {
+//              a += 1
+//              if(q.correctIdxOpt.get == 0) b += 1
+//            }
+//            if (a2Idx < qIdx && a1Idx > qIdx) {
+//              a += 1
+//              if(q.correctIdxOpt.get == 1) b += 1
+//            }
+
+/*             if((a1Idx < qIdx && a2Idx > qIdx) || (a2Idx < qIdx && a1Idx > qIdx)) { // at least one of the answers happens before the question
+              a += 1
+              if (a1Idx > a2Idx && q.correctIdxOpt.get == 0) {
+                b += 1
+              }
+              if (a2Idx > a1Idx && q.correctIdxOpt.get == 1) {
+                b += 1
+              }
+            }*/
+            val doesCorrectIdxAppearsLater = if((q.correctIdxOpt.get == 0 && a1Idx >= a2Idx) || (q.correctIdxOpt.get == 1 && a1Idx <= a2Idx)) 1 else 0
+            println(q.questionText)
+            println(s"$a1Idx\t$a2Idx\t${qIdx}\t${q.correctIdxOpt.get}\t$doesCorrectIdxAppearsLater\t${2*(a1Idx - a2Idx)*(q.correctIdxOpt.get - 0.5)}\n")
+            doesCorrectIdxAppearsLater
+          }
+        }
+        val ratio1 = b.toDouble / a
+        val ratio2 = list.sum.toDouble / list.length
+        println("a: " + a)
+        println("ratio1: " + ratio1)
+        println("ratio2: " + ratio2)
     }
   }
 }

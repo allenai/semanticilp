@@ -1,7 +1,9 @@
 package org.allenai.ari.solvers.textilp.utils
 
+import java.io.File
 import java.util.Properties
 
+import edu.illinois.cs.cogcomp.annotation.AnnotatorServiceConfigurator
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, TextAnnotation}
 import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper
@@ -16,6 +18,8 @@ import org.allenai.ari.solvers.textilp.{Paragraph, Question, TopicGroup}
 import org.allenai.common.cache.JsonQueryCache
 import redis.clients.jedis.{JedisPool, Protocol}
 import spray.json.DefaultJsonProtocol._
+
+import scala.io.Source
 
 /** a dummy redis client for when redis is not supposed to be used */
 object DummyRedisClient extends JsonQueryCache[String]("", new JedisPool()) {
@@ -64,14 +68,28 @@ class AnnotationUtils {
   }
 
   lazy val curatorService = {
-    //val settings = new Properties()
-    //settings.setProperty("cacheDirectory", "annotation-cache-textilp")
+//    val a = new AnnotatorServiceConfigurator().getDefaultConfig
+//    val settings = new Properties()
+//    settings.setProperty("cacheDirectory", "annotation-cache-textilp")
     //settings.setProperty("disableCache", Configurator.TRUE)
     //viewsToDisable.foreach{ key => settings.setProperty(key.value, Configurator.FALSE) }
-    //val rm = new ResourceManager(settings)
+//    val rm = new ResourceManager(settings)
     //viewsToDisable.foreach { v => settings.setProperty(v.key, Configurator.FALSE) }
     //val config = new CuratorConfigurator().getConfig(rm)
     CuratorFactory.buildCuratorClient()
+  }
+
+  def annotateWithCuratorCorefAndCache(string: String): TextAnnotation = {
+    val cacheKey = "*curatorWithCoref" + string
+    val redisAnnotation = synchronizedRedisClient.get(cacheKey)
+    if (redisAnnotation.isDefined) {
+      SerializationHelper.deserializeFromJson(redisAnnotation.get)
+    } else {
+      val textAnnotation = curatorService.createBasicTextAnnotation("", "", string)
+      curatorService.addView(textAnnotation, ViewNames.COREF)
+      synchronizedRedisClient.put(cacheKey, SerializationHelper.serializeToJson(textAnnotation))
+      textAnnotation
+    }
   }
 
   def annotate(string: String): TextAnnotation = {
@@ -236,9 +254,15 @@ class AnnotationUtils {
     }
   }
 
-
-  // Chen-Tse's annotations
-  def readAndDumpTheWikifierAnnotationsInRedis() = {
-
+  lazy val bioProcessCorefMap = {
+    // reading the saved coref-textAnnotations from disk
+    val separator = "<><><><>"
+    // reads in the bio-process data
+    val lines = Source.fromFile(new File("bioProcessCoref.txt")).getLines().mkString.split(separator)
+    lines.map{ l =>
+      val ta = SerializationHelper.deserializeFromJson(l)
+      ta.text -> ta
+    }.toMap
   }
+
 }
