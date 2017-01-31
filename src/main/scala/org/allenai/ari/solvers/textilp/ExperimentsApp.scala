@@ -28,7 +28,7 @@ import scala.io.Source
 
 object ExperimentsApp {
   lazy val annotationUtils = new AnnotationUtils()
-  lazy val textILPSolver = new TextILPSolver(annotationUtils, 0.4, false)
+  lazy val textILPSolver = new TextILPSolver(annotationUtils, 0.4, false, 0.33)
   lazy val salienceSolver = new SalienceSolver()
   lazy val luceneSolver = new LuceneSolver()
   lazy val slidingWindowSolver = new SlidingWindowSolver()
@@ -317,13 +317,13 @@ object ExperimentsApp {
   def evaluateTextSolverOnProcessBank(list: List[Paragraph], textSolver: TextSolver) = {
     val qAndpPairs = list.flatMap { p => p.questions.map(q => (q, p))}
     val (resultLists, confidences) = qAndpPairs.zipWithIndex.map{ case ((q, p), idx) =>
-      println("==================================================")
-      println("Processed " + idx + " out of " + qAndpPairs.size)
+//      println("==================================================")
+//      println("Processed " + idx + " out of " + qAndpPairs.size)
 //      println("Paragraph: " + p)
       val candidates = q.answers.map(_.answerText)
       val correctIndex = q.correctIdxOpt.get
 //          println("correct answer: " + goldCandidates.head)
-          println("question: " + q.questionText)
+//          println("question: " + q.questionText)
 //          println("candidates: " + candidates)
 //          println("length of allCandidatesMinusCorrectOnes: " + allCandidatesMinusCorrectOnes.size)
 //          println("candidates.length: " + candidates.length)
@@ -331,7 +331,7 @@ object ExperimentsApp {
       val (selected, explanation) = textSolver.solve(q.questionText, candidates, p.context)
       val correctLabel = q.answers(correctIndex).answerText
       val score = SolverUtils.assignCredit(selected, correctIndex, candidates.length)
-      if(score < 0.5) println(" >>>>>>> Incorrect :" + score)
+//      if(score < 0.5) println(" >>>>>>> Incorrect :" + score)
       score -> (explanation.confidence -> correctLabel)
     }.unzip
 
@@ -923,17 +923,20 @@ object ExperimentsApp {
         //        evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterCResultQuestions, textILPSolver)
         //        println("filterCResultQuestions: ")
 
-        evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
-        println("no-temporals/no true or false: ")
+       //  evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterWhatDoesItDo, textILPSolver)
+       //  println("filterWhatDoesItDo: ")
 
-//        evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterWhatDoesItDo, textILPSolver)
-//        println("filterWhatDoesItDo: ")
+      evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
+      println("no-temporals/no true or false: ")
 
-      //        (0.5 to 1.0 by 0.1).foreach{ th =>
-      //          lazy val solver = new TextILPSolver(annotationUtils, th, verbose = false)
-      //          evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, solver)
-      //          println("no-temporals/no true or false/th: " + th)
-      //        }
+//        evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals.filterNotWhatDoesItDo.filterNotCResultQuestions, textILPSolver)
+//        println("no-temporals/no true or false: ")
+
+//              (0.3 to 0.5 by 0.02).foreach{ weight =>
+//                lazy val solver = new TextILPSolver(annotationUtils, 0.4, verbose = false, weight)
+//                evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, solver)
+//                println("no-temporals/no true or false/weight: " + weight)
+//              }
       // evaluateTextSolverOnProcessBank(processReader, slidingWindowSolver)
       case 52 =>
         // write processBank on disk as json

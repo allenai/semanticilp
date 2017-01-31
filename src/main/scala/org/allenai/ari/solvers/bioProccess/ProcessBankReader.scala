@@ -93,11 +93,9 @@ object ProcessBankReader{
     "what happens when ",
     "what can happen after",
     "what is the immediate effect of",
-    "what would happen without",
     "what is caused by ",
     "what would happen without ", // example: What would happen without NADPH?
     "what would happen if ",
-    "what would happen without ",
     "what is the result of ",
     "what is caused by ",
     "which of the following is caused by", // example: Which of the following is caused by the increased frequency of individuals with favorable adaptations?
@@ -160,9 +158,23 @@ object ProcessBankReader{
       }
     }
 
+    def filterNotCResultQuestions: List[Paragraph] = {
+      paragraphList.map { p =>
+        val filteredQuestions = p.questions.filterNot(q => q.isForCResultQuestion)
+        Paragraph(p.context, filteredQuestions, p.contextTAOpt)
+      }
+    }
+
     def filterWhatDoesItDo: List[Paragraph] = {
       paragraphList.map { p =>
         val filteredQuestions = p.questions.filter(_.isWhatDoesItDo)
+        Paragraph(p.context, filteredQuestions, p.contextTAOpt)
+      }
+    }
+
+    def filterNotWhatDoesItDo: List[Paragraph] = {
+      paragraphList.map { p =>
+        val filteredQuestions = p.questions.filterNot(_.isWhatDoesItDo)
         Paragraph(p.context, filteredQuestions, p.contextTAOpt)
       }
     }
@@ -185,6 +197,7 @@ object ProcessBankReader{
     def isTemporal: Boolean = temporalKeywords.exists(str.contains)
     def isCauseQuestion: Boolean = causeTriggers.exists(str.toLowerCase.contains)
     def isForCResultQuestion: Boolean = resultTriggers.exists(str.toLowerCase.contains)
-    def isWhatDoesItDo: Boolean = whatDoesItDoPattern.findFirstIn(str.toLowerCase).nonEmpty || str.toLowerCase.contains(" does what?") || str.toLowerCase.contains(" do what?")
+    def isWhatDoesItDo: Boolean = whatDoesItDoPattern.findFirstIn(str.toLowerCase).nonEmpty ||
+      str.toLowerCase.contains(" does what?") || str.toLowerCase.contains(" do what?")
   }
 }

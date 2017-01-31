@@ -81,7 +81,7 @@ object TextILPSolver {
   lazy val offlineAligner = new AlignmentFunction("Entailment", 0.2, TextILPSolver.keywordTokenizer, useRedisCache = false, useContextInRedisCache = false)
 }
 
-class TextILPSolver(annotationUtils: AnnotationUtils, alignmentThreshold: Double, verbose: Boolean = true) extends TextSolver {
+class TextILPSolver(annotationUtils: AnnotationUtils, alignmentThreshold: Double, verbose: Boolean = true, activeQuestionTermWeight: Double) extends TextSolver {
 
   lazy val aligner = new AlignmentFunction("Entailment", alignmentThreshold, TextILPSolver.keywordTokenizer, useRedisCache = false, useContextInRedisCache = false)
 
@@ -241,18 +241,12 @@ class TextILPSolver(annotationUtils: AnnotationUtils, alignmentThreshold: Double
     // active questions cons
     val activeQuestionConstituents = for {
       t <- qTokens
-      weight = if(q.questionText.isWhatDoesItDo) {
-        if(true) {
-          // immediately after
-          0.2
-        }
-        else {
-          0.1
-        }
+      weight = activeQuestionTermWeight /*if(q.questionText.isWhatDoesItDo) {
+        0.2
       }
       else {
-        0.1
-      }
+        activeQuestionTermWeight
+      }*/
       x = ilpSolver.createBinaryVar("activeQuestionCons", weight) //TODO: add weight for this?
     } yield (t, x)
     // the question token is active if anything connected to it is active
