@@ -57,6 +57,7 @@ class AnnotationUtils {
     val settings = new Properties()
     //settings.setProperty("cacheDirectory", "annotation-cache-textilp")
     settings.setProperty("disableCache", Configurator.TRUE)
+    settings.setProperty("splitOnDash", Configurator.FALSE)
     viewsToDisable.foreach{ key => settings.setProperty(key.value, Configurator.FALSE) }
     settings.setProperty(PipelineConfigurator.STFRD_MAX_SENTENCE_LENGTH.key, "1000")
     val rm = new ResourceManager(settings)
@@ -80,7 +81,7 @@ class AnnotationUtils {
   }
 
   def annotateWithCuratorCorefAndCache(string: String): TextAnnotation = {
-    val cacheKey = "*curatorWithCoref" + string
+    val cacheKey = "*curatorWithCoref3" + string
     val redisAnnotation = synchronizedRedisClient.get(cacheKey)
     if (redisAnnotation.isDefined) {
       SerializationHelper.deserializeFromJson(redisAnnotation.get)

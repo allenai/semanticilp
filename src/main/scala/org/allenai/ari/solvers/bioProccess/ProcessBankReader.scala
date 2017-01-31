@@ -110,6 +110,8 @@ object ProcessBankReader{
     " causes what?" // example: Gene flow causes what?
   )
 
+  val whatDoesItDoPattern = "what (does|do|can) .* do\\?".r
+
   def normalizeText(str: String): String = str.trim.replaceAll("\\(Figure .*\\)", "").replaceAll("\\(see Figure .*\\)", "")
 
   implicit class ImplicitConversionsFromParagraphs(paragraphList: List[Paragraph]) {
@@ -157,6 +159,13 @@ object ProcessBankReader{
         Paragraph(p.context, filteredQuestions, p.contextTAOpt)
       }
     }
+
+    def filterWhatDoesItDo: List[Paragraph] = {
+      paragraphList.map { p =>
+        val filteredQuestions = p.questions.filter(_.isWhatDoesItDo)
+        Paragraph(p.context, filteredQuestions, p.contextTAOpt)
+      }
+    }
   }
 
   implicit class ImplicitConversionsFromQuestion(question: Question) {
@@ -168,6 +177,7 @@ object ProcessBankReader{
     def isForCResultQuestion: Boolean = resultTriggers.exists(question.questionText.toLowerCase.contains)
     // commented out to make it less confusing
     //def causalQuestion: Boolean = lookingForCauseQuestion || lookingForCResultQuestion
+    def isWhatDoesItDo: Boolean = question.questionText.isWhatDoesItDo
   }
 
   implicit class ImplicitConversionsFromAnswerString(str: String) {
@@ -175,5 +185,6 @@ object ProcessBankReader{
     def isTemporal: Boolean = temporalKeywords.exists(str.contains)
     def isCauseQuestion: Boolean = causeTriggers.exists(str.toLowerCase.contains)
     def isForCResultQuestion: Boolean = resultTriggers.exists(str.toLowerCase.contains)
+    def isWhatDoesItDo: Boolean = whatDoesItDoPattern.findFirstIn(str.toLowerCase).nonEmpty || str.toLowerCase.contains(" does what?") || str.toLowerCase.contains(" do what?")
   }
 }

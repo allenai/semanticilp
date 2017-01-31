@@ -65,6 +65,19 @@ object TextILPSolver {
 //    scoreList.sum / scoreList.length
   }
 
+  def getAvgScore(qCons: Seq[Constituent], pCons: Seq[Constituent]): Double = {
+    val scoreList = qCons.flatMap{ qC =>
+      pCons.map{ pC =>
+        val score2 = offlineAligner.scoreCellCell(pC.getSurfaceForm, qC.getSurfaceForm)
+        ///println(s"pC: $pC / qC: $qC / score: $score2")
+        score2
+      }
+    }
+    //println("maxScore: " + maxScore)
+    //println("-----------------------")
+    scoreList.sum / scoreList.length
+  }
+
   lazy val offlineAligner = new AlignmentFunction("Entailment", 0.2, TextILPSolver.keywordTokenizer, useRedisCache = false, useContextInRedisCache = false)
 }
 
@@ -228,7 +241,19 @@ class TextILPSolver(annotationUtils: AnnotationUtils, alignmentThreshold: Double
     // active questions cons
     val activeQuestionConstituents = for {
       t <- qTokens
-      x = ilpSolver.createBinaryVar("activeQuestionCons", 0.1) //TODO: add weight for this?
+      weight = if(q.questionText.isWhatDoesItDo) {
+        if(true) {
+          // immediately after
+          0.2
+        }
+        else {
+          0.1
+        }
+      }
+      else {
+        0.1
+      }
+      x = ilpSolver.createBinaryVar("activeQuestionCons", weight) //TODO: add weight for this?
     } yield (t, x)
     // the question token is active if anything connected to it is active
     activeQuestionConstituents.foreach {
@@ -287,6 +312,42 @@ class TextILPSolver(annotationUtils: AnnotationUtils, alignmentThreshold: Double
         ilpSolver.addConsBasicLinear("resultReasoning-firstAnswerMustBeCorrect", Seq(activeAnswerOptions(0)._2), Seq(1.0), Some(1.0), None)
       }
     }
+
+    if(q.questionText.isWhatDoesItDo && activeAnswerOptions.length == 2) {
+        def getClosestIndex(qCons: Seq[Constituent], pCons: Seq[Constituent]): Int = {
+          pCons.map { c =>
+            TextILPSolver.getAvgScore(qCons, Seq(c))
+          }.zipWithIndex.maxBy(_._1)._2
+        }
+        val qIdx = getClosestIndex(qTokens, pTokens)
+        val ans1Cons = q.answers(0).aTAOpt.get.getView(ViewNames.TOKENS).asScala.toList
+        val ans2Cons = q.answers(1).aTAOpt.get.getView(ViewNames.TOKENS).asScala.toList
+        val a1Idx = getClosestIndex(ans1Cons, pTokens)
+        val a2Idx = getClosestIndex(ans2Cons, pTokens)
+        // one before, one after: after is the anser
+        if (a1Idx < qIdx && a2Idx > qIdx) {
+          // at least one of the answers happens before the question
+          // the second one is the answer
+          ilpSolver.addConsBasicLinear("resultReasoning-secondAnswerMustBeCorrect", Seq(activeAnswerOptions(1)._2), Seq(1.0), Some(1.0), None)
+        }
+        if (a1Idx > qIdx && a2Idx < qIdx) {
+          // at least one of the answers happens before the question
+          // the first one is the answer
+          ilpSolver.addConsBasicLinear("resultReasoning-firstAnswerMustBeCorrect", Seq(activeAnswerOptions(0)._2), Seq(1.0), Some(1.0), None)
+        }
+        // both after: closer is the answer
+        if (a1Idx > qIdx && a2Idx > qIdx) {
+          // at least one of the answers happens before the question
+          if (a2Idx < a1Idx) {
+            // the second one is the answer
+            ilpSolver.addConsBasicLinear("resultReasoning-secondAnswerMustBeCorrect", Seq(activeAnswerOptions(1)._2), Seq(1.0), Some(1.0), None)
+          }
+          if (a2Idx > a1Idx ) {
+            // the first one is the answer
+            ilpSolver.addConsBasicLinear("resultReasoning-firstAnswerMustBeCorrect", Seq(activeAnswerOptions(0)._2), Seq(1.0), Some(1.0), None)
+          }
+        }
+      }
 
     // intra-sentence alignments
     // any sentences (that are at most k-sentences apart; k = 2 for now) can be aligned together.
