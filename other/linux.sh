@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-export LD_LIBRARY_PATH = LD_LIBRARY_PATH:lib:../lib
+export LD_LIBRARY_PATH=LD_LIBRARY_PATH:lib:../lib
