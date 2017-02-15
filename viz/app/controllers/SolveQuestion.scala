@@ -22,7 +22,7 @@ class SolveQuestion @Inject() extends Controller {
   lazy val luceneSolver = new LuceneSolver()
   lazy val slidingWindowSolver = new SlidingWindowSolver()
   lazy val annotationUtils = new AnnotationUtils()
-  lazy val textilpSolver = new TextILPSolver(annotationUtils)
+  lazy val textilpSolver = new TextILPSolver(annotationUtils, 0.4, true, 0.33)
 
   /** Create an Action to render an HTML page with a welcome message.
     * The configuration in the `routes` file means that this method

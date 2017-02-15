@@ -263,6 +263,16 @@ class TextILPSolver(annotationUtils: AnnotationUtils, alignmentThreshold: Double
         }
     }
 
+    // weight for answers being close to each other
+//    val answerWeightVariables = aTokens.indices.map{ answerOptionIdx =>
+//      // for each answer option create one of these weights
+//      val x = ilpSolver.createIntegerVar("answerTokenDistanceWeights", 0, 100, 1.0)
+//      aTokens.foreach{ toks =>
+//        val x = ilpSolver.createIntegerVar("answerTokenDistanceWeights", 0, 100, 1.0)
+//      }
+//      (answerOptionIdx, x)
+//    }
+
     // constraints
     // alignment to only one option, i.e. there must be only one single active option
     if(activeAnswerOptions.nonEmpty) {

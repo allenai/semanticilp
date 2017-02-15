@@ -317,13 +317,13 @@ object ExperimentsApp {
   def evaluateTextSolverOnProcessBank(list: List[Paragraph], textSolver: TextSolver) = {
     val qAndpPairs = list.flatMap { p => p.questions.map(q => (q, p))}
     val (resultLists, confidences) = qAndpPairs.zipWithIndex.map{ case ((q, p), idx) =>
-//      println("==================================================")
-//      println("Processed " + idx + " out of " + qAndpPairs.size)
+      println("==================================================")
+      println("Processed " + idx + " out of " + qAndpPairs.size)
 //      println("Paragraph: " + p)
       val candidates = q.answers.map(_.answerText)
       val correctIndex = q.correctIdxOpt.get
 //          println("correct answer: " + goldCandidates.head)
-//          println("question: " + q.questionText)
+          println("question: " + q.questionText)
 //          println("candidates: " + candidates)
 //          println("length of allCandidatesMinusCorrectOnes: " + allCandidatesMinusCorrectOnes.size)
 //          println("candidates.length: " + candidates.length)
@@ -331,7 +331,7 @@ object ExperimentsApp {
       val (selected, explanation) = textSolver.solve(q.questionText, candidates, p.context)
       val correctLabel = q.answers(correctIndex).answerText
       val score = SolverUtils.assignCredit(selected, correctIndex, candidates.length)
-//      if(score < 0.5) println(" >>>>>>> Incorrect :" + score)
+      if(score < 0.5) println(" >>>>>>> Incorrect :" + score)
       score -> (explanation.confidence -> correctLabel)
     }.unzip
 
@@ -486,7 +486,7 @@ object ExperimentsApp {
   def main(args: Array[String]): Unit = {
     lazy val trainReader = new SQuADReader(Constants.squadTrainingDataFile, Some(annotationUtils.pipelineService), annotationUtils)
     lazy val devReader = new SQuADReader(Constants.squadDevDataFile, Some(annotationUtils.pipelineService), annotationUtils)
-    lazy val processReader = new ProcessBankReader(false, annotationUtils)
+    lazy val processReader = new ProcessBankReader(true, annotationUtils)
     val parser = new ArgumentParser(args)
     parser.experimentType() match {
       case 1 => generateCandiateAnswers(devReader)
