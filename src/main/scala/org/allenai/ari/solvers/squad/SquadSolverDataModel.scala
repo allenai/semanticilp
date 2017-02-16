@@ -563,8 +563,9 @@ object SquadClassifierUtils {
 
   lazy val (trainInstancesForSentenceIdClassifier, devInstancesSentenceIdClassifier) = {
     println("trainReader length: " + trainReader.instances.length)
-    def getInstances(i: Int, j: Int, sQuADReader: SQuADReader): Seq[QPPair] = {
-      val qAndpPairs = sQuADReader.instances.slice(i, j).flatMap { ii => ii.paragraphs.flatMap { p => p.questions.map(q => (q, p)) } }
+    println("devReader length: " + devReader.instances.length)
+    def getInstances(sQuADReader: SQuADReader): Seq[QPPair] = {
+      val qAndpPairs = sQuADReader.instances.flatMap { ii => ii.paragraphs.flatMap { p => p.questions.map(q => (q, p)) } }
       val a = qAndpPairs.flatMap { case (q, p) =>
         (0 until p.contextTAOpt.get.getNumberOfSentences).map { i =>
           QPPair(q, p, 0, 0, sentenceIdOpt = Some(i))
@@ -573,7 +574,7 @@ object SquadClassifierUtils {
       println("getInstances: " + a.size)
       a
     }
-    getInstances(0, 28, trainReader) -> getInstances(28, 30, trainReader)
+    getInstances(trainReader) -> getInstances(devReader)
   }
 
   def populateInstances(): Unit =  {

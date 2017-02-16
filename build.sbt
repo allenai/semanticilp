@@ -12,7 +12,7 @@ lazy val commonSettings = Seq(
   organization := ccgGroupId,
   version := "1.5",
   scalaVersion := "2.11.8",
-  javaOptions ++= Seq("-Xmx20G"),
+  javaOptions ++= Seq("-Xmx25G"),
   // Make sure SCIP libraries are locatable.
   javaOptions += s"-Djava.library.path=lib",
   envVars ++= Map(
