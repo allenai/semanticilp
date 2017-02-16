@@ -37,6 +37,19 @@ object SquadSolverDataModel extends DataModel{
     (qp.beginTokenIdx == beginToken) && (qp.endTokenIdx == endToken)
   }
 
+  val sentenceIdLabel = property(pair) { qp: QPPair =>
+    val indices = qp.question.answers.map { ans =>
+      val charStart = ans.answerStart
+      val c = qp.paragraph.contextTAOpt.get.getView(ViewNames.TOKENS).getConstituents.asScala.toList.
+        filter(c => c.getStartCharOffset <= charStart + 2 && c.getEndCharOffset >= charStart + 2)
+      require(c.nonEmpty)
+      val goldAnswerSenId = qp.paragraph.contextTAOpt.get.getSentenceId(c.head)
+      goldAnswerSenId
+    }.toSet
+    require(indices.size == 1)
+    indices(0)
+  }
+
   val candidateLemma = (begin: Boolean) => property(pair) { qp: QPPair => getPLemmaLabel(qp, begin) }
 
   val questionContainsString = (str: String) => property(pair) { qp: QPPair =>
@@ -478,6 +491,7 @@ class SquadClassifier(cType: String = "begin") extends Learnable[QPPair](SquadSo
     case "end" => endTokenLabel
     case "pair" => pairTokenLabel
     case "inside" => insideTokenLabel
+    case "sentId" => sentenceIdLabel
     case _ => throw new Exception("Unknown classifier type")
   }
   def cFeatures = cType match {
@@ -485,6 +499,7 @@ class SquadClassifier(cType: String = "begin") extends Learnable[QPPair](SquadSo
     case "end" => endFeatures
     case "pair" => List(lemmaLabelsOfSpan)  // lengthOfSpan  pairFeatures //++ pairFeaturesWithContext ++   beginFeatures ++ endFeatures
     case "inside" => beginFeatures
+    case "sentId" => beginFeatures
     case _ => throw new Exception("Unknown classifier type")
   }
   override def feature = using(cFeatures)
@@ -505,6 +520,8 @@ object SquadClassifierUtils {
   pairClassifier.modelSuffix = "pair"
   val insideClassifier = new SquadClassifier("inside")
   insideClassifier.modelSuffix = "inside"
+  val sentenceIdClassifier = new SquadClassifier("sentId")
+  sentenceIdClassifier.modelSuffix = "sentId"
 
   private lazy val annotationUtils = new AnnotationUtils()
   private lazy val trainReader = new SQuADReader(Constants.squadTrainingDataFile, Some(annotationUtils.pipelineService), annotationUtils)
@@ -540,6 +557,21 @@ object SquadClassifierUtils {
         positive ++ scala.util.Random.shuffle(negative).take(positive.length * 2)
       }
       trainableInstances -> qAndpPairs
+    }
+    getInstances(0, 28, trainReader) -> getInstances(28, 30, trainReader)
+  }
+
+  lazy val (trainInstancesForSentenceIdClassifier, devInstancesSentenceIdClassifier) = {
+    println("trainReader length: " + trainReader.instances.length)
+    def getInstances(i: Int, j: Int, sQuADReader: SQuADReader): Seq[QPPair] = {
+      val qAndpPairs = sQuADReader.instances.slice(i, j).flatMap { ii => ii.paragraphs.flatMap { p => p.questions.map(q => (q, p)) } }
+      val a = qAndpPairs.flatMap { case (q, p) =>
+        (0 until p.contextTAOpt.get.getNumberOfSentences).map { i =>
+          QPPair(q, p, 0, 0, sentenceIdOpt = Some(i))
+        }
+      }
+      println("getInstances: " + a.size)
+      a
     }
     getInstances(0, 28, trainReader) -> getInstances(28, 30, trainReader)
   }

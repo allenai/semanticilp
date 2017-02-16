@@ -456,10 +456,15 @@ object ExperimentsApp {
 //    insideClassifier.test(SquadClassifierUtils.trainInstances)
 //    insideClassifier.test(SquadClassifierUtils.devInstances)
 
-    pairClassifier.learn(20)
-    pairClassifier.save()
-    pairClassifier.test(SquadClassifierUtils.trainInstances)
-    pairClassifier.test(SquadClassifierUtils.devInstances)
+//    pairClassifier.learn(20)
+//    pairClassifier.save()
+//    pairClassifier.test(SquadClassifierUtils.trainInstances)
+//    pairClassifier.test(SquadClassifierUtils.devInstances)
+
+    sentenceIdClassifier.learn(20)
+    sentenceIdClassifier.save()
+    sentenceIdClassifier.test(SquadClassifierUtils.trainInstancesForSentenceIdClassifier)
+    sentenceIdClassifier.test(SquadClassifierUtils.devInstancesSentenceIdClassifier)
   }
 
   def decodeClassifierResults() = {

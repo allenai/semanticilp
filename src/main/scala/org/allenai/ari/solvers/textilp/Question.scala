@@ -6,7 +6,7 @@ import org.apache.commons.math3.util.Precision
 import scala.collection.mutable.ArrayBuffer
 
 case class TopicGroup(title: String, paragraphs: Seq[Paragraph])
-case class QPPair(question: Question, paragraph: Paragraph, beginTokenIdx: Int, endTokenIdx: Int, scoreOpt: Option[Double] = None)
+case class QPPair(question: Question, paragraph: Paragraph, beginTokenIdx: Int, endTokenIdx: Int, scoreOpt: Option[Double] = None, sentenceIdOpt: Option[Int] = None)
 case class Paragraph(context: String, questions: Seq[Question], contextTAOpt: Option[TextAnnotation])
 case class Question(questionText: String, questionId: String, answers: Seq[Answer], qTAOpt: Option[TextAnnotation], correctIdxOpt: Option[Int] = None)
 case class Answer(answerText: String, answerStart: Int, aTAOpt: Option[TextAnnotation] = None)
