@@ -64,7 +64,6 @@ fabric.properties
 
 ### SBT template
 .DS_Store
-.gitignore
 .idea/*
 .idea/**/*
 TextILP.iml
