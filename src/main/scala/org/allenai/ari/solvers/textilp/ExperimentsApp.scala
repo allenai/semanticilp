@@ -23,6 +23,7 @@ import ProcessBankReader._
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, TextAnnotation}
 import edu.illinois.cs.cogcomp.edison.annotators.ClauseViewGenerator
 import org.allenai.ari.solvers.textilp.ResultJson._
+import shapeless.list
 
 import scala.io.Source
 
@@ -921,21 +922,20 @@ object ExperimentsApp {
         //        evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterTemporals, textILPSolver)
         //        println("filterTemporals: ")
 
-        //        evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterCauseQuestions, textILPSolver)
-        //        println("filterCauseQuestions: ")
+//      evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterCauseQuestions, textILPSolver)
+//      println("filterCauseQuestions: ")
 
+//      evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterCResultQuestions, textILPSolver)
+//      println("filterCResultQuestions: ")
 
-        //        evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterCResultQuestions, textILPSolver)
-        //        println("filterCResultQuestions: ")
-
-       //  evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterWhatDoesItDo, textILPSolver)
-       //  println("filterWhatDoesItDo: ")
-
+//     evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterWhatDoesItDo, textILPSolver)
+//     println("filterWhatDoesItDo: ")
+//
       evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
       println("no-temporals/no true or false: ")
-
-//        evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals.filterNotWhatDoesItDo.filterNotCResultQuestions, textILPSolver)
-//        println("no-temporals/no true or false: ")
+//
+//      evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals.filterNotWhatDoesItDo.filterNotCResultQuestions, textILPSolver)
+//      println("no-temporals/no true or false/filterNotWhatDoesItDo.filterNotCResultQuestions")
 
 //              (0.3 to 0.5 by 0.02).foreach{ weight =>
 //                lazy val solver = new TextILPSolver(annotationUtils, 0.4, verbose = false, weight)
@@ -1096,25 +1096,28 @@ object ExperimentsApp {
         val after = toks.filter(c => c.getStartSpan >= withoutTok.getStartSpan).minBy(_.getStartSpan)
         println(after)
       case 61 =>
+        def notOne(i: Int): Boolean = i != 1
+        def notOne3(i: Int, j: Int, k: Int): Boolean = notOne(i) && notOne(j) && notOne(k)
         def experiment(k: Int, j: Int) = {
           var inHowManyCasesThatOneReasonAppearsBeforeQuestionTheCorrectAnsTheLatter = 0
           var inHowManyCasesThatOneReasonAppearsBeforeQuestion = 0
           // analyze the result questions
           def getClosestIndex(qCons: Seq[Constituent], pCons: Seq[Constituent]): Int = {
             pCons.map { c =>
-              TextILPSolver.getMaxScore(qCons, Seq(c))
+              TextILPSolver.getAvgScore(qCons, Seq(c))
             }.zipWithIndex.maxBy(_._1)._2
           }
           val paragraphs = processReader.trainingInstances.filterCResultQuestions
-          val list = paragraphs.flatMap { p =>
+          paragraphs.foreach { p =>
             val pCons = p.contextTAOpt.get.getView(ViewNames.SHALLOW_PARSE).asScala.toList
-            p.questions.map { q =>
+            p.questions.foreach { q =>
               val qCons = q.qTAOpt.get.getView(ViewNames.SHALLOW_PARSE).asScala.toList
               val qIdx = getClosestIndex(qCons, pCons)
               val ans1Cons = q.answers(0).aTAOpt.get.getView(ViewNames.TOKENS).asScala.toList
               val ans2Cons = q.answers(1).aTAOpt.get.getView(ViewNames.TOKENS).asScala.toList
               val a1Idx = getClosestIndex(ans1Cons, pCons)
               val a2Idx = getClosestIndex(ans2Cons, pCons)
+              //println(s"qIdx:  $qIdx / a1Idx: $a1Idx / a2Idx:  $a1Idx")
               if (a1Idx < qIdx - k && a2Idx > qIdx + j) {
                 // at least one of the answers happens before the question
                 inHowManyCasesThatOneReasonAppearsBeforeQuestion += 1
@@ -1128,20 +1131,12 @@ object ExperimentsApp {
                   inHowManyCasesThatOneReasonAppearsBeforeQuestionTheCorrectAnsTheLatter += 1
                 }
               }
-              val doesCorrectIdxAppearsLater = if ((q.correctIdxOpt.get == 0 && a1Idx >= a2Idx) || (q.correctIdxOpt.get == 1 && a1Idx <= a2Idx)) 1 else 0
-              //println(q.questionText)
-              //println(s"$a1Idx\t$a2Idx\t${q.correctIdxOpt.get}\t$doesCorrectIdxAppearsLater\t${2*(a2Idx - a1Idx)*(q.correctIdxOpt.get - 0.5)}\t${qIdx}\n")
-              doesCorrectIdxAppearsLater
             }
           }
           println("k: " + k + " / j: " + j)
           val ratio1 = inHowManyCasesThatOneReasonAppearsBeforeQuestionTheCorrectAnsTheLatter.toDouble / inHowManyCasesThatOneReasonAppearsBeforeQuestion
-          val ratio2 = list.sum.toDouble / list.length
-          println("list.length: " + list.length)
           println("ratio1: " + ratio1)
-          println("ratio2: " + ratio2)
           println("inHowManyCasesThatOneReasonAppearsBeforeQuestion: " + inHowManyCasesThatOneReasonAppearsBeforeQuestion)
-          println("list.length: " + list.length)
           println("-----------------------")
         }
 

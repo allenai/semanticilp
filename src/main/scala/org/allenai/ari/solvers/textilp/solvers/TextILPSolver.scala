@@ -169,6 +169,23 @@ class TextILPSolver(annotationUtils: AnnotationUtils, alignmentThreshold: Double
       List.empty
     }
 
+    // active answer option token
+    /*val activeAnsweOptionToken = if(!isTrueFalseQuestion) {
+      for {
+        ansIdx <- aTokens.indices
+        ansTokIdx <- aTokens(ansIdx).indices
+        x = ilpSolver.createBinaryVar(s"activeAns${ansIdx}Tok${ansTokIdx}OptId", 0.0)
+      } yield (ansIdx, ansTokIdx, x)
+    }
+    else {
+      List.empty
+    }
+*/
+    def getVariablesConnectedToOptionToken(ansIdx: Int, tokenIdx: Int): Seq[V] = {
+      paragraphAnswerAlignments.filter { case (_, ansIdxTmp, tokenIdxTmp, _) =>
+        ansIdxTmp == ansIdx &&  tokenIdxTmp == tokenIdx }.map(_._4)
+    }
+
     def getVariablesConnectedToOption(ansIdx: Int): Seq[V] = {
       paragraphAnswerAlignments.filter { case (_, ansTmp, _, _) => ansTmp == ansIdx }.map(_._4)
     }
@@ -199,6 +216,22 @@ class TextILPSolver(annotationUtils: AnnotationUtils, alignmentThreshold: Double
           ilpSolver.addConsBasicLinear("activeConnectedEdgeImpliesOneAnswerOption", vars, coeffs, None, Some(0.0))
         }
     }
+
+/*
+    // Answer option token must be active if anything connected to it is active
+    activeAnsweOptionToken.foreach {
+      case (ansIdx, ansTokIdx, x) =>
+        val connectedVariables = getVariablesConnectedToOptionToken(ansIdx, ansTokIdx)
+        val allVars = connectedVariables :+ x
+        val coeffs = Seq.fill(connectedVariables.length)(-1.0) :+ 1.0
+        ilpSolver.addConsBasicLinear("activeOptionTokVarImplesOneActiveConnectedEdge", allVars, coeffs, None, Some(0.0))
+        connectedVariables.foreach { connectedVar =>
+          val vars = Seq(connectedVar, x)
+          val coeffs = Seq(1.0, -1.0)
+          ilpSolver.addConsBasicLinear("activeConnectedEdgeImpliesOneAnswerOptionTok", vars, coeffs, None, Some(0.0))
+        }
+    }
+*/
 
     // active paragraph constituent
     val activeParagraphConstituents = for {
@@ -264,14 +297,27 @@ class TextILPSolver(annotationUtils: AnnotationUtils, alignmentThreshold: Double
     }
 
     // weight for answers being close to each other
-//    val answerWeightVariables = aTokens.indices.map{ answerOptionIdx =>
-//      // for each answer option create one of these weights
-//      val x = ilpSolver.createIntegerVar("answerTokenDistanceWeights", 0, 100, 1.0)
-//      aTokens.foreach{ toks =>
-//        val x = ilpSolver.createIntegerVar("answerTokenDistanceWeights", 0, 100, 1.0)
-//      }
-//      (answerOptionIdx, x)
-//    }
+    /*val weight = -1.0
+    aTokens.indices.map{ answerOptionIdx =>
+      // for each answer option create one of these weights
+      //val x = ilpSolver.createIntegerVar("answerTokenDistanceWeights", 0, 100, 1.0)
+      aTokens.foreach{ toks =>
+        val x = ilpSolver.createIntegerVar("answerTokenDistanceWeights", 0, 100, 1.0)
+      }
+      val len = aTokens(answerOptionIdx).length - 1
+      for{
+        i <- 0 until len - 1
+        j <- i + 1 until len
+      } {
+        val x = ilpSolver.createIntegerVar(s"Answer:$answerOptionIdx-iAndjAnswerOption$i-$j", 0, 100, weight)
+        // add constraint
+
+      }
+
+      (answerOptionIdx, x)
+    }*/
+
+
 
     // constraints
     // alignment to only one option, i.e. there must be only one single active option
@@ -297,21 +343,30 @@ class TextILPSolver(annotationUtils: AnnotationUtils, alignmentThreshold: Double
     if(q.questionText.isForCResultQuestion && activeAnswerOptions.length == 2) {
       def getClosestIndex(qCons: Seq[Constituent], pCons: Seq[Constituent]): Int = {
         pCons.map{ c =>
-          TextILPSolver.getMaxScore(qCons, Seq(c))
+          TextILPSolver.getAvgScore(qCons, Seq(c))
         }.zipWithIndex.maxBy(_._1)._2
       }
 
-      val qIdx = getClosestIndex(qTokens, pTokens)
+//      val qIdx = getClosestIndex(qTokens, pTokens)
+//      val ans1Cons = q.answers(0).aTAOpt.get.getView(ViewNames.TOKENS).asScala.toList
+//      val ans2Cons = q.answers(1).aTAOpt.get.getView(ViewNames.TOKENS).asScala.toList
+//      val a1Idx = getClosestIndex(ans1Cons, pTokens)
+//      val a2Idx = getClosestIndex(ans2Cons, pTokens)
+
+      val pCons = p.contextTAOpt.get.getView(ViewNames.SHALLOW_PARSE).asScala.toList
+      val qCons = q.qTAOpt.get.getView(ViewNames.SHALLOW_PARSE).asScala.toList
+      val qIdx = getClosestIndex(qCons, pCons)
       val ans1Cons = q.answers(0).aTAOpt.get.getView(ViewNames.TOKENS).asScala.toList
       val ans2Cons = q.answers(1).aTAOpt.get.getView(ViewNames.TOKENS).asScala.toList
-      val a1Idx = getClosestIndex(ans1Cons, pTokens)
-      val a2Idx = getClosestIndex(ans2Cons, pTokens)
+      val a1Idx = getClosestIndex(ans1Cons, pCons)
+      val a2Idx = getClosestIndex(ans2Cons, pCons)
+
       // at least one of the answers happens before the question
-      if (a1Idx < qIdx && a2Idx > qIdx ) {
+      if (a1Idx < qIdx && a2Idx > qIdx + 6) {
         // a2 should be the answer
         ilpSolver.addConsBasicLinear("resultReasoning-secondAnswerMustBeCorrect", Seq(activeAnswerOptions(1)._2), Seq(1.0), Some(1.0), None)
       }
-      if (a2Idx < qIdx && a1Idx > qIdx) {
+      if (a2Idx < qIdx && a1Idx > qIdx + 6) {
         // a1 should be the answer
         ilpSolver.addConsBasicLinear("resultReasoning-firstAnswerMustBeCorrect", Seq(activeAnswerOptions(0)._2), Seq(1.0), Some(1.0), None)
       }
