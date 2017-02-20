@@ -1,6 +1,6 @@
 package org.allenai.ari.solvers.textilp.ilpsolver
 
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.{ FlatSpec, Matchers }
 
 class ScipSolverSpec extends FlatSpec with Matchers {
 

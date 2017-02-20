@@ -15,7 +15,7 @@ import com.typesafe.config.Config
   * @param localConfig configuration to (optionally) pass on to the entailment library
   */
 @Singleton class LocalEntailer @Inject() (
-    @Named("entailment.local") localConfig: Config
+  @Named("entailment.local") localConfig: Config
 ) extends Entailer {
 
   private val entailer = EntailerImpl(localConfig)

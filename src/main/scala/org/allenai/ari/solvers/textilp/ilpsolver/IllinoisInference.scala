@@ -8,7 +8,6 @@ case class IllVar(ptr: Int) extends IlpVar
 /** Class to capture SCIP's implementation of constraint type */
 case class IllCons(ptr: Int) extends IlpCons
 
-
 class IllinoisInference(ilpSolver: ILPSolver) extends IlpSolver[IllVar, IllCons] {
 
   /** set objective function as minimization */
@@ -25,7 +24,7 @@ class IllinoisInference(ilpSolver: ILPSolver) extends IlpSolver[IllVar, IllCons]
 
   /** create an integer variable */
   override def createIntegerVar(name: String, lb: Double, ub: Double, objCoeff: Double): IllVar =
-  IllVar(ilpSolver.addIntegerVariable(objCoeff))
+    IllVar(ilpSolver.addIntegerVariable(objCoeff))
 
   /** create a continuous variable */
   override def createContinuousVar(name: String, lb: Double, ub: Double, objCoeff: Double): IllVar = ???
@@ -119,10 +118,10 @@ class IllinoisInference(ilpSolver: ILPSolver) extends IlpSolver[IllVar, IllCons]
 
   /** Adds a basic linear constraints with an optional LHS and an optional RHS */
   override def addConsBasicLinear(name: String, vars: Seq[IllVar], coeffs: Seq[Double], lhsOpt: Option[Double], rhsOpt: Option[Double]): Unit = {
-    if(lhsOpt.isDefined) {
+    if (lhsOpt.isDefined) {
       ilpSolver.addGreaterThanConstraint(vars.map(_.ptr).toArray, coeffs.toArray, lhsOpt.get)
     }
-    if(rhsOpt.isDefined) {
+    if (rhsOpt.isDefined) {
       ilpSolver.addLessThanConstraint(vars.map(_.ptr).toArray, coeffs.toArray, rhsOpt.get)
     }
   }

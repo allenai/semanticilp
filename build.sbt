@@ -12,7 +12,7 @@ lazy val commonSettings = Seq(
   organization := ccgGroupId,
   version := "1.5",
   scalaVersion := "2.11.8",
-  javaOptions ++= Seq("-Xmx25G"),
+  javaOptions ++= Seq("-Xmx25G", "-XX:MaxMetaspaceSize=5g"),
   // Make sure SCIP libraries are locatable.
   javaOptions += s"-Djava.library.path=lib",
   envVars ++= Map(
@@ -84,7 +84,9 @@ lazy val root = (project in file(".")).
       sprayClient,
       "org.scalatest" % "scalatest_2.11" % "2.2.4",
       "org.elasticsearch" % "elasticsearch" % "2.4.1",
-      "me.tongfei" % "progressbar" % "0.5.1"
+      "me.tongfei" % "progressbar" % "0.5.1",
+      "org.apache.lucene" % "lucene-core" % "6.4.1",
+      "org.scalaz" %% "scalaz-core" % "7.2.8"
     ),
     resolvers ++= Seq(
 //      "Artima Maven Repository" at "http://repo.artima.com/releases"

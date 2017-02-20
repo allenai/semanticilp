@@ -1,7 +1,7 @@
 package org.allenai.ari.solvers.squad
 
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
-import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, TextAnnotation, View}
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{ Constituent, TextAnnotation, View }
 
 import scala.util.matching.Regex
 
@@ -23,28 +23,26 @@ case class NerConll(override val label: String, override val surface: String) ex
 case class NerOntonotes(override val label: String, override val surface: String) extends ViewCons(label, surface, ViewNames.NER_ONTONOTES)
 */
 
-
 object TextAnnotationPatternExtractor {
   def extractStringSequence(ta: TextAnnotation, vuName: String): (Seq[String], Seq[(Int, Int)]) = {
     val vu = ta.getView(vuName)
     val tokenSize = ta.getTokens.length
     val cons = vu.getConstituents.asScala
-    cons.map{ c => c.getLabel -> (c.getStartSpan, c.getEndSpan) }
-    val labels = (0 until tokenSize).map{ idx =>
+    cons.map { c => c.getLabel -> (c.getStartSpan, c.getEndSpan) }
+    val labels = (0 until tokenSize).map { idx =>
       val cList = vu.getConstituentsCoveringToken(idx).asScala
       require(cList.length <= 1)
       if (cList.nonEmpty) {
         val c = cList.head
         //c.getLabel -> (c.getStartSpan, c.getEndSpan)
         c.getLabel -> (c.getStartSpan, c.getEndSpan)
-      }
-      else {
+      } else {
         ta.getToken(idx) -> (idx, idx + 1)
       }
     }.distinct
     labels.unzip
   }
-/*
+  /*
   def findPatternInAnnotateedDoc(ta: TextAnnotation, pattern: Seq[PatternCons]): Seq[Seq[Int]] = {
 
     val requiredViews = pattern.map {
@@ -166,7 +164,7 @@ object TextAnnotationPatternExtractor {
       case false =>
         val relevantIndices = list.zipWithIndex.filter(_._1 == pattern.head).map(_._2)
         val relevantSublists = relevantIndices.map(list.zipWithIndex.drop)
-        relevantSublists.map{ sublist =>
+        relevantSublists.map { sublist =>
           nextPattern(Some(sublist), pattern).map(_.map(_._2))
         }.filter(_.isDefined).map(_.get)
     }
@@ -214,7 +212,7 @@ object TextAnnotationPatternExtractor {
   )
 
   def extractPattern(view: View, pattern: List[String]): List[List[Constituent]] = {
-   val cons = view.getConstituents.asScala
+    val cons = view.getConstituents.asScala
     val labels = cons.map(_.getLabel).toList
     val listOfIndices = findPattern(labels, pattern)
     listOfIndices.map(_.map(i => cons.apply(i)))
@@ -224,9 +222,9 @@ object TextAnnotationPatternExtractor {
     val toks = ta.getTokens.toSeq
     val (posLabels, posLabelIndices) = extractStringSequence(ta, ViewNames.POS)
     // POS patterns
-    val posResults = posPatterns.flatMap{ posPtrn =>
+    val posResults = posPatterns.flatMap { posPtrn =>
       val indexLists = findPattern(posLabels.toList, posPtrn.toList)
-      indexLists.map{indices =>
+      indexLists.map { indices =>
         val minIdx = posLabelIndices.apply(indices.min)._1
         val maxIdx = posLabelIndices.apply(indices.max)._2
         Some(toks.slice(minIdx, maxIdx).mkString(" "))
@@ -235,9 +233,9 @@ object TextAnnotationPatternExtractor {
 
     val (chunkLabels, chunkLabelIndices) = extractStringSequence(ta, ViewNames.SHALLOW_PARSE)
     // Chunk patterns
-    val chunkResults = chunkPatterns.flatMap{ chnkPtrn =>
+    val chunkResults = chunkPatterns.flatMap { chnkPtrn =>
       val indexLists = findPattern(chunkLabels.toList, chnkPtrn.toList)
-      indexLists.map{indices =>
+      indexLists.map { indices =>
         val minIdx = chunkLabelIndices.apply(indices.min)._1
         val maxIdx = chunkLabelIndices.apply(indices.max)._2
         Some(toks.slice(minIdx, maxIdx).mkString(" "))
@@ -251,16 +249,15 @@ object TextAnnotationPatternExtractor {
     val toks = ta.getTokens.toSeq
     val (posLabels, posLabelIndices) = extractStringSequence(ta, ViewNames.POS)
     // POS patterns
-    posNumberPatterns.flatMap{ posPtrn =>
+    posNumberPatterns.flatMap { posPtrn =>
       val indexLists = findPattern(posLabels.toList, posPtrn.toList)
-      indexLists.map{indices =>
+      indexLists.map { indices =>
         val minIdx = posLabelIndices.apply(indices.min)._1
         val maxIdx = posLabelIndices.apply(indices.max)._2
         Some(new Constituent("", "", ta, minIdx, maxIdx))
       }.filter(_.isDefined).map(_.get)
     }
   }
-
 
   // what ... date
   // extract all the NP VP NP and do some post-processing
@@ -269,12 +266,11 @@ object TextAnnotationPatternExtractor {
     val (chunkLabels, chunkLabelIndices) = extractStringSequence(ta, ViewNames.SHALLOW_PARSE)
     val chunkTokens = ta.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala.map(_.getSurfaceForm)
 
-
     // example: What was the US release date for Spectre?
     val indexLists1 = findPattern(chunkLabels.toList, List("NP", "VP", "NP"))
-    val pattern1 = indexLists1.exists{indices =>
+    val pattern1 = indexLists1.exists { indices =>
       assert(indices.length == 3)
-      val str = indices.map{ idxPair =>
+      val str = indices.map { idxPair =>
         val minIdx = chunkLabelIndices.apply(idxPair)._1
         val maxIdx = chunkLabelIndices.apply(idxPair)._2
         toks.slice(minIdx, maxIdx).mkString(" ").toLowerCase
@@ -285,7 +281,7 @@ object TextAnnotationPatternExtractor {
 
     // example: New Amsterdam became the title of New York City in what past date?
     val indexLists2 = findPattern(chunkLabels.toList, List("NP"))
-    val pattern2 = indexLists2.exists{indices =>
+    val pattern2 = indexLists2.exists { indices =>
       assert(indices.length == 1)
       val minIdx = chunkLabelIndices.apply(indices.min)._1
       val maxIdx = chunkLabelIndices.apply(indices.max)._2

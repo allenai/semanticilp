@@ -15,9 +15,9 @@ import scala.concurrent.duration.Duration
   * general-purpose entailment, use `Entailer` directly.
   */
 @Singleton class EntailmentService @Inject() (
-    entailer: Entailer,
-    tokenizer: KeywordTokenizer,
-    actorSystem: ActorSystem
+  entailer: Entailer,
+  tokenizer: KeywordTokenizer,
+  actorSystem: ActorSystem
 ) extends Logging {
 
   import actorSystem.dispatcher

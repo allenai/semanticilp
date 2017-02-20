@@ -7,3 +7,6 @@ addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.5.10")
 
 // this has some issues with AI2's sbt plugins
 addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.8.2")
+
+// scala style formatter
+addSbtPlugin("com.github.jkinkead" % "sbt-scalariform" % "0.1.6")

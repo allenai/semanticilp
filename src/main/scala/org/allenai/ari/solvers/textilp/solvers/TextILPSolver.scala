@@ -3,6 +3,7 @@ package org.allenai.ari.solvers.textilp.solvers
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.Constituent
 import edu.illinois.cs.cogcomp.infer.ilp.{GurobiHook, OJalgoHook}
+//import org.allenai.ari.controller.questionparser.FillInTheBlankGenerator
 import org.allenai.ari.solvers.textilp.alignment.{AlignmentFunction, KeywordTokenizer}
 import org.allenai.ari.solvers.textilp._
 import org.allenai.ari.solvers.textilp.ilpsolver._
@@ -10,7 +11,6 @@ import org.allenai.ari.solvers.textilp.utils.AnnotationUtils
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
-
 import org.allenai.ari.solvers.bioProccess.ProcessBankReader._
 
 object TextILPSolver {
@@ -50,6 +50,8 @@ object TextILPSolver {
   val trueFalseThreshold = 5.5 // this has to be tuned
 
   lazy val keywordTokenizer = KeywordTokenizer.Default
+
+  //lazy val fitbGenerator = FillInTheBlankGenerator.mostRecent
 
   def getMaxScore(qCons: Seq[Constituent], pCons: Seq[Constituent]): Double = {
     val scoreList = qCons.flatMap{ qC =>
@@ -100,6 +102,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils, alignmentThreshold: Double
     val pTA = annotationUtils.pipelineService.createBasicTextAnnotation("", "", snippet) // AnnotationUtils.annotate(snippet, withQuantifier = false)
     if(snippet.trim.nonEmpty) {
       annotationUtils.pipelineService.addView(pTA, ViewNames.SHALLOW_PARSE)
+      annotationUtils.pipelineService.addView(pTA, ViewNames.DEPENDENCY_STANFORD)
     }
     val p = Paragraph(snippet, Seq(q), Some(pTA))
     createILPModel(q, p, ilpSolver, aligner)
@@ -122,6 +125,10 @@ class TextILPSolver(annotationUtils: AnnotationUtils, alignmentThreshold: Double
     val pTA = p.contextTAOpt.getOrElse(throw new Exception("The annotation for the paragraph not found . . . "))
     val qTokens = if(qTA.hasView(ViewNames.SHALLOW_PARSE)) qTA.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala else Seq.empty
     val pTokens = if(pTA.hasView(ViewNames.SHALLOW_PARSE)) pTA.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala else Seq.empty
+
+    def getParagraphConsCovering(c: Constituent): Option[Constituent] = {
+      p.contextTAOpt.get.getView(ViewNames.SHALLOW_PARSE).getConstituentsCovering(c).asScala.headOption
+    }
 
     ilpSolver.setAsMaximization()
 
@@ -234,10 +241,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils, alignmentThreshold: Double
 */
 
     // active paragraph constituent
-    val activeParagraphConstituents = for {
-      t <- pTokens
-      x = ilpSolver.createBinaryVar("", 0.0)
-    } yield (t, x)
+    val activeParagraphConstituents = pTokens.map { t => t -> ilpSolver.createBinaryVar("", 0.0) }.toMap
     // the paragraph token is active if anything connected to it is active
     activeParagraphConstituents.foreach {
       case (ans, x) =>
@@ -251,6 +255,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils, alignmentThreshold: Double
           ilpSolver.addConsBasicLinear("activeParagraphConsVar", vars, coeffs, None, Some(0.0))
         }
     }
+
 
     // active sentences for the paragraph
     val activeSentences = for {
@@ -317,7 +322,28 @@ class TextILPSolver(annotationUtils: AnnotationUtils, alignmentThreshold: Double
       (answerOptionIdx, x)
     }*/
 
-
+    // extra weight for alignment of paragraph constituents
+    // create edges between constituents which have an edge in the dependency parse
+    // this edge can be active only if the base nodes are active
+    val depView = p.contextTAOpt.get.getView(ViewNames.DEPENDENCY_STANFORD)
+    val depRelations = depView.getRelations.asScala
+    val edgeDependencyVariables = depRelations.zipWithIndex.map{ case (r, idx) =>
+      val firstOrderDependencyEdgeAlignments = 0.5 // TODO: tune this
+      val startConsOpt = getParagraphConsCovering(r.getSource)
+      val targetConsOpt = getParagraphConsCovering(r.getTarget)
+      if(startConsOpt.isDefined && targetConsOpt.isDefined && startConsOpt.get != targetConsOpt.get ) {
+        val x = ilpSolver.createBinaryVar(s"Relation:$idx", firstOrderDependencyEdgeAlignments)
+        // this relation variable is active, only if its two sides are active
+        val startVar = activeParagraphConstituents(startConsOpt.get)
+        val targetVar = activeParagraphConstituents(targetConsOpt.get)
+        ilpSolver.addConsBasicLinear("dependencyVariableActiveOnlyIfSourceConsIsActive", Seq(x, startVar), Seq(1.0, -1.0), None, Some(0.0))
+        ilpSolver.addConsBasicLinear("dependencyVariableActiveOnlyIfSourceConsIsActive", Seq(x, targetVar), Seq(1.0, -1.0), None, Some(0.0))
+        Some(startConsOpt.get, targetConsOpt.get, x)
+      }
+      else {
+        None
+      }
+    }.collect{ case a if a.isDefined => a.get }
 
     // constraints
     // alignment to only one option, i.e. there must be only one single active option
@@ -338,6 +364,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils, alignmentThreshold: Double
 
     // sparsity parameters
     // alignment is preferred for lesser sentences
+
+    // exact match
 
     // for result questions ...
     if(q.questionText.isForCResultQuestion && activeAnswerOptions.length == 2) {
@@ -447,6 +475,9 @@ class TextILPSolver(annotationUtils: AnnotationUtils, alignmentThreshold: Double
         case None =>  // do nothing
       }
     }
+
+
+    val interParagraphAlignments = edgeDependencyVariables
 
     if(verbose) println("created the ilp model. Now solving it  . . . ")
 //    println("Number of binary variables: " + ilpSolver.getNBinVars)
@@ -617,22 +648,58 @@ class TextILPSolver(annotationUtils: AnnotationUtils, alignmentThreshold: Double
           }
       }
 
-      if(isTrueFalseQuestion) {
-        // add the answer option span manually
-        selectedIndex.foreach{ idx =>
-          val ansText = q.answers(idx).answerText
-          val oBeginIndex = choiceString.indexOf(ansText) + questionString.length + paragraphString.length
-          val oEndIndex = oBeginIndex + ansText.length
-          val span2 = (oBeginIndex, oEndIndex)
-          val t2 = if(!entityMap.contains(span2)) {
-            val t2 = "T" + eIter
-            entities += Entity(t2, ansText, Seq(span2))
+      // inter-paragraph alignments
+      interParagraphAlignments.foreach { case (c1, c2, x) =>
+        if (ilpSolver.getSolVal(x) > 1.0 - TextILPSolver.epsilon) {
+          val pBeginIndex1 = c1.getStartCharOffset + questionString.length + paragraphBeginning.length
+          val pEndIndex1 = pBeginIndex1 + c1.getSurfaceForm.length
+          val span1 = (pBeginIndex1, pEndIndex1)
+          val t1 = if (!entityMap.contains(span1)) {
+            val t1 = "T" + eIter
+            entities += Entity(t1, c1.getSurfaceForm, Seq(span1))
+            entityMap.put(span1, t1)
             eIter = eIter + 1
-            entityMap.put(span2, t2)
-            t2
+            t1
+          } else {
+            entityMap(span1)
           }
-          else {
+          val pBeginIndex2 = c2.getStartCharOffset + questionString.length + paragraphBeginning.length
+          val pEndIndex2 = pBeginIndex2 + c2.getSurfaceForm.length
+          val span2 = (pBeginIndex2, pEndIndex2)
+          val t2 = if (!entityMap.contains(span2)) {
+            val t2 = "T" + eIter
+            entities += Entity(t2, c1.getSurfaceForm, Seq(span2))
+            entityMap.put(span2, t2)
+            eIter = eIter + 1
+            t2
+          } else {
             entityMap(span2)
+          }
+
+          if (!relationSet.contains((t1, t2))) {
+            relations += Relation("R" + rIter, t1, t2, ilpSolver.getVarObjCoeff(x))
+            rIter = rIter + 1
+            relationSet.add((t1, t2))
+          }
+        }
+
+        if (isTrueFalseQuestion) {
+          // add the answer option span manually
+          selectedIndex.foreach { idx =>
+            val ansText = q.answers(idx).answerText
+            val oBeginIndex = choiceString.indexOf(ansText) + questionString.length + paragraphString.length
+            val oEndIndex = oBeginIndex + ansText.length
+            val span2 = (oBeginIndex, oEndIndex)
+            val t2 = if (!entityMap.contains(span2)) {
+              val t2 = "T" + eIter
+              entities += Entity(t2, ansText, Seq(span2))
+              eIter = eIter + 1
+              entityMap.put(span2, t2)
+              t2
+            }
+            else {
+              entityMap(span2)
+            }
           }
         }
       }

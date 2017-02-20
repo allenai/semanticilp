@@ -5,11 +5,10 @@ import org.allenai.ari.solvers.textilp.utils.SolverUtils
 
 import scala.collection.JavaConverters._
 
-/**
-  * Using it with the default settings used for MCTest
+/** Using it with the default settings used for MCTest
   * Might need a little tuning for each dataset
   */
-class SlidingWindowSolver extends TextSolver{
+class SlidingWindowSolver extends TextSolver {
   MCTestBaseline.readStopWords()
   val stopwords = MCTestBaseline.stopWords.asScala.toSet
   assert(stopwords.size > 20)

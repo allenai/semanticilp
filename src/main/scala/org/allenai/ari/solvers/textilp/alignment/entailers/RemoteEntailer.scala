@@ -13,9 +13,9 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 
 @Singleton class RemoteEntailer @Inject() (
-    @Named("entailment.remote.url") entailmentUrl: String,
-    @Named("entailment.remote.timeoutMillis") timeoutMillis: Int,
-    private implicit val actorSystem: ActorSystem
+  @Named("entailment.remote.url") entailmentUrl: String,
+  @Named("entailment.remote.timeoutMillis") timeoutMillis: Int,
+  private implicit val actorSystem: ActorSystem
 ) extends Entailer with SprayJsonSupport {
   import actorSystem.dispatcher
 

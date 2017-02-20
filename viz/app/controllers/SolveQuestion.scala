@@ -7,8 +7,8 @@ import org.allenai.ari.solvers.bioProccess.ProcessBankReader
 import org.allenai.ari.solvers.squad.CandidateGeneration
 import org.allenai.ari.solvers.textilp.ResultJson
 import org.allenai.ari.solvers.textilp.ResultJson._
-import org.allenai.ari.solvers.textilp.solvers.{LuceneSolver, SalienceSolver, SlidingWindowSolver, TextILPSolver}
-import org.allenai.ari.solvers.textilp.utils.{AnnotationUtils, SolverUtils}
+import org.allenai.ari.solvers.textilp.solvers.{ LuceneSolver, SalienceSolver, SlidingWindowSolver, TextILPSolver }
+import org.allenai.ari.solvers.textilp.utils.{ AnnotationUtils, SolverUtils }
 import play.api.mvc._
 import play.api.libs.json._
 
@@ -33,7 +33,7 @@ class SolveQuestion @Inject() extends Controller {
     Ok(views.html.main("", "", "", "", StaticContent.initialFormContent, Json.toJson(ResultJson.emptyEntityRelation).toString))
   }
 
-  def solve = Action (parse.json) { request =>
+  def solve = Action(parse.json) { request =>
     val solverType = (request.body \ "solverType").as[JsString].value
     val question = (request.body \ "question").as[JsString].value
     val options = (request.body \ "options").as[JsString].value
@@ -42,7 +42,7 @@ class SolveQuestion @Inject() extends Controller {
     println("Options: " + options)
     println("Snippet: " + snippet)
 
-    val optionsPostProcessed = if(options.length < 2)  {
+    val optionsPostProcessed = if (options.length < 2) {
       // it's empty; get the candidate options automatically
       val ta = annotationUtils.annotate(snippet)
       val generatedCandidates = CandidateGeneration.getCandidateAnswer(ta)
@@ -52,7 +52,7 @@ class SolveQuestion @Inject() extends Controller {
       options.split("//").toSeq
     }
 
-    val snippetPostprocessed = if(snippet.length < 2) {
+    val snippetPostprocessed = if (snippet.length < 2) {
       // it's empty; get it with elastic-search
       println("Asking the elastic-search . . . ")
       //val snippet = optionsPostProcessed.flatMap(focus => SolverUtils.extractParagraphGivenQuestionAndFocusWord(question, focus, 3)).mkString(" ")
@@ -64,28 +64,25 @@ class SolveQuestion @Inject() extends Controller {
     }
 
     println("solver type : " + solverType)
-    val solverContent = if(solverType.toLowerCase.contains("salience")) {
+    val solverContent = if (solverType.toLowerCase.contains("salience")) {
       println("Calling salience . . . ")
       val (_, out) = salienceSolver.solve(question, optionsPostProcessed, snippetPostprocessed)
       println("Salience solver response . . .  ")
       println(out)
       out
-    }
-    else if(solverType.toLowerCase.contains("lucene")) {
+    } else if (solverType.toLowerCase.contains("lucene")) {
       println("Calling lucene . . . ")
       val (_, out) = luceneSolver.solve(question, optionsPostProcessed, snippetPostprocessed)
       println("Lucene solver response . . .  ")
       println(out)
       out
-    }
-    else if(solverType.toLowerCase.contains("textilp")) {
+    } else if (solverType.toLowerCase.contains("textilp")) {
       println("Calling textilp. . . ")
       val (_, out) = textilpSolver.solve(question, optionsPostProcessed, snippetPostprocessed)
       println("textilp solver response ..... ")
       println(out)
       out
-    }
-    else {
+    } else {
       throw new Exception("the solver not found :/")
     }
     println("Sending new resultls ")

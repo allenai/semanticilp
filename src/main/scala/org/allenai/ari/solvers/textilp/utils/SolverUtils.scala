@@ -1,13 +1,13 @@
 package org.allenai.ari.solvers.textilp.utils
 
 import java.io.File
-import java.net.{InetSocketAddress, URLEncoder}
+import java.net.{ InetSocketAddress, URLEncoder }
 
 import edu.illinois.cs.cogcomp.McTest.MCTestBaseline
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
-import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, TextAnnotation}
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{ Constituent, TextAnnotation }
 import org.allenai.ari.solvers.textilp.alignment.KeywordTokenizer
-import org.allenai.ari.solvers.textilp.{Entity, EntityRelationResult, Paragraph, Question}
+import org.allenai.ari.solvers.textilp.{ Entity, EntityRelationResult, Paragraph, Question }
 import org.allenai.common.cache.JsonQueryCache
 import org.elasticsearch.action.search.SearchType
 import org.elasticsearch.client.transport.TransportClient
@@ -39,7 +39,7 @@ object SolverUtils {
   def evaluateASingleQuestion(q: String, solver: String): Seq[(String, Double)] = {
     val charset = "UTF-8"
     val query = Constants.queryLink + URLEncoder.encode(q, charset) + "&solvers=" + solver
-//    println("query: " + query)
+    //    println("query: " + query)
     val html = Source.fromURL(query)
     val jsonString = html.mkString
     val json = Json.parse(jsonString)
@@ -53,13 +53,13 @@ object SolverUtils {
   }
 
   def sortedAnswerToSolverResponse(question: String, options: Seq[String],
-                                   snippet: String,
-                                   sortedCandidates: Seq[(String, Double)]): (Seq[Int], EntityRelationResult) = {
+    snippet: String,
+    sortedCandidates: Seq[(String, Double)]): (Seq[Int], EntityRelationResult) = {
     val maxScore = sortedCandidates.head._2
     val (selectedAnswers, _) = sortedCandidates.filter(_._2 == maxScore).unzip
     val trimmedSelectedSet = selectedAnswers.map(_.trim).toSet
     val trimmedOptions = options.map(_.trim)
-    val selectedIndices = trimmedOptions .zipWithIndex.collect{ case (option, idx) if trimmedSelectedSet.contains(option) => idx }
+    val selectedIndices = trimmedOptions.zipWithIndex.collect { case (option, idx) if trimmedSelectedSet.contains(option) => idx }
     val questionString = "Question: " + question
     val choiceString = "|Options: " + options.zipWithIndex.map { case (ans, key) => s" (${key + 1}) " + ans }.mkString(" ")
     val paragraphString = "|Paragraph: " + snippet
@@ -91,12 +91,11 @@ object SolverUtils {
 
   def extractPatagraphGivenQuestionAndFocusSet3(question: String, focusSet: Seq[String], topK: Int): Seq[String] = {
     val sortedSet = focusSet.flatMap(f => extractParagraphGivenQuestionAndFocusWord3(question, f, 200)).sortBy(-_._2)
-    (if(sortedSet.size > topK) {
+    (if (sortedSet.size > topK) {
       sortedSet.take(topK)
-    }
-    else {
+    } else {
       sortedSet
-    }).map{_._1}
+    }).map { _._1 }
   }
 
   def getLuceneHitFields(hit: SearchHit): Map[String, AnyRef] = {
@@ -111,13 +110,12 @@ object SolverUtils {
   def extractParagraphGivenQuestionAndFocusWord2(question: String, focus: String, topK: Int): Set[String] = {
     val hits = extractParagraphGivenQuestionAndFocusWord3(question, focus, 200)
     val sortedHits = hits.sortBy(-_._2)
-    val selectedOutput = if(sortedHits.length > topK) {
+    val selectedOutput = if (sortedHits.length > topK) {
       sortedHits.slice(0, topK)
-    }
-    else {
+    } else {
       sortedHits
     }
-    selectedOutput.map {_._1}.toSet
+    selectedOutput.map { _._1 }.toSet
   }
 
   lazy val elasticWebRedisCache = if (Constants.useRedisCachingForElasticSearch) {
@@ -129,10 +127,9 @@ object SolverUtils {
 
   def extractParagraphGivenQuestionAndFocusWord3(question: String, focus: String, searchHitSize: Int): Seq[(String, Double)] = {
     val cacheKey = "elasticWebParagraph:" + question + "//focus:" + focus + "//topK:" + searchHitSize
-    val cacheResult = if(Constants.useRedisCachingForAnnotation) {
+    val cacheResult = if (Constants.useRedisCachingForAnnotation) {
       elasticWebRedisCache.get(cacheKey)
-    }
-    else {
+    } else {
       None
     }
     if (cacheResult.isEmpty) {
@@ -156,16 +153,16 @@ object SolverUtils {
         (hitWordsSet.intersect(questionWords.toSet).nonEmpty
           && hitWordsSet.intersect(focusWords.toSet).nonEmpty)
       }
-      val results = hits.map{h: SearchHit => getLuceneHitFields(h)("text").toString -> h.score().toDouble }
-      val cacheValue = JsArray(results.map{ case (key, value) =>  JsArray(Seq(JsString(key), JsNumber(value)))})
-      if(Constants.useRedisCachingForAnnotation) {
+      val results = hits.map { h: SearchHit => getLuceneHitFields(h)("text").toString -> h.score().toDouble }
+      val cacheValue = JsArray(results.map { case (key, value) => JsArray(Seq(JsString(key), JsNumber(value))) })
+      if (Constants.useRedisCachingForAnnotation) {
         elasticWebRedisCache.put(cacheKey, cacheValue.toString())
       }
       results
     } else {
       val jsonString = cacheResult.get
       val json = Json.parse(jsonString)
-      json.as[JsArray].value.map{resultTuple =>
+      json.as[JsArray].value.map { resultTuple =>
         val tupleValues = resultTuple.as[JsArray]
         val key = tupleValues.head.as[JsString].value
         val score = tupleValues(1).as[JsNumber].value
@@ -184,7 +181,7 @@ object SolverUtils {
   lazy val small = loadQuestions("small.tsv")
 
   def loadQuestions(fileName: String): Seq[(String, Seq[String], String)] = {
-    Source.fromFile(new File("other/questionSets/" + fileName)).getLines().toList.map{ line =>
+    Source.fromFile(new File("other/questionSets/" + fileName)).getLines().toList.map { line =>
       val split = line.split("\t")
       val question = split(0)
       val answer = split(1)
@@ -196,13 +193,11 @@ object SolverUtils {
   def assignCredit(predict: Seq[Int], gold: Int, maxOpts: Int): Double = {
     //println("predict: " + predict + " / gold: " + gold)
     require(!(predict.contains(-1) && predict.length > 1))
-    if(predict.contains(-1) || predict.isEmpty) { // no answer; give partial credits
+    if (predict.contains(-1) || predict.isEmpty) { // no answer; give partial credits
       1 / maxOpts.toDouble
-    }
-    else if(predict.contains(gold)) {
+    } else if (predict.contains(gold)) {
       1 / predict.length.toDouble
-    }
-    else {
+    } else {
       0.0
     }
   }
@@ -229,39 +224,38 @@ object SolverUtils {
       removeExtraWhitespace(noArticles(noPunctuation(lowerCase(s.trim)).trim).trim)
     }
 
-    def exactMatch(p: String, g: String): Double = if(normalizeString(p) == normalizeString(g)) 1.0 else 0.0
+    def exactMatch(p: String, g: String): Double = if (normalizeString(p) == normalizeString(g)) 1.0 else 0.0
 
     def f1Score(p: String, g: String): (Double, Double, Double) = {
       val pN = normalizeString(p)
       val qN = normalizeString(g)
       val pNormalized = pN.split("\\s")
       val gNormalized = qN.split("\\s")
-//      println("pNormalized: " + pNormalized.toSeq)
-//      println("gNormalized: " + gNormalized.toSeq)
-      val pWordFreqMap = pNormalized.groupBy(a => a).map{case (k, v) => k -> v.length }
-      val gWordFreqMap = gNormalized.groupBy(a => a).map{case (k, v) => k -> v.length }
-      val numSame = pNormalized.toSet.intersect(gNormalized.toSet).toList.map(i => scala.math.min(pWordFreqMap(i), gWordFreqMap(i)) ).sum
-//      println("numSame: " + numSame)
-      if(numSame == 0) {
+      //      println("pNormalized: " + pNormalized.toSeq)
+      //      println("gNormalized: " + gNormalized.toSeq)
+      val pWordFreqMap = pNormalized.groupBy(a => a).map { case (k, v) => k -> v.length }
+      val gWordFreqMap = gNormalized.groupBy(a => a).map { case (k, v) => k -> v.length }
+      val numSame = pNormalized.toSet.intersect(gNormalized.toSet).toList.map(i => scala.math.min(pWordFreqMap(i), gWordFreqMap(i))).sum
+      //      println("numSame: " + numSame)
+      if (numSame == 0) {
         (0.0, 0.0, 0.0)
-      }
-      else {
+      } else {
         val Pre = numSame.toDouble / pNormalized.length
         val Rec = numSame.toDouble / gNormalized.length
-//        println("Pre: " + Pre)
-//        println("Rec: " + Rec)
+        //        println("Pre: " + Pre)
+        //        println("Rec: " + Rec)
         val f1 = 2 * Pre * Rec / (Pre + Rec)
         (f1, Pre, Rec)
       }
     }
 
-    val bestF1PR = golds.map(g => f1Score(predict, g) ).maxBy(_._1)
-    val bestEM = golds.map(g => exactMatch(predict, g) ).max
+    val bestF1PR = golds.map(g => f1Score(predict, g)).maxBy(_._1)
+    val bestEM = golds.map(g => exactMatch(predict, g)).max
     bestF1PR -> bestEM
   }
 
   def printMemoryDetails() = {
-    val mb = 1024*1024
+    val mb = 1024 * 1024
 
     //Getting the runtime reference from system
     val runtime = Runtime.getRuntime
@@ -281,7 +275,6 @@ object SolverUtils {
     println("Max Memory:" + runtime.maxMemory() / mb)
   }
 
-
   // sentence similarity stuff
   //        val documentList = trainReader.instances.flatMap{_.paragraphs.map{_.context}}
   //        val tfIdf = new TfIdf(documentList)
@@ -297,17 +290,17 @@ object SolverUtils {
     //          normalize(seq1).intersect(normalize(seq2)).map(w => tfIdf.score(w, document)).sum
   }
 
-  def normalize(seq: Seq[Constituent])= seq.map(_.getLabel.trim).toSet.diff(stopwords)
+  def normalize(seq: Seq[Constituent]) = seq.map(_.getLabel.trim).toSet.diff(stopwords)
 
   def getSentenceScores(p: Paragraph, q: Question): Seq[(Int, Double)] = {
     val questionLemmaCons = q.qTAOpt.get.getView(ViewNames.LEMMA).getConstituents.asScala.toList
     val lemmaCons = p.contextTAOpt.get.getView(ViewNames.LEMMA).getConstituents.asScala.toList
     //          println("goldAnswerSenId:  " + goldAnswerSenId)
-    lemmaCons.groupBy(_.getSentenceId).map { case (id, consList) =>
-      // calculate similarity between the constituents and the question
-      id -> getSimilarity(consList, questionLemmaCons, p.context)
+    lemmaCons.groupBy(_.getSentenceId).map {
+      case (id, consList) =>
+        // calculate similarity between the constituents and the question
+        id -> getSimilarity(consList, questionLemmaCons, p.context)
     }.toSeq.sortBy(-_._2)
   }
-
 
 }

@@ -17,8 +17,8 @@ import scala.io.Source
   * during stemming
   */
 @Singleton class KeywordTokenizer @Inject() (
-    @Named("tokenizerStopwords") stopwords: Set[String],
-    @Named("tokenizerSubstitutions") substitutions: Map[String, String]
+  @Named("tokenizerStopwords") stopwords: Set[String],
+  @Named("tokenizerSubstitutions") substitutions: Map[String, String]
 ) {
   /** Regular expression matching any character that's not allowed in a keyword. We allow any letter
     * or digit, plus spaces and question marks.

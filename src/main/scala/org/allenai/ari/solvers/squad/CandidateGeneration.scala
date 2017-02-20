@@ -4,14 +4,14 @@ import java.io.File
 import java.util
 import java.util.regex.Pattern
 
-import edu.illinois.cs.cogcomp.core.datastructures.{IntPair, Pair, ViewNames}
-import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, TextAnnotation, View}
+import edu.illinois.cs.cogcomp.core.datastructures.{ IntPair, Pair, ViewNames }
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{ Constituent, TextAnnotation, View }
 import edu.illinois.cs.cogcomp.core.datastructures.trees.Tree
 import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper
 import edu.illinois.cs.cogcomp.nlp.utilities.ParseUtils
 import edu.illinois.cs.cogcomp.saulexamples.nlp.QuestionTypeClassification.QuestionTypeAnnotator
-import org.allenai.ari.solvers.textilp.{Paragraph, Question}
-import org.allenai.ari.solvers.textilp.utils.{Constants, WikiUtils}
+import org.allenai.ari.solvers.textilp.{ Paragraph, Question }
+import org.allenai.ari.solvers.textilp.utils.{ Constants, WikiUtils }
 import org.allenai.ari.solvers.textilp.utils.WikiUtils.WikiDataProperties
 import org.allenai.common.cache.JsonQueryCache
 
@@ -42,12 +42,11 @@ object CandidateGeneration {
     println(question.questionText)
     println(paragraph.context)
     val (shallowParseCons, paragraphQuantitiesCons, paragraphNerConsConll, paragraphNerConsOnto,
-    wikiMentionsInText, wikiMentionsInQuestion, paragraphTokens) = extractVariables(question, paragraph)
+      wikiMentionsInText, wikiMentionsInQuestion, paragraphTokens) = extractVariables(question, paragraph)
     //    println("wikiMentionsInText: " + wikiMentionsInText.map(a => a.getSurfaceForm + ":" + a.getLabel).mkString("/") )
     //    println("wikiMentionsInQuestion: " + wikiMentionsInQuestion.map(a => a.getSurfaceForm + ":" + a.getLabel).mkString("/") )
 
     val (questionConstituentOpt, triggerTerm, wikiTriggerTermOpt) = extractQuestionKeyQuestionTerms(shallowParseCons, wikiMentionsInQuestion)
-
 
     println("questionConstituentOpt: " + questionConstituentOpt)
     println("triggerTerm: " + triggerTerm)
@@ -55,9 +54,8 @@ object CandidateGeneration {
     val candidates = ArrayBuffer[Constituent]()
 
     // general number trigger
-    if(questionConstituentOpt.map(_._1.getSurfaceForm).getOrElse("").contains(" age ") ||
-      questionNumberTrigger(question.questionText.toLowerCase)
-    ){
+    if (questionConstituentOpt.map(_._1.getSurfaceForm).getOrElse("").contains(" age ") ||
+      questionNumberTrigger(question.questionText.toLowerCase)) {
       println("general number trigger! ")
       numberExtractor(paragraph.contextTAOpt.get, paragraphQuantitiesCons, paragraphNerConsOnto, candidates)
     }
@@ -65,8 +63,8 @@ object CandidateGeneration {
     val questionConstituent = questionConstituentOpt.map(_._1.getSurfaceForm).getOrElse("").toLowerCase.trim
 
     // date/time trigger
-    if(questionDateTrigger(question.questionText.toLowerCase.trim) ||
-      questionDateTriggerInTriggerTerm(questionConstituent)){
+    if (questionDateTrigger(question.questionText.toLowerCase.trim) ||
+      questionDateTriggerInTriggerTerm(questionConstituent)) {
       println("date trigger! ")
       println("time trigger! ")
       dateExtractor(paragraph.contextTAOpt.get, paragraphQuantitiesCons, paragraphNerConsOnto, candidates)
@@ -75,97 +73,95 @@ object CandidateGeneration {
     // year trigger
     val years = ArrayBuffer[Constituent]()
     yearExtractor(paragraph.contextTAOpt.get, years)
-    if(question.qTAOpt.get.text.toLowerCase.contains("what year") ||
+    if (question.qTAOpt.get.text.toLowerCase.contains("what year") ||
       question.qTAOpt.get.text.toLowerCase.contains("which year") ||
-      (question.qTAOpt.get.text.toLowerCase.contains("when ") && !(question.qTAOpt.get.text.toLowerCase.contains("what ") || question.qTAOpt.get.text.toLowerCase.contains("who ") || question.qTAOpt.get.text.toLowerCase.contains("which ") ) ) ||
+      (question.qTAOpt.get.text.toLowerCase.contains("when ") && !(question.qTAOpt.get.text.toLowerCase.contains("what ") || question.qTAOpt.get.text.toLowerCase.contains("who ") || question.qTAOpt.get.text.toLowerCase.contains("which "))) ||
       question.qTAOpt.get.text.toLowerCase.contains("what time") ||
       question.qTAOpt.get.text.toLowerCase.contains("what date") ||
       question.qTAOpt.get.text.toLowerCase.contains("what decade") ||
       question.qTAOpt.get.text.toLowerCase.contains("which decade") ||
       question.qTAOpt.get.text.toLowerCase.contains("what periods of time") ||
       // what ... date?
-      TextAnnotationPatternExtractor.whatSthDate(question.qTAOpt.get)
-    ) {
+      TextAnnotationPatternExtractor.whatSthDate(question.qTAOpt.get)) {
       println("year trigger! ")
       yearExtractor(paragraph.contextTAOpt.get, candidates)
     } else {
       println("----> removing years; before: " + candidates)
       val datesStrings = years.map(_.getSurfaceForm.toLowerCase.trim).toSet
       val toDelete = ArrayBuffer[Constituent]()
-      candidates.foreach{ c => if(datesStrings.exists(dateStr => c.getSurfaceForm.toLowerCase.trim.contains(dateStr))) toDelete.+=(c) }
+      candidates.foreach { c => if (datesStrings.exists(dateStr => c.getSurfaceForm.toLowerCase.trim.contains(dateStr))) toDelete.+=(c) }
       candidates.--=(toDelete)
       println("----> after: " + candidates)
     }
 
     // person trigger
     // questionPersonTrigger(question.qTAOpt.get.text.toLowerCase.trim) ||
-    if(questionPersonTrigger(question.qTAOpt.get.text.toLowerCase.trim) || questionPersonTrigger(questionConstituent)){
+    if (questionPersonTrigger(question.qTAOpt.get.text.toLowerCase.trim) || questionPersonTrigger(questionConstituent)) {
       println("person trigger! ")
       personExtractor(question, paragraph, candidates)
 
       // organization
-      if(candidates.isEmpty) {
+      if (candidates.isEmpty) {
         candidates.++=:(paragraphNerConsConll.filter(a => conllOrg(a.getLabel)))
       }
     }
 
-    if(questionConstituentOpt.isDefined) {
-      val wikiTrigger = if(wikiTriggerTermOpt.isDefined) dropWikiURL(wikiTriggerTermOpt.get.getLabel) else triggerTerm
+    if (questionConstituentOpt.isDefined) {
+      val wikiTrigger = if (wikiTriggerTermOpt.isDefined) dropWikiURL(wikiTriggerTermOpt.get.getLabel) else triggerTerm
       println("wiki trigger: " + wikiTrigger)
 
       // language trigger
-      if(questionLanguageTrigger(questionConstituentOpt.get._1.getSurfaceForm.toLowerCase.trim)){
+      if (questionLanguageTrigger(questionConstituentOpt.get._1.getSurfaceForm.toLowerCase.trim)) {
         println("language trigger! ")
         languageExtractor(paragraphNerConsOnto, candidates)
       }
 
       // nationality trigger
-      if(questionNationalityTrigger(questionConstituentOpt.get._1.getSurfaceForm.toLowerCase.trim)){
+      if (questionNationalityTrigger(questionConstituentOpt.get._1.getSurfaceForm.toLowerCase.trim)) {
         println("nationality trigger! ")
         nationalityExtractor(paragraphNerConsOnto, candidates)
       }
 
       // percent trigger
-      if(questionPercentTrigger(questionConstituentOpt.get._1.getSurfaceForm.toLowerCase.trim)){
+      if (questionPercentTrigger(questionConstituentOpt.get._1.getSurfaceForm.toLowerCase.trim)) {
         println("percent trigger! ")
         percentageExtractor(paragraphNerConsOnto, candidates)
       }
 
       // money trigger
-      if(questionCurrencyTrigger(questionConstituentOpt.get._1.getSurfaceForm.toLowerCase.trim)){
+      if (questionCurrencyTrigger(questionConstituentOpt.get._1.getSurfaceForm.toLowerCase.trim)) {
         println("money trigger! ")
         moneyExtractor(paragraphNerConsOnto, candidates)
       }
 
       // which trigger
-      if(questionWhichWhatTrigger(questionConstituentOpt.get._1.getSurfaceForm.toLowerCase.trim) && candidates.nonEmpty ) {
+      if (questionWhichWhatTrigger(questionConstituentOpt.get._1.getSurfaceForm.toLowerCase.trim) && candidates.nonEmpty) {
         println("which trigger . . .")
 
         // which location
-        if(questionLocationTrigger(triggerTerm)) {
+        if (questionLocationTrigger(triggerTerm)) {
           locationExtractor(paragraphNerConsConll, paragraphNerConsOnto, candidates)
         }
 
         // institute
-        if( questionOrgTrigger(triggerTerm) ) {
+        if (questionOrgTrigger(triggerTerm)) {
           instituteExtractor(paragraphNerConsConll, paragraphNerConsOnto, candidates)
         }
 
         // which entity
-        if( questionEntTrigger(triggerTerm)) {
+        if (questionEntTrigger(triggerTerm)) {
           entityExtractor(paragraphNerConsConll, paragraphNerConsOnto, candidates)
         }
 
         // to-be triggers
-        if(triggerTerm.split(" ").toSet.intersect(tobe).nonEmpty) {
+        if (triggerTerm.split(" ").toSet.intersect(tobe).nonEmpty) {
           println("tobe trigger  . . . ")
         }
 
         // WikiData
-        if(candidates.isEmpty) {
+        if (candidates.isEmpty) {
           extractGeneralWikiSubsetMentions(wikiMentionsInText, candidates, wikiTrigger)
-        }
-        else {
+        } else {
           println("Candidates are not empty: " + candidates.length)
         }
       }
@@ -192,10 +188,10 @@ object CandidateGeneration {
   def extractQuestionKeyQuestionTerms(shallowParseCons: List[Constituent], wikiMentionsInQuestion: List[Constituent]): (Option[(Constituent, Int)], String, Option[Constituent]) = {
     val questionConstituentOpt: Option[(Constituent, Int)] = extractQuestionTypeInformation(shallowParseCons)
 
-//    println(shallowParseCons.map(a =>
-//      s"( ${a.getSurfaceForm} -> ${a.getLabel} )").mkString(" ")
-//    )
-//    println(questionConstituentOpt)
+    //    println(shallowParseCons.map(a =>
+    //      s"( ${a.getSurfaceForm} -> ${a.getLabel} )").mkString(" ")
+    //    )
+    //    println(questionConstituentOpt)
 
     val (triggerTerm, wikiTriggerTermOpt) = if (questionConstituentOpt.isDefined) {
       val tailingTerms = questionConstituentOpt.get._1.getSurfaceForm.split(" ").tail
@@ -205,17 +201,15 @@ object CandidateGeneration {
       }
       val tTerm = if (tailingTerms.nonEmpty) {
         tailingTerms.mkString(" ")
-      }
-      else {
-//        println("trigger terms was empty so we replaced it with the next constituents")
+      } else {
+        //        println("trigger terms was empty so we replaced it with the next constituents")
         if (shallowParseCons.length > idx + 1)
           shallowParseCons(idx + 1).getSurfaceForm
         else
           "" // example when this doesn't work: There were multiple students from Notre Dame who entered the Pro Football Hall of Fame, how many?
       }
       tTerm -> wikiTriggerTermOpt
-    }
-    else {
+    } else {
       "" -> None
     }
     //println("trigger term: " + triggerTerm)
@@ -230,20 +224,16 @@ object CandidateGeneration {
         // who should not come with "those who" or "how many"
         if (fullText.contains("how many") || fullText.contains("those who")) {
           false
-        }
-        else {
+        } else {
           true
         }
-      }
-      else if (splitSet.contains("when")) {
+      } else if (splitSet.contains("when")) {
         if (fullText.contains("what ") || fullText.contains("which") || fullText.contains("which") || fullText.contains("how") || fullText.contains("why")) {
           false
-        }
-        else {
+        } else {
           true
         }
-      }
-      else {
+      } else {
         splitSet.intersect(questionTerms).nonEmpty
       }
     }
@@ -266,13 +256,13 @@ object CandidateGeneration {
     val fineScore = qTA.getView(questionTypeClassification.finalViewName).getConstituents.get(0).getConstituentScore
     val coarseType = qTA.getView(questionTypeClassification.finalViewName).getConstituents.get(1).getLabel
     val coarseScore = qTA.getView(questionTypeClassification.finalViewName).getConstituents.get(1).getConstituentScore
-    println("fileType: " + fineType  + s" ($fineScore) / coarseType: " + coarseType + s" ($coarseScore)")
+    println("fileType: " + fineType + s" ($fineScore) / coarseType: " + coarseType + s" ($coarseScore)")
 
     val (shallowParseCons, paragraphQuantitiesCons, paragraphNerConsConll, paragraphNerConsOnto,
-    wikiMentionsInText, wikiMentionsInQuestion, paragraphTokens) = extractVariables(question, paragraph)
+      wikiMentionsInText, wikiMentionsInQuestion, paragraphTokens) = extractVariables(question, paragraph)
 
     fineType.toString match {
-      case "LOC:city" =>  if (fineScore > -2.0) cityExtractor(candidates, wikiMentionsInText)
+      case "LOC:city" => if (fineScore > -2.0) cityExtractor(candidates, wikiMentionsInText)
       case "LOC:country" => if (fineScore > -2.5) countryExtractor(candidates, wikiMentionsInText)
       case "LOC:mount" =>
         if (fineScore > -1.2) {
@@ -283,13 +273,13 @@ object CandidateGeneration {
           stateExtractor(candidates, wikiMentionsInText)
         }
       case "LOC:other" =>
-        if(fineScore> 0.0) {
+        if (fineScore > 0.0) {
           locationExtractor(paragraphNerConsConll, paragraphNerConsOnto, candidates)
           stateExtractor(candidates, wikiMentionsInText)
           extractMountain(candidates, paragraphNerConsOnto, wikiMentionsInText)
         }
       case "NUM:count" =>
-        if( fineScore > -1.3 ) numberExtractor(pTA, paragraphQuantitiesCons, paragraphNerConsOnto, candidates)
+        if (fineScore > -1.3) numberExtractor(pTA, paragraphQuantitiesCons, paragraphNerConsOnto, candidates)
       case "NUM:dist" =>
         if (fineScore > -1.5) numberExtractor(pTA, paragraphQuantitiesCons, paragraphNerConsOnto, candidates)
       case "NUM:weight" =>
@@ -304,7 +294,7 @@ object CandidateGeneration {
         if (fineScore > -1.5) {
           dateExtractor(pTA, paragraphQuantitiesCons, paragraphNerConsOnto, candidates)
           // year trigger
-          if(qTA.text.toLowerCase.contains("what year") || qTA.text.toLowerCase.contains("which year")) {
+          if (qTA.text.toLowerCase.contains("what year") || qTA.text.toLowerCase.contains("which year")) {
             yearExtractor(paragraph.contextTAOpt.get, candidates)
           }
         }
@@ -312,18 +302,18 @@ object CandidateGeneration {
         if (fineScore > 0.0) moneyExtractor(paragraphQuantitiesCons, candidates)
       case "NUM:other" =>
         if (fineScore > -0.5) numberExtractor(pTA, paragraphQuantitiesCons, paragraphNerConsOnto, candidates)
-      case "ABBR:exp" => if(fineScore > -0.5) Set.empty /*TODO*/ else Set.empty
-      case "DESC:reason" => if(fineScore > 0.1) Set.empty /*TODO*/ else Set.empty
+      case "ABBR:exp" => if (fineScore > -0.5) Set.empty /*TODO*/ else Set.empty
+      case "DESC:reason" => if (fineScore > 0.1) Set.empty /*TODO*/ else Set.empty
       case "ENTY:color" =>
-        if(fineScore > -1.25) wikiDataInstanceOfExtractor(candidates, wikiMentionsInText, WikiDataProperties.color)
+        if (fineScore > -1.25) wikiDataInstanceOfExtractor(candidates, wikiMentionsInText, WikiDataProperties.color)
       case "ENTY:food" =>
-        if(fineScore > 2.5) wikiDataInstanceOfExtractor(candidates, wikiMentionsInText, WikiDataProperties.food)
+        if (fineScore > 2.5) wikiDataInstanceOfExtractor(candidates, wikiMentionsInText, WikiDataProperties.food)
       case "ENTY:other" =>
-        if(fineScore > 1.0) entityExtractor(paragraphNerConsConll, paragraphNerConsOnto, candidates)
+        if (fineScore > 1.0) entityExtractor(paragraphNerConsConll, paragraphNerConsOnto, candidates)
       case _ =>
     }
 
-    if(candidates.isEmpty) {
+    if (candidates.isEmpty) {
       coarseType match {
         case "ABBR" =>
         case "DESC" =>
@@ -359,7 +349,7 @@ object CandidateGeneration {
 
   def getCandidateAnswer(contextTA: TextAnnotation): Set[String] = {
     val candidates = ArrayBuffer[Constituent]()
-//    val toDelete = ArrayBuffer[Constituent]()
+    //    val toDelete = ArrayBuffer[Constituent]()
     val pTA = contextTA
     val nounPhrases = contextTA.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala.
       filter { ch => ch.getLabel.contains("N") || ch.getLabel.contains("J") || ch.getLabel.contains("V") }
@@ -369,15 +359,14 @@ object CandidateGeneration {
     val paragraphNerConsOnto = contextTA.getView(ViewNames.NER_ONTONOTES).getConstituents.asScala.toList
     val paragraphWikiAnnotationOpt = wikifierRedis.get(contextTA.getText)
     val wikiMentionsInText = SerializationHelper.deserializeFromJson(paragraphWikiAnnotationOpt.get).getView(ViewNames.WIKIFIER).getConstituents.asScala.toList
-    val quant = if(false) {///if(contextTA.hasView(ViewNames.QUANTITIES)) {
+    val quant = if (false) { ///if(contextTA.hasView(ViewNames.QUANTITIES)) {
       contextTA.getView(ViewNames.QUANTITIES).getConstituents.asScala
-    }
-    else {
+    } else {
       Seq.empty
     }
     val posAndChunkPatternCandidates = TextAnnotationPatternExtractor.extractPatterns(contextTA)
     val parseTreeCandidates = generateCandidates(contextTA)
-    val paragraphQuantitiesCons = List.empty//contextTA.getView(ViewNames.QUANTITIES).getConstituents.asScala.toList
+    val paragraphQuantitiesCons = List.empty //contextTA.getView(ViewNames.QUANTITIES).getConstituents.asScala.toList
     val p = "-?\\d+".r // regex for finding all the numbers
     val numbers = p.findAllIn(contextTA.text)
     extractMountain(candidates, paragraphNerConsOnto, wikiMentionsInText)
@@ -414,7 +403,7 @@ object CandidateGeneration {
       candidatesSet.diff(Set(str)).exists { s => s.contains(str) }
     }
     val cardinals = candidatesSet.map(changeOrdinalsToCardinals).filter(_.isDefined).map(_.get)
-    val uniqueCandidateSet = candidatesSet.union(cardinals)  //.collect { case a if !setContainsIt(a) => a }
+    val uniqueCandidateSet = candidatesSet.union(cardinals) //.collect { case a if !setContainsIt(a) => a }
     val uniqueCandidateSetWithoutQuestionTarget = uniqueCandidateSet.diff(targetSet)
     println("uniqueCandidateSetWithoutQuestionTarget: " + uniqueCandidateSetWithoutQuestionTarget)
     uniqueCandidateSetWithoutQuestionTarget.toSeq
@@ -498,10 +487,8 @@ object CandidateGeneration {
     val numberPattern = "\\d".r
 
     val cons = contextTA.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala.filter(c => c.getLabel == "NP" &&
-      (c.getSurfaceForm.toLowerCase.contains("million") || c.getSurfaceForm.toLowerCase.contains("none") || numberPattern.findAllIn(c.getSurfaceForm).toList.nonEmpty)
-    )
+      (c.getSurfaceForm.toLowerCase.contains("million") || c.getSurfaceForm.toLowerCase.contains("none") || numberPattern.findAllIn(c.getSurfaceForm).toList.nonEmpty))
     candidates.++=:(cons)
-
 
     // get shallow parse cons of the tokens which have CD pos tag.
     val posCons = contextTA.getView(ViewNames.POS).getConstituents.asScala.filter(c => c.getLabel == "CD")
@@ -514,17 +501,17 @@ object CandidateGeneration {
     candidates.++=:(TextAnnotationPatternExtractor.extractNumberPatterns(contextTA))
 
     val tokens = contextTA.getTokens.zipWithIndex
-    val quantifiers = Seq("several"/*, "often", "few", "many"*/)
-    quantifiers.foreach{ q =>
-      if(contextTA.text.contains(q)) {
+    val quantifiers = Seq("several" /*, "often", "few", "many"*/ )
+    quantifiers.foreach { q =>
+      if (contextTA.text.contains(q)) {
         val (_, tokIdx) = tokens.find(str => str._1.contains(q)).getOrElse(throw new Exception(s"didn't find this token . . . \n - q: ${q} \n - TokenList: ${tokens.toSeq}"))
         candidates.++=:(contextTA.getView(ViewNames.TOKENS).getConstituentsCoveringToken(tokIdx).asScala)
       }
     }
 
     // if the CD token is not covered, add it to the candidates
-    posCons.foreach{ c =>
-      if(candidates.forall(cc => !cc.doesConstituentCover(c))) candidates.+=:(c)
+    posCons.foreach { c =>
+      if (candidates.forall(cc => !cc.doesConstituentCover(c))) candidates.+=:(c)
     }
 
     val anyNumber = "[+-]?(\\d+|\\d*\\.?\\d+)"
@@ -551,7 +538,7 @@ object CandidateGeneration {
 
   def personExtractor(question: Question, paragraph: Paragraph, candidates: ArrayBuffer[Constituent]): Unit = {
     val (shallowParseCons, paragraphQuantitiesCons, paragraphNerConsConll, paragraphNerConsOnto,
-    wikiMentionsInText, wikiMentionsInQuestion, paragraphTokens) = extractVariables(question, paragraph)
+      wikiMentionsInText, wikiMentionsInQuestion, paragraphTokens) = extractVariables(question, paragraph)
     // NER-Conll
     candidates.++=:(paragraphNerConsConll.filter(a => conllPerson(a.getLabel)))
     println("surface: " + paragraphNerConsConll)
@@ -571,17 +558,18 @@ object CandidateGeneration {
       }
     }.filter {
       _._1.nonEmpty
-    }.map { case (a, t) =>
-      println(s"(s, e) = (${a.start}, ${a.end})  /  text length :" + paragraph.contextTAOpt.get.text.length)
-      val charStart = a.start
-      val charEnd = a.end - 1
-      val consStart = paragraphTokens.find {
-        containsOffset(_, charStart)
-      }.getOrElse(throw new Exception("didn't find the token"))
-      val consEnd = paragraphTokens.find {
-        containsOffset(_, charEnd)
-      }.getOrElse(throw new Exception("didn't find the token"))
-      new Constituent(t, "candidates", paragraph.contextTAOpt.get, consStart.getStartSpan, consEnd.getEndSpan)
+    }.map {
+      case (a, t) =>
+        println(s"(s, e) = (${a.start}, ${a.end})  /  text length :" + paragraph.contextTAOpt.get.text.length)
+        val charStart = a.start
+        val charEnd = a.end - 1
+        val consStart = paragraphTokens.find {
+          containsOffset(_, charStart)
+        }.getOrElse(throw new Exception("didn't find the token"))
+        val consEnd = paragraphTokens.find {
+          containsOffset(_, charEnd)
+        }.getOrElse(throw new Exception("didn't find the token"))
+        new Constituent(t, "candidates", paragraph.contextTAOpt.get, consStart.getStartSpan, consEnd.getEndSpan)
     }
 
     println("constituentsWithPrefix = " + constituentsWithPrefix)
@@ -631,7 +619,7 @@ object CandidateGeneration {
   }
 
   def yearExtractor(pTA: TextAnnotation, candidates: ArrayBuffer[Constituent]) = {
-//    println("candidates before: " + candidates)
+    //    println("candidates before: " + candidates)
     val p = "([1-2][0-9])\\d\\d".r
     val numbers = p.findAllIn(pTA.text)
     //println("years extracted: " + numbers.toList)
@@ -639,12 +627,12 @@ object CandidateGeneration {
     numbers.toList.foreach { number =>
       val (_, tokIdx) = tokens.find(str =>
         str._1.contains(number)).getOrElse(throw new Exception(s"didn't find this token . . . \n - Number: $number \n - TokenList: ${tokens.toSeq}"))
-//      println("number: " + number + " / pTA.getView(ViewNames.TOKENS).getConstituentsCoveringToken(tokIdx).asScala: " +
-//        pTA.getView(ViewNames.TOKENS).getConstituentsCoveringToken(tokIdx).asScala)
+      //      println("number: " + number + " / pTA.getView(ViewNames.TOKENS).getConstituentsCoveringToken(tokIdx).asScala: " +
+      //        pTA.getView(ViewNames.TOKENS).getConstituentsCoveringToken(tokIdx).asScala)
       candidates.++=:(pTA.getView(ViewNames.TOKENS).getConstituentsCoveringToken(tokIdx).asScala)
     }
 
-/*    val p2 = "\\d\\d\\d".r // example:  with the Tang, culminating in a treaty in 821 that fixed the borders
+    /*    val p2 = "\\d\\d\\d".r // example:  with the Tang, culminating in a treaty in 821 that fixed the borders
     val numbers2 = p2.findAllIn(pTA.text)
     numbers2.toList.foreach { number =>
       val (_, tokIdx) = tokens.find(str =>
@@ -681,8 +669,8 @@ object CandidateGeneration {
 
     // extract all chunks which contain a year
     val chunks = pTA.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala.toList
-    chunks.foreach{ c =>
-      if(c.getLabel == "NP" && p.findAllIn(c.getSurfaceForm).toList.nonEmpty) candidates.+=:(c)
+    chunks.foreach { c =>
+      if (c.getLabel == "NP" && p.findAllIn(c.getSurfaceForm).toList.nonEmpty) candidates.+=:(c)
     }
 
     // other forms of the years
@@ -737,14 +725,14 @@ object CandidateGeneration {
 
   def questionNumberTrigger(str: String): Boolean = str.contains("how many ") || str.contains("how much ") ||
     str.contains("how large ") || str.contains("what age ")
-  def questionDateTrigger(str: String): Boolean = (str.contains("when ") && !(str.contains("what ") || str.contains("which ") || str.contains("who ")))|| str.contains("what year") ||
+  def questionDateTrigger(str: String): Boolean = (str.contains("when ") && !(str.contains("what ") || str.contains("which ") || str.contains("who "))) || str.contains("what year") ||
     str.contains("what time") || str.contains("which year")
   def questionDateTriggerInTriggerTerm(str: String): Boolean = str.contains(" date ")
   def questionLanguageTrigger(str: String): Boolean = str.contains(" language ")
   def questionNationalityTrigger(str: String): Boolean = str.contains(" nationality ")
   def questionPercentTrigger(str: String): Boolean = str.contains(" percent ")
   def questionCurrencyTrigger(str: String): Boolean = str.contains(" money ") || str.contains(" currency ")
-  def questionPersonTrigger(str: String): Boolean = ( str.contains("who ") && !str.contains("how many ")) ||
+  def questionPersonTrigger(str: String): Boolean = (str.contains("who ") && !str.contains("how many ")) ||
     str.contains("which individual") || str.contains("which person") ||
     str.contains("what individual") || str.contains("what person") || str.contains("to whom ")
   def questionWhichWhatTrigger(str: String) = str.contains("which") || str.contains("what") ||
@@ -753,9 +741,7 @@ object CandidateGeneration {
   def questionOrgTrigger(str: String) = str.contains("institute") || str.contains("company")
   def questionEntTrigger(str: String) = str.contains("entity")
 
-
-  def extractVariables(question: Question, paragraph: Paragraph): (List[Constituent], List[Constituent], List[Constituent],
-    List[Constituent], List[Constituent], List[Constituent], List[Constituent]) = {
+  def extractVariables(question: Question, paragraph: Paragraph): (List[Constituent], List[Constituent], List[Constituent], List[Constituent], List[Constituent], List[Constituent], List[Constituent]) = {
     val paragraphTokenView = paragraph.contextTAOpt.get.getView(ViewNames.TOKENS)
     val paragraphTokens = paragraphTokenView.getConstituents.asScala.toList
     val shallowParseCons = question.qTAOpt.get.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala.toList
@@ -785,11 +771,11 @@ object CandidateGeneration {
       val currentNode = ParseUtils.getSpanLabeledTree(tree)
       val sentenceStart = ta.getSentence(sentenceId).getStartSpan
       val sentenceEnd = ta.getSentence(sentenceId).getEndSpan
-//      val currentNode = spanLabeledTree
-//      println("spanLabeledTree = " + spanLabeledTree)
-//      println("currentNode = " + currentNode)=
+      //      val currentNode = spanLabeledTree
+      //      println("spanLabeledTree = " + spanLabeledTree)
+      //      println("currentNode = " + currentNode)=
       def getCandidatesRecursively(currentNode: Tree[Pair[String, IntPair]]): Unit = {
-//        println("Rec currentNode: " + currentNode)
+        //        println("Rec currentNode: " + currentNode)
         if (!currentNode.isLeaf) {
           val leaves = currentNode.getChildren.asScala
           leaves.foreach { sibling =>
@@ -809,8 +795,7 @@ object CandidateGeneration {
             }
             getCandidatesRecursively(sibling)
           }
-        }
-        else {
+        } else {
           // do nothing
         }
       }
@@ -853,7 +838,7 @@ object CandidateGeneration {
       case "twenty-seventh" => "twenty-seven"
       case "twenty-eighth" => "twenty-eight"
       case "twenty-ninth" => "twenty-nine"
-        //
+      //
       case "thirtieth" => "thirty"
       case "fortieth" => "forty"
       case "fiftieth" => "fifty"
@@ -865,7 +850,7 @@ object CandidateGeneration {
       case "thousandth" => "thousand"
       case _ => ""
     }
-    if(r != "") Some(r) else None
+    if (r != "") Some(r) else None
   }
 
   val month = Set("January", "Jan", "July", "February", "Feb", "August", "Aug", "March",
@@ -879,6 +864,5 @@ object CandidateGeneration {
   def dropWikiURL(url: String): String = url.replace("http://en.wikipedia.org/wiki/", "")
 
   val stopwordsSet = Source.fromFile(new File("other/stopwords.txt")).getLines().toSet
-
 
 }

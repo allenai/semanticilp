@@ -8,8 +8,8 @@ import com.typesafe.config.ConfigFactory
 import org.allenai.ari.solvers.textilp.utils.Constants
 import org.allenai.common.Logging
 import org.allenai.entailment.Entailer
-import org.allenai.entailment.interface.{Entailment, Postag}
-import org.allenai.nlpstack.core.{PostaggedToken, Token}
+import org.allenai.entailment.interface.{ Entailment, Postag }
+import org.allenai.nlpstack.core.{ PostaggedToken, Token }
 
 /** Various options for computing similarity */
 sealed trait SimilarityType {
@@ -60,11 +60,11 @@ sealed trait SimilarityType {
   * @param useContextInRedisCache whether to use context in keys, if using redis for caching
   */
 class AlignmentFunction(
-    alignmentType: String,
-    entailmentScoreOffset: Double,
-    tokenizer: KeywordTokenizer,
-    useRedisCache: Boolean,
-    useContextInRedisCache: Boolean
+  alignmentType: String,
+  entailmentScoreOffset: Double,
+  tokenizer: KeywordTokenizer,
+  useRedisCache: Boolean,
+  useContextInRedisCache: Boolean
 ) extends Logging {
   if (useContextInRedisCache) require(useRedisCache, "if you want to use context caching, you have to " +
     "enable Redis caching . . . ")
@@ -150,10 +150,10 @@ class AlignmentFunction(
 // how much does text1 entail text2? (directional); an entailment score below the offset value is
 // considered negative correlation.
 private class EntailmentSimilarity(
-    entailmentScoreOffset: Double,
-    tokenizer: KeywordTokenizer,
-    useRedisCache: Boolean,
-    useContextInRedisCaching: Boolean
+  entailmentScoreOffset: Double,
+  tokenizer: KeywordTokenizer,
+  useRedisCache: Boolean,
+  useContextInRedisCaching: Boolean
 ) extends SimilarityType with Logging {
 
   private val redisOpt = if (useRedisCache) Some(new RedisClient(Constants.redisServer, Constants.redisPort, timeout = Constants.timeout)) else None
@@ -291,12 +291,12 @@ object AlignmentFunction {
   lazy val rootConfig = ConfigFactory.systemProperties.withFallback(ConfigFactory.load())
   lazy val localConfig = rootConfig.getConfig("entailment")
   lazy val entailer = Entailer(localConfig)
-//  lazy val localEntailer = new LocalEntailer(localConfig)
-//  lazy val keywordTokenizer = KeywordTokenizer.Default
-//  val system = ActorSystem("ari-tableilp-trainer")
-//  lazy val entailmentService = new EntailmentService(localEntailer, keywordTokenizer, system)
-//  lazy val aligner = new AlignmentFunction("Entailment", Some(entailmentService), 0.1,
-//    keywordTokenizer, useRedisCache = true, useContextInRedisCache = false)
+  //  lazy val localEntailer = new LocalEntailer(localConfig)
+  //  lazy val keywordTokenizer = KeywordTokenizer.Default
+  //  val system = ActorSystem("ari-tableilp-trainer")
+  //  lazy val entailmentService = new EntailmentService(localEntailer, keywordTokenizer, system)
+  //  lazy val aligner = new AlignmentFunction("Entailment", Some(entailmentService), 0.1,
+  //    keywordTokenizer, useRedisCache = true, useContextInRedisCache = false)
   lazy val entailment = new LightEntailment(entailer)
 }
 
@@ -306,7 +306,7 @@ class LightEntailment(entailer: org.allenai.entailment.Entailer) {
     val textTokens = toPostaggedTokens(text)
     val hypothesisTokens = toPostaggedTokens(hypothesis)
     val score = entailer.entail(textTokens, hypothesisTokens, None)
-    if(score.confidence.isNaN) minEntailment else score
+    if (score.confidence.isNaN) minEntailment else score
   }
 
   /** Converts a tokenized string to the PostaggedToken object entailment requires. This uses the

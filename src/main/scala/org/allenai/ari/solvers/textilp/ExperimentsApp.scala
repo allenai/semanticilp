@@ -4,25 +4,28 @@ import java.io.File
 
 import edu.illinois.cs.cogcomp.McTest.MCTestBaseline
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
-import edu.illinois.cs.cogcomp.core.utilities.{DummyTextAnnotationGenerator, SerializationHelper}
+import edu.illinois.cs.cogcomp.core.utilities.{ DummyTextAnnotationGenerator, SerializationHelper }
 import edu.illinois.cs.cogcomp.core.utilities.configuration.ResourceManager
 import org.allenai.ari.solvers.bioProccess.ProcessBankReader
 import org.allenai.ari.solvers.squad.SQuADReader
 import org.allenai.ari.solvers.textilp.solvers.SlidingWindowSolver
 import play.api.libs.json.Json
 import org.allenai.ari.solvers.squad.SquadClassifierUtils._
-import org.allenai.ari.solvers.squad.{CandidateGeneration, SquadClassifier, SquadClassifierUtils, TextAnnotationPatternExtractor}
+import org.allenai.ari.solvers.squad.{ CandidateGeneration, SquadClassifier, SquadClassifierUtils, TextAnnotationPatternExtractor }
 import org.allenai.ari.solvers.textilp.alignment.AlignmentFunction
-import org.allenai.ari.solvers.textilp.solvers.{LuceneSolver, SalienceSolver, TextILPSolver, TextSolver}
+import org.allenai.ari.solvers.textilp.solvers.{ LuceneSolver, SalienceSolver, TextILPSolver, TextSolver }
 import org.allenai.ari.solvers.textilp.utils.WikiUtils.WikiDataProperties
 import org.allenai.ari.solvers.textilp.utils._
 import org.rogach.scallop._
 
 import scala.collection.JavaConverters._
 import ProcessBankReader._
-import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, TextAnnotation}
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{ Constituent, TextAnnotation }
 import edu.illinois.cs.cogcomp.edison.annotators.ClauseViewGenerator
+//import org.allenai.ari.controller.questionparser.{ FillInTheBlankGenerator, QuestionParse }
 import org.allenai.ari.solvers.textilp.ResultJson._
+import org.allenai.ari.solvers.textilp.utils.SimilarityUtils.Levenshtein
+import org.apache.lucene.search.similarities.{ MultiSimilarity, Similarity }
 import shapeless.list
 
 import scala.io.Source
@@ -44,11 +47,11 @@ object ExperimentsApp {
       "The first type are transposons, which move within a genome by means of a DNA intermediate. Transposons can move by a \"cut-and-paste\" mechanism, which removes the element from the original site, or by a \"copy-and-paste\" mechanism, which leaves a copy behind (Figure 21.9). Both mechanisms require an enzyme called transposase, which is generally encoded by the transposon.")
     annotationUtils.pipelineService.addView(ta, ViewNames.QUANTITIES)
     annotationUtils.pipelineService.addView(ta, ViewNames.SHALLOW_PARSE)
-//    println(ta)
-//    println(ta.getAvailableViews)
-//    println(ta.getView(ViewNames.QUANTITIES))
-//    println(ta.getView(ViewNames.QUANTITIES).getConstituents.asScala.filter(_.getLabel.contains("Date")))
-//    println(ta.getView(ViewNames.QUANTITIES).getConstituents.asScala.map(c => c.getSurfaceForm -> c.getLabel))
+    //    println(ta)
+    //    println(ta.getAvailableViews)
+    //    println(ta.getView(ViewNames.QUANTITIES))
+    //    println(ta.getView(ViewNames.QUANTITIES).getConstituents.asScala.filter(_.getLabel.contains("Date")))
+    //    println(ta.getView(ViewNames.QUANTITIES).getConstituents.asScala.map(c => c.getSurfaceForm -> c.getLabel))
     println(ta.getView(ViewNames.TOKENS))
     println(ta.getView(ViewNames.SHALLOW_PARSE))
   }
@@ -69,16 +72,27 @@ object ExperimentsApp {
       "For example , many land plants today have a vascular system for transporting materials internally and a waterproof coating of wax on their leaves that slows the loss of water to the air .")
     annotationUtils.pipelineService.addView(ta, ViewNames.DEPENDENCY_STANFORD)
     annotationUtils.pipelineService.addView(ta, ViewNames.POS)
+    annotationUtils.pipelineService.addView(ta, ViewNames.SHALLOW_PARSE)
     val tokens = ta.getView(ViewNames.DEPENDENCY_STANFORD).getConstituents.asScala
     val posView = ta.getView(ViewNames.POS)
+    val chunkView = ta.getView(ViewNames.SHALLOW_PARSE)
     println(ta.getAvailableViews)
     println(ta.getView(ViewNames.DEPENDENCY_STANFORD))
-    val verbs = Set("VB", "VBZ", "VBP")
+    println("number of relations: " + ta.getView(ViewNames.DEPENDENCY_STANFORD).getRelations.size())
+    println("relations: " + ta.getView(ViewNames.DEPENDENCY_STANFORD).getRelations.asScala.mkString("\n"))
+
+    ta.getView(ViewNames.DEPENDENCY_STANFORD).getRelations.asScala.foreach{ r =>
+      println("r.getSource: " + r.getSource)
+      println("chunkView.getConstituentsCovering(r.getSource): " + chunkView.getConstituentsCovering(r.getSource))
+      println("r.getTarget: " + r.getTarget)
+      println("chunkView.getConstituentsCovering(r.getTarget): " + chunkView.getConstituentsCovering(r.getTarget))
+    }
+    /*val verbs = Set("VB", "VBZ", "VBP")
     println(tokens.map(c => c.getSurfaceForm -> c.getLabel + "  parents: " + c.getIncomingRelations.asScala.map(cc => cc.getSource.getSurfaceForm + ", " +  cc.getSource.getLabel +  posView.getConstituentsCovering(cc.getSource).get(0).getLabel) ).mkString("\n"))
     val ands = tokens.filter{c => c.getSurfaceForm == "and" && verbs.contains(posView.getConstituentsCovering(c.getIncomingRelations.get(0).getSource).get(0).getLabel)}
     val indices = 0 +: ands.map(_.getEndSpan) :+ ta.getTokens.length
     val constitunes = indices.sliding(2).map{ list => new Constituent("", "", ta, list(0), list(1)) }
-    println(constitunes.map(_.getSurfaceForm).mkString("\n"))
+    println(constitunes.map(_.getSurfaceForm).mkString("\n"))*/
   }
 
   def testIndependentClauseViewGenerator() = {
@@ -98,7 +112,7 @@ object ExperimentsApp {
       "I like black and red sweatshirts"
     )
     val generator = new IndependentClauseViewGenerator("Generator")
-    sentences.foreach{ s =>
+    sentences.foreach { s =>
       val ta = annotationUtils.pipelineService.createBasicTextAnnotation("", "", s)
       annotationUtils.pipelineService.addView(ta, ViewNames.DEPENDENCY_STANFORD)
       annotationUtils.pipelineService.addView(ta, ViewNames.POS)
@@ -117,7 +131,7 @@ object ExperimentsApp {
 
   def dumpSQuADQuestionsOnDisk(reader: SQuADReader) = {
     import java.io._
-    val pw = new PrintWriter(new File("squadQuestions.txt" ))
+    val pw = new PrintWriter(new File("squadQuestions.txt"))
     reader.instances.zipWithIndex.foreach {
       case (ins, idx) =>
         ins.paragraphs.foreach { p =>
@@ -208,12 +222,12 @@ object ExperimentsApp {
         "explanation:DECOMPOSER An organism that breaks down cells of dead plants and animals into simpler substances." +
         "explanation:The plants use sunlight, carbon dioxide, water, and minerals to make food that sustains themselves and other organisms in the forest."
     )
-//    textILPSolver.solve(
-//      "A decomposer",
-//      Set("hunts ", "migrates for the winter",
-//        "breaks down dead plants and animals", "uses water and sunlight to make food"),
-//      "Decomposers"
-//    )
+    //    textILPSolver.solve(
+    //      "A decomposer",
+    //      Set("hunts ", "migrates for the winter",
+    //        "breaks down dead plants and animals", "uses water and sunlight to make food"),
+    //      "Decomposers"
+    //    )
   }
 
   def testElasticSearchSnippetExtraction() = {
@@ -239,59 +253,60 @@ object ExperimentsApp {
   def evaluateTextSolverOnRegents(dataset: Seq[(String, Seq[String], String)], textSolver: TextSolver) = {
     SolverUtils.printMemoryDetails()
     println("Starting the evaluation . . . ")
-    val perQuestionScore = dataset.map{ case (question, options, correct) =>
-      //println("collecting knolwdge . . . ")
-//      val knowledgeSnippet = options.flatMap(focus => SolverUtils.extractParagraphGivenQuestionAndFocusWord(question, focus, 3)).mkString(" ")
-//      val knowledgeSnippet = options.flatMap(focus => SolverUtils.extractParagraphGivenQuestionAndFocusWord2(question, focus, 3)).mkString(" ")
-      val knowledgeSnippet = if(textSolver.isInstanceOf[TextILPSolver]) {
-        SolverUtils.extractPatagraphGivenQuestionAndFocusSet3(question, options, 8).mkString(" ")
-      }
-      else {
-        ""
-      }
-      //println("solving it . . . ")
-      val (selected, _) = textSolver.solve(question, options, knowledgeSnippet)
-      val score = SolverUtils.assignCredit(selected, correct.head - 'A', options.length)
-      //println("Question: " + question + " / options: " + options  +  "   / selected: " + selected  + " / score: " + score)
-      score
+    val perQuestionScore = dataset.map {
+      case (question, options, correct) =>
+        //println("collecting knolwdge . . . ")
+        //      val knowledgeSnippet = options.flatMap(focus => SolverUtils.extractParagraphGivenQuestionAndFocusWord(question, focus, 3)).mkString(" ")
+        //      val knowledgeSnippet = options.flatMap(focus => SolverUtils.extractParagraphGivenQuestionAndFocusWord2(question, focus, 3)).mkString(" ")
+        val knowledgeSnippet = if (textSolver.isInstanceOf[TextILPSolver]) {
+          SolverUtils.extractPatagraphGivenQuestionAndFocusSet3(question, options, 8).mkString(" ")
+        } else {
+          ""
+        }
+        //println("solving it . . . ")
+        val (selected, _) = textSolver.solve(question, options, knowledgeSnippet)
+        val score = SolverUtils.assignCredit(selected, correct.head - 'A', options.length)
+        //println("Question: " + question + " / options: " + options  +  "   / selected: " + selected  + " / score: " + score)
+        score
     }
     println("Average score: " + perQuestionScore.sum / perQuestionScore.size)
   }
 
   def evaluateTextSolverOnSquad(reader: SQuADReader, textSolver: TextSolver) = {
-    val qAndpPairs = reader.instances.slice(0, 20).flatMap { i => i.paragraphs.slice(0,20).flatMap{p => p.questions.slice(0, 2).map(q => (q, p))}}.take(1000)
+    val qAndpPairs = reader.instances.slice(0, 20).flatMap { i => i.paragraphs.slice(0, 20).flatMap { p => p.questions.slice(0, 2).map(q => (q, p)) } }.take(1000)
     val pairsGrouped = qAndpPairs.groupBy(_._2)
-    val resultLists = pairsGrouped.zipWithIndex.flatMap{ case ((p, pairs), idx) =>
-      val allCandidates = CandidateGeneration.getCandidateAnswer(p.contextTAOpt.get).filter(_.split(" ").length < 7)
-      println("==================================================")
-      println("Processed " + idx + " out of " + pairsGrouped.size)
-      println("Paragraph: " + p.context)
-      println("all candidates = " + allCandidates)
-      pairs.map{ case (q, _) =>
-        val goldCandidates = q.answers.map(_.answerText)
-        val allCandidatesMinusCorrectOnes = scala.util.Random.shuffle(allCandidates).diff(goldCandidates.toSet)
-        if(allCandidatesMinusCorrectOnes.size > 1) {
-          val candidates = allCandidatesMinusCorrectOnes.slice(0, 5).toSeq :+ goldCandidates.head
-          val correctIndex = math.min(allCandidatesMinusCorrectOnes.size, 5)
-          println("correct answer: " + goldCandidates.head)
-          println("question: " + q.questionText)
-          println("candidates: " + candidates)
-          println("length of allCandidatesMinusCorrectOnes: " + allCandidatesMinusCorrectOnes.size)
-          println("candidates.length: " + candidates.length)
-          println("correctIndex: " + correctIndex)
-          require(candidates.length == correctIndex + 1)
-          val (selected, _) = textSolver.solve(q.questionText, candidates, p.context)
-          val aristoScore = SolverUtils.assignCredit(selected, correctIndex, candidates.length)
-          val (fpr, em) = SolverUtils.assignCreditSquadScalaVersion(candidates(selected.headOption.getOrElse(0)), goldCandidates)
-          println("selected answers: " + selected)
-          println(s"EM: $em  / FPR: $fpr  / aristoScore: $aristoScore")
-          println("-------")
-          (fpr, em, (aristoScore, candidates.length))
+    val resultLists = pairsGrouped.zipWithIndex.flatMap {
+      case ((p, pairs), idx) =>
+        val allCandidates = CandidateGeneration.getCandidateAnswer(p.contextTAOpt.get).filter(_.split(" ").length < 7)
+        println("==================================================")
+        println("Processed " + idx + " out of " + pairsGrouped.size)
+        println("Paragraph: " + p.context)
+        println("all candidates = " + allCandidates)
+        pairs.map {
+          case (q, _) =>
+            val goldCandidates = q.answers.map(_.answerText)
+            val allCandidatesMinusCorrectOnes = scala.util.Random.shuffle(allCandidates).diff(goldCandidates.toSet)
+            if (allCandidatesMinusCorrectOnes.size > 1) {
+              val candidates = allCandidatesMinusCorrectOnes.slice(0, 5).toSeq :+ goldCandidates.head
+              val correctIndex = math.min(allCandidatesMinusCorrectOnes.size, 5)
+              println("correct answer: " + goldCandidates.head)
+              println("question: " + q.questionText)
+              println("candidates: " + candidates)
+              println("length of allCandidatesMinusCorrectOnes: " + allCandidatesMinusCorrectOnes.size)
+              println("candidates.length: " + candidates.length)
+              println("correctIndex: " + correctIndex)
+              require(candidates.length == correctIndex + 1)
+              val (selected, _) = textSolver.solve(q.questionText, candidates, p.context)
+              val aristoScore = SolverUtils.assignCredit(selected, correctIndex, candidates.length)
+              val (fpr, em) = SolverUtils.assignCreditSquadScalaVersion(candidates(selected.headOption.getOrElse(0)), goldCandidates)
+              println("selected answers: " + selected)
+              println(s"EM: $em  / FPR: $fpr  / aristoScore: $aristoScore")
+              println("-------")
+              (fpr, em, (aristoScore, candidates.length))
+            } else {
+              ((0.0, 0.0, 0.0), 0.0, (0.0, 0))
+            }
         }
-        else {
-          ((0.0, 0.0, 0.0), 0.0, (0.0, 0))
-        }
-      }
     }.toList.filter(_._3._2 > 2)
 
     val (fprList, emList, scoreAndLength) = resultLists.unzip3
@@ -316,28 +331,29 @@ object ExperimentsApp {
   }
 
   def evaluateTextSolverOnProcessBank(list: List[Paragraph], textSolver: TextSolver) = {
-    val qAndpPairs = list.flatMap { p => p.questions.map(q => (q, p))}
-    val (resultLists, confidences) = qAndpPairs.zipWithIndex.map{ case ((q, p), idx) =>
-      println("==================================================")
-      println("Processed " + idx + " out of " + qAndpPairs.size)
-//      println("Paragraph: " + p)
-      val candidates = q.answers.map(_.answerText)
-      val correctIndex = q.correctIdxOpt.get
-//          println("correct answer: " + goldCandidates.head)
-          println("question: " + q.questionText)
-//          println("candidates: " + candidates)
-//          println("length of allCandidatesMinusCorrectOnes: " + allCandidatesMinusCorrectOnes.size)
-//          println("candidates.length: " + candidates.length)
-//          println("correctIndex: " + correctIndex)
-      val (selected, explanation) = textSolver.solve(q.questionText, candidates, p.context)
-      val correctLabel = q.answers(correctIndex).answerText
-      val score = SolverUtils.assignCredit(selected, correctIndex, candidates.length)
-      if(score < 0.5) println(" >>>>>>> Incorrect :" + score)
-      score -> (explanation.confidence -> correctLabel)
+    val qAndpPairs = list.flatMap { p => p.questions.map(q => (q, p)) }
+    val (resultLists, confidences) = qAndpPairs.zipWithIndex.map {
+      case ((q, p), idx) =>
+        println("==================================================")
+        println("Processed " + idx + " out of " + qAndpPairs.size)
+        //      println("Paragraph: " + p)
+        val candidates = q.answers.map(_.answerText)
+        val correctIndex = q.correctIdxOpt.get
+        //          println("correct answer: " + goldCandidates.head)
+        println("question: " + q.questionText)
+        //          println("candidates: " + candidates)
+        //          println("length of allCandidatesMinusCorrectOnes: " + allCandidatesMinusCorrectOnes.size)
+        //          println("candidates.length: " + candidates.length)
+        //          println("correctIndex: " + correctIndex)
+        val (selected, explanation) = textSolver.solve(q.questionText, candidates, p.context)
+        val correctLabel = q.answers(correctIndex).answerText
+        val score = SolverUtils.assignCredit(selected, correctIndex, candidates.length)
+        if (score < 0.5) println(" >>>>>>> Incorrect :" + score)
+        score -> (explanation.confidence -> correctLabel)
     }.unzip
 
     val avgAristoScore = resultLists.sum / resultLists.length
-//    println(confidences.mkString("\n"))
+    //    println(confidences.mkString("\n"))
 
     println("------------")
     println("avgAristoScore: " + avgAristoScore)
@@ -383,10 +399,10 @@ object ExperimentsApp {
   def testNERAnnotations() = {
     val text = "As of 2012[update] research continued in many fields. The university president, John Jenkins, described his hope that Notre Dame would become \"one of the pre–eminent research institutions in the world\" in his inaugural address. The university has many multi-disciplinary institutes devoted to research in varying fields, including the Medieval Institute, the Kellogg Institute for International Studies, the Kroc Institute for International Peace studies, and the Center for Social Concerns. Recent research includes work on family conflict and child development, genome mapping, the increasing trade deficit of the United States with China, studies in fluid mechanics, computational science and engineering, and marketing trends on the Internet. As of 2013, the university is home to the Notre Dame Global Adaptation Index which ranks countries annually based on how vulnerable they are to climate change and how prepared they are to adapt."
     val ta = annotationUtils.annotate(text)
-    val nersConll = ta.getView(ViewNames.NER_CONLL).getConstituents.asScala.map(c => c.getSurfaceForm + ": " + c.getLabel ).mkString("\n")
+    val nersConll = ta.getView(ViewNames.NER_CONLL).getConstituents.asScala.map(c => c.getSurfaceForm + ": " + c.getLabel).mkString("\n")
     println(nersConll)
     println("-------------")
-    val nersOntontes = ta.getView(ViewNames.NER_ONTONOTES).getConstituents.asScala.map(c => c.getSurfaceForm + ": " + c.getLabel ).mkString("\n")
+    val nersOntontes = ta.getView(ViewNames.NER_ONTONOTES).getConstituents.asScala.map(c => c.getSurfaceForm + ": " + c.getLabel).mkString("\n")
     println(nersOntontes)
   }
 
@@ -439,28 +455,27 @@ object ExperimentsApp {
   [info] e1: Fox / e2: Animal / distance: 30
     */
 
-
   def trainAndEvaluateSquadClassifier() = {
     import SquadClassifierUtils._
     SquadClassifierUtils.populateInstances()
-//    beginClassifier.learn(50)
+    //    beginClassifier.learn(50)
     //endClassifier.learn(50)
-//    beginClassifier.save()
+    //    beginClassifier.save()
     //endClassifier.save()
-//    beginClassifier.test(SquadClassifierUtils.trainInstances)
-//    beginClassifier.test(SquadClassifierUtils.testInstances)
-//    endClassifier.test(SquadClassifierUtils.trainInstances)
-//    endClassifier.test(SquadClassifierUtils.testInstances)
+    //    beginClassifier.test(SquadClassifierUtils.trainInstances)
+    //    beginClassifier.test(SquadClassifierUtils.testInstances)
+    //    endClassifier.test(SquadClassifierUtils.trainInstances)
+    //    endClassifier.test(SquadClassifierUtils.testInstances)
 
-//    insideClassifier.learn(10)
-//    insideClassifier.save()
-//    insideClassifier.test(SquadClassifierUtils.trainInstances)
-//    insideClassifier.test(SquadClassifierUtils.devInstances)
+    //    insideClassifier.learn(10)
+    //    insideClassifier.save()
+    //    insideClassifier.test(SquadClassifierUtils.trainInstances)
+    //    insideClassifier.test(SquadClassifierUtils.devInstances)
 
-//    pairClassifier.learn(20)
-//    pairClassifier.save()
-//    pairClassifier.test(SquadClassifierUtils.trainInstances)
-//    pairClassifier.test(SquadClassifierUtils.devInstances)
+    //    pairClassifier.learn(20)
+    //    pairClassifier.save()
+    //    pairClassifier.test(SquadClassifierUtils.trainInstances)
+    //    pairClassifier.test(SquadClassifierUtils.devInstances)
 
     sentenceIdClassifier.learn(20)
     sentenceIdClassifier.save()
@@ -547,12 +562,13 @@ object ExperimentsApp {
         //            }
         //          }
         //        }
-        qAndpPairs.zipWithIndex.foreach { case ((q, p), idx) =>
-          if (q.questionText.toLowerCase.contains("why ")) {
-            println("---------" + idx + "---------")
-            CandidateGeneration.getTargetPhrase(q, p)
-            println("gold: " + q.answers)
-          }
+        qAndpPairs.zipWithIndex.foreach {
+          case ((q, p), idx) =>
+            if (q.questionText.toLowerCase.contains("why ")) {
+              println("---------" + idx + "---------")
+              CandidateGeneration.getTargetPhrase(q, p)
+              println("gold: " + q.answers)
+            }
         }
       case 21 => println(WikiUtils.extractCategoryOfWikipageRecursively(Seq("Saint Louis University"), 5))
       case 22 => println(WikiUtils.getWikiDataId("University"))
@@ -566,15 +582,16 @@ object ExperimentsApp {
       case 27 =>
         // evaluate the candidate generation recall
         val qAndpPairs = trainReader.instances.slice(0, 30).flatMap { i => i.paragraphs.slice(0, 5).flatMap { p => p.questions.slice(0, 10).map(q => (q, p)) } }.take(1000)
-        val (pre, rec, candSize) = qAndpPairs.zipWithIndex.map { case ((q, p), idx) =>
-          //          val candidates = annotationUtils.getTargetPhrase(q, p).toSet
-          //val candidates = annotationUtils.candidateGenerationWithQuestionTypeClassification(q, p)
-          val candidates = CandidateGeneration.getTargetPhrase(q, p).toSet
-          println("candidates = " + candidates)
-          val goldCandidates = q.answers.map(_.answerText).toSet
-          val pre = if (goldCandidates.intersect(candidates).nonEmpty) 1.0 else 0.0
-          val rec = if (candidates.nonEmpty) 1.0 else 0.0
-          (pre, rec, candidates.size)
+        val (pre, rec, candSize) = qAndpPairs.zipWithIndex.map {
+          case ((q, p), idx) =>
+            //          val candidates = annotationUtils.getTargetPhrase(q, p).toSet
+            //val candidates = annotationUtils.candidateGenerationWithQuestionTypeClassification(q, p)
+            val candidates = CandidateGeneration.getTargetPhrase(q, p).toSet
+            println("candidates = " + candidates)
+            val goldCandidates = q.answers.map(_.answerText).toSet
+            val pre = if (goldCandidates.intersect(candidates).nonEmpty) 1.0 else 0.0
+            val rec = if (candidates.nonEmpty) 1.0 else 0.0
+            (pre, rec, candidates.size)
         }.unzip3
         val avgP = pre.sum / pre.length
         val avgR = rec.sum / rec.length
@@ -588,10 +605,11 @@ object ExperimentsApp {
         println(candSize)
       case 28 =>
         val qAndpPairs = trainReader.instances.flatMap { i => i.paragraphs.flatMap { p => p.questions.map(_ -> p) } }
-        qAndpPairs.zipWithIndex.foreach { case ((q, p), idx) =>
-          println("---------" + idx + "---------")
-          CandidateGeneration.candidateGenerationWithQuestionTypeClassification(q, p)
-          println("gold: " + q.answers)
+        qAndpPairs.zipWithIndex.foreach {
+          case ((q, p), idx) =>
+            println("---------" + idx + "---------")
+            CandidateGeneration.candidateGenerationWithQuestionTypeClassification(q, p)
+            println("gold: " + q.answers)
         }
       case 29 => testWikiDataSimilarity()
       case 30 => trainAndEvaluateSquadClassifier()
@@ -603,30 +621,32 @@ object ExperimentsApp {
         //val qAndpPairs = trainReader.instances.slice(0, 30).flatMap { i => i.paragraphs.slice(5,10).flatMap{p => p.questions.slice(0, 10).map(q => (q, p))}}.take(25)
         val qAndpPairs = trainReader.instances.flatMap { i => i.paragraphs.flatMap { p => p.questions.map(q => (q, p)) } }
         val pairsGrouped = qAndpPairs.groupBy(_._2)
-        val resultLists = pairsGrouped.zipWithIndex.flatMap { case ((p, pairs), idx) =>
-          val allCandidates = CandidateGeneration.getCandidateAnswer(p.contextTAOpt.get)
-          println("==================================================")
-          println("Processed " + idx + " out of " + pairsGrouped.size)
-          println("Paragraph: " + p.context)
-          //          println("candidates = " + candidates)
-          pairs.map { case (q, _) =>
-            val topSenIds = SolverUtils.getSentenceScores(p, q).take(1).map(_._1)
-            val topSentences = topSenIds.map(p.contextTAOpt.get.getSentence(_)).mkString(" ")
-            val candidates = allCandidates.filter(topSentences.contains(_))
-            println("candidates = " + candidates)
-            //            val ruleBased = CandidateGeneration.getTargetPhrase(q, p).toSet
-            // val candidates = CandidateGeneration.candidateGenerationWithQuestionTypeClassification(q, p).toSet
-            //            val candidates = ruleBased
-            //            println("candidates = " + candidates)
-            val goldCandidates = q.answers.map(_.answerText)
-            val (fpr, em) = candidates.map { c => SolverUtils.assignCreditSquadScalaVersion(c, goldCandidates) }.unzip
-            //val (fprRuleBased, emRuleBased) = ruleBased.map { c => SolverUtils.assignCreditSquadScalaVersion(c, goldCandidates) }.unzip
-            val bestEM = (Seq(0.0) ++ em).max
-            val bestFPR = (Seq((0.0, 0.0, 0.0)) ++ fpr).maxBy(_._1)
-            //val bestFPRRuleBased = (Seq((0.0, 0.0, 0.0)) ++ fprRuleBased).maxBy(_._1)
-            //            println(s"EM: $bestEM  / bestFPR: $bestFPR ")
-            //if (bestFPR._3 > 0.0 && (ruleBased.isEmpty || bestFPRRuleBased._3 == 0.0)) {
-            /*            if (bestEM == 0.0 && candidates.nonEmpty) {
+        val resultLists = pairsGrouped.zipWithIndex.flatMap {
+          case ((p, pairs), idx) =>
+            val allCandidates = CandidateGeneration.getCandidateAnswer(p.contextTAOpt.get)
+            println("==================================================")
+            println("Processed " + idx + " out of " + pairsGrouped.size)
+            println("Paragraph: " + p.context)
+            //          println("candidates = " + candidates)
+            pairs.map {
+              case (q, _) =>
+                val topSenIds = SolverUtils.getSentenceScores(p, q).take(1).map(_._1)
+                val topSentences = topSenIds.map(p.contextTAOpt.get.getSentence(_)).mkString(" ")
+                val candidates = allCandidates.filter(topSentences.contains(_))
+                println("candidates = " + candidates)
+                //            val ruleBased = CandidateGeneration.getTargetPhrase(q, p).toSet
+                // val candidates = CandidateGeneration.candidateGenerationWithQuestionTypeClassification(q, p).toSet
+                //            val candidates = ruleBased
+                //            println("candidates = " + candidates)
+                val goldCandidates = q.answers.map(_.answerText)
+                val (fpr, em) = candidates.map { c => SolverUtils.assignCreditSquadScalaVersion(c, goldCandidates) }.unzip
+                //val (fprRuleBased, emRuleBased) = ruleBased.map { c => SolverUtils.assignCreditSquadScalaVersion(c, goldCandidates) }.unzip
+                val bestEM = (Seq(0.0) ++ em).max
+                val bestFPR = (Seq((0.0, 0.0, 0.0)) ++ fpr).maxBy(_._1)
+                //val bestFPRRuleBased = (Seq((0.0, 0.0, 0.0)) ++ fprRuleBased).maxBy(_._1)
+                //            println(s"EM: $bestEM  / bestFPR: $bestFPR ")
+                //if (bestFPR._3 > 0.0 && (ruleBased.isEmpty || bestFPRRuleBased._3 == 0.0)) {
+                /*            if (bestEM == 0.0 && candidates.nonEmpty) {
               println("question: " + q.questionText)
               println("correct answer: ")
 //              println("rule-based" + ruleBased)
@@ -635,8 +655,8 @@ object ExperimentsApp {
               println("bestFPR: " + bestFPR) // + "  /  bestFPRRuleBased: " + bestFPRRuleBased)
               println("-------")
             }*/
-            (bestFPR, bestEM, candidates.size)
-          }
+                (bestFPR, bestEM, candidates.size)
+            }
         }.toList
 
         val (fprList, emList, candidateSize) = resultLists.unzip3
@@ -678,16 +698,18 @@ object ExperimentsApp {
         // evaluate the candidate generation recall
         val qAndpPairs = trainReader.instances.slice(0, 30).flatMap { i => i.paragraphs.slice(0, 5).flatMap { p => p.questions.slice(0, 10).map(q => (q, p)) } }.take(1000)
         val pairsGrouped = qAndpPairs.groupBy(_._2)
-        val (pre, rec, candSize) = pairsGrouped.zipWithIndex.flatMap { case ((p, pairs), idx) =>
-          val candidates = CandidateGeneration.getCandidateAnswer(p.contextTAOpt.get)
-          println("Processed " + idx + " out of " + pairsGrouped.size)
-          println("candidates = " + candidates)
-          pairs.map { case (q, _) =>
-            val goldCandidates = q.answers.map(_.answerText).distinct.toSet
-            val pre = if (goldCandidates.intersect(candidates).nonEmpty) 1.0 else 0.0
-            val rec = if (candidates.nonEmpty) 1.0 else 0.0
-            (pre, rec, candidates.size)
-          }
+        val (pre, rec, candSize) = pairsGrouped.zipWithIndex.flatMap {
+          case ((p, pairs), idx) =>
+            val candidates = CandidateGeneration.getCandidateAnswer(p.contextTAOpt.get)
+            println("Processed " + idx + " out of " + pairsGrouped.size)
+            println("candidates = " + candidates)
+            pairs.map {
+              case (q, _) =>
+                val goldCandidates = q.answers.map(_.answerText).distinct.toSet
+                val pre = if (goldCandidates.intersect(candidates).nonEmpty) 1.0 else 0.0
+                val rec = if (candidates.nonEmpty) 1.0 else 0.0
+                (pre, rec, candidates.size)
+            }
         }.toList.unzip3
         val avgP = pre.sum / pre.length
         val avgR = rec.sum / rec.length
@@ -708,8 +730,9 @@ object ExperimentsApp {
 
       case 37 => // getting
         val qAndpPairs = trainReader.instances.slice(0, 30).flatMap { i => i.paragraphs.slice(0, 5).flatMap { p => p.questions.slice(0, 10).map(q => (q, p)) } }.take(1000)
-        val minAnswerLength = qAndpPairs.map { case (q, p) =>
-          q.answers.map(_.answerText.split(" ").length).max
+        val minAnswerLength = qAndpPairs.map {
+          case (q, p) =>
+            q.answers.map(_.answerText.split(" ").length).max
         }
         val bbb = minAnswerLength.groupBy(identity).map { case (a, b) => a -> b.length }.toSeq.sortBy(_._1)
         val str = bbb.map { case (a, b) => s"$a\t$b" }.mkString("\n")
@@ -717,8 +740,9 @@ object ExperimentsApp {
 
       case 38 => // getting stopwords and answer intersections
         val qAndpPairs = devReader.instances.flatMap { i => i.paragraphs.flatMap { p => p.questions.map(q => (q, p)) } }
-        val answerStrings = qAndpPairs.flatMap { case (q, p) =>
-          q.answers.map(_.answerText.toLowerCase)
+        val answerStrings = qAndpPairs.flatMap {
+          case (q, p) =>
+            q.answers.map(_.answerText.toLowerCase)
         }.toSet
         println(answerStrings.intersect(CandidateGeneration.stopwordsSet).mkString("\n"))
 
@@ -743,40 +767,43 @@ object ExperimentsApp {
         println(TextAnnotationPatternExtractor.extractPatterns(ta))
       case 41 =>
         val qAndpPairs = devReader.instances.flatMap { i => i.paragraphs.flatMap { p => p.questions.map(q => (q, p)) } }
-        qAndpPairs.foreach { case (q, p) =>
-          assert(q.qTAOpt.get.hasView(ViewNames.QUANTITIES), q.qTAOpt.get.text)
-          assert(p.contextTAOpt.get.hasView(ViewNames.QUANTITIES), p.contextTAOpt.get.text)
+        qAndpPairs.foreach {
+          case (q, p) =>
+            assert(q.qTAOpt.get.hasView(ViewNames.QUANTITIES), q.qTAOpt.get.text)
+            assert(p.contextTAOpt.get.hasView(ViewNames.QUANTITIES), p.contextTAOpt.get.text)
         }
       case 42 =>
         // mixture of extractors
         // evaluate the candidate generation recall
         val qAndpPairs = trainReader.instances.slice(0, 30).flatMap { i => i.paragraphs.slice(0, 5).flatMap { p => p.questions.slice(0, 10).map(q => (q, p)) } }.take(1000)
         val pairsGrouped = qAndpPairs.groupBy(_._2)
-        val resultLists = pairsGrouped.zipWithIndex.flatMap { case ((p, pairs), idx) =>
-          val allCandidates = CandidateGeneration.getCandidateAnswer(p.contextTAOpt.get).filter(_.split(" ").length < 7)
-          println("==================================================")
-          println("Processed " + idx + " out of " + pairsGrouped.size)
-          println("Paragraph: " + p.context)
-          println("all candidates = " + allCandidates)
-          pairs.map { case (q, _) =>
-            val ruleBased = CandidateGeneration.getTargetPhrase(q, p).toSet
-            //              val candidates = CandidateGeneration.candidateGenerationWithQuestionTypeClassification(q, p).toSet
-            println("ruleBased = " + ruleBased)
-            val candidates = if (ruleBased.isEmpty) allCandidates else ruleBased
-            println("candidates = " + candidates)
-            val goldCandidates = q.answers.map(_.answerText)
-            val (fpr, em) = candidates.map { c => SolverUtils.assignCreditSquadScalaVersion(c, goldCandidates) }.unzip
-            val bestEM = (Seq(0.0) ++ em).max
-            val bestFPR = (Seq((0.0, 0.0, 0.0)) ++ fpr).maxBy(_._1)
-            println(s"EM: $bestEM  / bestFPR: $bestFPR ")
-            //if(bestEM == 0.0 && candidates.nonEmpty) {
-            println("question: " + q.questionText)
-            println("correct answer: ")
-            println(q.answers)
-            println("-------")
-            //}
-            (bestFPR, bestEM, candidates.size)
-          }
+        val resultLists = pairsGrouped.zipWithIndex.flatMap {
+          case ((p, pairs), idx) =>
+            val allCandidates = CandidateGeneration.getCandidateAnswer(p.contextTAOpt.get).filter(_.split(" ").length < 7)
+            println("==================================================")
+            println("Processed " + idx + " out of " + pairsGrouped.size)
+            println("Paragraph: " + p.context)
+            println("all candidates = " + allCandidates)
+            pairs.map {
+              case (q, _) =>
+                val ruleBased = CandidateGeneration.getTargetPhrase(q, p).toSet
+                //              val candidates = CandidateGeneration.candidateGenerationWithQuestionTypeClassification(q, p).toSet
+                println("ruleBased = " + ruleBased)
+                val candidates = if (ruleBased.isEmpty) allCandidates else ruleBased
+                println("candidates = " + candidates)
+                val goldCandidates = q.answers.map(_.answerText)
+                val (fpr, em) = candidates.map { c => SolverUtils.assignCreditSquadScalaVersion(c, goldCandidates) }.unzip
+                val bestEM = (Seq(0.0) ++ em).max
+                val bestFPR = (Seq((0.0, 0.0, 0.0)) ++ fpr).maxBy(_._1)
+                println(s"EM: $bestEM  / bestFPR: $bestFPR ")
+                //if(bestEM == 0.0 && candidates.nonEmpty) {
+                println("question: " + q.questionText)
+                println("correct answer: ")
+                println(q.answers)
+                println("-------")
+                //}
+                (bestFPR, bestEM, candidates.size)
+            }
         }.toList
 
         val (fprList, emList, candidateSize) = resultLists.unzip3
@@ -816,9 +843,11 @@ object ExperimentsApp {
         println(s"$avgEMNonEmpty\t$avgPNonEmpty\t$avgRNonEmpty\t$avgFNonEmpty\t$avgCandidateLengthNonEmpty\t${candidateSizeNonEmpty.count(_ == 1)}\t${pListNonEmpty.length}")
 
       case 43 =>
-        val strs = Seq("What was the US release date for Spectre?",
+        val strs = Seq(
+          "What was the US release date for Spectre?",
           "New York City is the biggest city in the United States since what historical date?",
-          "New Amsterdam became the title of New York City in what past date?")
+          "New Amsterdam became the title of New York City in what past date?"
+        )
         strs.foreach { str =>
           val ta = annotationUtils.annotate(str)
           println(TextAnnotationPatternExtractor.whatSthDate(ta))
@@ -826,18 +855,19 @@ object ExperimentsApp {
       case 44 =>
         // analyze distribution of the correct answer across sentences
         val qAndpPairs = trainReader.instances.flatMap { i => i.paragraphs.flatMap { p => p.questions.map(q => (q, p)) } }
-        val ranks = qAndpPairs.zipWithIndex.map { case ((q, p), idx) =>
-          println("Doing " + idx + "  out of " + qAndpPairs.length)
-          val charStart = q.answers.head.answerStart
-          val c = p.contextTAOpt.get.getView(ViewNames.TOKENS).getConstituents.asScala.toList.filter(c => c.getStartCharOffset <= charStart + 2 && c.getEndCharOffset >= charStart + 2)
-          require(c.nonEmpty)
-          val goldAnswerSenId = p.contextTAOpt.get.getSentenceId(c.head)
-          val sentenceIdsAndScores = SolverUtils.getSentenceScores(p, q)
-          //        println("sentenceIdsAndScores: " + sentenceIdsAndScores)
-          val corrctSenRank = sentenceIdsAndScores.zipWithIndex.collect { case a if a._1._1 == goldAnswerSenId => a._2 }
-          //          println("corrctSenRank: " + corrctSenRank)
-          assert(corrctSenRank.length == 1)
-          corrctSenRank.head
+        val ranks = qAndpPairs.zipWithIndex.map {
+          case ((q, p), idx) =>
+            println("Doing " + idx + "  out of " + qAndpPairs.length)
+            val charStart = q.answers.head.answerStart
+            val c = p.contextTAOpt.get.getView(ViewNames.TOKENS).getConstituents.asScala.toList.filter(c => c.getStartCharOffset <= charStart + 2 && c.getEndCharOffset >= charStart + 2)
+            require(c.nonEmpty)
+            val goldAnswerSenId = p.contextTAOpt.get.getSentenceId(c.head)
+            val sentenceIdsAndScores = SolverUtils.getSentenceScores(p, q)
+            //        println("sentenceIdsAndScores: " + sentenceIdsAndScores)
+            val corrctSenRank = sentenceIdsAndScores.zipWithIndex.collect { case a if a._1._1 == goldAnswerSenId => a._2 }
+            //          println("corrctSenRank: " + corrctSenRank)
+            assert(corrctSenRank.length == 1)
+            corrctSenRank.head
         }
         println("avgRank: " + ranks.sum.toDouble / ranks.length)
         ranks.groupBy(identity).toList.sortBy(a => a._1).foreach { case (rank, stuff) => println(s"rank: ${rank} : percentage: ${100.0 * stuff.length.toDouble / ranks.size}") }
@@ -863,16 +893,17 @@ object ExperimentsApp {
       case 47 =>
         // see how the answers are distributed across sentences.
         val qAndpPairs = trainReader.instances.flatMap { i => i.paragraphs.flatMap { p => p.questions.map(q => (q, p)) } }
-        val lenList = qAndpPairs.map { case (q, p) =>
-          val lemmaCons = p.contextTAOpt.get.getView(ViewNames.LEMMA).getConstituents.asScala.toList
-          q.answers.map { ans =>
-            val charStart = ans.answerStart
-            val c = p.contextTAOpt.get.getView(ViewNames.TOKENS).getConstituents.asScala.toList.
-              filter(c => c.getStartCharOffset <= charStart + 2 && c.getEndCharOffset >= charStart + 2)
-            require(c.nonEmpty)
-            val goldAnswerSenId = p.contextTAOpt.get.getSentenceId(c.head)
-            goldAnswerSenId
-          }.toSet.size
+        val lenList = qAndpPairs.map {
+          case (q, p) =>
+            val lemmaCons = p.contextTAOpt.get.getView(ViewNames.LEMMA).getConstituents.asScala.toList
+            q.answers.map { ans =>
+              val charStart = ans.answerStart
+              val c = p.contextTAOpt.get.getView(ViewNames.TOKENS).getConstituents.asScala.toList.
+                filter(c => c.getStartCharOffset <= charStart + 2 && c.getEndCharOffset >= charStart + 2)
+              require(c.nonEmpty)
+              val goldAnswerSenId = p.contextTAOpt.get.getSentenceId(c.head)
+              goldAnswerSenId
+            }.toSet.size
         }
         println("avgLength: " + lenList.sum.toDouble / lenList.length)
         lenList.groupBy(identity).toList.sortBy(a => a._1).foreach { case (rank, stuff) => println(s"sentenceLength: $rank : percentage: ${100.0 * stuff.length.toDouble / lenList.size}") }
@@ -922,26 +953,26 @@ object ExperimentsApp {
         //        evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterTemporals, textILPSolver)
         //        println("filterTemporals: ")
 
-//      evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterCauseQuestions, textILPSolver)
-//      println("filterCauseQuestions: ")
+        //      evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterCauseQuestions, textILPSolver)
+        //      println("filterCauseQuestions: ")
 
-//      evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterCResultQuestions, textILPSolver)
-//      println("filterCResultQuestions: ")
+        //      evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterCResultQuestions, textILPSolver)
+        //      println("filterCResultQuestions: ")
 
-//     evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterWhatDoesItDo, textILPSolver)
-//     println("filterWhatDoesItDo: ")
-//
-      evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
-      println("no-temporals/no true or false: ")
-//
-//      evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals.filterNotWhatDoesItDo.filterNotCResultQuestions, textILPSolver)
-//      println("no-temporals/no true or false/filterNotWhatDoesItDo.filterNotCResultQuestions")
+        //     evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterWhatDoesItDo, textILPSolver)
+        //     println("filterWhatDoesItDo: ")
+        //
+        evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
+        println("no-temporals/no true or false: ")
+      //
+      //      evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals.filterNotWhatDoesItDo.filterNotCResultQuestions, textILPSolver)
+      //      println("no-temporals/no true or false/filterNotWhatDoesItDo.filterNotCResultQuestions")
 
-//              (0.3 to 0.5 by 0.02).foreach{ weight =>
-//                lazy val solver = new TextILPSolver(annotationUtils, 0.4, verbose = false, weight)
-//                evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, solver)
-//                println("no-temporals/no true or false/weight: " + weight)
-//              }
+      //              (0.3 to 0.5 by 0.02).foreach{ weight =>
+      //                lazy val solver = new TextILPSolver(annotationUtils, 0.4, verbose = false, weight)
+      //                evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, solver)
+      //                println("no-temporals/no true or false/weight: " + weight)
+      //              }
       // evaluateTextSolverOnProcessBank(processReader, slidingWindowSolver)
       case 52 =>
         // write processBank on disk as json
@@ -1050,15 +1081,16 @@ object ExperimentsApp {
       case 54 =>
         // extract buggy squad examples:
         val qAndpPairs = trainReader.instances.flatMap { i => i.paragraphs.flatMap { p => p.questions.map(q => (q, p)) } }
-        qAndpPairs.foreach { case (q, p) =>
-          val problematic = q.answers.exists { ans =>
-            p.context.contains(s" ${ans.answerText} ")
-          }
-          if (problematic) {
-            println("annp: " + p.context)
-            println("q: " + q.questionText)
-            println("a: " + q.answers)
-          }
+        qAndpPairs.foreach {
+          case (q, p) =>
+            val problematic = q.answers.exists { ans =>
+              p.context.contains(s" ${ans.answerText} ")
+            }
+            if (problematic) {
+              println("annp: " + p.context)
+              println("q: " + q.questionText)
+              println("a: " + q.answers)
+            }
         }
 
       case 55 =>
@@ -1066,16 +1098,17 @@ object ExperimentsApp {
         import java.io._
         val pw = new PrintWriter(new File("processBank-train.tsv"))
         val qAndpPairs = processReader.trainingInstances.flatMap { p => p.questions.map(q => (q, p)) }
-        qAndpPairs.zipWithIndex.foreach { case ((q, p), idx) =>
-          println("==================================================")
-          println("Processed " + idx + " out of " + qAndpPairs.size)
-          val candidates = q.answers.map(_.answerText)
-          val correctIndex = q.correctIdxOpt.get
-          //val (selected, explanation) = textILPSolver.solve(q.questionText, candidates, p.context)
-          val correctLabel = q.answers(correctIndex).answerText
-          //val score = SolverUtils.assignCredit(selected, correctIndex, candidates.length)
-          //          pw.write(s"${q.questionText}\t${candidates.mkString("//")}\t${p.context}\t$correctIndex\t$score\n")
-          pw.write(s"${q.questionText}\t${candidates.mkString("//")}\t${p.context}\t$correctIndex\n")
+        qAndpPairs.zipWithIndex.foreach {
+          case ((q, p), idx) =>
+            println("==================================================")
+            println("Processed " + idx + " out of " + qAndpPairs.size)
+            val candidates = q.answers.map(_.answerText)
+            val correctIndex = q.correctIdxOpt.get
+            //val (selected, explanation) = textILPSolver.solve(q.questionText, candidates, p.context)
+            val correctLabel = q.answers(correctIndex).answerText
+            //val score = SolverUtils.assignCredit(selected, correctIndex, candidates.length)
+            //          pw.write(s"${q.questionText}\t${candidates.mkString("//")}\t${p.context}\t$correctIndex\t$score\n")
+            pw.write(s"${q.questionText}\t${candidates.mkString("//")}\t${p.context}\t$correctIndex\n")
         }
         pw.close()
       case 56 => testClauseView()
@@ -1143,8 +1176,7 @@ object ExperimentsApp {
         for {
           k <- 0 to 7 by 1
           j <- 0 to 10 by 1
-        }
-          experiment(k, j)
+        } experiment(k, j)
 
       // a few good selections
       // k: 0 / j: 5	0.8	30
@@ -1173,14 +1205,15 @@ object ExperimentsApp {
         import java.io._
         val pw = new PrintWriter(new File("bioProcessCoref.txt"))
         val list = processReader.trainingInstances ++ processReader.testInstances
-        list.zipWithIndex.foreach { case (p, idx) =>
-          println(" ===  processed " + idx + " out of  " + list.size)
-          val ta = annotationUtils.annotateWithCuratorCorefAndCache(p.context)
-          //          annotationUtils.curatorService.addView(ta, ViewNames.COREF_HEAD)
-          //          annotationUtils.curatorService.addView(ta, ViewNames.COREF_EXTENT)
-          val json = SerializationHelper.serializeToJson(ta)
-          pw.write(json + separator)
-          println(ta.getAvailableViews)
+        list.zipWithIndex.foreach {
+          case (p, idx) =>
+            println(" ===  processed " + idx + " out of  " + list.size)
+            val ta = annotationUtils.annotateWithCuratorCorefAndCache(p.context)
+            //          annotationUtils.curatorService.addView(ta, ViewNames.COREF_HEAD)
+            //          annotationUtils.curatorService.addView(ta, ViewNames.COREF_EXTENT)
+            val json = SerializationHelper.serializeToJson(ta)
+            pw.write(json + separator)
+            println(ta.getAvailableViews)
         }
         pw.close()
       case 64 =>
@@ -1192,8 +1225,7 @@ object ExperimentsApp {
           try {
             val ta = SerializationHelper.deserializeFromJson(l)
             println(ta.getAvailableViews)
-          }
-          catch {
+          } catch {
             case e: Exception =>
               println("catching the excepton . . . ")
               println(l)
@@ -1224,8 +1256,7 @@ object ExperimentsApp {
             val toksInSen1 = toks.filter(_.getSentenceId == sen1)
             val toksInSen2 = toks.filter(_.getSentenceId == sen2)
             toksInSen1.map(_.getLabel).toSet.intersect(toksInSen2.map(_.getLabel).toSet).size
-          }
-          else {
+          } else {
             0
           }
         }
@@ -1312,7 +1343,7 @@ object ExperimentsApp {
         val list = paragraphs.filter(_.questions.nonEmpty).foreach { p =>
           println("-------------------------------")
           val pCons = p.contextTAOpt.get.getView(ViewNames.SHALLOW_PARSE).asScala.toList
-          println("paragraph: " + pCons.zipWithIndex.map{case (c, i) => (c.getSurfaceForm, i) }.mkString)
+          println("paragraph: " + pCons.zipWithIndex.map { case (c, i) => (c.getSurfaceForm, i) }.mkString)
           p.questions.foreach { q =>
             println(">>>>>>>>")
             val qCons = q.qTAOpt.get.getView(ViewNames.SHALLOW_PARSE).asScala.toList
@@ -1323,7 +1354,7 @@ object ExperimentsApp {
             val a2Idx = getClosestIndex(ans2Cons, pCons)
             println(s"$qIdx\t$a1Idx\t$a2Idx\n")
             println("question: " + q.questionText)
-            println("answers: "+ q.answers)
+            println("answers: " + q.answers)
           }
         }
 
@@ -1400,6 +1431,91 @@ object ExperimentsApp {
         println(s"ratioB: $ratioB - b1: $b1 - b2: $b2")
         println(s"ratioC: $ratioC - c1: $c1 - c2: $c2")
         println("-----------------------")
+      /*
+      case 70 =>
+        // fill-in-blank question generator
+        val fitbGenerator = FillInTheBlankGenerator.mostRecent
+        val Qs = Seq(
+          "DNA ligase does what?",
+          "X inactivation occurs on the X chromosome that will become the barr body",
+          "What is caused by the interaction of RNA with the chromosome?",
+          "Gene flow interruption causes populations to be divided into geographically isolated subpopulations",
+          "What would happen if a population is not divided into geographically isolated subpopulations?",
+          "Which of the following events can occur at the same time?",
+          "What can separated gene pools produce?",
+          "Geographic separation may cause reproductive isolation",
+          "Allopatric speciation occurs when gene flow to and from the isolated population is blocked",
+          "Copying errors can result in leaving the most descendant molecules",
+          "What do copying errors produce?",
+          "Carbon-12 slowly decays into nitrogen-14.",
+          "What happens when an organism dies?",
+          "What is destroyed?",
+          "What can be produced if crop plants carrying genes for resistance pollinated wild ones?",
+          "Which of the following is transcribed from the template strand of a gene?",
+          "What is the role of RNA polymerase II?",
+          "What happens after the pre-mRNA is released?",
+          "What is produced by enzymes that modify the chromatin?",
+          "Which entities are responsible for breaking DNA?",
+          "What can separated gene pools produce?"
+        )
+        Qs.foreach { questionStr =>
+          val qparse = QuestionParse.constructFromString(questionStr)
+          val fitbQuestionStrOpt = fitbGenerator.generateFITB(qparse).map(_.text)
+          println(questionStr + " -> " + fitbQuestionStrOpt)
+        }
+      case 71 =>
+        var numberTriggered = 0
+        var numberAnsweredCorrectly = 0
+        val fitbGenerator = FillInTheBlankGenerator.mostRecent
+        val paragraphs = processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals
+        paragraphs.foreach { p =>
+          p.questions.foreach { q =>
+            val qparse = QuestionParse.constructFromString(q.questionText)
+            val fitbQuestionStrOpt = fitbGenerator.generateFITB(qparse).map(_.text)
+            fitbQuestionStrOpt match {
+              case Some(x) =>
+                val str1 = x.replace("BLANK_", q.answers(0).answerText).dropRight(1).toLowerCase
+                println("String to search:  " + str1)
+                val str2 = x.replace("BLANK_", q.answers(1).answerText).dropRight(1).toLowerCase
+                println("String to search:  " + str2)
+                if (q.questionText.contains(str1)) {
+                  numberTriggered += 1
+                  if (q.correctIdxOpt.get == 0) {
+                    numberAnsweredCorrectly += 1
+                  }
+                }
+                if (q.questionText.contains(str2)) {
+                  numberTriggered += 1
+                  if (q.correctIdxOpt.get == 1) {
+                    numberAnsweredCorrectly += 1
+                  }
+                }
+              case None => // do nothing
+            }
+          }
+        }
+
+        println("Ratio: " + numberAnsweredCorrectly.toDouble / numberTriggered)
+        println("numberTriggered: " + numberTriggered)
+        */
+      case 72 =>
+        // testing similarity tools
+        //        Levenshtein.printDistance("kitten", "sitting")
+        //        Levenshtein.printDistance("rosettacode", "raisethysword")
+        val paragraph = "Genes conferring useful traits, such as pest resistance, herbicide resistance, delayed ripening, " +
+          "and increased nutritional value, can be transferred from one plant variety or species to another using the Ti " +
+          "plasmid as a vector. Technique Results Transformed cells carrying the transgene of interest can regenerate complete " +
+          "plants that exhibit the new trait conferred by the transgene. Genetic engineering is rapidly replacing traditional " +
+          "plant-breeding programs, especially for useful traits, such as herbicide or pest resistance, determined by one or a " +
+          "few genes. Crops engineered with a bacterial gene making the plants resistant to herbicides can grow while weeds are " +
+          "destroyed, and genetically engineered crops that can resist destructive insects reduce the need for chemical insecticides."
+        val question = "weeds will be destroyed"
+        //        Levenshtein.printDistance(paragraph, question)
+        //println(SimilarityUtils.lcs[Char](paragraph.toList, question.toList).mkString)
+        println(SimilarityUtils.lcsM(paragraph.toList, question.toList))
+        println(SimilarityUtils.lcsM(question.toList, paragraph.toList))
+      case 73 =>
+
     }
   }
 }

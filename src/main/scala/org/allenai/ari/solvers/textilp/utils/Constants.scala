@@ -7,12 +7,12 @@ import redis.clients.jedis.Protocol
 object Constants {
   val squadTrainingDataFile = new File("other/questionSets/squad-train-v1.1.json")
   val squadDevDataFile = new File("other/questionSets/squad-dev-v1.1.json")
-  val queryLink = "http://aristo-docker-swarm.dev.allenai.org:8080/ask?text="  // "http://aristo-dev.dev.ai2:8080/ask?text="
+  val queryLink = "http://aristo-docker-swarm.dev.allenai.org:8080/ask?text=" // "http://aristo-dev.dev.ai2:8080/ask?text="
 
   val useRedisCachingForAnnotation = true
   val useRedisCachingForElasticSearch = false
 
-  val redisServer = "localhost" // "tableilp-light.dev.ai2"  //  //"tableilp16c1.dev.ai2"
+  val redisServer = "tableilp-light.dev.ai2"  //  //"tableilp16c1.dev.ai2" "localhost"
   val redisPort = Protocol.DEFAULT_PORT
   val timeout = 20000
 

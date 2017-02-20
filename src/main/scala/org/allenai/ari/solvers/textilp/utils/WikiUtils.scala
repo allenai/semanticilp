@@ -2,7 +2,7 @@ package org.allenai.ari.solvers.textilp.utils
 
 import java.net.URLEncoder
 
-import org.allenai.ari.solvers.textilp.{Paragraph, Question}
+import org.allenai.ari.solvers.textilp.{ Paragraph, Question }
 import org.allenai.common.cache.JsonQueryCache
 
 import scala.io.Source
@@ -16,7 +16,7 @@ object WikiUtils {
     val json = Json.parse(jsonString)
     (json \\ "title").map { jsValue =>
       jsValue.as[JsString]
-    }.collect{case jsValue if !jsValue.value.contains("List of") && !jsValue.value.contains("Template:") => jsValue.value}
+    }.collect { case jsValue if !jsValue.value.contains("List of") && !jsValue.value.contains("Template:") => jsValue.value }
   }
 
   // the Bishop
@@ -28,15 +28,14 @@ object WikiUtils {
     val json = Json.parse(jsonString)
     (json \\ "title").map { jsValue =>
       jsValue.as[JsString]
-    }.collect{case jsValue if jsValue.value.contains("Category:") => jsValue.value}
+    }.collect { case jsValue if jsValue.value.contains("Category:") => jsValue.value }
   }
 
   def extractCategoryOfWikipageRecursively(wikipageMentions: Seq[String], depth: Int): Seq[String] = {
-    if(depth > 0) {
-      val mentionsDepthLower = wikipageMentions.flatMap{ m => extractCategoryOfWikipage(m) }
+    if (depth > 0) {
+      val mentionsDepthLower = wikipageMentions.flatMap { m => extractCategoryOfWikipage(m) }
       extractCategoryOfWikipageRecursively(mentionsDepthLower.toSet.union(wikipageMentions.toSet).toSeq, depth - 1)
-    }
-    else {
+    } else {
       wikipageMentions
     }
   }
@@ -49,7 +48,7 @@ object WikiUtils {
     val json = Json.parse(jsonString)
     (json \\ "wikibase_item").map { jsValue =>
       jsValue.as[JsString]
-    }.map{ _.value }.headOption
+    }.map { _.value }.headOption
   }
 
   // important WikiData relations
@@ -71,11 +70,11 @@ object WikiUtils {
     val color = "Q1075"
   }
 
-//  def wikiAskQueryWithMaxRepetition(qStr: String, pStr: String, property: String, maxRepetition: Int): Boolean = {
-//    val result = (1 to maxRepetition).exists(wikiAskQuery(qStr, pStr, property, _))
-//    println(s"$qStr -> $property -> $pStr: $result")
-//    result
-//  }
+  //  def wikiAskQueryWithMaxRepetition(qStr: String, pStr: String, property: String, maxRepetition: Int): Boolean = {
+  //    val result = (1 to maxRepetition).exists(wikiAskQuery(qStr, pStr, property, _))
+  //    println(s"$qStr -> $property -> $pStr: $result")
+  //    result
+  //  }
 
   import redis.clients.jedis.Protocol
   import spray.json.DefaultJsonProtocol._
@@ -163,10 +162,9 @@ object WikiUtils {
     val eId1 = getWikiDataId(e1)
     val eId2 = getWikiDataId(e2)
     //println(eId1 + "  /  " + eId2)
-    if(eId1.isDefined && eId2.isDefined) {
+    if (eId1.isDefined && eId2.isDefined) {
       wikiDistanceWithIds(eId1.get, eId2.get)
-    }
-    else {
+    } else {
       20
     }
   }

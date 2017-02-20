@@ -14,8 +14,8 @@ case class ScipCons(ptr: Long) extends IlpCons
   * steps and access to the SCIP environment. This class is NOT guaranteed to be thread-safe!
   */
 class ScipSolver(
-    probName: String,
-    scipParams: ScipParams
+  probName: String,
+  scipParams: ScipParams
 ) extends IlpSolver[ScipVar, ScipCons] with Logging {
   // Min and max values to use when defining the model
   // TODO(ashish33) check how to access SCIP's built-in SCIP_REAL_MAX, etc.
@@ -495,8 +495,8 @@ class ScipSolver(
     // now do branch-and-bound search using solve()
     env.solve(scip)
 
-//    logger.info(s"Solution status: $getStatus")
-//    logger.info(s"Objective value: $getPrimalbound")
+    //    logger.info(s"Solution status: $getStatus")
+    //    logger.info(s"Objective value: $getPrimalbound")
   }
 
   /** Reset after calling solve() so that more constraint may be added */
