@@ -4,23 +4,22 @@ import java.io.File
 
 import edu.illinois.cs.cogcomp.McTest.MCTestBaseline
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
-import edu.illinois.cs.cogcomp.core.utilities.{ DummyTextAnnotationGenerator, SerializationHelper }
+import edu.illinois.cs.cogcomp.core.utilities.{DummyTextAnnotationGenerator, SerializationHelper}
 import edu.illinois.cs.cogcomp.core.utilities.configuration.ResourceManager
 import org.allenai.ari.solvers.bioProccess.ProcessBankReader
 import org.allenai.ari.solvers.squad.SQuADReader
-import org.allenai.ari.solvers.textilp.solvers.SlidingWindowSolver
+import org.allenai.ari.solvers.textilp.solvers._
 import play.api.libs.json.Json
 import org.allenai.ari.solvers.squad.SquadClassifierUtils._
-import org.allenai.ari.solvers.squad.{ CandidateGeneration, SquadClassifier, SquadClassifierUtils, TextAnnotationPatternExtractor }
+import org.allenai.ari.solvers.squad.{CandidateGeneration, SquadClassifier, SquadClassifierUtils, TextAnnotationPatternExtractor}
 import org.allenai.ari.solvers.textilp.alignment.AlignmentFunction
-import org.allenai.ari.solvers.textilp.solvers.{ LuceneSolver, SalienceSolver, TextILPSolver, TextSolver }
 import org.allenai.ari.solvers.textilp.utils.WikiUtils.WikiDataProperties
 import org.allenai.ari.solvers.textilp.utils._
 import org.rogach.scallop._
 
 import scala.collection.JavaConverters._
 import ProcessBankReader._
-import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{ Constituent, TextAnnotation }
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, TextAnnotation}
 import edu.illinois.cs.cogcomp.edison.annotators.ClauseViewGenerator
 //import org.allenai.ari.controller.questionparser.{ FillInTheBlankGenerator, QuestionParse }
 import org.allenai.ari.solvers.textilp.ResultJson._
@@ -32,7 +31,8 @@ import scala.io.Source
 
 object ExperimentsApp {
   lazy val annotationUtils = new AnnotationUtils()
-  lazy val textILPSolver = new TextILPSolver(annotationUtils, 0.4, false, 0.33)
+  val params = TextIlpParams(0.4, 0.33)
+  lazy val textILPSolver = new TextILPSolver(annotationUtils, false, params)
   lazy val salienceSolver = new SalienceSolver()
   lazy val luceneSolver = new LuceneSolver()
   lazy val slidingWindowSolver = new SlidingWindowSolver()
@@ -507,7 +507,8 @@ object ExperimentsApp {
   def main(args: Array[String]): Unit = {
     lazy val trainReader = new SQuADReader(Constants.squadTrainingDataFile, Some(annotationUtils.pipelineService), annotationUtils)
     lazy val devReader = new SQuADReader(Constants.squadDevDataFile, Some(annotationUtils.pipelineService), annotationUtils)
-    lazy val processReader = new ProcessBankReader(true, annotationUtils)
+    //lazy val processReader = new ProcessBankReader(true, annotationUtils)
+    lazy val processReader = new ProcessBankReader(false, annotationUtils)
     val parser = new ArgumentParser(args)
     parser.experimentType() match {
       case 1 => generateCandiateAnswers(devReader)

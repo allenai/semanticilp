@@ -83,9 +83,15 @@ object TextILPSolver {
   lazy val offlineAligner = new AlignmentFunction("Entailment", 0.2, TextILPSolver.keywordTokenizer, useRedisCache = false, useContextInRedisCache = false)
 }
 
-class TextILPSolver(annotationUtils: AnnotationUtils, alignmentThreshold: Double, verbose: Boolean = true, activeQuestionTermWeight: Double) extends TextSolver {
+case class TextIlpParams(
+                          alignmentThreshold: Double,
+                         activeQuestionTermWeight: Double
+                        )
 
-  lazy val aligner = new AlignmentFunction("Entailment", alignmentThreshold, TextILPSolver.keywordTokenizer, useRedisCache = false, useContextInRedisCache = false)
+class TextILPSolver(annotationUtils: AnnotationUtils, verbose: Boolean = true, params: TextIlpParams) extends TextSolver {
+
+  lazy val aligner = new AlignmentFunction("Entailment", params.alignmentThreshold,
+    TextILPSolver.keywordTokenizer, useRedisCache = false, useContextInRedisCache = false)
 
   def solve(question: String, options: Seq[String], snippet: String): (Seq[Int], EntityRelationResult) = {
     val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
@@ -154,7 +160,9 @@ class TextILPSolver(annotationUtils: AnnotationUtils, alignmentThreshold: Double
     val questionParagraphAlignments = for {
       qCons <- qTokens
       pCons <- pTokens
-      score = alignmentFunction.scoreCellCell(qCons.getSurfaceForm, pCons.getSurfaceForm)
+      // TODO: make it QuestionCell score
+      questionCellDiscount = 0.0 // TODO: tune this
+      score = alignmentFunction.scoreCellCell(qCons.getSurfaceForm, pCons.getSurfaceForm) + questionCellDiscount
       x = ilpSolver.createBinaryVar("", score)
     } yield (qCons, pCons, x)
 
@@ -166,7 +174,9 @@ class TextILPSolver(annotationUtils: AnnotationUtils, alignmentThreshold: Double
           ansIdx <- aTokens.indices
           ansConsIdx <- aTokens(ansIdx).indices
           ansConsString = aTokens(ansIdx).apply(ansConsIdx)
-          score = alignmentFunction.scoreCellCell(pCons.getSurfaceForm, ansConsString)
+          paragraphAnswerDiscount = 0.0 // TODO: tune this
+          // TODO: make it QuestionCell score
+          score = alignmentFunction.scoreCellCell(pCons.getSurfaceForm, ansConsString) + paragraphAnswerDiscount
           x = ilpSolver.createBinaryVar("", score)
         } yield (pCons, ansIdx, ansConsIdx, x)
     } else {
@@ -269,7 +279,6 @@ class TextILPSolver(annotationUtils: AnnotationUtils, alignmentThreshold: Double
         }
     }
 
-
     // active sentences for the paragraph
     val activeSentences = for {
       s <- 0 until pTA.getNumberOfSentences
@@ -292,7 +301,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils, alignmentThreshold: Double
     // active questions cons
     val activeQuestionConstituents = for {
       t <- qTokens
-      weight = activeQuestionTermWeight /*if(q.questionText.isWhatDoesItDo) {
+      weight = params.activeQuestionTermWeight /*if(q.questionText.isWhatDoesItDo) {
         0.2
       }
       else {
@@ -339,11 +348,14 @@ class TextILPSolver(annotationUtils: AnnotationUtils, alignmentThreshold: Double
     // create edges between constituents which have an edge in the dependency parse
     // this edge can be active only if the base nodes are active
     def twoAnswerConsAreConnectedViaDependencyParse(ansIdx: Int, tokIdx1: Int, tokIdx2: Int): Boolean = {
+      println(s"ansIdx: $ansIdx, tokIdx1: $tokIdx1, tokIdx2: $tokIdx2")
       val cons1 = getAnswerOptionCons(ansIdx, tokIdx1)
       val cons2 = getAnswerOptionCons(ansIdx, tokIdx2)
+      println(s"cons1: $cons1 / cons2: $cons2")
       val ansDepView = q.answers(ansIdx).aTAOpt.get.getView(ViewNames.DEPENDENCY_STANFORD)
       val cons1InDep = ansDepView.getConstituentsCovering(cons1).asScala.headOption
       val cons2InDep = ansDepView.getConstituentsCovering(cons2).asScala.headOption
+      println(s"cons1InDep: $cons1InDep / cons2InDep: $cons2InDep")
       if(cons1InDep.isDefined && cons2InDep.isDefined) {
         val relations = ansDepView.getRelations.asScala
         println("relations:" + relations)
@@ -368,8 +380,10 @@ class TextILPSolver(annotationUtils: AnnotationUtils, alignmentThreshold: Double
         // this relation variable is active, only if its two sides are active
         val startVar = activeParagraphConstituents(startConsOpt.get)
         val targetVar = activeParagraphConstituents(targetConsOpt.get)
-        ilpSolver.addConsBasicLinear("dependencyVariableActiveOnlyIfSourceConsIsActive", Seq(x, startVar), Seq(1.0, -1.0), None, Some(0.0))
-        ilpSolver.addConsBasicLinear("dependencyVariableActiveOnlyIfSourceConsIsActive", Seq(x, targetVar), Seq(1.0, -1.0), None, Some(0.0))
+        ilpSolver.addConsBasicLinear("dependencyVariableActiveOnlyIfSourceConsIsActive",
+          Seq(x, startVar), Seq(1.0, -1.0), None, Some(0.0))
+        ilpSolver.addConsBasicLinear("dependencyVariableActiveOnlyIfSourceConsIsActive",
+          Seq(x, targetVar), Seq(1.0, -1.0), None, Some(0.0))
 
         val ansList1 = getAnswerOptionVariablesConnectedToParagraph(startConsOpt.get)
         val ansList2 = getAnswerOptionVariablesConnectedToParagraph(targetConsOpt.get)
@@ -378,7 +392,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils, alignmentThreshold: Double
           a <- ansList1
           b <- ansList2
           if a._1 == b._1 // same answer
-          //if a._2 != b._2 // different tok
+          if a._2 != b._2 // different tok
           if twoAnswerConsAreConnectedViaDependencyParse(a._1, a._2, b._2) // they are connected via dep parse
         }
           yield {
