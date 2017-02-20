@@ -81,7 +81,7 @@ object ExperimentsApp {
     println("number of relations: " + ta.getView(ViewNames.DEPENDENCY_STANFORD).getRelations.size())
     println("relations: " + ta.getView(ViewNames.DEPENDENCY_STANFORD).getRelations.asScala.mkString("\n"))
 
-    ta.getView(ViewNames.DEPENDENCY_STANFORD).getRelations.asScala.foreach{ r =>
+    ta.getView(ViewNames.DEPENDENCY_STANFORD).getRelations.asScala.foreach { r =>
       println("r.getSource: " + r.getSource)
       println("chunkView.getConstituentsCovering(r.getSource): " + chunkView.getConstituentsCovering(r.getSource))
       println("r.getTarget: " + r.getTarget)

@@ -91,7 +91,12 @@ class TextILPSolver(annotationUtils: AnnotationUtils, alignmentThreshold: Double
     val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
 //    val ilpSolver = new IllinoisInference(new OJalgoHook)
 //    val ilpSolver = new IllinoisInference(new GurobiHook)
-    val answers = options.map(o => Answer(o, -1, Some(annotationUtils.annotate(o))))
+    val answers = options.map{o =>
+  val ansTA = annotationUtils.pipelineService.createBasicTextAnnotation("", "", o)
+  annotationUtils.pipelineService.addView(ansTA, ViewNames.SHALLOW_PARSE)
+  annotationUtils.pipelineService.addView(ansTA, ViewNames.DEPENDENCY_STANFORD)
+  Answer(o, -1, Some(ansTA))
+}
 //    println("Tokenizing question .... ")
     val qTA = annotationUtils.pipelineService.createBasicTextAnnotation("", "", question)
     if(question.trim.nonEmpty) {
@@ -139,6 +144,10 @@ class TextILPSolver(annotationUtils: AnnotationUtils, alignmentThreshold: Double
     }
     else {
       q.answers.map(a => Seq(a.answerText))
+    }
+
+    def getAnswerOptionCons(ansIdx: Int, ansTokIdx: Int): Constituent = {
+      q.answers(ansIdx).aTAOpt.get.getView(ViewNames.SHALLOW_PARSE).getConstituents.get(ansTokIdx)
     }
 
     // create questionToken-paragraphToken alignment edges
@@ -195,6 +204,10 @@ class TextILPSolver(annotationUtils: AnnotationUtils, alignmentThreshold: Double
 
     def getVariablesConnectedToOption(ansIdx: Int): Seq[V] = {
       paragraphAnswerAlignments.filter { case (_, ansTmp, _, _) => ansTmp == ansIdx }.map(_._4)
+    }
+
+    def getAnswerOptionVariablesConnectedToParagraph(c: Constituent): Seq[(Int, Int, V)] = {
+      paragraphAnswerAlignments.filter { case (cTmp, ansIdxTmp, tokenIdxTmp, _) => cTmp == c }.map(tuple => (tuple._2, tuple._3, tuple._4))
     }
 
     def getVariablesConnectedToParagraphToken(c: Constituent): Seq[V] = {
@@ -325,19 +338,67 @@ class TextILPSolver(annotationUtils: AnnotationUtils, alignmentThreshold: Double
     // extra weight for alignment of paragraph constituents
     // create edges between constituents which have an edge in the dependency parse
     // this edge can be active only if the base nodes are active
+    def twoAnswerConsAreConnectedViaDependencyParse(ansIdx: Int, tokIdx1: Int, tokIdx2: Int): Boolean = {
+      val cons1 = getAnswerOptionCons(ansIdx, tokIdx1)
+      val cons2 = getAnswerOptionCons(ansIdx, tokIdx2)
+      val ansDepView = q.answers(ansIdx).aTAOpt.get.getView(ViewNames.DEPENDENCY_STANFORD)
+      val cons1InDep = ansDepView.getConstituentsCovering(cons1).asScala.headOption
+      val cons2InDep = ansDepView.getConstituentsCovering(cons2).asScala.headOption
+      if(cons1InDep.isDefined && cons2InDep.isDefined) {
+        val relations = ansDepView.getRelations.asScala
+        println("relations:" + relations)
+        relations.exists { r =>
+          (r.getSource == cons1InDep.get && r.getTarget == cons2InDep.get) ||
+            (r.getSource == cons2InDep.get && r.getTarget == cons1InDep.get)
+        }
+      }
+      else {
+        false
+      }
+    }
     val depView = p.contextTAOpt.get.getView(ViewNames.DEPENDENCY_STANFORD)
     val depRelations = depView.getRelations.asScala
     val edgeDependencyVariables = depRelations.zipWithIndex.map{ case (r, idx) =>
-      val firstOrderDependencyEdgeAlignments = 0.5 // TODO: tune this
+      val firstOrderDependencyEdgeAlignments = 0.1 // TODO: tune this
       val startConsOpt = getParagraphConsCovering(r.getSource)
       val targetConsOpt = getParagraphConsCovering(r.getTarget)
       if(startConsOpt.isDefined && targetConsOpt.isDefined && startConsOpt.get != targetConsOpt.get ) {
         val x = ilpSolver.createBinaryVar(s"Relation:$idx", firstOrderDependencyEdgeAlignments)
+
         // this relation variable is active, only if its two sides are active
         val startVar = activeParagraphConstituents(startConsOpt.get)
         val targetVar = activeParagraphConstituents(targetConsOpt.get)
         ilpSolver.addConsBasicLinear("dependencyVariableActiveOnlyIfSourceConsIsActive", Seq(x, startVar), Seq(1.0, -1.0), None, Some(0.0))
         ilpSolver.addConsBasicLinear("dependencyVariableActiveOnlyIfSourceConsIsActive", Seq(x, targetVar), Seq(1.0, -1.0), None, Some(0.0))
+
+        val ansList1 = getAnswerOptionVariablesConnectedToParagraph(startConsOpt.get)
+        val ansList2 = getAnswerOptionVariablesConnectedToParagraph(targetConsOpt.get)
+
+        val variablesPairsInAnswerOptionsWithDependencyRelation = for{
+          a <- ansList1
+          b <- ansList2
+          if a._1 == b._1 // same answer
+          //if a._2 != b._2 // different tok
+          if twoAnswerConsAreConnectedViaDependencyParse(a._1, a._2, b._2) // they are connected via dep parse
+        }
+          yield {
+            val weight = 0.0 // TODO: tune this
+            val activePair = ilpSolver.createBinaryVar(s"activeAnsweOptionPairs", weight)
+            ilpSolver.addConsBasicLinear("NoActivePairIfNonAreActive", Seq(a._3, b._3, activePair), Seq(-1.0, -1.0, 1.0), None, Some(0.0))
+            ilpSolver.addConsBasicLinear("NoActivePairIfNonAreActive", Seq(activePair, a._3), Seq(-1.0, 1.0), None, Some(0.0))
+            ilpSolver.addConsBasicLinear("NoActivePairIfNonAreActive", Seq(activePair, b._3), Seq(-1.0, 1.0), None, Some(0.0))
+            activePair
+          }
+        println("ansList1: " + ansList1)
+        println("ansList2: " + ansList2)
+        println("variablesPairsInAnswerOptionsWithDependencyRelation: " + variablesPairsInAnswerOptionsWithDependencyRelation.length)
+
+        // if the paragraph relation pair is active, at least one answer response pair should be active
+        // in other words
+        ilpSolver.addConsBasicLinear("atLeastOnePairShouldBeActive",
+          variablesPairsInAnswerOptionsWithDependencyRelation :+ x,
+          Array.fill(variablesPairsInAnswerOptionsWithDependencyRelation.length){-1.0} :+ 1.0, None, Some(0.0))
+
         Some(startConsOpt.get, targetConsOpt.get, x)
       }
       else {
