@@ -41,10 +41,11 @@ object SquadSolverDataModel extends DataModel {
     val indices = qp.question.answers.map { ans =>
       val charStart = ans.answerStart
       val c = qp.paragraph.contextTAOpt.get.getView(ViewNames.TOKENS).getConstituents.asScala.toList.
-        filter(c => c.getStartCharOffset <= charStart + 2 && c.getEndCharOffset >= charStart + 2)
-      require(c.nonEmpty)
-      val goldAnswerSenId = qp.paragraph.contextTAOpt.get.getSentenceId(c.head)
-      goldAnswerSenId
+        filter(c => c.getStartCharOffset <= charStart + 1 && c.getEndCharOffset >= charStart + 1)
+      require(c.nonEmpty,
+        s"ans: $ans / p.getView(ViewNames.TOKENS): ${qp.paragraph.contextTAOpt.get.getView(ViewNames.TOKENS).
+          getConstituents.asScala.map(c => c.getSurfaceForm + ": " + c.getSpan).mkString("/")}")
+      c.head.getSentenceId
     }.toSet
     require(indices.size == 1)
     indices(0)
