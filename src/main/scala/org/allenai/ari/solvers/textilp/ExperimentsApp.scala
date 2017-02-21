@@ -7,11 +7,10 @@ import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
 import edu.illinois.cs.cogcomp.core.utilities.{DummyTextAnnotationGenerator, SerializationHelper}
 import edu.illinois.cs.cogcomp.core.utilities.configuration.ResourceManager
 import org.allenai.ari.solvers.bioProccess.ProcessBankReader
-import org.allenai.ari.solvers.squad.SQuADReader
+import org.allenai.ari.solvers.squad._
 import org.allenai.ari.solvers.textilp.solvers._
 import play.api.libs.json.Json
 import org.allenai.ari.solvers.squad.SquadClassifierUtils._
-import org.allenai.ari.solvers.squad.{CandidateGeneration, SquadClassifier, SquadClassifierUtils, TextAnnotationPatternExtractor}
 import org.allenai.ari.solvers.textilp.alignment.AlignmentFunction
 import org.allenai.ari.solvers.textilp.utils.WikiUtils.WikiDataProperties
 import org.allenai.ari.solvers.textilp.utils._
@@ -31,7 +30,15 @@ import scala.io.Source
 
 object ExperimentsApp {
   lazy val annotationUtils = new AnnotationUtils()
-  val params = TextIlpParams(0.4, 0.33)
+  val params = TextIlpParams(
+    activeQuestionTermWeight = 0.33,
+    alignmentScoreDiscount = 0.0,
+    questionCellOffset = -0.4,
+    paragraphAnswerOffset = -0.4,
+    firstOrderDependencyEdgeAlignments = 0.0,
+    activeSentencesDiscount = -2.5,
+    activeParagraphConstituentsWeight = 0.0
+  )
   lazy val textILPSolver = new TextILPSolver(annotationUtils, false, params)
   lazy val salienceSolver = new SalienceSolver()
   lazy val luceneSolver = new LuceneSolver()
@@ -334,13 +341,13 @@ object ExperimentsApp {
     val qAndpPairs = list.flatMap { p => p.questions.map(q => (q, p)) }
     val (resultLists, confidences) = qAndpPairs.zipWithIndex.map {
       case ((q, p), idx) =>
-        println("==================================================")
-        println("Processed " + idx + " out of " + qAndpPairs.size)
+//        println("==================================================")
+//        println("Processed " + idx + " out of " + qAndpPairs.size)
         //      println("Paragraph: " + p)
         val candidates = q.answers.map(_.answerText)
         val correctIndex = q.correctIdxOpt.get
         //          println("correct answer: " + goldCandidates.head)
-        println("question: " + q.questionText)
+//        println("question: " + q.questionText)
         //          println("candidates: " + candidates)
         //          println("length of allCandidatesMinusCorrectOnes: " + allCandidatesMinusCorrectOnes.size)
         //          println("candidates.length: " + candidates.length)
@@ -348,7 +355,7 @@ object ExperimentsApp {
         val (selected, explanation) = textSolver.solve(q.questionText, candidates, p.context)
         val correctLabel = q.answers(correctIndex).answerText
         val score = SolverUtils.assignCredit(selected, correctIndex, candidates.length)
-        if (score < 0.5) println(" >>>>>>> Incorrect :" + score)
+//        if (score < 0.5) println(" >>>>>>> Incorrect :" + score)
         score -> (explanation.confidence -> correctLabel)
     }.unzip
 
@@ -457,7 +464,7 @@ object ExperimentsApp {
 
   def trainAndEvaluateSquadClassifier() = {
     import SquadClassifierUtils._
-    SquadClassifierUtils.populateInstances()
+//    SquadClassifierUtils.populateInstances()
     //    beginClassifier.learn(50)
     //endClassifier.learn(50)
     //    beginClassifier.save()
@@ -477,6 +484,10 @@ object ExperimentsApp {
     //    pairClassifier.test(SquadClassifierUtils.trainInstances)
     //    pairClassifier.test(SquadClassifierUtils.devInstances)
 
+
+    println("trainInstancesForSentenceIdClassifier: " + trainInstancesForSentenceIdClassifier.length)
+    println("devInstancesSentenceIdClassifier: " + devInstancesSentenceIdClassifier.length)
+    SquadSolverDataModel.pair.populate(trainInstancesForSentenceIdClassifier)
     sentenceIdClassifier.learn(20)
     sentenceIdClassifier.save()
     sentenceIdClassifier.test(SquadClassifierUtils.trainInstancesForSentenceIdClassifier)
@@ -963,17 +974,19 @@ object ExperimentsApp {
         //     evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterWhatDoesItDo, textILPSolver)
         //     println("filterWhatDoesItDo: ")
         //
-        evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
-        println("no-temporals/no true or false: ")
+//        evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
+//        println("no-temporals/no true or false: ")
       //
       //      evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals.filterNotWhatDoesItDo.filterNotCResultQuestions, textILPSolver)
       //      println("no-temporals/no true or false/filterNotWhatDoesItDo.filterNotCResultQuestions")
 
-      //              (0.3 to 0.5 by 0.02).foreach{ weight =>
-      //                lazy val solver = new TextILPSolver(annotationUtils, 0.4, verbose = false, weight)
-      //                evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, solver)
-      //                println("no-temporals/no true or false/weight: " + weight)
-      //              }
+        (-0.2 to 0.2 by 0.05).foreach{ weight =>
+          val newParams = params.copy(questionCellOffset = -0.4 + weight)
+          lazy val solver = new TextILPSolver(annotationUtils, verbose = false, newParams)
+          evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, solver)
+          println("no-temporals/no true or false/weight: " + weight)
+          println("-------------------")
+        }
       // evaluateTextSolverOnProcessBank(processReader, slidingWindowSolver)
       case 52 =>
         // write processBank on disk as json
