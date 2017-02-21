@@ -97,9 +97,8 @@ class AnnotationUtils {
   def annotate(string: String): TextAnnotation = {
     val cacheKey = "*TextAnnotations" + viewsToDisable.mkString("*") + viewsToAdd.mkString("*") + string
     val redisAnnotation = synchronizedRedisClient.get(cacheKey)
-    if (redisAnnotation.isDefined) {
-      SerializationHelper.deserializeFromJson(redisAnnotation.get)
-    } else {
+
+    def anno() = {
       //      println("------")
       //      println(string)
       //val textAnnotation = pipelineService.createAnnotatedTextAnnotation("", "", string)
@@ -114,6 +113,20 @@ class AnnotationUtils {
       //if (withQuantifier) quantifierAnnotator.addView(textAnnotation)
       synchronizedRedisClient.put(cacheKey, SerializationHelper.serializeToJson(textAnnotation))
       textAnnotation
+    }
+
+    if (redisAnnotation.isDefined) {
+      try {
+        SerializationHelper.deserializeFromJson(redisAnnotation.get)
+      } catch {
+        case e: java.lang.ArrayIndexOutOfBoundsException =>
+          println("Exception in deserialization. Here is the sentence: " + string)
+          println("And the full stacktrace: \n")
+          e.printStackTrace()
+          anno()
+      }
+    } else {
+      anno()
     }
   }
 
