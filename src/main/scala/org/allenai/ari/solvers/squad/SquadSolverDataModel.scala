@@ -39,7 +39,14 @@ object SquadSolverDataModel extends DataModel {
 
   val sentenceIdLabel = property(pair) { qp: QPPair =>
     val indices = qp.question.answers.map { ans =>
-      val charStart = ans.answerStart
+      val extracted = qp.paragraph.context.substring(ans.answerStart, ans.answerStart + ans.answerText.length)
+      val charStart = if(extracted != ans.answerText ) {
+        println(s"Char offset not correct. Looking for index of ${ans.answerText}")
+        qp.paragraph.context.indexOf(ans.answerText)
+      }
+      else {
+        ans.answerStart
+      }
       val c = qp.paragraph.contextTAOpt.get.getView(ViewNames.TOKENS).getConstituents.asScala.toList.
         filter(c => c.getStartCharOffset <= charStart + 1 && c.getEndCharOffset >= charStart + 1)
       require(c.nonEmpty,
