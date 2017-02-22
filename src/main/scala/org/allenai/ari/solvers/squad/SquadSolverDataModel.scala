@@ -43,7 +43,7 @@ object SquadSolverDataModel extends DataModel {
       val c = qp.paragraph.contextTAOpt.get.getView(ViewNames.TOKENS).getConstituents.asScala.toList.
         filter(c => c.getStartCharOffset <= charStart + 1 && c.getEndCharOffset >= charStart + 1)
       require(c.nonEmpty,
-        s"ans: $ans / p.getView(ViewNames.TOKENS): ${qp.paragraph.contextTAOpt.get.getView(ViewNames.TOKENS).
+        s"ans: $ans \n / paragraph: ${qp.paragraph.context} \n /  p.getView(ViewNames.TOKENS): ${qp.paragraph.contextTAOpt.get.getView(ViewNames.TOKENS).
           getConstituents.asScala.map(c => c.getSurfaceForm + ": " + c.getStartCharOffset + ", " + c.getEndCharOffset).mkString("/")}")
       c.head.getSentenceId
     }.toSet
