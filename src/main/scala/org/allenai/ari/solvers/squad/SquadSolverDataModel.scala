@@ -41,19 +41,22 @@ object SquadSolverDataModel extends DataModel {
     val indices = qp.question.answers.map { ans =>
       val beginIdx = ans.answerStart
       val lastIdx = ans.answerStart + ans.answerText.length
-      val extracted = if(lastIdx < qp.paragraph.context.length) qp.paragraph.context.substring(beginIdx, lastIdx) else ""
-      val charStart = if(extracted != ans.answerText ) {
-//        println(s"Char offset not correct. Looking for index of ${ans.answerText}")
+      val extracted = if (lastIdx < qp.paragraph.context.length) qp.paragraph.context.substring(beginIdx, lastIdx) else ""
+      val charStart = if (extracted != ans.answerText) {
+        //        println(s"Char offset not correct. Looking for index of ${ans.answerText}")
         qp.paragraph.context.indexOf(ans.answerText)
-      }
-      else {
+      } else {
         ans.answerStart
       }
       val c = qp.paragraph.contextTAOpt.get.getView(ViewNames.TOKENS).getConstituents.asScala.toList.
         filter(c => c.getStartCharOffset <= charStart + 1 && c.getEndCharOffset >= charStart + 1)
-      require(c.nonEmpty,
-        s"ans: $ans \n / paragraph: ${qp.paragraph.context} \n /  p.getView(ViewNames.TOKENS): ${qp.paragraph.contextTAOpt.get.getView(ViewNames.TOKENS).
-          getConstituents.asScala.map(c => c.getSurfaceForm + ": " + c.getStartCharOffset + ", " + c.getEndCharOffset).mkString("/")}")
+      require(
+        c.nonEmpty,
+        s"ans: $ans \n / paragraph: ${qp.paragraph.context} \n /  p.getView(ViewNames.TOKENS): ${
+          qp.paragraph.contextTAOpt.get.getView(ViewNames.TOKENS).
+            getConstituents.asScala.map(c => c.getSurfaceForm + ": " + c.getStartCharOffset + ", " + c.getEndCharOffset).mkString("/")
+        }"
+      )
       c.head.getSentenceId
     }.toSet
     require(indices.size == 1)
@@ -61,6 +64,25 @@ object SquadSolverDataModel extends DataModel {
   }
 
   val candidateLemma = (begin: Boolean) => property(pair) { qp: QPPair => getPLemmaLabel(qp, begin) }
+
+  val questionParagraphLemmaOverlapSize = property(pair) { qp: QPPair =>
+    val paragraphLemmas = qp.paragraph.contextTAOpt.get.getView(ViewNames.LEMMA).getConstituents.asScala.filter(_.getSentenceId == qp.sentenceIdOpt.get).map(_.getLabel)
+    val questionLemmas = qp.question.qTAOpt.get.getView(ViewNames.LEMMA).getConstituents.asScala.map(_.getLabel)
+    paragraphLemmas.intersect(questionLemmas).length
+  }
+
+  val answerParagraphSenLemmaOverlapSize = property(pair) { qp: QPPair =>
+    val paragraphLemmas = qp.paragraph.contextTAOpt.get.getView(ViewNames.LEMMA).getConstituents.asScala.filter(_.getSentenceId == qp.sentenceIdOpt.get).map(_.getLabel)
+    val answerTokens = qp.question.answers.flatMap(_.answerText.split(" "))
+    paragraphLemmas.intersect(answerTokens).length
+  }
+
+  val answerPlusQuestionParagraphSenLemmaOverlapSize = property(pair) { qp: QPPair =>
+    val paragraphLemmas = qp.paragraph.contextTAOpt.get.getView(ViewNames.LEMMA).getConstituents.asScala.filter(_.getSentenceId == qp.sentenceIdOpt.get).map(_.getLabel)
+    val answerTokens = qp.question.answers.flatMap(_.answerText.split(" "))
+    val questionLemmas = qp.question.qTAOpt.get.getView(ViewNames.LEMMA).getConstituents.asScala.map(_.getLabel)
+    paragraphLemmas.intersect(answerTokens union questionLemmas).length
+  }
 
   val questionContainsString = (str: String) => property(pair) { qp: QPPair =>
     qp.question.questionText.toLowerCase.contains(str)
@@ -486,9 +508,15 @@ object SquadSolverDataModel extends DataModel {
       lemmaLabelsOfSpan
     )
   }
+
+  val sentenceFeatures: List[Property[QPPair]] = List(
+    questionParagraphLemmaOverlapSize,
+    answerParagraphSenLemmaOverlapSize,
+    answerPlusQuestionParagraphSenLemmaOverlapSize
+  )
+
   // slidingWindowOfLemmaSizeWithinSentence(begin, 5),
   //val pairFeaturesWithContext = pairFeatures.map(p => conj2Collection(p, slidingWindowOfLemmaSizeWithinSentenceSpan(4)))
-
 }
 
 class SquadClassifier(cType: String = "begin") extends Learnable[QPPair](SquadSolverDataModel.pair) {
@@ -506,7 +534,7 @@ class SquadClassifier(cType: String = "begin") extends Learnable[QPPair](SquadSo
     case "end" => endFeatures
     case "pair" => List(lemmaLabelsOfSpan) // lengthOfSpan  pairFeatures //++ pairFeaturesWithContext ++   beginFeatures ++ endFeatures
     case "inside" => beginFeatures
-    case "sentId" => beginFeatures
+    case "sentId" => sentenceFeatures
     case _ => throw new Exception("Unknown classifier type")
   }
   override def feature = using(cFeatures)
