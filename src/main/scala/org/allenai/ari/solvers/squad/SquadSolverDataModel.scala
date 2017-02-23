@@ -43,7 +43,7 @@ object SquadSolverDataModel extends DataModel {
       val lastIdx = ans.answerStart + ans.answerText.length
       val extracted = if(lastIdx < qp.paragraph.context.length) qp.paragraph.context.substring(beginIdx, lastIdx) else ""
       val charStart = if(extracted != ans.answerText ) {
-        println(s"Char offset not correct. Looking for index of ${ans.answerText}")
+//        println(s"Char offset not correct. Looking for index of ${ans.answerText}")
         qp.paragraph.context.indexOf(ans.answerText)
       }
       else {
