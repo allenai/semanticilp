@@ -139,6 +139,7 @@ case class TextIlpParams(
 
                           // Paragraph: intra-sentence alignment
                           coreferenceWeight: Double,
+                          intraSentenceAlignmentScoreDiscount: Double,
                           entailmentWeight: Double,
                           srlAlignmentWeight: Double
                         )
@@ -480,15 +481,14 @@ class TextILPSolver(annotationUtils: AnnotationUtils, verbose: Boolean = true, p
       ilpSolver.addConsBasicLinear("onlyOneActiveOption", activeAnsVars, activeAnsVarsCoeffs, Some(1.0), Some(1.0))
     }
 
-/*
     // for each of the answer options create one variable, turning on when the number of the alignments to that answer
     // option is more than k
-    for{ k: Double <- 1.0 to 3.0 } {
+/*    (1 to 3).foreach{ k: Int =>
       activeAnswerOptions.foreach { case (ansIdx, _) =>
       val penalty = k match {
-        case 1.0  => params.moreThan1AlignmentAnsPenalty
-        case 2.0  => params.moreThan2AlignmentAnsPenalty
-        case 3.0  => params.moreThan3AlignmentAnsPenalty
+        case 1  => params.moreThan1AlignmentAnsPenalty
+        case 2  => params.moreThan2AlignmentAnsPenalty
+        case 3  => params.moreThan3AlignmentAnsPenalty
       }
         val moreThanKAlignnetbToAnswerOption = ilpSolver.createBinaryVar(s"moreThan${k}AlignmentAnsPenalty", penalty)
 
@@ -496,12 +496,10 @@ class TextILPSolver(annotationUtils: AnnotationUtils, verbose: Boolean = true, p
         val connectedVariables = getVariablesConnectedToOption(ansIdx).toList
         val len = connectedVariables.length
         ilpSolver.addConsBasicLinear("",
-          moreThanKAlignnetbToAnswerOption +: connectedVariables, (-len + k) +: Array.fill(len) {
-            1.0
-          }, None, Some(k))
+          moreThanKAlignnetbToAnswerOption +: connectedVariables, (-len + k.toDouble) +: Array.fill(len) {1.0}, None, Some(k))
       }
-    }
-*/
+    }*/
+
 
 /*    // for each of the question terms create one variable, turning on when the number of the alignments to the
     // constituent is more than k
@@ -513,8 +511,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils, verbose: Boolean = true, p
           case 3.0  => params.moreThan3AlignmentToQuestionTermPenalty
         }
         val moreThanKAlignnetbToQuestionCons = ilpSolver.createBinaryVar(
-          s"moreThan${k}AlignmentToQuestionConsPenalty",
-          params.moreThan1AlignmentAnsPenalty
+          s"moreThan${k}AlignmentToQuestionConsPenalty", penalty
         )
 
         // this gets activated, if the answer option has at least two active alignments
@@ -527,22 +524,22 @@ class TextILPSolver(annotationUtils: AnnotationUtils, verbose: Boolean = true, p
       }
     }*/
 
-/*    // there is an upper-bound on the max number of active tokens in each sentence
-    activeSentences.foreach {  case (ans, x) =>
+    // there is an upper-bound on the max number of active tokens in each sentence
+    activeSentences.foreach { case (ans, x) =>
         val connectedVariables = getVariablesConnectedToParagraphSentence(ans)
         ilpSolver.addConsBasicLinear("activeParagraphConsVar",
           connectedVariables, Array.fill(connectedVariables.length){1.0},
           None, Some(params.maxNumberOfWordsAlignedPerSentence))
-    }*/
+    }
 
     // among the words that are repeated in the paragraph, at most k of them can be active
     // first find the duplicate elements
-/*    val duplicates = pTokens.groupBy(_.getSurfaceForm).filter { case (x,ys) => ys.lengthCompare(1) > 0 }
+    val duplicates = pTokens.groupBy(_.getSurfaceForm).filter { case (x,ys) => ys.lengthCompare(1) > 0 }
     duplicates.foreach{ case (_, duplicateCons) =>
       val variables = duplicateCons.map(activeParagraphConstituents)
       ilpSolver.addConsBasicLinear("", variables, Array.fill(variables.length){1.0},
         None, Some(params.maxAlignmentToRepeatedWordsInParagraph))
-    }*/
+    }
 
     // have at most k active sentence
     val (_, sentenceVars) = activeSentences.unzip
@@ -570,7 +567,9 @@ class TextILPSolver(annotationUtils: AnnotationUtils, verbose: Boolean = true, p
               // maxIdx should be the answer
               ilpSolver.addConsBasicLinear(s"directAnswer-${maxIdx}AnswerMustBeCorrect",
                 Seq(activeAnswerOptions(maxIdx)._2), Seq(1.0), Some(1.0), None)
-          } else {
+          }
+        // Daniel: Commented our because it didn't seem to help
+        /*else {
             // if not hard constraint, do soft weighting
             indexScorePairs.foreach { case (idx, score) =>
               require(score * params.exactMatchSoftWeight >= 0, "exactMatchSoftWeighting should be positive")
@@ -579,7 +578,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils, verbose: Boolean = true, p
               ilpSolver.addConsBasicLinear(s"directAnswerSoftWeight-$idx",
                 Seq(x, activeAnswerOptions(idx)._2), Seq(1.0, -1.0), None, Some(0.0))
             }
-          }
+          }*/
         case None => // do nothing
       }
     }
@@ -676,6 +675,22 @@ class TextILPSolver(annotationUtils: AnnotationUtils, verbose: Boolean = true, p
         // co-reference
     */
 
+
+/*
+    require(params.coreferenceWeight>=0, "params.coreferenceWeight should be positive")
+    val corefCons = if (pTA.hasView(ViewNames.COREF)) pTA.getView(ViewNames.COREF).getConstituents.asScala else Seq.empty
+    corefCons.groupBy(_.getLabel).foreach{ case (_, cons) =>  // cons that have the same label are co-refered
+      cons.zipWithIndex.combinations(2).foreach{ consPair =>
+        val x = ilpSolver.createBinaryVar(s"coredEdgeVariable${consPair.head._2}-${consPair(1)._2}", params.coreferenceWeight)
+        val x1 = activeParagraphConstituents(consPair.head._1)
+        val x2 = activeParagraphConstituents(consPair(1)._1)
+        ilpSolver.addConsBasicLinear(s"coreEdgePairCons-${consPair.head._2}", Seq(x, x1), Seq(1.0, 1.0), None, Some(0.0))
+        ilpSolver.addConsBasicLinear(s"coreEdgePairCons-${consPair(1)._2}", Seq(x, x2), Seq(1.0, 1.0), None, Some(0.0))
+      }
+    }
+*/
+
+
     // longer than 1 answer penalty
     activeAnswerOptions.foreach{ case (ansIdx, activeAnsVar) =>
       val ansTokList = aTokens(ansIdx)
@@ -695,9 +710,6 @@ class TextILPSolver(annotationUtils: AnnotationUtils, verbose: Boolean = true, p
           Seq(x, activeAnsVar), Seq(-1.0, 1.0), None, Some(0.0))
       }
     }
-
-    // alignment between the constituents
-
 
     // use at least k constituents in the question
     val (_, questionVars) = activeQuestionConstituents.unzip
