@@ -105,7 +105,34 @@ case class TextIlpParams(
 
                           longerThan1AnsPenalty: Double,
                           longerThan2AnsPenalty: Double,
-                          longerThan3AnsPenalty: Double
+                          longerThan3AnsPenalty: Double,
+
+                          // Answers: sparsity
+                          moreThan1AlignmentAnsPenalty: Double,
+                          moreThan2AlignmentAnsPenalty: Double,
+                          moreThan3AlignmentAnsPenalty: Double,
+
+                          // Question: sparsity
+                          moreThan1AlignmentQuestionTermPenalty: Double,
+                          moreThan2AlignmentQuestionTermPenalty: Double,
+                          moreThan3AlignmentQuestionTermPenalty: Double,
+
+                          // Paragraph: proximity inducing
+                          activeDist1WordsAlignmentBoost: Double,
+                          activeDist2WordsAlignmentBoost: Double,
+                          activeDist3WordsAlignmentBoost: Double,
+
+                          // Paragraph: sparsity
+                          maxNumberOfWordsAlignmedPerSentence: Int,
+                          maxAlignmentToRepeatedWordsInParagraph: Int,
+                          moreThan1AlignmentParagraphPenalty: Double,
+                          moreThan2AlignmentParagraphPenalty: Double,
+                          moreThan3AlignmentParagraphPenalty: Double,
+
+                          // Paragraph: intra-sentence alignment
+                          coreferenceWeight: Double,
+                          entailmentWeight: Double,
+                          srlAlignmentWeight: Double
                         )
 
 class TextILPSolver(annotationUtils: AnnotationUtils, verbose: Boolean = true, params: TextIlpParams) extends TextSolver {

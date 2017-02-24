@@ -552,8 +552,16 @@ object ExperimentsApp {
         //        println("==== public dev ")
         //        evaluateTextilpOnRegents(SolverUtils.publicTest)
         //        println("==== public test ")
-        evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver)
-      //        println("==== regents train  ")
+        //        evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver)
+        //        println("==== regents train  ")
+        evaluateTextSolverOnRegents(SolverUtils.regentsPerturbed, luceneSolver)
+        println("==== regents perturbed  ")
+        evaluateTextSolverOnRegents(SolverUtils.publicTest, luceneSolver)
+        println("==== public test  ")
+        evaluateTextSolverOnRegents(SolverUtils.regentsTest, luceneSolver)
+        println("==== regents test  ")
+        evaluateTextSolverOnRegents(SolverUtils.omnibusTest, luceneSolver)
+        println("==== omnibus test  ")
       case 12 => extractKnowledgeSnippet()
       case 13 => testSquadPythonEvaluationScript()
       case 14 =>
@@ -1591,16 +1599,67 @@ object ExperimentsApp {
           println(metric.toString + "\t" + unzippedR._1.mkString(", "))
           println(metric.toString + "\t" + unzippedR._2.mkString(", "))
         }
+
+        def compareSimilairityInWndow(p: Paragraph, questionString: String,
+                                      windowSize: Int, metric: StringMetric): Double = {
+          val paragraphTokens = p.contextTAOpt.get.getTokens
+          val paragraphSize = paragraphTokens.length
+          (0 until paragraphSize - windowSize).map { startIdx =>
+            val endIdx = startIdx + windowSize
+            val paragraphWindow = paragraphTokens.slice(startIdx, endIdx).mkString(" ")
+            metric.compare(paragraphWindow, questionString)
+          }.max
+        }
+
+      case 75 =>
+        // string overlap for answer selection
+        val fitbGenerator = FillInTheBlankGenerator.mostRecent
+        val paragraphs = processReader.trainingInstances.filterNotTemporals.filterNotTrueFalse
+          val thresholds = -0.05 to 1.0 by 0.05
+          val results = thresholds.map { th =>
+            var numberTriggered = 0
+            var numberAnsweredCorrectly = 0
+            paragraphs.foreach { p =>
+              p.questions.foreach { q =>
+                val qparse = QuestionParse.constructFromString(q.questionText)
+                val fitbQuestionStrOpt = fitbGenerator.generateFITB(qparse).map(_.text)
+                fitbQuestionStrOpt match {
+                  case Some(x) =>
+                    val str1 = x.replace("BLANK_", q.answers(0).answerText).dropRight(1).toLowerCase
+                    val str2 = x.replace("BLANK_", q.answers(1).answerText).dropRight(1).toLowerCase
+                    //                    val score1 = metric.compare(str1, p.context)
+                    //                    val score2 = metric.compare(str2, p.context)
+                    val score1 = compareSimilairityInWndow2(p.context.split(" "), str1.split(" "),
+                      q.qTAOpt.get.getTokens.length + q.answers(0).aTAOpt.get.getTokens.length)
+                    val score2 = compareSimilairityInWndow2(p.context.split(" "), str2.split(" "),
+                      q.qTAOpt.get.getTokens.length + q.answers(1).aTAOpt.get.getTokens.length)
+                    val maxS = math.max(score1, score2)
+                    if (maxS > th) {
+                      numberTriggered += 1
+                      if (q.correctIdxOpt.get == 0 && score1 > score2) {
+                        numberAnsweredCorrectly += 1
+                      }
+                      if (q.correctIdxOpt.get == 1 && score1 < score2) {
+                        numberAnsweredCorrectly += 1
+                      }
+                    }
+                  case None => // do nothing
+                }
+              }
+            }
+            numberAnsweredCorrectly.toDouble / numberTriggered -> numberTriggered
+          }
+          val unzippedR = results.unzip
+          println("stringOveralp" + "\t" + unzippedR._1.mkString(", "))
+          println("stringOverlap" + "\t" + unzippedR._2.mkString(", "))
     }
 
-    def compareSimilairityInWndow(p: Paragraph, questionString: String,
-      windowSize: Int, metric: StringMetric): Double = {
-      val paragraphTokens = p.contextTAOpt.get.getTokens
-      val paragraphSize = paragraphTokens.length
+    def compareSimilairityInWndow2(p: Array[String], q: Array[String], windowSize: Int): Double = {
+      val paragraphSize = p.length
       (0 until paragraphSize - windowSize).map { startIdx =>
         val endIdx = startIdx + windowSize
-        val paragraphWindow = paragraphTokens.slice(startIdx, endIdx).mkString(" ")
-        metric.compare(paragraphWindow, questionString)
+        val paragraphWindow = p.slice(startIdx, endIdx)
+        paragraphWindow.toSet.intersect(q.toSet).size
       }.max
     }
   }

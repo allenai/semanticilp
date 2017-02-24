@@ -178,6 +178,8 @@ object SolverUtils {
   lazy val publicTest = loadQuestions("Public-Feb2016-Elementary-NDMC-Test.tsv")
   lazy val publicDev = loadQuestions("Public-Feb2016-Elementary-NDMC-Dev.tsv")
   lazy val regentsTrain = loadQuestions("Regents-Gr04-NDMC-Train.tsv")
+  lazy val regentsTest = loadQuestions("Regents-Gr04-NDMC-Test.tsv")
+  lazy val regentsPerturbed = loadQuestions("regents-train-perturbed.tsv")
   lazy val small = loadQuestions("small.tsv")
 
   def loadQuestions(fileName: String): Seq[(String, Seq[String], String)] = {
