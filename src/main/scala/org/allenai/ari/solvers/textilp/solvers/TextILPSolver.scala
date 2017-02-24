@@ -93,8 +93,19 @@ case class TextIlpParams(
                           questionCellOffset: Double,
                           paragraphAnswerOffset: Double,
                           firstOrderDependencyEdgeAlignments: Double,
+                          activeParagraphConstituentsWeight: Double,
+
+                          minQuestiontTermsAligned: Int,
+                          maxQuestiontTermsAligned: Int,
+                          minQuestiontTermsAlignedRatio: Double,
+                          maxQuestiontTermsAlignedRatio: Double,
+
                           activeSentencesDiscount: Double,
-                          activeParagraphConstituentsWeight: Double
+                          maxActiveSentences: Int,
+
+                          longerThan1AnsPenalty: Double,
+                          longerThan2AnsPenalty: Double,
+                          longerThan3AnsPenalty: Double
                         )
 
 class TextILPSolver(annotationUtils: AnnotationUtils, verbose: Boolean = true, params: TextIlpParams) extends TextSolver {
@@ -292,7 +303,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils, verbose: Boolean = true, p
     // active sentences for the paragraph
     val activeSentences = for {
       s <- 0 until pTA.getNumberOfSentences
-      x = ilpSolver.createBinaryVar("activeSentence:" + s, params.activeSentencesDiscount)
+      // alignment is preferred for lesser sentences; hence: negative activeSentenceDiscount
+        x = ilpSolver.createBinaryVar("activeSentence:" + s, params.activeSentencesDiscount)
     } yield (s, x)
     // the paragraph constituent variable is active if anything connected to it is active
     activeSentences.foreach {
@@ -433,19 +445,13 @@ class TextILPSolver(annotationUtils: AnnotationUtils, verbose: Boolean = true, p
       ilpSolver.addConsBasicLinear("onlyOneActiveOption", activeAnsVars, activeAnsVarsCoeffs, Some(1.0), Some(1.0))
     }
 
-    // have at most one active sentence
-    if (true) {
-      val (_, sentenceVars) = activeSentences.unzip
-      val sentenceVarsCoeffs = Seq.fill(sentenceVars.length)(1.0)
-      ilpSolver.addConsBasicLinear("maxActiveParagraphConsVar", sentenceVars, sentenceVarsCoeffs, Some(0.0), Some(2.0))
-    } else {
-      // do nothing
-    }
+    // have at most k active sentence
+    val (_, sentenceVars) = activeSentences.unzip
+    val sentenceVarsCoeffs = Seq.fill(sentenceVars.length)(1.0)
+    ilpSolver.addConsBasicLinear("maxActiveParagraphConsVar", sentenceVars, sentenceVarsCoeffs,
+      Some(0.0), Some(params.maxActiveSentences))
 
-    // sparsity parameters
-    // alignment is preferred for lesser sentences
-
-    // exact match
+    // TODO (exact match): if there is a good match between the question
 
     // for result questions ...
     if (q.questionText.isForCResultQuestion && activeAnswerOptions.length == 2) {
@@ -495,23 +501,27 @@ class TextILPSolver(annotationUtils: AnnotationUtils, verbose: Boolean = true, p
       if (a1Idx < qIdx && a2Idx > qIdx) {
         // at least one of the answers happens before the question
         // the second one is the answer
-        ilpSolver.addConsBasicLinear("resultReasoning-secondAnswerMustBeCorrect", Seq(activeAnswerOptions(1)._2), Seq(1.0), Some(1.0), None)
+        ilpSolver.addConsBasicLinear("resultReasoning-secondAnswerMustBeCorrect", Seq(activeAnswerOptions(1)._2),
+          Seq(1.0), Some(1.0), None)
       }
       if (a1Idx > qIdx && a2Idx < qIdx) {
         // at least one of the answers happens before the question
         // the first one is the answer
-        ilpSolver.addConsBasicLinear("resultReasoning-firstAnswerMustBeCorrect", Seq(activeAnswerOptions(0)._2), Seq(1.0), Some(1.0), None)
+        ilpSolver.addConsBasicLinear("resultReasoning-firstAnswerMustBeCorrect", Seq(activeAnswerOptions(0)._2),
+          Seq(1.0), Some(1.0), None)
       }
       // both after: closer is the answer
       if (a1Idx > qIdx && a2Idx > qIdx) {
         // at least one of the answers happens before the question
         if (a2Idx < a1Idx) {
           // the second one is the answer
-          ilpSolver.addConsBasicLinear("resultReasoning-secondAnswerMustBeCorrect", Seq(activeAnswerOptions(1)._2), Seq(1.0), Some(1.0), None)
+          ilpSolver.addConsBasicLinear("resultReasoning-secondAnswerMustBeCorrect", Seq(activeAnswerOptions(1)._2),
+            Seq(1.0), Some(1.0), None)
         }
         if (a2Idx > a1Idx) {
           // the first one is the answer
-          ilpSolver.addConsBasicLinear("resultReasoning-firstAnswerMustBeCorrect", Seq(activeAnswerOptions(0)._2), Seq(1.0), Some(1.0), None)
+          ilpSolver.addConsBasicLinear("resultReasoning-firstAnswerMustBeCorrect", Seq(activeAnswerOptions(0)._2),
+            Seq(1.0), Some(1.0), None)
         }
       }
     }
@@ -530,14 +540,38 @@ class TextILPSolver(annotationUtils: AnnotationUtils, verbose: Boolean = true, p
         // co-reference
     */
 
+    // longer than 1 answer penalty
+    activeAnswerOptions.foreach{ case (ansIdx, activeAnsVar) =>
+      val ansTokList = aTokens(ansIdx)
+      if(ansTokList.length > 1) {
+        val x = ilpSolver.createBinaryVar("longerThanOnePenalty", params.longerThan1AnsPenalty)
+        ilpSolver.addConsBasicLinear("longerThanOnePenaltyActiveOnlyWhenOptionIsActive",
+          Seq(x, activeAnsVar), Seq(-1.0, 1.0), None, Some(0.0))
+      }
+      if(ansTokList.length > 2) {
+        val x = ilpSolver.createBinaryVar("longerThanTwoPenalty", params.longerThan2AnsPenalty)
+        ilpSolver.addConsBasicLinear("longerThanOnePenaltyActiveOnlyWhenOptionIsActive",
+          Seq(x, activeAnsVar), Seq(-1.0, 1.0), None, Some(0.0))
+      }
+      if(ansTokList.length > 3) {
+        val x = ilpSolver.createBinaryVar("longerThanThreePenalty", params.longerThan3AnsPenalty)
+        ilpSolver.addConsBasicLinear("longerThanThreePenaltyActiveOnlyWhenOptionIsActive",
+          Seq(x, activeAnsVar), Seq(-1.0, 1.0), None, Some(0.0))
+      }
+    }
 
     // alignment between the constituents
 
+
     // use at least k constituents in the question
-    // TODO: make this parameterized
     val (_, questionVars) = activeQuestionConstituents.unzip
     val questionVarsCoeffs = Seq.fill(questionVars.length)(1.0)
-    ilpSolver.addConsBasicLinear("activeQuestionConsVar", questionVars, questionVarsCoeffs, Some(1.0), Some(3.0))
+    ilpSolver.addConsBasicLinear("activeQuestionConsVarNum", questionVars,
+      questionVarsCoeffs, Some(params.minQuestiontTermsAligned), Some(params.maxQuestiontTermsAligned))
+    ilpSolver.addConsBasicLinear("activeQuestionConsVarRatio", questionVars,
+      questionVarsCoeffs,
+      Some(params.minQuestiontTermsAlignedRatio * questionVars.length),
+      Some(params.maxQuestiontTermsAlignedRatio * questionVars.length))
 
     // if anything comes after " without " it should be aligned definitely
     // example: What would happen without annealing?

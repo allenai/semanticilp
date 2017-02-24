@@ -7,8 +7,8 @@ import org.allenai.ari.solvers.bioProccess.ProcessBankReader
 import org.allenai.ari.solvers.squad.CandidateGeneration
 import org.allenai.ari.solvers.textilp.ResultJson
 import org.allenai.ari.solvers.textilp.ResultJson._
-import org.allenai.ari.solvers.textilp.solvers.{ LuceneSolver, SalienceSolver, SlidingWindowSolver, TextILPSolver }
-import org.allenai.ari.solvers.textilp.utils.{ AnnotationUtils, SolverUtils }
+import org.allenai.ari.solvers.textilp.solvers._
+import org.allenai.ari.solvers.textilp.utils.{AnnotationUtils, SolverUtils}
 import play.api.mvc._
 import play.api.libs.json._
 
@@ -22,7 +22,16 @@ class SolveQuestion @Inject() extends Controller {
   lazy val luceneSolver = new LuceneSolver()
   lazy val slidingWindowSolver = new SlidingWindowSolver()
   lazy val annotationUtils = new AnnotationUtils()
-  lazy val textilpSolver = new TextILPSolver(annotationUtils, 0.4, true, 0.33)
+  val params = TextIlpParams(
+    activeQuestionTermWeight = 0.33,
+    alignmentScoreDiscount = 0.0, // not used
+    questionCellOffset = -0.4, // tuned
+    paragraphAnswerOffset = -0.4, // tuned
+    firstOrderDependencyEdgeAlignments = 0.0,
+    activeSentencesDiscount = -2.5, // tuned
+    activeParagraphConstituentsWeight = 0.0 // tuned
+  )
+  lazy val textilpSolver = new TextILPSolver(annotationUtils, verbose = true, params = params)
 
   /** Create an Action to render an HTML page with a welcome message.
     * The configuration in the `routes` file means that this method

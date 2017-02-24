@@ -13,18 +13,11 @@ lazy val commonSettings = Seq(
   version := "1.5",
   scalaVersion := "2.11.8",
   javaOptions ++= Seq("-Xmx25G", "-XX:MaxMetaspaceSize=5g"),
-  // Make sure SCIP libraries are locatable.
-  javaOptions += s"-Djava.library.path=lib",
-  envVars ++= Map(
-    "LD_LIBRARY_PATH" -> "lib",
-    "DYLD_LIBRARY_PATH" -> "lib"
-  ),
-  includeFilter in unmanagedJars := "*.jar" || "*.so" || "*.dylib",
   fork := true
 )
 
 // TODO(danm): This is used enough projects to be in allenai/sbt-plugins CoreDependencies.
-def nlpstack(component: String) = ("org.allenai.nlpstack" %% s"nlpstack-$component" % "1.17") // exclude("org.slf4j", "log4j-over-slf4j")
+def nlpstack(component: String) = ("org.allenai.nlpstack" %% s"nlpstack-$component" % "1.6") // exclude("org.slf4j", "log4j-over-slf4j")
   .exclude("commons-logging", "commons-logging")
   .exclude("edu.stanford.nlp", "stanford-corenlp")
   .exclude("org.slf4j", "log4j-over-slf4j")
@@ -81,12 +74,17 @@ lazy val root = (project in file(".")).
       nlpstack("tokenize"),
       nlpstack("postag"),
       nlpstack("core"),
+      nlpstack("parse"),
       sprayClient,
       "org.scalatest" % "scalatest_2.11" % "2.2.4",
       "org.elasticsearch" % "elasticsearch" % "2.4.1",
       "me.tongfei" % "progressbar" % "0.5.1",
       "org.apache.lucene" % "lucene-core" % "6.4.1",
-      "org.scalaz" %% "scalaz-core" % "7.2.8"
+      "org.scalaz" %% "scalaz-core" % "7.2.8",
+      "com.github.mpkorstanje" % "simmetrics-core" % "4.1.1",
+//      "com.quantifind" %% "wisp" % "0.0.4",
+      "io.github.pityka" %% "nspl-awt" % "0.0.7"//,
+//      "io.github.pityka" %% "nspl-scalatags-js" % "0.0.7"
     ),
     resolvers ++= Seq(
 //      "Artima Maven Repository" at "http://repo.artima.com/releases"
@@ -94,7 +92,15 @@ lazy val root = (project in file(".")).
       Resolver.bintrayRepo("allenai", "maven"),
       Resolver.bintrayRepo("allenai", "private"),
       "CogcompSoftware" at "http://cogcomp.cs.illinois.edu/m2repo/"
-    )
+    ),
+    // Make sure SCIP libraries are locatable.
+    javaOptions += s"-Djava.library.path=lib",
+    envVars ++= Map(
+      "LD_LIBRARY_PATH" -> "lib",
+      "DYLD_LIBRARY_PATH" -> "lib"
+    ),
+    //unmanagedBase := baseDirectory.value / "lib2",
+    includeFilter in unmanagedJars := "*.jar" || "*.so" || "*.dylib"
   )
 
 lazy val viz = (project in file("viz")).
@@ -117,4 +123,5 @@ lazy val viz = (project in file("viz")).
     projectDependencies := {
       Seq((projectID in root).value.exclude("org.slf4j", "slf4j-log4j12"))
     }
+    //, unmanagedBase := baseDirectory.value / "lib"
   )

@@ -4,7 +4,7 @@ import java.io.File
 
 import edu.illinois.cs.cogcomp.McTest.MCTestBaseline
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
-import edu.illinois.cs.cogcomp.core.utilities.{DummyTextAnnotationGenerator, SerializationHelper}
+import edu.illinois.cs.cogcomp.core.utilities.{ DummyTextAnnotationGenerator, SerializationHelper }
 import edu.illinois.cs.cogcomp.core.utilities.configuration.ResourceManager
 import org.allenai.ari.solvers.bioProccess.ProcessBankReader
 import org.allenai.ari.solvers.squad._
@@ -18,13 +18,15 @@ import org.rogach.scallop._
 
 import scala.collection.JavaConverters._
 import ProcessBankReader._
-import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, TextAnnotation}
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{ Constituent, TextAnnotation }
 import edu.illinois.cs.cogcomp.edison.annotators.ClauseViewGenerator
-//import org.allenai.ari.controller.questionparser.{ FillInTheBlankGenerator, QuestionParse }
+import org.simmetrics.metrics.StringMetrics
+import org.allenai.ari.controller.questionparser.{ FillInTheBlankGenerator, QuestionParse }
 import org.allenai.ari.solvers.textilp.ResultJson._
 import org.allenai.ari.solvers.textilp.utils.SimilarityUtils.Levenshtein
 import org.apache.lucene.search.similarities.{ MultiSimilarity, Similarity }
-import shapeless.list
+import org.simmetrics.StringMetric
+//import com.quantifind.charts.Highcharts._
 
 import scala.io.Source
 
@@ -32,12 +34,20 @@ object ExperimentsApp {
   lazy val annotationUtils = new AnnotationUtils()
   val params = TextIlpParams(
     activeQuestionTermWeight = 0.33,
-    alignmentScoreDiscount = 0.0,
-    questionCellOffset = -0.4,
-    paragraphAnswerOffset = -0.4,
+    alignmentScoreDiscount = 0.0, // not used
+    questionCellOffset = -0.4, // tuned
+    paragraphAnswerOffset = -0.4, // tuned
     firstOrderDependencyEdgeAlignments = 0.0,
-    activeSentencesDiscount = -2.5,
-    activeParagraphConstituentsWeight = 0.0
+    activeSentencesDiscount = -2.5, // tuned
+    activeParagraphConstituentsWeight = 0.0, // tuned
+    minQuestiontTermsAligned = 1,
+    maxQuestiontTermsAligned = 3,
+    minQuestiontTermsAlignedRatio = 0.1,
+    maxQuestiontTermsAlignedRatio = 0.65,
+    maxActiveSentences = 2,
+    longerThan1AnsPenalty = 0.0,
+    longerThan2AnsPenalty = 0.0,
+    longerThan3AnsPenalty = 0.02
   )
   lazy val textILPSolver = new TextILPSolver(annotationUtils, false, params)
   lazy val salienceSolver = new SalienceSolver()
@@ -341,13 +351,13 @@ object ExperimentsApp {
     val qAndpPairs = list.flatMap { p => p.questions.map(q => (q, p)) }
     val (resultLists, confidences) = qAndpPairs.zipWithIndex.map {
       case ((q, p), idx) =>
-//        println("==================================================")
-//        println("Processed " + idx + " out of " + qAndpPairs.size)
+        //        println("==================================================")
+        //        println("Processed " + idx + " out of " + qAndpPairs.size)
         //      println("Paragraph: " + p)
         val candidates = q.answers.map(_.answerText)
         val correctIndex = q.correctIdxOpt.get
         //          println("correct answer: " + goldCandidates.head)
-//        println("question: " + q.questionText)
+        //        println("question: " + q.questionText)
         //          println("candidates: " + candidates)
         //          println("length of allCandidatesMinusCorrectOnes: " + allCandidatesMinusCorrectOnes.size)
         //          println("candidates.length: " + candidates.length)
@@ -355,7 +365,7 @@ object ExperimentsApp {
         val (selected, explanation) = textSolver.solve(q.questionText, candidates, p.context)
         val correctLabel = q.answers(correctIndex).answerText
         val score = SolverUtils.assignCredit(selected, correctIndex, candidates.length)
-//        if (score < 0.5) println(" >>>>>>> Incorrect :" + score)
+        //        if (score < 0.5) println(" >>>>>>> Incorrect :" + score)
         score -> (explanation.confidence -> correctLabel)
     }.unzip
 
@@ -464,7 +474,7 @@ object ExperimentsApp {
 
   def trainAndEvaluateSquadClassifier() = {
     import SquadClassifierUtils._
-//    SquadClassifierUtils.populateInstances()
+    //    SquadClassifierUtils.populateInstances()
     //    beginClassifier.learn(50)
     //endClassifier.learn(50)
     //    beginClassifier.save()
@@ -483,7 +493,6 @@ object ExperimentsApp {
     //    pairClassifier.save()
     //    pairClassifier.test(SquadClassifierUtils.trainInstances)
     //    pairClassifier.test(SquadClassifierUtils.devInstances)
-
 
     println("trainInstancesForSentenceIdClassifier: " + trainInstancesForSentenceIdClassifier.length)
     println("devInstancesSentenceIdClassifier: " + devInstancesSentenceIdClassifier.length)
@@ -519,7 +528,7 @@ object ExperimentsApp {
     lazy val trainReader = new SQuADReader(Constants.squadTrainingDataFile, Some(annotationUtils.pipelineService), annotationUtils)
     lazy val devReader = new SQuADReader(Constants.squadDevDataFile, Some(annotationUtils.pipelineService), annotationUtils)
     //lazy val processReader = new ProcessBankReader(true, annotationUtils)
-    lazy val processReader = new ProcessBankReader(false, annotationUtils)
+    lazy val processReader = new ProcessBankReader(true, annotationUtils)
     val parser = new ArgumentParser(args)
     parser.experimentType() match {
       case 1 => generateCandiateAnswers(devReader)
@@ -871,7 +880,8 @@ object ExperimentsApp {
           case ((q, p), idx) =>
             println("Doing " + idx + "  out of " + qAndpPairs.length)
             val charStart = q.answers.head.answerStart
-            val c = p.contextTAOpt.get.getView(ViewNames.TOKENS).getConstituents.asScala.toList.filter(c => c.getStartCharOffset <= charStart + 2 && c.getEndCharOffset >= charStart + 2)
+            val c = p.contextTAOpt.get.getView(ViewNames.TOKENS).getConstituents.asScala.toList.filter(c =>
+              c.getStartCharOffset <= charStart + 2 && c.getEndCharOffset >= charStart + 2)
             require(c.nonEmpty)
             val goldAnswerSenId = p.contextTAOpt.get.getSentenceId(c.head)
             val sentenceIdsAndScores = SolverUtils.getSentenceScores(p, q)
@@ -974,14 +984,14 @@ object ExperimentsApp {
         //     evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterWhatDoesItDo, textILPSolver)
         //     println("filterWhatDoesItDo: ")
         //
-//        evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
-//        println("no-temporals/no true or false: ")
-      //
-      //      evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals.filterNotWhatDoesItDo.filterNotCResultQuestions, textILPSolver)
-      //      println("no-temporals/no true or false/filterNotWhatDoesItDo.filterNotCResultQuestions")
+        //        evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
+        //        println("no-temporals/no true or false: ")
+        //
+        //      evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals.filterNotWhatDoesItDo.filterNotCResultQuestions, textILPSolver)
+        //      println("no-temporals/no true or false/filterNotWhatDoesItDo.filterNotCResultQuestions")
 
-        (-0.2 to 0.2 by 0.05).foreach{ weight =>
-          val newParams = params.copy(questionCellOffset = -0.4 + weight)
+        (-0.00 to 0.15 by 0.02).foreach { weight =>
+          val newParams = params.copy(longerThan3AnsPenalty = -weight)
           lazy val solver = new TextILPSolver(annotationUtils, verbose = false, newParams)
           evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, solver)
           println("no-temporals/no true or false/weight: " + weight)
@@ -1445,7 +1455,7 @@ object ExperimentsApp {
         println(s"ratioB: $ratioB - b1: $b1 - b2: $b2")
         println(s"ratioC: $ratioC - c1: $c1 - c2: $c2")
         println("-----------------------")
-      /*
+
       case 70 =>
         // fill-in-blank question generator
         val fitbGenerator = FillInTheBlankGenerator.mostRecent
@@ -1477,41 +1487,6 @@ object ExperimentsApp {
           val fitbQuestionStrOpt = fitbGenerator.generateFITB(qparse).map(_.text)
           println(questionStr + " -> " + fitbQuestionStrOpt)
         }
-      case 71 =>
-        var numberTriggered = 0
-        var numberAnsweredCorrectly = 0
-        val fitbGenerator = FillInTheBlankGenerator.mostRecent
-        val paragraphs = processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals
-        paragraphs.foreach { p =>
-          p.questions.foreach { q =>
-            val qparse = QuestionParse.constructFromString(q.questionText)
-            val fitbQuestionStrOpt = fitbGenerator.generateFITB(qparse).map(_.text)
-            fitbQuestionStrOpt match {
-              case Some(x) =>
-                val str1 = x.replace("BLANK_", q.answers(0).answerText).dropRight(1).toLowerCase
-                println("String to search:  " + str1)
-                val str2 = x.replace("BLANK_", q.answers(1).answerText).dropRight(1).toLowerCase
-                println("String to search:  " + str2)
-                if (q.questionText.contains(str1)) {
-                  numberTriggered += 1
-                  if (q.correctIdxOpt.get == 0) {
-                    numberAnsweredCorrectly += 1
-                  }
-                }
-                if (q.questionText.contains(str2)) {
-                  numberTriggered += 1
-                  if (q.correctIdxOpt.get == 1) {
-                    numberAnsweredCorrectly += 1
-                  }
-                }
-              case None => // do nothing
-            }
-          }
-        }
-
-        println("Ratio: " + numberAnsweredCorrectly.toDouble / numberTriggered)
-        println("numberTriggered: " + numberTriggered)
-        */
       case 72 =>
         // testing similarity tools
         //        Levenshtein.printDistance("kitten", "sitting")
@@ -1529,7 +1504,104 @@ object ExperimentsApp {
         println(SimilarityUtils.lcsM(paragraph.toList, question.toList))
         println(SimilarityUtils.lcsM(question.toList, paragraph.toList))
       case 73 =>
+        val str1 = "This is a sentence. It is made of words"
+        val str2 = "This sentence is similar. It has almost the same words"
+        val metric = StringMetrics.cosineSimilarity()
+        val metric2 = StringMetrics.blockDistance()
+        val metric3 = StringMetrics.damerauLevenshtein()
+        val metric4 = StringMetrics.dice()
+        val metric5 = StringMetrics.euclideanDistance()
+        val metric6 = StringMetrics.generalizedJaccard()
+        val metric7 = StringMetrics.jaro()
+        val metric8 = StringMetrics.jaroWinkler()
+        val metric9 = StringMetrics.needlemanWunch()
+        println("result: " + metric.compare(str1, str2))
+        println("result: " + metric2.compare(str1, str2))
+        println("result: " + metric3.compare(str1, str2))
+        println("result: " + metric4.compare(str1, str2))
+        println("result: " + metric5.compare(str1, str2))
+        println("result: " + metric6.compare(str1, str2))
+        println("result: " + metric7.compare(str1, str2))
+        println("result: " + metric8.compare(str1, str2))
+        println("result: " + metric9.compare(str1, str2))
+      case 74 =>
+        val fitbGenerator = FillInTheBlankGenerator.mostRecent
+        val similarityMetrics = Seq(
+          StringMetrics.blockDistance(),
+          StringMetrics.cosineSimilarity(),
+          StringMetrics.damerauLevenshtein(),
+          StringMetrics.dice(),
+          StringMetrics.euclideanDistance(),
+          StringMetrics.generalizedJaccard(),
+          StringMetrics.identity(),
+          StringMetrics.jaccard(),
+          StringMetrics.jaro(),
+          StringMetrics.jaroWinkler(),
+          StringMetrics.levenshtein(),
+          StringMetrics.longestCommonSubsequence(),
+          StringMetrics.longestCommonSubstring(),
+          StringMetrics.mongeElkan(),
+          StringMetrics.needlemanWunch(),
+          StringMetrics.overlapCoefficient(),
+          StringMetrics.qGramsDistance(),
+          StringMetrics.simonWhite(),
+          StringMetrics.smithWatermanGotoh(),
+          StringMetrics.smithWaterman()
+        )
+        val paragraphs = processReader.trainingInstances.filterNotTemporals.filterNotTrueFalse
 
+        similarityMetrics.foreach { metric =>
+          //var metric = StringMetrics.cosineSimilarity()
+          val thresholds = -0.05 to 1.0 by 0.05
+          val results = thresholds.map { th =>
+            var numberTriggered = 0
+            var numberAnsweredCorrectly = 0
+            paragraphs.foreach { p =>
+              val pCons = p.contextTAOpt.get.getView(ViewNames.SHALLOW_PARSE).asScala.toList
+              p.questions.foreach { q =>
+                val qparse = QuestionParse.constructFromString(q.questionText)
+                val fitbQuestionStrOpt = fitbGenerator.generateFITB(qparse).map(_.text)
+                fitbQuestionStrOpt match {
+                  case Some(x) =>
+                    val str1 = x.replace("BLANK_", q.answers(0).answerText).dropRight(1).toLowerCase
+                    val str2 = x.replace("BLANK_", q.answers(1).answerText).dropRight(1).toLowerCase
+                    //                    val score1 = metric.compare(str1, p.context)
+                    //                    val score2 = metric.compare(str2, p.context)
+                    val score1 = compareSimilairityInWndow(p, str1,
+                      q.qTAOpt.get.getTokens.length + q.answers(0).aTAOpt.get.getTokens.length, metric)
+                    val score2 = compareSimilairityInWndow(p, str2,
+                      q.qTAOpt.get.getTokens.length + q.answers(1).aTAOpt.get.getTokens.length, metric)
+                    val maxS = math.max(score1, score2)
+                    if (maxS > th) {
+                      numberTriggered += 1
+                      if (q.correctIdxOpt.get == 0 && score1 > score2) {
+                        numberAnsweredCorrectly += 1
+                      }
+                      if (q.correctIdxOpt.get == 1 && score1 < score2) {
+                        numberAnsweredCorrectly += 1
+                      }
+                    }
+                  case None => // do nothing
+                }
+              }
+            }
+            numberAnsweredCorrectly.toDouble / numberTriggered -> numberTriggered
+          }
+          val unzippedR = results.unzip
+          println(metric.toString + "\t" + unzippedR._1.mkString(", "))
+          println(metric.toString + "\t" + unzippedR._2.mkString(", "))
+        }
+    }
+
+    def compareSimilairityInWndow(p: Paragraph, questionString: String,
+      windowSize: Int, metric: StringMetric): Double = {
+      val paragraphTokens = p.contextTAOpt.get.getTokens
+      val paragraphSize = paragraphTokens.length
+      (0 until paragraphSize - windowSize).map { startIdx =>
+        val endIdx = startIdx + windowSize
+        val paragraphWindow = paragraphTokens.slice(startIdx, endIdx).mkString(" ")
+        metric.compare(paragraphWindow, questionString)
+      }.max
     }
   }
 }
