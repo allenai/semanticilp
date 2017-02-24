@@ -2,6 +2,9 @@ package org.allenai.ari.solvers.textilp.solvers
 
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.Constituent
+import org.allenai.ari.controller.questionparser.{FillInTheBlankGenerator, QuestionParse}
+import org.simmetrics.StringMetric
+import org.simmetrics.metrics.StringMetrics
 
 //import org.allenai.ari.controller.questionparser.FillInTheBlankGenerator
 import org.allenai.ari.solvers.bioProccess.ProcessBankReader._
@@ -54,7 +57,8 @@ object TextILPSolver {
 
   lazy val keywordTokenizer = KeywordTokenizer.Default
 
-  //lazy val fitbGenerator = FillInTheBlankGenerator.mostRecent
+  // fill-in-blank generator
+  lazy val fitbGenerator = FillInTheBlankGenerator.mostRecent
 
   def getMaxScore(qCons: Seq[Constituent], pCons: Seq[Constituent]): Double = {
     val scoreList = qCons.flatMap { qC =>
@@ -103,9 +107,13 @@ case class TextIlpParams(
                           activeSentencesDiscount: Double,
                           maxActiveSentences: Int,
 
-                          longerThan1AnsPenalty: Double,
-                          longerThan2AnsPenalty: Double,
-                          longerThan3AnsPenalty: Double,
+                          longerThan1TokenAnsPenalty: Double,
+                          longerThan2TokenAnsPenalty: Double,
+                          longerThan3TokenAnsPenalty: Double,
+
+                          exactMatchMinScoreValue: Double,
+                          exactMatchMinScoreDiff: Double,
+                          exactMatchSoftWeight: Double, // supposed to be a positive value
 
                           // Answers: sparsity
                           moreThan1AlignmentAnsPenalty: Double,
@@ -113,9 +121,9 @@ case class TextIlpParams(
                           moreThan3AlignmentAnsPenalty: Double,
 
                           // Question: sparsity
-                          moreThan1AlignmentQuestionTermPenalty: Double,
-                          moreThan2AlignmentQuestionTermPenalty: Double,
-                          moreThan3AlignmentQuestionTermPenalty: Double,
+                          moreThan1AlignmentToQuestionTermPenalty: Double,
+                          moreThan2AlignmentToQuestionTermPenalty: Double,
+                          moreThan3AlignmentToQuestionTermPenalty: Double,
 
                           // Paragraph: proximity inducing
                           activeDist1WordsAlignmentBoost: Double,
@@ -123,11 +131,11 @@ case class TextIlpParams(
                           activeDist3WordsAlignmentBoost: Double,
 
                           // Paragraph: sparsity
-                          maxNumberOfWordsAlignmedPerSentence: Int,
+                          maxNumberOfWordsAlignedPerSentence: Int,
                           maxAlignmentToRepeatedWordsInParagraph: Int,
-                          moreThan1AlignmentParagraphPenalty: Double,
-                          moreThan2AlignmentParagraphPenalty: Double,
-                          moreThan3AlignmentParagraphPenalty: Double,
+                          moreThan1AlignmentToParagraphTokenPenalty: Double,
+                          moreThan2AlignmentToParagraphTokenPenalty: Double,
+                          moreThan3AlignmentToParagraphTokenPenalty: Double,
 
                           // Paragraph: intra-sentence alignment
                           coreferenceWeight: Double,
@@ -472,13 +480,120 @@ class TextILPSolver(annotationUtils: AnnotationUtils, verbose: Boolean = true, p
       ilpSolver.addConsBasicLinear("onlyOneActiveOption", activeAnsVars, activeAnsVarsCoeffs, Some(1.0), Some(1.0))
     }
 
+/*
+    // for each of the answer options create one variable, turning on when the number of the alignments to that answer
+    // option is more than k
+    for{ k: Double <- 1.0 to 3.0 } {
+      activeAnswerOptions.foreach { case (ansIdx, _) =>
+      val penalty = k match {
+        case 1.0  => params.moreThan1AlignmentAnsPenalty
+        case 2.0  => params.moreThan2AlignmentAnsPenalty
+        case 3.0  => params.moreThan3AlignmentAnsPenalty
+      }
+        val moreThanKAlignnetbToAnswerOption = ilpSolver.createBinaryVar(s"moreThan${k}AlignmentAnsPenalty", penalty)
+
+        // this gets activated, if the answer option has at least two active alignments
+        val connectedVariables = getVariablesConnectedToOption(ansIdx).toList
+        val len = connectedVariables.length
+        ilpSolver.addConsBasicLinear("",
+          moreThanKAlignnetbToAnswerOption +: connectedVariables, (-len + k) +: Array.fill(len) {
+            1.0
+          }, None, Some(k))
+      }
+    }
+*/
+
+/*    // for each of the question terms create one variable, turning on when the number of the alignments to the
+    // constituent is more than k
+    for{ k: Double <- 1.0 to 3.0 } {
+      qTokens.foreach { c =>
+        val penalty = k match {
+          case 1.0  => params.moreThan1AlignmentToQuestionTermPenalty
+          case 2.0  => params.moreThan2AlignmentToQuestionTermPenalty
+          case 3.0  => params.moreThan3AlignmentToQuestionTermPenalty
+        }
+        val moreThanKAlignnetbToQuestionCons = ilpSolver.createBinaryVar(
+          s"moreThan${k}AlignmentToQuestionConsPenalty",
+          params.moreThan1AlignmentAnsPenalty
+        )
+
+        // this gets activated, if the answer option has at least two active alignments
+        val connectedVariables = getVariablesConnectedToQuestionToken(c).toList
+        val len = connectedVariables.length
+        ilpSolver.addConsBasicLinear("",
+          moreThanKAlignnetbToQuestionCons +: connectedVariables, (-len + k) +: Array.fill(len) {
+            1.0
+          }, None, Some(k))
+      }
+    }*/
+
+/*    // there is an upper-bound on the max number of active tokens in each sentence
+    activeSentences.foreach {  case (ans, x) =>
+        val connectedVariables = getVariablesConnectedToParagraphSentence(ans)
+        ilpSolver.addConsBasicLinear("activeParagraphConsVar",
+          connectedVariables, Array.fill(connectedVariables.length){1.0},
+          None, Some(params.maxNumberOfWordsAlignedPerSentence))
+    }*/
+
+    // among the words that are repeated in the paragraph, at most k of them can be active
+    // first find the duplicate elements
+/*    val duplicates = pTokens.groupBy(_.getSurfaceForm).filter { case (x,ys) => ys.lengthCompare(1) > 0 }
+    duplicates.foreach{ case (_, duplicateCons) =>
+      val variables = duplicateCons.map(activeParagraphConstituents)
+      ilpSolver.addConsBasicLinear("", variables, Array.fill(variables.length){1.0},
+        None, Some(params.maxAlignmentToRepeatedWordsInParagraph))
+    }*/
+
     // have at most k active sentence
     val (_, sentenceVars) = activeSentences.unzip
     val sentenceVarsCoeffs = Seq.fill(sentenceVars.length)(1.0)
     ilpSolver.addConsBasicLinear("maxActiveParagraphConsVar", sentenceVars, sentenceVarsCoeffs,
       Some(0.0), Some(params.maxActiveSentences))
 
-    // TODO (exact match): if there is a good match between the question
+    // exact match: if there is a good match between the question
+    if(activeAnswerOptions.length > 1) {
+      val qparse = QuestionParse.constructFromString(q.questionText)
+      val metric = StringMetrics.qGramsDistance()
+      val fitbQuestionStrOpt = TextILPSolver.fitbGenerator.generateFITB(qparse).map(_.text)
+      fitbQuestionStrOpt match {
+        case Some(x) =>
+          val indexScorePairs = activeAnswerOptions.indices.map { idx =>
+            val str = x.replace("BLANK_", q.answers(idx).answerText).dropRight(1).toLowerCase
+            idx -> compareSimilairityInWndow(p, str, q.qTAOpt.get.getTokens.length +
+              q.answers(idx).aTAOpt.get.getTokens.length, metric)
+          }
+          val sortedScores = indexScorePairs.sortBy(-_._2).take(2)
+          val maxS = sortedScores(0)._2
+          val secondMaxS = sortedScores(1)._2
+          val maxIdx = sortedScores(0)._1
+          if (maxS > params.exactMatchMinScoreValue && maxS - secondMaxS >= params.exactMatchMinScoreDiff) {
+              // maxIdx should be the answer
+              ilpSolver.addConsBasicLinear(s"directAnswer-${maxIdx}AnswerMustBeCorrect",
+                Seq(activeAnswerOptions(maxIdx)._2), Seq(1.0), Some(1.0), None)
+          } else {
+            // if not hard constraint, do soft weighting
+            indexScorePairs.foreach { case (idx, score) =>
+              require(score * params.exactMatchSoftWeight >= 0, "exactMatchSoftWeighting should be positive")
+              val x = ilpSolver.createBinaryVar("exactMatchSoftWeightingAns" + idx, score * params.exactMatchSoftWeight)
+              // if answer option is zero, x should be zero; note that the soft weight is positive
+              ilpSolver.addConsBasicLinear(s"directAnswerSoftWeight-$idx",
+                Seq(x, activeAnswerOptions(idx)._2), Seq(1.0, -1.0), None, Some(0.0))
+            }
+          }
+        case None => // do nothing
+      }
+    }
+
+    def compareSimilairityInWndow(p: Paragraph, questionString: String, windowSize: Int,
+                                  metric: StringMetric): Double = {
+      val paragraphTokens = p.contextTAOpt.get.getTokens
+      val paragraphSize = paragraphTokens.length
+      (0 until paragraphSize - windowSize).map { startIdx =>
+        val endIdx = startIdx + windowSize
+        val paragraphWindow = paragraphTokens.slice(startIdx, endIdx).mkString(" ")
+        metric.compare(paragraphWindow, questionString)
+      }.max
+    }
 
     // for result questions ...
     if (q.questionText.isForCResultQuestion && activeAnswerOptions.length == 2) {
@@ -487,12 +602,6 @@ class TextILPSolver(annotationUtils: AnnotationUtils, verbose: Boolean = true, p
           TextILPSolver.getAvgScore(qCons, Seq(c))
         }.zipWithIndex.maxBy(_._1)._2
       }
-
-      //      val qIdx = getClosestIndex(qTokens, pTokens)
-      //      val ans1Cons = q.answers(0).aTAOpt.get.getView(ViewNames.TOKENS).asScala.toList
-      //      val ans2Cons = q.answers(1).aTAOpt.get.getView(ViewNames.TOKENS).asScala.toList
-      //      val a1Idx = getClosestIndex(ans1Cons, pTokens)
-      //      val a2Idx = getClosestIndex(ans2Cons, pTokens)
 
       val pCons = p.contextTAOpt.get.getView(ViewNames.SHALLOW_PARSE).asScala.toList
       val qCons = q.qTAOpt.get.getView(ViewNames.SHALLOW_PARSE).asScala.toList
@@ -571,17 +680,17 @@ class TextILPSolver(annotationUtils: AnnotationUtils, verbose: Boolean = true, p
     activeAnswerOptions.foreach{ case (ansIdx, activeAnsVar) =>
       val ansTokList = aTokens(ansIdx)
       if(ansTokList.length > 1) {
-        val x = ilpSolver.createBinaryVar("longerThanOnePenalty", params.longerThan1AnsPenalty)
+        val x = ilpSolver.createBinaryVar("longerThanOnePenalty", params.longerThan1TokenAnsPenalty)
         ilpSolver.addConsBasicLinear("longerThanOnePenaltyActiveOnlyWhenOptionIsActive",
           Seq(x, activeAnsVar), Seq(-1.0, 1.0), None, Some(0.0))
       }
       if(ansTokList.length > 2) {
-        val x = ilpSolver.createBinaryVar("longerThanTwoPenalty", params.longerThan2AnsPenalty)
+        val x = ilpSolver.createBinaryVar("longerThanTwoPenalty", params.longerThan2TokenAnsPenalty)
         ilpSolver.addConsBasicLinear("longerThanOnePenaltyActiveOnlyWhenOptionIsActive",
           Seq(x, activeAnsVar), Seq(-1.0, 1.0), None, Some(0.0))
       }
       if(ansTokList.length > 3) {
-        val x = ilpSolver.createBinaryVar("longerThanThreePenalty", params.longerThan3AnsPenalty)
+        val x = ilpSolver.createBinaryVar("longerThanThreePenalty", params.longerThan3TokenAnsPenalty)
         ilpSolver.addConsBasicLinear("longerThanThreePenaltyActiveOnlyWhenOptionIsActive",
           Seq(x, activeAnsVar), Seq(-1.0, 1.0), None, Some(0.0))
       }
