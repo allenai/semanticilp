@@ -818,8 +818,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils, verbose: Boolean = true, p
 
     val statistics = Stats(numberOfBinaryVars = ilpSolver.getNBinVars,
       numberOfContinuousVars = ilpSolver.getNContVars, numberOfIntegerVars = ilpSolver.getNIntVars,
-      numbefOfConstraints = ilpSolver.getNConss,
-      solveCreationInSec = (modelSolveEnd - modelSolveStart) / 1000.0, solveTimeInSec = (modelSolveStart - modelCreationStart) / 1000.0)
+      numberOfConstraints = ilpSolver.getNConss,
+      modelCreationInSec = (modelSolveEnd - modelSolveStart) / 1000.0, solveTimeInSec = (modelSolveStart - modelCreationStart) / 1000.0)
     if(verbose) {
       println("Statistics: " + statistics)
     }

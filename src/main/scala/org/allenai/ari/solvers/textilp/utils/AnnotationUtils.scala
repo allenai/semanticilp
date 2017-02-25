@@ -6,19 +6,19 @@ import java.util.Properties
 
 import edu.illinois.cs.cogcomp.annotation.AnnotatorServiceConfigurator
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
-import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, TextAnnotation}
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{ Constituent, TextAnnotation }
 import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper
-import edu.illinois.cs.cogcomp.core.utilities.configuration.{Configurator, ResourceManager}
+import edu.illinois.cs.cogcomp.core.utilities.configuration.{ Configurator, ResourceManager }
 import edu.illinois.cs.cogcomp.curator.CuratorFactory
 import edu.illinois.cs.cogcomp.pipeline.common.PipelineConfigurator
 import edu.illinois.cs.cogcomp.pipeline.common.PipelineConfigurator._
 import edu.illinois.cs.cogcomp.pipeline.main.PipelineFactory
 import edu.illinois.cs.cogcomp.saulexamples.nlp.QuestionTypeClassification.QuestionTypeAnnotator
-import org.allenai.ari.solvers.squad.{CandidateGeneration, SQuADReader}
-import org.allenai.ari.solvers.textilp.{Paragraph, Question, TopicGroup}
+import org.allenai.ari.solvers.squad.{ CandidateGeneration, SQuADReader }
+import org.allenai.ari.solvers.textilp.{ Paragraph, Question, TopicGroup }
 import org.allenai.common.cache.JsonQueryCache
-import play.api.libs.json.{JsArray, JsNumber, Json}
-import redis.clients.jedis.{JedisPool, Protocol}
+import play.api.libs.json.{ JsArray, JsNumber, Json }
+import redis.clients.jedis.{ JedisPool, Protocol }
 import spray.json.DefaultJsonProtocol._
 
 import scala.io.Source
@@ -268,26 +268,19 @@ class AnnotationUtils {
   }
 
   def annotateVerbSRLwithRemoteServer(ta: TextAnnotation) = {
-    val query = Constants.pipelineServer(ta.text, ViewNames.SRL_VERB)
-    val html = Source.fromURL(query)
-    val jsonString = html.mkString
-    val taNew = SerializationHelper.deserializeFromJson(jsonString)
-    ta.addView(ViewNames.SRL_VERB, taNew.getView(ViewNames.SRL_VERB))
-    println("ta.getAvailableViews: " + ta.getAvailableViews)
-//    val perOptionResponses = (json \\ "views").head.as[JsArray]
-//    println(perOptionResponses.value.length)
-//    perOptionResponses.value.foreach{ v =>
-//      println("v: " + v)
-//      println("------")
-//    }
-
-//    perOptionResponses.value.map { perOptionResponse =>
-//      val confidence = (perOptionResponse \ "confidence").as[JsNumber].value.toDouble
-//      val selection = (perOptionResponse \ "selection" \ "multipleChoice" \ "key").as[String]
-//      val focus = (perOptionResponse \ "selection" \ "multipleChoice" \ "focus").as[String]
-//      focus -> confidence
-//    }
-    //TODO: implement this.
+    try {
+      val query = Constants.pipelineServer(ta.text, ViewNames.SRL_VERB)
+      val html = Source.fromURL(query)
+      val jsonString = html.mkString
+      val taNew = SerializationHelper.deserializeFromJson(jsonString)
+      if(taNew.hasView(ViewNames.SRL_VERB)) {
+        ta.addView(ViewNames.SRL_VERB, taNew.getView(ViewNames.SRL_VERB))
+        println("ta.getAvailableViews: " + ta.getAvailableViews)
+      }
+    }
+    catch{
+      case e: java.io.IOException => println("Exception in SRL annotation; skipping this . . . ")
+    }
   }
 
   lazy val bioProcessCorefMap = {
