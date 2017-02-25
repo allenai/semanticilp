@@ -3,6 +3,8 @@ package org.allenai.ari.solvers.textilp.solvers
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.Constituent
 import org.allenai.ari.controller.questionparser.{FillInTheBlankGenerator, QuestionParse}
+import org.allenai.ari.solvers.squad.CandidateGeneration
+import org.elasticsearch.search.suggest.phrase.PhraseSuggestionBuilder.CandidateGenerator
 import org.simmetrics.StringMetric
 import org.simmetrics.metrics.StringMetrics
 
@@ -180,8 +182,18 @@ class TextILPSolver(annotationUtils: AnnotationUtils, verbose: Boolean = true, p
                                    alignmentFunction: AlignmentFunction
                                  ): (Seq[Int], EntityRelationResult) = {
 
+
+    val modelCreationStart = System.currentTimeMillis()
+
     if (verbose) println("starting to create the model  . . . ")
     val isTrueFalseQuestion = q.isTrueFalse
+
+    val useSRL = true
+
+    if(useSRL) {
+      annotationUtils.annotateVerbSRLwithRemoteServer(p.contextTAOpt.get)
+      annotationUtils.annotateVerbSRLwithRemoteServer(q.qTAOpt.get)
+    }
 
     val isTemporalQuestions = q.isTemporal
     require(q.qTAOpt.isDefined, "the annotatins for the question is not defined")
@@ -691,6 +703,60 @@ class TextILPSolver(annotationUtils: AnnotationUtils, verbose: Boolean = true, p
 */
 
 
+    if(useSRL && q.qTAOpt.get.hasView(ViewNames.SRL_VERB) && p.contextTAOpt.get.hasView(ViewNames.SRL_VERB) ) {
+      val qSRLView = q.qTAOpt.get.getView(ViewNames.SRL_VERB)
+      val pSRLView = p.contextTAOpt.get.getView(ViewNames.SRL_VERB)
+      val qSRLCons = qSRLView.getConstituents.asScala
+      val pSRLCons = pSRLView.getConstituents.asScala
+
+      // does question-srl contain any question term?
+      val cons = qSRLCons.filter(c => CandidateGeneration.questionTerms.contains(c.getSurfaceForm.toLowerCase))
+      println(">>>>>> cons: " + cons)
+      if(cons.nonEmpty) {
+        if(cons.size > 1) {
+          println("More than two cons overlapping with the question term. Choosing the head . . . ")
+        }
+        println("question: " + q.questionText)
+        val qArgLabel = cons.head.getLabel
+        println(">>>>>>> qArgLabel: " + qArgLabel)
+        val qSource = cons.head.getIncomingRelations.get(0).getSource
+        println(">>>>>>>> " + qSource)
+        def getLabel(pred: Constituent): String = pred.getLabel + pred.getAttribute("SenseNumber") + pred.getAttribute("predicate")
+        val qSourceLabel = getLabel(qSource)
+        println(">>>>>>>> " + qSourceLabel)
+        val pParagraph = pSRLCons.filter(c => getLabel(c) == qSourceLabel)
+        val pArgCons = pParagraph.flatMap{ pred =>
+          pred.getOutgoingRelations.asScala.map(_.getTarget).filter(_.getLabel == qArgLabel)
+        }
+        println("pArgCons: " + pArgCons)
+        // check if any of the any of the selected constituents overlap with one of the answers
+        def getClosestIndex(qCons: Seq[Constituent], pCons: Seq[Constituent]): Int = {
+          pCons.map { c =>
+            TextILPSolver.getAvgScore(qCons, Seq(c))
+          }.zipWithIndex.maxBy(_._1)._2
+        }
+        val pCons = p.contextTAOpt.get.getView(ViewNames.SHALLOW_PARSE).asScala.toList
+        val results = q.answers.map{ ans =>
+          val ansCons = ans.aTAOpt.get.getView(ViewNames.TOKENS).asScala.toList
+          val ansParagraphIdx = getClosestIndex(ansCons, pCons)
+          val ansSpan = pCons(ansParagraphIdx).getSpan
+          println("ansCons: " + ansCons)
+          println("pCons(ansParagraphIdx): " + pCons(ansParagraphIdx))
+          if(pArgCons.exists{ pArg => pArg.getSpan.getFirst <= ansSpan.getFirst &&  pArg.getSpan.getSecond >= ansSpan.getSecond }) 1 else 0
+        }
+        println("results: " + results)
+        if(results.sum == 1) { // i.e. only one of the answer options has overlap
+          results.zipWithIndex.foreach{ case (v, idx) =>
+            if(v == 1) {
+              println(s"SRL alignment: Setting the answer $idx to be active")
+              ilpSolver.addConsBasicLinear("resultReasoning-secondAnswerMustBeCorrect", Seq(activeAnswerOptions(idx)._2), Seq(1.0), Some(1.0), None)
+            }
+          }
+        }
+
+      }
+    }
+
     // longer than 1 answer penalty
     activeAnswerOptions.foreach{ case (ansIdx, activeAnsVar) =>
       val ansTokList = aTokens(ansIdx)
@@ -742,13 +808,22 @@ class TextILPSolver(annotationUtils: AnnotationUtils, verbose: Boolean = true, p
     val interParagraphAlignments = edgeDependencyVariables
 
     if (verbose) println("created the ilp model. Now solving it  . . . ")
-    //    println("Number of binary variables: " + ilpSolver.getNBinVars)
-    //    println("Number of continuous variables: " + ilpSolver.getNContVars)
-    //    println("Number of integer variables: " + ilpSolver.getNIntVars)
-    //    println("Number of constraints: " + ilpSolver.getNConss)
+
+    val modelSolveStart = System.currentTimeMillis()
 
     // solving and extracting the answer
     ilpSolver.solve()
+
+    val modelSolveEnd = System.currentTimeMillis()
+
+    val statistics = Stats(numberOfBinaryVars = ilpSolver.getNBinVars,
+      numberOfContinuousVars = ilpSolver.getNContVars, numberOfIntegerVars = ilpSolver.getNIntVars,
+      numbefOfConstraints = ilpSolver.getNConss,
+      solveCreationInSec = (modelSolveEnd - modelSolveStart) / 1000.0, solveTimeInSec = (modelSolveStart - modelCreationStart) / 1000.0)
+    if(verbose) {
+      println("Statistics: " + statistics)
+    }
+
 
     if (verbose) println("Done solving the model  . . . ")
 
@@ -988,7 +1063,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils, verbose: Boolean = true, p
       if (verbose) println("Not optimal . . . ")
       if (verbose) println("Status is not optimal. Status: " + ilpSolver.getStatus)
       // if the program is not solver, say IDK
-      Seq.empty -> EntityRelationResult("INFEASIBLE", List.empty, List.empty)
+      Seq.empty -> EntityRelationResult("INFEASIBLE", List.empty, List.empty, statistics = statistics)
     }
   }
 
