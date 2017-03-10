@@ -5,7 +5,7 @@ import sbt.Keys._
 //import org.allenai.plugins.CoreRepositories.Resolvers
 //import org.allenai.plugins.StylePlugin
 
-val cogcompNLPVersion = "3.0.94"
+val cogcompNLPVersion = "3.0.105"
 val ccgGroupId = "edu.illinois.cs.cogcomp"
 
 lazy val commonSettings = Seq(
@@ -13,7 +13,15 @@ lazy val commonSettings = Seq(
   version := "1.5",
   scalaVersion := "2.11.8",
   javaOptions ++= Seq("-Xmx25G", "-XX:MaxMetaspaceSize=5g"),
-  fork := true
+  fork := true,
+  // Make sure SCIP libraries are locatable.
+  javaOptions += s"-Djava.library.path=lib",
+  envVars ++= Map(
+    "LD_LIBRARY_PATH" -> "lib",
+    "DYLD_LIBRARY_PATH" -> "lib"
+  ),
+  //unmanagedBase := baseDirectory.value / "lib2",
+  includeFilter in unmanagedJars := "*.jar" || "*.so" || "*.dylib"
 )
 
 // TODO(danm): This is used enough projects to be in allenai/sbt-plugins CoreDependencies.
@@ -79,7 +87,7 @@ lazy val root = (project in file(".")).
       "org.scalatest" % "scalatest_2.11" % "2.2.4",
       "org.elasticsearch" % "elasticsearch" % "2.4.1",
       "me.tongfei" % "progressbar" % "0.5.1",
-      "org.apache.lucene" % "lucene-core" % "6.4.1",
+//      "org.apache.lucene" % "lucene-core" % "6.4.1",
       "org.scalaz" %% "scalaz-core" % "7.2.8",
       "com.github.mpkorstanje" % "simmetrics-core" % "4.1.1",
 //      "com.quantifind" %% "wisp" % "0.0.4",
@@ -92,15 +100,7 @@ lazy val root = (project in file(".")).
       Resolver.bintrayRepo("allenai", "maven"),
       Resolver.bintrayRepo("allenai", "private"),
       "CogcompSoftware" at "http://cogcomp.cs.illinois.edu/m2repo/"
-    ),
-    // Make sure SCIP libraries are locatable.
-    javaOptions += s"-Djava.library.path=lib",
-    envVars ++= Map(
-      "LD_LIBRARY_PATH" -> "lib",
-      "DYLD_LIBRARY_PATH" -> "lib"
-    ),
-    //unmanagedBase := baseDirectory.value / "lib2",
-    includeFilter in unmanagedJars := "*.jar" || "*.so" || "*.dylib"
+    )
   )
 
 lazy val viz = (project in file("viz")).

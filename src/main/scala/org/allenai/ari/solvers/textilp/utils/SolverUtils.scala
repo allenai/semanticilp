@@ -2,6 +2,7 @@ package org.allenai.ari.solvers.textilp.utils
 
 import java.io.File
 import java.net.{ InetSocketAddress, URLEncoder }
+import java.util
 
 import edu.illinois.cs.cogcomp.McTest.MCTestBaseline
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
@@ -9,6 +10,7 @@ import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{ Constituent,
 import org.allenai.ari.solvers.textilp.alignment.KeywordTokenizer
 import org.allenai.ari.solvers.textilp.{ Entity, EntityRelationResult, Paragraph, Question }
 import org.allenai.common.cache.JsonQueryCache
+import org.apache.commons.codec.digest.DigestUtils
 import org.elasticsearch.action.search.SearchType
 import org.elasticsearch.client.transport.TransportClient
 import org.elasticsearch.common.settings.Settings
@@ -89,8 +91,15 @@ object SolverUtils {
     focusSet.flatMap(f => extractParagraphGivenQuestionAndFocusWord(question, f, 200))
   }
 
-  def extractPatagraphGivenQuestionAndFocusSet3(question: String, focusSet: Seq[String], topK: Int): Seq[String] = {
-    val sortedSet = focusSet.flatMap(f => extractParagraphGivenQuestionAndFocusWord3(question, f, 200)).sortBy(-_._2)
+  def extractPatagraphGivenQuestionAndFocusSet3(question: String, focusSet: Seq[String], topK: Int,
+    staticCache: Boolean = true): Seq[String] = {
+    val sortedSet = focusSet.flatMap { f =>
+      if (staticCache) {
+        staticCacheLucene(question, f, 200)
+      } else {
+        extractParagraphGivenQuestionAndFocusWord3(question, f, 200)
+      }
+    }.sortBy(-_._2)
     (if (sortedSet.size > topK) {
       sortedSet.take(topK)
     } else {
@@ -127,33 +136,13 @@ object SolverUtils {
 
   def extractParagraphGivenQuestionAndFocusWord3(question: String, focus: String, searchHitSize: Int): Seq[(String, Double)] = {
     val cacheKey = "elasticWebParagraph:" + question + "//focus:" + focus + "//topK:" + searchHitSize
-    val cacheResult = if (Constants.useRedisCachingForAnnotation) {
+    val cacheResult = if (Constants.useRedisCachingForElasticSearch) {
       elasticWebRedisCache.get(cacheKey)
     } else {
       None
     }
     if (cacheResult.isEmpty) {
-      val questionWords = KeywordTokenizer.Default.stemmedKeywordTokenize(question)
-      val focusWords = KeywordTokenizer.Default.stemmedKeywordTokenize(focus)
-      val searchStr = s"$question $focus"
-      val response = esClient.prepareSearch(Constants.indexNames.keys.toSeq: _*)
-        // NOTE: DFS_QUERY_THEN_FETCH guarantees that multi-index queries return accurate scoring
-        // results, do not modify
-        .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-        .setQuery(QueryBuilders.matchQuery("text", searchStr))
-        .setFrom(0).setSize(searchHitSize).setExplain(true)
-        .execute()
-        .actionGet()
-      // Filter hits that don't overlap with both question and focus words.
-      def getLuceneHitFields(hit: SearchHit): Map[String, AnyRef] = {
-        hit.sourceAsMap().asScala.toMap
-      }
-      val hits = response.getHits.getHits.filter { x =>
-        val hitWordsSet = KeywordTokenizer.Default.stemmedKeywordTokenize(x.sourceAsString).toSet
-        (hitWordsSet.intersect(questionWords.toSet).nonEmpty
-          && hitWordsSet.intersect(focusWords.toSet).nonEmpty)
-      }
-      val results = hits.map { h: SearchHit => getLuceneHitFields(h)("text").toString -> h.score().toDouble }
+      val results = extract(question, focus, searchHitSize)
       val cacheValue = JsArray(results.map { case (key, value) => JsArray(Seq(JsString(key), JsNumber(value))) })
       if (Constants.useRedisCachingForAnnotation) {
         elasticWebRedisCache.put(cacheKey, cacheValue.toString())
@@ -169,6 +158,30 @@ object SolverUtils {
         key -> score.toDouble
       }
     }
+  }
+
+  def extract(question: String, focus: String, searchHitSize: Int): Seq[(String, Double)] = {
+    val questionWords = KeywordTokenizer.Default.stemmedKeywordTokenize(question)
+    val focusWords = KeywordTokenizer.Default.stemmedKeywordTokenize(focus)
+    val searchStr = s"$question $focus"
+    val response = esClient.prepareSearch(Constants.indexNames.keys.toSeq: _*)
+      // NOTE: DFS_QUERY_THEN_FETCH guarantees that multi-index queries return accurate scoring
+      // results, do not modify
+      .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+      .setQuery(QueryBuilders.matchQuery("text", searchStr))
+      .setFrom(0).setSize(searchHitSize).setExplain(true)
+      .execute()
+      .actionGet()
+    // Filter hits that don't overlap with both question and focus words.
+    def getLuceneHitFields(hit: SearchHit): Map[String, AnyRef] = {
+      hit.sourceAsMap().asScala.toMap
+    }
+    val hits = response.getHits.getHits.filter { x =>
+      val hitWordsSet = KeywordTokenizer.Default.stemmedKeywordTokenize(x.sourceAsString).toSet
+      (hitWordsSet.intersect(questionWords.toSet).nonEmpty
+        && hitWordsSet.intersect(focusWords.toSet).nonEmpty)
+    }
+    hits.map { h: SearchHit => getLuceneHitFields(h)("text").toString -> h.score().toDouble }
   }
 
   lazy val omnibusTrain = loadQuestions("Omnibus-Gr04-NDMC-Train.tsv")
@@ -303,6 +316,40 @@ object SolverUtils {
         // calculate similarity between the constituents and the question
         id -> getSimilarity(consList, questionLemmaCons, p.context)
     }.toSeq.sortBy(-_._2)
+  }
+
+  /** saves the result of query on disk as text file */
+  val staticCache = "other/elasticStaticCache/"
+  def staticCacheLucene(question: String, focus: String, searchHitSize: Int): Seq[(String, Double)] = {
+    val cacheKey = (util.Arrays.toString(DigestUtils.sha1("elasticWebParagraph:" +
+      question + "-focus:" + focus + "-topK:" + searchHitSize)) + ".txt").replaceAll("\\s", "")
+    //println("CacheKey: " + cacheKey)
+    val f = new File(staticCache + cacheKey)
+    if (f.exists()) {
+      //println("fetching knowledge from cache . . . .")
+      val soutceFile = Source.fromFile(f)
+      val jsonString = soutceFile.getLines().mkString("")
+      soutceFile.close()
+      val json = Json.parse(jsonString)
+      val a = json.as[JsArray].value.map { resultTuple =>
+        val tupleValues = resultTuple.as[JsArray]
+        val key = tupleValues.head.as[JsString].value
+        val score = tupleValues(1).as[JsNumber].value
+        key -> score.toDouble
+      }
+      //println("done with fetching")
+      a
+    } else {
+      println("extracting the knowledge from remote server. . . ")
+      val results = extract(question, focus, searchHitSize)
+      val cacheValue = JsArray(results.map { case (key, value) => JsArray(Seq(JsString(key), JsNumber(value))) })
+
+      import java.io._
+      val pw = new PrintWriter(f)
+      pw.write(cacheValue.toString())
+      pw.close()
+      results
+    }
   }
 
 }

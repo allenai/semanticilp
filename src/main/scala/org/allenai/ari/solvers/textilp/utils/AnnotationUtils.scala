@@ -40,7 +40,7 @@ case object Intermediate extends AnnotationLevel
 // All possible annotations
 case object Advanced extends AnnotationLevel
 
-class AnnotationUtils {
+class AnnotationUtils() {
 
   // redis cache for annotations
   lazy val synchronizedRedisClient = if (Constants.useRedisCachingForAnnotation) {
@@ -50,9 +50,13 @@ class AnnotationUtils {
     DummyRedisClient
   }
 
-  val viewsToDisable = Set(USE_SRL_NOM, USE_SRL_VERB, USE_QUANTIFIER, USE_STANFORD_DEP)
+  val viewsToDisableAll = Set(USE_POS, USE_LEMMA,
+    USE_SHALLOW_PARSE, USE_DEP, USE_NER_CONLL, USE_NER_ONTONOTES,
+    USE_STANFORD_PARSE, USE_STANFORD_DEP, USE_SRL_VERB, USE_SRL_NOM,
+    USE_QUANTIFIER)
+  val viewsToDisable = Set(USE_SRL_NOM, USE_QUANTIFIER, USE_STANFORD_DEP)
   val viewsToAdd = Seq(ViewNames.POS, ViewNames.LEMMA, ViewNames.NER_CONLL, ViewNames.NER_ONTONOTES,
-    ViewNames.SHALLOW_PARSE, ViewNames.PARSE_STANFORD /*, ViewNames.DEPENDENCY_STANFORD*/ /*, ViewNames.QUANTITIES*/ )
+    ViewNames.SHALLOW_PARSE, ViewNames.PARSE_STANFORD, ViewNames.DEPENDENCY_STANFORD, ViewNames.SRL_VERB /*, ViewNames.QUANTITIES*/ )
 
   lazy val pipelineService = {
     println("Starting to build the pipeline service . . . ")
@@ -61,7 +65,7 @@ class AnnotationUtils {
     settings.setProperty("disableCache", Configurator.TRUE)
     settings.setProperty("splitOnDash", Configurator.FALSE)
     settings.setProperty("stanfordMaxTimePerSentence", "1000000")
-    viewsToDisable.foreach { key => settings.setProperty(key.value, Configurator.FALSE) }
+    viewsToDisableAll.foreach { key => settings.setProperty(key.value, Configurator.FALSE) }
     settings.setProperty(PipelineConfigurator.STFRD_MAX_SENTENCE_LENGTH.key, "1000")
     val rm = new ResourceManager(settings)
     //viewsToDisable.foreach { v => settings.setProperty(v.key, Configurator.FALSE) }
@@ -83,6 +87,16 @@ class AnnotationUtils {
     CuratorFactory.buildCuratorClient()
   }
 
+  import edu.illinois.cs.cogcomp.pipeline.server.ServerClientAnnotator
+
+  lazy val pipelineServerClient = {
+    val x = new ServerClientAnnotator()
+    x.setUrl("http://austen.cs.illinois.edu", "8080")
+    x.setViewsAll(viewsToAdd.toArray)
+    x.useCaching()
+    x
+  }
+
   def annotateWithCuratorCorefAndCache(string: String): TextAnnotation = {
     val cacheKey = "*curatorWithCoref" + string
     val redisAnnotation = synchronizedRedisClient.get(cacheKey)
@@ -96,39 +110,45 @@ class AnnotationUtils {
     }
   }
 
+  val useRemoteServer = true
+
   def annotate(string: String): TextAnnotation = {
-    val cacheKey = "*TextAnnotations" + viewsToDisable.mkString("*") + viewsToAdd.mkString("*") + string
-    val redisAnnotation = synchronizedRedisClient.get(cacheKey)
-
-    def anno() = {
-      //      println("------")
-      //      println(string)
-      //val textAnnotation = pipelineService.createAnnotatedTextAnnotation("", "", string)
-      val textAnnotation = pipelineService.createBasicTextAnnotation("", "", string)
-      try {
-        viewsToAdd.foreach { vu => pipelineService.addView(textAnnotation, vu) }
-      } catch {
-        case e: java.lang.NullPointerException =>
-          println(s"Exception thrown . . . \nInput string: $string")
-          e.printStackTrace()
-      }
-      //if (withQuantifier) quantifierAnnotator.addView(textAnnotation)
-      synchronizedRedisClient.put(cacheKey, SerializationHelper.serializeToJson(textAnnotation))
-      textAnnotation
-    }
-
-    if (redisAnnotation.isDefined) {
-      try {
-        SerializationHelper.deserializeFromJson(redisAnnotation.get)
-      } catch {
-        case e: java.lang.ArrayIndexOutOfBoundsException =>
-          println("Exception in deserialization. Here is the sentence: " + string)
-          println("And the full stacktrace: \n")
-          e.printStackTrace()
-          anno()
-      }
+    if (useRemoteServer) {
+      pipelineServerClient.annotate(string)
     } else {
-      anno()
+      val cacheKey = "*TextAnnotations" + viewsToDisable.mkString("*") + viewsToAdd.mkString("*") + string
+      val redisAnnotation = synchronizedRedisClient.get(cacheKey)
+
+      def anno() = {
+        //      println("------")
+        //      println(string)
+        //val textAnnotation = pipelineService.createAnnotatedTextAnnotation("", "", string)
+        val textAnnotation = pipelineService.createBasicTextAnnotation("", "", string)
+        try {
+          viewsToAdd.foreach { vu => pipelineService.addView(textAnnotation, vu) }
+        } catch {
+          case e: java.lang.NullPointerException =>
+            println(s"Exception thrown . . . \nInput string: $string")
+            e.printStackTrace()
+        }
+        //if (withQuantifier) quantifierAnnotator.addView(textAnnotation)
+        synchronizedRedisClient.put(cacheKey, SerializationHelper.serializeToJson(textAnnotation))
+        textAnnotation
+      }
+
+      if (redisAnnotation.isDefined) {
+        try {
+          SerializationHelper.deserializeFromJson(redisAnnotation.get)
+        } catch {
+          case e: java.lang.ArrayIndexOutOfBoundsException =>
+            println("Exception in deserialization. Here is the sentence: " + string)
+            println("And the full stacktrace: \n")
+            e.printStackTrace()
+            anno()
+        }
+      } else {
+        anno()
+      }
     }
   }
 
@@ -267,20 +287,45 @@ class AnnotationUtils {
     }
   }
 
-  def annotateVerbSRLwithRemoteServer(ta: TextAnnotation) = {
+  def annotateVerbSRLwithRemoteServer(ta: TextAnnotation): TextAnnotation = {
+    annotateViewLwithRemoteServer(ViewNames.SRL_VERB, ta)
+  }
+
+  def annotateViewLwithRemoteServer(viewName: String, ta: TextAnnotation): TextAnnotation = {
+    println(s"Adding ${viewName} from the remote server . . . ")
     try {
-      val query = Constants.pipelineServer(ta.text, ViewNames.SRL_VERB)
+      val query = Constants.pipelineServer(ta.text, viewName)
       val html = Source.fromURL(query)
       val jsonString = html.mkString
       val taNew = SerializationHelper.deserializeFromJson(jsonString)
-      if(taNew.hasView(ViewNames.SRL_VERB)) {
-        ta.addView(ViewNames.SRL_VERB, taNew.getView(ViewNames.SRL_VERB))
+      if (taNew.hasView(viewName)) {
+        ta.addView(viewName, taNew.getView(viewName))
         println("ta.getAvailableViews: " + ta.getAvailableViews)
       }
+      ta
+    } catch {
+      case e: java.io.IOException =>
+        println("Exception in SRL annotation; skipping this . . . ")
+        ta
     }
-    catch{
-      case e: java.io.IOException => println("Exception in SRL annotation; skipping this . . . ")
+  }
+
+  def annotateWithServerGivenViews(sentence: String, viewToAdd: Seq[String]): Option[TextAnnotation] = {
+    println(s"Adding ${viewToAdd} from the remote server . . . ")
+    try {
+      val query = Constants.pipelineServer(sentence, ViewNames.SRL_VERB)
+      val html = Source.fromURL(query)
+      val jsonString = html.mkString
+      Some(SerializationHelper.deserializeFromJson(jsonString))
+    } catch {
+      case e: java.io.IOException =>
+        println("Exception in SRL annotation; skipping this . . . ")
+        None
     }
+  }
+
+  def annotateWithServer(sentence: String): Option[TextAnnotation] = {
+    annotateWithServerGivenViews(sentence, viewsToAdd)
   }
 
   lazy val bioProcessCorefMap = {

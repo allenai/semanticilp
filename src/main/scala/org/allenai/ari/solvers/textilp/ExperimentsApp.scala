@@ -92,8 +92,9 @@ object ExperimentsApp {
   }
 
   def testQuantifier(): Unit = {
-    val ta = annotationUtils.pipelineService.createBasicTextAnnotation("", "",
-      "The first type are transposons, which move within a genome by means of a DNA intermediate. Transposons can move by a \"cut-and-paste\" mechanism, which removes the element from the original site, or by a \"copy-and-paste\" mechanism, which leaves a copy behind (Figure 21.9). Both mechanisms require an enzyme called transposase, which is generally encoded by the transposon.")
+    //    val ta = annotationUtils.pipelineService.createBasicTextAnnotation("", "",
+    //      "The first type are transposons, which move within a genome by means of a DNA intermediate. Transposons can move by a \"cut-and-paste\" mechanism, which removes the element from the original site, or by a \"copy-and-paste\" mechanism, which leaves a copy behind (Figure 21.9). Both mechanisms require an enzyme called transposase, which is generally encoded by the transposon.")
+    val ta = annotationUtils.pipelineService.createBasicTextAnnotation("", "", "you you")
     annotationUtils.pipelineService.addView(ta, ViewNames.QUANTITIES)
     annotationUtils.pipelineService.addView(ta, ViewNames.SHALLOW_PARSE)
     //    println(ta)
@@ -103,6 +104,8 @@ object ExperimentsApp {
     //    println(ta.getView(ViewNames.QUANTITIES).getConstituents.asScala.map(c => c.getSurfaceForm -> c.getLabel))
     println(ta.getView(ViewNames.TOKENS))
     println(ta.getView(ViewNames.SHALLOW_PARSE))
+    annotationUtils.pipelineService.addView(ta, ViewNames.SRL_VERB)
+    println(ta.getView(ViewNames.SRL_VERB))
   }
 
   def testClauseView(): Unit = {
@@ -299,28 +302,54 @@ object ExperimentsApp {
     SolverUtils.evaluateASingleQuestion("Which two observations are both used to describe weather? (A) like (B) the difference (C) events (D) temperature and sky condition", "tableilp")
   }
 
-  def evaluateTextSolverOnRegents(dataset: Seq[(String, Seq[String], String)], textSolver: TextSolver) = {
+  def evaluateTextSolverOnRegents(dataset: Seq[(String, Seq[String], String)], textSolver: TextSolver,
+                                  knowledgeLength: Int = 8, printMistakes: Boolean = false) = {
+    val start = System.currentTimeMillis()
     SolverUtils.printMemoryDetails()
-    println("Starting the evaluation . . . ")
-    val (perQuestionScore, perQuestionResults) = dataset.map {
+//    println("Starting the evaluation . . . ")
+    val (perQuestionScore, perQuestionResults, otherTimes) = dataset.map {
       case (question, options, correct) =>
-        //println("collecting knolwdge . . . ")
+        //      println("collecting knolwdge . . . ")
         //      val knowledgeSnippet = options.flatMap(focus => SolverUtils.extractParagraphGivenQuestionAndFocusWord(question, focus, 3)).mkString(" ")
         //      val knowledgeSnippet = options.flatMap(focus => SolverUtils.extractParagraphGivenQuestionAndFocusWord2(question, focus, 3)).mkString(" ")
+        val knowledgeStart = System.currentTimeMillis()
         val knowledgeSnippet = if (textSolver.isInstanceOf[TextILPSolver]) {
-          SolverUtils.extractPatagraphGivenQuestionAndFocusSet3(question, options, 8).mkString(" ")
+          SolverUtils.extractPatagraphGivenQuestionAndFocusSet3(question, options, knowledgeLength).mkString(" ")
         } else {
           ""
         }
+        val knowledgeEnd = System.currentTimeMillis()
         //println("solving it . . . ")
-        val (selected, results) = textSolver.solve(question, options, knowledgeSnippet)
+        val (selected, results) = if (knowledgeSnippet.trim.nonEmpty) {
+          textSolver.solve(question, options, knowledgeSnippet)
+        } else {
+          println("Error: knowledge not found .  .  .")
+          // choose all of them
+          options.indices -> EntityRelationResult()
+        }
+        val solveEnd = System.currentTimeMillis()
         val score = SolverUtils.assignCredit(selected, correct.head - 'A', options.length)
-        //println("Question: " + question + " / options: " + options  +  "   / selected: " + selected  + " / score: " + score)
-        score -> results.statistics
-    }.unzip
+        if(printMistakes && score < 1.0) {
+          println("Question: " + question + " / options: " + options + "   / selected: " + selected + " / score: " + score)
+        }
+        (score, results.statistics, ((knowledgeEnd - knowledgeStart)/ 1000.0, (solveEnd - knowledgeEnd) / 1000.0))
+    }.unzip3
+    val (avgKnowledgeTime, avgSolveTime) =  otherTimes.unzip
     println("Average score: " + perQuestionScore.sum / perQuestionScore.size)
-    val avgResults = perQuestionResults.reduceRight[Stats]{ case (a:Stats, b:Stats) => a.sumWith(b) }.divideBy(perQuestionResults.length)
+    println("Total number of questions: " + perQuestionResults.length)
+    println("Avg solve overall time: " + avgSolveTime.sum.toDouble / avgSolveTime.length)
+    println("Avg knowledge extraction time: " + avgKnowledgeTime.sum.toDouble / avgKnowledgeTime.length)
+    val end = System.currentTimeMillis()
+    println("Total time (mins): " + (end - start) / 60000.0)
+    val avgResults = perQuestionResults.reduceRight[Stats] { case (a: Stats, b: Stats) => a.sumWith(b) }.divideBy(perQuestionResults.length)
     println(avgResults.toString)
+  }
+
+  def cacheTheKnowledgeOnDisk(dataset: Seq[(String, Seq[String], String)]): Unit = {
+    dataset.foreach {
+      case (question, options, correct) =>
+        options.foreach { f => SolverUtils.staticCacheLucene(question, f, 200) }
+    }
   }
 
   def evaluateTextSolverOnSquad(reader: SQuADReader, textSolver: TextSolver) = {
@@ -403,7 +432,7 @@ object ExperimentsApp {
         score -> explanation.statistics // -> (explanation.confidence -> correctLabel)
     }.unzip
 
-    val avgStats = stats.reduceRight[Stats]{case (a:Stats, b:Stats) =>  a.sumWith(b) }.divideBy(stats.length)
+    val avgStats = stats.reduceRight[Stats] { case (a: Stats, b: Stats) => a.sumWith(b) }.divideBy(stats.length)
 
     println(avgStats.toString)
 
@@ -584,24 +613,31 @@ object ExperimentsApp {
         evaluateTextSolverOnRegents(SolverUtils.publicTrain, salienceSolver)
         evaluateTextSolverOnRegents(SolverUtils.publicTest, salienceSolver)
       case 11 =>
-        //        evaluateTextilpOnRegents(SolverUtils.publicTrain)
-        //        println("==== public train ")
-        //        evaluateTextilpOnRegents(SolverUtils.publicDev)
-        //        println("==== public dev ")
-        //        evaluateTextilpOnRegents(SolverUtils.publicTest)
-        //        println("==== public test ")
-                evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver)
-                println("==== regents train  ")
-        evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver)
-        println("==== regents test  ")
-        //        evaluateTextSolverOnRegents(SolverUtils.regentsPerturbed, luceneSolver)
-        //        println("==== regents perturbed  ")
-        //        evaluateTextSolverOnRegents(SolverUtils.omnibusTest, luceneSolver)
-        //        println("==== omnibus test  ")
-        //        evaluateTextSolverOnRegents(SolverUtils.regentsTest, luceneSolver)
+        //        evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver)
+        //        println("==== regents train  ")
+        //        evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver)
         //        println("==== regents test  ")
-//        evaluateTextSolverOnRegents(SolverUtils.publicTest, luceneSolver)
-//        println("==== public test  ")
+//        evaluateTextSolverOnRegents(SolverUtils.regentsPerturbed, textILPSolver)
+        //        println("==== regents perturbed  ")
+//                evaluateTextSolverOnRegents(SolverUtils.publicTrain, textILPSolver)
+//        println("==== public train ")
+//        evaluateTextSolverOnRegents(SolverUtils.publicDev, textILPSolver)
+//        println("==== public dev ")
+        evaluateTextSolverOnRegents(SolverUtils.publicTest, textILPSolver)
+        println("==== public test ")
+        evaluateTextSolverOnRegents(SolverUtils.omnibusTrain, textILPSolver)
+        println("==== omnibus train ")
+        evaluateTextSolverOnRegents(SolverUtils.omnibusTest, textILPSolver)
+        println("==== omnibus test ")
+      //        evaluateTextSolverOnRegents(SolverUtils.regentsPerturbed, luceneSolver)
+      //        println("==== regents perturbed  ")
+      //        evaluateTextSolverOnRegents(SolverUtils.omnibusTest, luceneSolver)
+      //        println("==== omnibus test  ")
+      //        evaluateTextSolverOnRegents(SolverUtils.regentsTest, luceneSolver)
+      //        println("==== regents test  ")
+      //        evaluateTextSolverOnRegents(SolverUtils.publicTest, luceneSolver)
+      //        println("==== public test  ")
+
 
       case 12 => extractKnowledgeSnippet()
       case 13 => testSquadPythonEvaluationScript()
@@ -1034,7 +1070,7 @@ object ExperimentsApp {
         //     println("filterWhatDoesItDo: ")
         //
         evaluateTextSolverOnProcessBank(processReader.testInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
-//        evaluateTextSolverOnProcessBank(processReader.testInstances.filterNotTrueFalse.filterNotTemporals, slidingWindowSolver)
+        //        evaluateTextSolverOnProcessBank(processReader.testInstances.filterNotTrueFalse.filterNotTemporals, slidingWindowSolver)
         println("no-temporals/no true or false: ")
       //
       //      evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals.filterNotWhatDoesItDo.filterNotCResultQuestions, textILPSolver)
@@ -1717,6 +1753,31 @@ object ExperimentsApp {
           "After gametes fuse and form a diploid zygote, meiosis occurs without a multicellular diploid offspring developing. Meiosis produces not gametes but haploid cells that then divide by mitosis and give rise to either unicellular descendants or a haploid multicellular adult organism. Subsequently, the haploid organism carries out further mitoses, producing the cells that develop into gametes.")
         annotationUtils.annotateVerbSRLwithRemoteServer(pTA)
 
+      case 77 =>
+        cacheTheKnowledgeOnDisk(SolverUtils.regentsTrain)
+        println("==== regents train  ")
+        cacheTheKnowledgeOnDisk(SolverUtils.regentsTest)
+        println("==== regents test  ")
+        cacheTheKnowledgeOnDisk(SolverUtils.regentsPerturbed)
+        println("==== regents perturbed  ")
+        cacheTheKnowledgeOnDisk(SolverUtils.publicTrain)
+        println("==== public train ")
+        cacheTheKnowledgeOnDisk(SolverUtils.publicTest)
+        println("==== public test ")
+        cacheTheKnowledgeOnDisk(SolverUtils.omnibusTrain)
+        println("==== omnibus train ")
+        cacheTheKnowledgeOnDisk(SolverUtils.omnibusTest)
+        println("==== omnibus test ")
+
+      case 78 =>
+        evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver, printMistakes = false)
+
+      case 79 =>
+        // try for different sizes of knowledge
+        (8 until 20 by 2).foreach{ s =>
+          println("Size: " + s)
+          evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver, s)
+        }
     }
   }
 }

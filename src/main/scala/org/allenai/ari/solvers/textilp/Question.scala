@@ -26,34 +26,37 @@ case class Answer(answerText: String, answerStart: Int, aTAOpt: Option[TextAnnot
 
 case class Entity(entityName: String, surface: String, boundaries: Seq[(Int, Int)])
 case class Relation(relationName: String, entity1: String, entity2: String, weight: Double)
-case class Stats(numberOfBinaryVars: Double = 0, numberOfContinuousVars: Double = 0, numberOfIntegerVars: Double = 0,
-                 numberOfConstraints: Double = 0, modelCreationInSec: Double = 0.0, solveTimeInSec: Double = 0.0) {
+case class Stats(numberOfBinaryVars: Double = 0.0, numberOfContinuousVars: Double = 0.0,
+  numberOfIntegerVars: Double = 0.0, numberOfConstraints: Double = 0.0, modelCreationInSec: Double = 0.0,
+  solveTimeInSec: Double = 0.0, ilpIterations: Double = 0.0) {
   def asVector: Seq[Double] = {
-    Seq(numberOfBinaryVars, numberOfContinuousVars, numberOfIntegerVars, numberOfConstraints, modelCreationInSec, solveTimeInSec)
+    Seq(numberOfBinaryVars, numberOfContinuousVars, numberOfIntegerVars, numberOfConstraints,
+      modelCreationInSec, solveTimeInSec, ilpIterations)
   }
-  def sumWith(in: Seq[Double]): Seq[Double] = asVector.zip(in).map{ case (x: Double, y: Double) => x + y }
+  def sumWith(in: Seq[Double]): Seq[Double] = asVector.zip(in).map { case (x: Double, y: Double) => x + y }
   def sumWith(in: Stats): Stats = Stats(
     in.numberOfBinaryVars + numberOfBinaryVars,
     in.numberOfContinuousVars + numberOfContinuousVars,
     in.numberOfIntegerVars + numberOfIntegerVars,
     in.numberOfConstraints + numberOfConstraints,
     in.modelCreationInSec + modelCreationInSec,
-    in.solveTimeInSec + solveTimeInSec
+    in.solveTimeInSec + solveTimeInSec,
+    in.ilpIterations + ilpIterations
   )
   def divideBy(denominator: Int) = Stats(numberOfBinaryVars / denominator, numberOfContinuousVars / denominator,
     numberOfIntegerVars / denominator, numberOfConstraints / denominator, modelCreationInSec / denominator,
-    solveTimeInSec / denominator)
+    solveTimeInSec / denominator, ilpIterations / denominator)
 
   override def toString: String = {
     s"numberOfBinaryVars: $numberOfBinaryVars \nnumberOfContinuousVars: $numberOfContinuousVars \n" +
       s"numberOfIntegerVars: $numberOfIntegerVars \nnumberOfConstraints: $numberOfConstraints \n" +
-      s"modelCreationInSec: $modelCreationInSec, solveTimeInSec: $solveTimeInSec"
+      s"modelCreationInSec: $modelCreationInSec \nsolveTimeInSec: $solveTimeInSec \nilpIterations: $ilpIterations"
   }
 }
 case class EntityRelationResult(
-  fullString: String,
-  entities: Seq[Entity],
-  relations: Seq[Relation],
+  fullString: String = "",
+  entities: Seq[Entity] = Seq.empty,
+  relations: Seq[Relation] = Seq.empty,
   explanation: String = "",
   statistics: Stats = Stats(),
   confidence: Double = -100.0, log: String = ""

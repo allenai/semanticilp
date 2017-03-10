@@ -4,11 +4,11 @@ import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.Constituent
 import org.allenai.ari.controller.questionparser.{FillInTheBlankGenerator, QuestionParse}
 import org.allenai.ari.solvers.squad.CandidateGeneration
-import org.elasticsearch.search.suggest.phrase.PhraseSuggestionBuilder.CandidateGenerator
 import org.simmetrics.StringMetric
 import org.simmetrics.metrics.StringMetrics
 
-//import org.allenai.ari.controller.questionparser.FillInTheBlankGenerator
+import scala.collection.mutable
+
 import org.allenai.ari.solvers.bioProccess.ProcessBankReader._
 import org.allenai.ari.solvers.textilp._
 import org.allenai.ari.solvers.textilp.alignment.{AlignmentFunction, KeywordTokenizer}
@@ -146,7 +146,8 @@ case class TextIlpParams(
                           srlAlignmentWeight: Double
                         )
 
-class TextILPSolver(annotationUtils: AnnotationUtils, verbose: Boolean = true, params: TextIlpParams) extends TextSolver {
+class TextILPSolver(annotationUtils: AnnotationUtils, verbose: Boolean = true, params: TextIlpParams,
+                    useRemoteAnnotation: Boolean = true) extends TextSolver {
 
   lazy val aligner = new AlignmentFunction("Entailment", 0.0,
     TextILPSolver.keywordTokenizer, useRedisCache = false, useContextInRedisCache = false)
@@ -156,22 +157,70 @@ class TextILPSolver(annotationUtils: AnnotationUtils, verbose: Boolean = true, p
     //    val ilpSolver = new IllinoisInference(new OJalgoHook)
     //    val ilpSolver = new IllinoisInference(new GurobiHook)
     val answers = options.map { o =>
-      val ansTA = annotationUtils.pipelineService.createBasicTextAnnotation("", "", o)
-      annotationUtils.pipelineService.addView(ansTA, ViewNames.SHALLOW_PARSE)
-      annotationUtils.pipelineService.addView(ansTA, ViewNames.DEPENDENCY_STANFORD)
-      Answer(o, -1, Some(ansTA))
+      val ansTA = try {
+        if(useRemoteAnnotation) {
+//          annotationUtils.annotateViewLwithRemoteServer(ViewNames.SHALLOW_PARSE, ansTA)
+//          annotationUtils.annotateViewLwithRemoteServer(ViewNames.DEPENDENCY_STANFORD, ansTA)
+          Some(annotationUtils.pipelineServerClient.annotate(o))
+        } else {
+          val ta = annotationUtils.pipelineService.createBasicTextAnnotation("", "", o)
+          annotationUtils.pipelineService.addView(ta, ViewNames.SHALLOW_PARSE)
+          annotationUtils.pipelineService.addView(ta, ViewNames.DEPENDENCY_STANFORD)
+          Some(ta)
+        }
+      } catch {
+        case e: Exception =>
+          e.printStackTrace()
+          None
+      }
+      Answer(o, -1, ansTA)
     }
-    val qTA = annotationUtils.pipelineService.createBasicTextAnnotation("", "", question)
-    if (question.trim.nonEmpty) {
-      annotationUtils.pipelineService.addView(qTA, ViewNames.SHALLOW_PARSE)
+    val qTA = if (question.trim.nonEmpty) {
+      if(useRemoteAnnotation) {
+        //annotationUtils.annotateViewLwithRemoteServer(ViewNames.SHALLOW_PARSE, qTA)
+//        annotationUtils.annotateViewLwithRemoteServer(qTA)
+        Some(annotationUtils.pipelineServerClient.annotate(question))
+      } else {
+        val ta = annotationUtils.pipelineService.createBasicTextAnnotation("", "", question)
+        annotationUtils.pipelineService.addView(ta, ViewNames.SHALLOW_PARSE)
+        Some(ta)
+      }
     }
-    val q = Question(question, "", answers, Some(qTA))
-    val pTA = annotationUtils.pipelineService.createBasicTextAnnotation("", "", snippet) // AnnotationUtils.annotate(snippet, withQuantifier = false)
-    if (snippet.trim.nonEmpty) {
-      annotationUtils.pipelineService.addView(pTA, ViewNames.SHALLOW_PARSE)
-      annotationUtils.pipelineService.addView(pTA, ViewNames.DEPENDENCY_STANFORD)
+    else {
+      println("Question string is empty . . . ")
+      println("question: " + question)
+      println("snippet: " + snippet)
+      None
     }
-    val p = Paragraph(snippet, Seq(q), Some(pTA))
+    val q = Question(question, "", answers, qTA)
+    val pTA = if (snippet.trim.nonEmpty) {
+      try {
+        if(useRemoteAnnotation) {
+//          annotationUtils.annotateViewLwithRemoteServer(ViewNames.SHALLOW_PARSE, pTA)
+//          annotationUtils.annotateViewLwithRemoteServer(ViewNames.DEPENDENCY_STANFORD, pTA)
+          //annotationUtils.annotateViewLwithRemoteServer(pTA)
+          Some(annotationUtils.pipelineServerClient.annotate(snippet))
+        } else {
+          val ta = annotationUtils.pipelineService.createBasicTextAnnotation("", "", snippet)
+          // AnnotationUtils.annotate(snippet, withQuantifier = false)
+          annotationUtils.pipelineService.addView(ta, ViewNames.SHALLOW_PARSE)
+          annotationUtils.pipelineService.addView(ta, ViewNames.DEPENDENCY_STANFORD)
+          Some(ta)
+        }
+      }
+      catch {
+        case e: Exception =>
+          e.printStackTrace()
+          None
+      }
+    }
+    else {
+      println("Paragraph String is empty ..... ")
+      println("question: " + question)
+      println("snippet: " + snippet)
+      None
+    }
+    val p = Paragraph(snippet, Seq(q), pTA)
     createILPModel(q, p, ilpSolver, aligner)
   }
 
@@ -190,10 +239,10 @@ class TextILPSolver(annotationUtils: AnnotationUtils, verbose: Boolean = true, p
 
     val useSRL = true
 
-    if(useSRL) {
-      annotationUtils.annotateVerbSRLwithRemoteServer(p.contextTAOpt.get)
-      annotationUtils.annotateVerbSRLwithRemoteServer(q.qTAOpt.get)
-    }
+//    if(useSRL) {
+//      annotationUtils.annotateVerbSRLwithRemoteServer(p.contextTAOpt.get)
+//      annotationUtils.annotateVerbSRLwithRemoteServer(q.qTAOpt.get)
+//    }
 
     val isTemporalQuestions = q.isTemporal
     require(q.qTAOpt.isDefined, "the annotatins for the question is not defined")
@@ -432,58 +481,65 @@ class TextILPSolver(annotationUtils: AnnotationUtils, verbose: Boolean = true, p
         false
       }
     }
-    val depView = p.contextTAOpt.get.getView(ViewNames.DEPENDENCY_STANFORD)
-    val depRelations = depView.getRelations.asScala
-    val edgeDependencyVariables = depRelations.zipWithIndex.map { case (r, idx) =>
-      val startConsOpt = getParagraphConsCovering(r.getSource)
-      val targetConsOpt = getParagraphConsCovering(r.getTarget)
-      if (startConsOpt.isDefined && targetConsOpt.isDefined && startConsOpt.get != targetConsOpt.get) {
-        val x = ilpSolver.createBinaryVar(s"Relation:$idx", params.firstOrderDependencyEdgeAlignments)
 
-        // this relation variable is active, only if its two sides are active
-        val startVar = activeParagraphConstituents(startConsOpt.get)
-        val targetVar = activeParagraphConstituents(targetConsOpt.get)
-        ilpSolver.addConsBasicLinear("dependencyVariableActiveOnlyIfSourceConsIsActive",
-          Seq(x, startVar), Seq(1.0, -1.0), None, Some(0.0))
-        ilpSolver.addConsBasicLinear("dependencyVariableActiveOnlyIfSourceConsIsActive",
-          Seq(x, targetVar), Seq(1.0, -1.0), None, Some(0.0))
+    var edgeDependencyVariables: mutable.Buffer[(Constituent, Constituent, V)] = mutable.Buffer.empty
+    if(p.contextTAOpt.get.hasView(ViewNames.DEPENDENCY_STANFORD)) {
+      val depView = p.contextTAOpt.get.getView(ViewNames.DEPENDENCY_STANFORD)
+      val depRelations = depView.getRelations.asScala
+      edgeDependencyVariables = depRelations.zipWithIndex.map { case (r, idx) =>
+        val startConsOpt = getParagraphConsCovering(r.getSource)
+        val targetConsOpt = getParagraphConsCovering(r.getTarget)
+        if (startConsOpt.isDefined && targetConsOpt.isDefined && startConsOpt.get != targetConsOpt.get) {
+          val x = ilpSolver.createBinaryVar(s"Relation:$idx", params.firstOrderDependencyEdgeAlignments)
 
-        val ansList1 = getAnswerOptionVariablesConnectedToParagraph(startConsOpt.get)
-        val ansList2 = getAnswerOptionVariablesConnectedToParagraph(targetConsOpt.get)
+          // this relation variable is active, only if its two sides are active
+          val startVar = activeParagraphConstituents(startConsOpt.get)
+          val targetVar = activeParagraphConstituents(targetConsOpt.get)
+          ilpSolver.addConsBasicLinear("dependencyVariableActiveOnlyIfSourceConsIsActive",
+            Seq(x, startVar), Seq(1.0, -1.0), None, Some(0.0))
+          ilpSolver.addConsBasicLinear("dependencyVariableActiveOnlyIfSourceConsIsActive",
+            Seq(x, targetVar), Seq(1.0, -1.0), None, Some(0.0))
 
-        val variablesPairsInAnswerOptionsWithDependencyRelation = for {
-          a <- ansList1
-          b <- ansList2
-          if a._1 == b._1 // same answer
-          if a._2 != b._2 // different tok
-          if twoAnswerConsAreConnectedViaDependencyParse(a._1, a._2, b._2) // they are connected via dep parse
-        }
-          yield {
-            val weight = 0.0 // TODO: tune this
-            val activePair = ilpSolver.createBinaryVar(s"activeAnsweOptionPairs", weight)
-            ilpSolver.addConsBasicLinear("NoActivePairIfNonAreActive", Seq(a._3, b._3, activePair), Seq(-1.0, -1.0, 1.0), None, Some(0.0))
-            ilpSolver.addConsBasicLinear("NoActivePairIfNonAreActive", Seq(activePair, a._3), Seq(-1.0, 1.0), None, Some(0.0))
-            ilpSolver.addConsBasicLinear("NoActivePairIfNonAreActive", Seq(activePair, b._3), Seq(-1.0, 1.0), None, Some(0.0))
-            activePair
+          val ansList1 = getAnswerOptionVariablesConnectedToParagraph(startConsOpt.get)
+          val ansList2 = getAnswerOptionVariablesConnectedToParagraph(targetConsOpt.get)
+
+          val variablesPairsInAnswerOptionsWithDependencyRelation = for {
+            a <- ansList1
+            b <- ansList2
+            if a._1 == b._1 // same answer
+            if a._2 != b._2 // different tok
+            if twoAnswerConsAreConnectedViaDependencyParse(a._1, a._2, b._2) // they are connected via dep parse
           }
-//        println("ansList1: " + ansList1)
-//        println("ansList2: " + ansList2)
-//        println("variablesPairsInAnswerOptionsWithDependencyRelation: " + variablesPairsInAnswerOptionsWithDependencyRelation.length)
+            yield {
+              val weight = 0.0 // TODO: tune this
+              val activePair = ilpSolver.createBinaryVar(s"activeAnsweOptionPairs", weight)
+              ilpSolver.addConsBasicLinear("NoActivePairIfNonAreActive", Seq(a._3, b._3, activePair), Seq(-1.0, -1.0, 1.0), None, Some(0.0))
+              ilpSolver.addConsBasicLinear("NoActivePairIfNonAreActive", Seq(activePair, a._3), Seq(-1.0, 1.0), None, Some(0.0))
+              ilpSolver.addConsBasicLinear("NoActivePairIfNonAreActive", Seq(activePair, b._3), Seq(-1.0, 1.0), None, Some(0.0))
+              activePair
+            }
+          //        println("ansList1: " + ansList1)
+          //        println("ansList2: " + ansList2)
+          //        println("variablesPairsInAnswerOptionsWithDependencyRelation: " + variablesPairsInAnswerOptionsWithDependencyRelation.length)
 
-        // if the paragraph relation pair is active, at least one answer response pair should be active
-        // in other words
-        ilpSolver.addConsBasicLinear("atLeastOnePairShouldBeActive",
-          variablesPairsInAnswerOptionsWithDependencyRelation :+ x,
-          Array.fill(variablesPairsInAnswerOptionsWithDependencyRelation.length) {
-            -1.0
-          } :+ 1.0, None, Some(0.0))
+          // if the paragraph relation pair is active, at least one answer response pair should be active
+          // in other words
+          ilpSolver.addConsBasicLinear("atLeastOnePairShouldBeActive",
+            variablesPairsInAnswerOptionsWithDependencyRelation :+ x,
+            Array.fill(variablesPairsInAnswerOptionsWithDependencyRelation.length) {
+              -1.0
+            } :+ 1.0, None, Some(0.0))
 
-        Some(startConsOpt.get, targetConsOpt.get, x)
-      }
-      else {
-        None
-      }
-    }.collect { case a if a.isDefined => a.get }
+          Some(startConsOpt.get, targetConsOpt.get, x)
+        }
+        else {
+          None
+        }
+      }.collect { case a if a.isDefined => a.get }
+    }
+    else {
+      println("Paragraph does not contain parse-view . . . ")
+    }
 
     // constraints
     // alignment to only one option, i.e. there must be only one single active option
@@ -599,11 +655,15 @@ class TextILPSolver(annotationUtils: AnnotationUtils, verbose: Boolean = true, p
                                   metric: StringMetric): Double = {
       val paragraphTokens = p.contextTAOpt.get.getTokens
       val paragraphSize = paragraphTokens.length
-      (0 until paragraphSize - windowSize).map { startIdx =>
-        val endIdx = startIdx + windowSize
-        val paragraphWindow = paragraphTokens.slice(startIdx, endIdx).mkString(" ")
-        metric.compare(paragraphWindow, questionString)
-      }.max
+      if(paragraphSize > windowSize) {
+        (0 until paragraphSize - windowSize).map { startIdx =>
+          val endIdx = startIdx + windowSize
+          val paragraphWindow = paragraphTokens.slice(startIdx, endIdx).mkString(" ")
+          metric.compare(paragraphWindow, questionString)
+        }.max
+      } else {
+        0.0
+      }
     }
 
     // for result questions ...
@@ -711,24 +771,24 @@ class TextILPSolver(annotationUtils: AnnotationUtils, verbose: Boolean = true, p
 
       // does question-srl contain any question term?
       val cons = qSRLCons.filter(c => CandidateGeneration.questionTerms.contains(c.getSurfaceForm.toLowerCase))
-      println(">>>>>> cons: " + cons)
+      if (verbose) println(">>>>>> cons: " + cons)
       if(cons.nonEmpty) {
         if(cons.size > 1) {
           println("More than two cons overlapping with the question term. Choosing the head . . . ")
         }
-        println("question: " + q.questionText)
+        if (verbose) println("question: " + q.questionText)
         val qArgLabel = cons.head.getLabel
-        println(">>>>>>> qArgLabel: " + qArgLabel)
+        if (verbose) println(">>>>>>> qArgLabel: " + qArgLabel)
         val qSource = cons.head.getIncomingRelations.get(0).getSource
-        println(">>>>>>>> " + qSource)
+        if (verbose) println(">>>>>>>> " + qSource)
         def getLabel(pred: Constituent): String = pred.getLabel + pred.getAttribute("SenseNumber") + pred.getAttribute("predicate")
         val qSourceLabel = getLabel(qSource)
-        println(">>>>>>>> " + qSourceLabel)
+        if (verbose) println(">>>>>>>> " + qSourceLabel)
         val pParagraph = pSRLCons.filter(c => getLabel(c) == qSourceLabel)
         val pArgCons = pParagraph.flatMap{ pred =>
           pred.getOutgoingRelations.asScala.map(_.getTarget).filter(_.getLabel == qArgLabel)
         }
-        println("pArgCons: " + pArgCons)
+        if (verbose) println("pArgCons: " + pArgCons)
         // check if any of the any of the selected constituents overlap with one of the answers
         def getClosestIndex(qCons: Seq[Constituent], pCons: Seq[Constituent]): Int = {
           pCons.map { c =>
@@ -740,11 +800,11 @@ class TextILPSolver(annotationUtils: AnnotationUtils, verbose: Boolean = true, p
           val ansCons = ans.aTAOpt.get.getView(ViewNames.TOKENS).asScala.toList
           val ansParagraphIdx = getClosestIndex(ansCons, pCons)
           val ansSpan = pCons(ansParagraphIdx).getSpan
-          println("ansCons: " + ansCons)
-          println("pCons(ansParagraphIdx): " + pCons(ansParagraphIdx))
+          if (verbose) println("ansCons: " + ansCons)
+          if (verbose) println("pCons(ansParagraphIdx): " + pCons(ansParagraphIdx))
           if(pArgCons.exists{ pArg => pArg.getSpan.getFirst <= ansSpan.getFirst &&  pArg.getSpan.getSecond >= ansSpan.getSecond }) 1 else 0
         }
-        println("results: " + results)
+        if (verbose) println("results: " + results)
         if(results.sum == 1) { // i.e. only one of the answer options has overlap
           results.zipWithIndex.foreach{ case (v, idx) =>
             if(v == 1) {
@@ -818,7 +878,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils, verbose: Boolean = true, p
 
     val statistics = Stats(numberOfBinaryVars = ilpSolver.getNBinVars,
       numberOfContinuousVars = ilpSolver.getNContVars, numberOfIntegerVars = ilpSolver.getNIntVars,
-      numberOfConstraints = ilpSolver.getNConss,
+      numberOfConstraints = ilpSolver.getNConss, ilpIterations = ilpSolver.getNLPIterations,
       modelCreationInSec = (modelSolveEnd - modelSolveStart) / 1000.0, solveTimeInSec = (modelSolveStart - modelCreationStart) / 1000.0)
     if(verbose) {
       println("Statistics: " + statistics)

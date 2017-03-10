@@ -16,7 +16,7 @@ object Constants {
   val useRedisCachingForAnnotation = true
   val useRedisCachingForElasticSearch = false
 
-  val redisServer = "localhost" // "tableilp-light.dev.ai2" //  //"tableilp16c1.dev.ai2" "localhost"
+  val redisServer = "tableilp-light.dev.ai2" // "localhost" //  //  //"tableilp16c1.dev.ai2" "localhost"
   val redisPort = Protocol.DEFAULT_PORT
   val timeout = 20000
 
