@@ -1770,7 +1770,7 @@ object ExperimentsApp {
         println("==== omnibus test ")
 
       case 78 =>
-        evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver, printMistakes = false)
+        evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver, printMistakes = false)
 
       case 79 =>
         // try for different sizes of knowledge
