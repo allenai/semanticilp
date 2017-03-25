@@ -34,7 +34,7 @@ def textualEntailment(component: String) = ("org.allenai.textual-entailment" %% 
     .exclude("org.slf4j", "log4j-over-slf4j")
     .exclude("edu.stanford.nlp", "stanford-corenlp")
 
-def ccgLib(component: String) = (ccgGroupId % component % cogcompNLPVersion withSources)
+def ccgLib(component: String) = (ccgGroupId % component % cogcompNLPVersion withSources).exclude(ccgGroupId, "illinois-depparse")
 
 val sprayVersion = "1.3.3"
 def sprayModule(id: String): ModuleID = "io.spray" %% s"spray-$id" % sprayVersion
@@ -77,6 +77,7 @@ lazy val root = (project in file(".")).
       //ccgGroupId % "illinois-llm" % "1.1.4",
       ccgGroupId % "saul-examples_2.11" % "0.5.7-SNAPSHOT",
       ccgGroupId % "scip-jni" % "3.1.1",
+      "edu.cmu" % "Meteor" % "1.5",
       nlpstack("chunk") ,
       nlpstack("lemmatize"),
       nlpstack("tokenize"),
@@ -108,6 +109,7 @@ lazy val viz = (project in file("viz")).
   dependsOn(root).
   aggregate(root).
   enablePlugins(PlayScala).
+  disablePlugins(PlayLogback).
   settings(
     name:= "text-ilp-visualization",
     libraryDependencies ++= Seq(
@@ -119,9 +121,10 @@ lazy val viz = (project in file("viz")).
       "org.webjars" % "jquery" % "3.1.1",
       "org.webjars" % "headjs" % "1.0.3"
     ),
-    resolvers ++= Seq("scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"),
-    projectDependencies := {
-      Seq((projectID in root).value.exclude("org.slf4j", "slf4j-log4j12"))
-    }
+    resolvers ++= Seq("scalaz-bintray" at "http://dl.bintray.com/scalaz/releases")//,
+    //projectDependencies := {
+    //  Seq((projectID in root).value.exclude("org.slf4j", "slf4j-log4j12"))
+    //}//,
+    // resourceDirectories in Compile +=  "/Users/daniel/ideaProjects/TextILP/src/main/resources" //baseDirectory.value / "myresources"
     //, unmanagedBase := baseDirectory.value / "lib"
   )

@@ -1,6 +1,7 @@
 package org.allenai.ari.solvers.textilp
 
 import java.io.File
+import java.net.URL
 
 import edu.illinois.cs.cogcomp.McTest.MCTestBaseline
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
@@ -18,6 +19,7 @@ import org.rogach.scallop._
 
 import scala.collection.JavaConverters._
 import ProcessBankReader._
+import edu.cmu.meteor.scorer.{ MeteorConfiguration, MeteorScorer }
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{ Constituent, TextAnnotation }
 import edu.illinois.cs.cogcomp.edison.annotators.ClauseViewGenerator
 import org.simmetrics.metrics.StringMetrics
@@ -40,10 +42,10 @@ object ExperimentsApp {
     firstOrderDependencyEdgeAlignments = 0.0,
     activeSentencesDiscount = -2.5, // tuned
     activeParagraphConstituentsWeight = 0.0, // tuned
-    minQuestiontTermsAligned = 1,
-    maxQuestiontTermsAligned = 3,
-    minQuestiontTermsAlignedRatio = 0.1,
-    maxQuestiontTermsAlignedRatio = 0.65,
+    minQuestionTermsAligned = 1,
+    maxQuestionTermsAligned = 3,
+    minQuestionTermsAlignedRatio = 0.1,
+    maxQuestionTermsAlignedRatio = 0.65,
     maxActiveSentences = 2,
     longerThan1TokenAnsPenalty = 0.0,
     longerThan2TokenAnsPenalty = 0.0,
@@ -54,9 +56,15 @@ object ExperimentsApp {
     moreThan2AlignmentAnsPenalty = -0.5,
     moreThan3AlignmentAnsPenalty = -0.7,
 
+    meteorExactMatchMinScoreValue = 0.0, // 0.3,
+    meteorExactMatchMinScoreDiff = 0.0, /// 0.12,
+
     exactMatchMinScoreValue = 0.76,
     exactMatchMinScoreDiff = 0.15,
     exactMatchSoftWeight = 0.0,
+
+    minQuestionToParagraphAlignmentScore = 0.0,
+    minParagraphToQuestionAlignmentScore = 0.00,
 
     // Question: sparsity
     moreThan1AlignmentToQuestionTermPenalty = -0.3,
@@ -79,9 +87,10 @@ object ExperimentsApp {
     coreferenceWeight = 0.0,
     intraSentenceAlignmentScoreDiscount = 0.0,
     entailmentWeight = 0.0,
-    srlAlignmentWeight = 0.0
+    srlAlignmentWeight = 0.0,
+    scieneTermBoost = 0.1
   )
-  lazy val textILPSolver = new TextILPSolver(annotationUtils, false, params)
+  lazy val textILPSolver = new TextILPSolver(annotationUtils, verbose = false, params)
   lazy val salienceSolver = new SalienceSolver()
   lazy val luceneSolver = new LuceneSolver()
   lazy val slidingWindowSolver = new SlidingWindowSolver()
@@ -303,10 +312,10 @@ object ExperimentsApp {
   }
 
   def evaluateTextSolverOnRegents(dataset: Seq[(String, Seq[String], String)], textSolver: TextSolver,
-                                  knowledgeLength: Int = 8, printMistakes: Boolean = false) = {
+    knowledgeLength: Int = 8, printMistakes: Boolean = false) = {
     val start = System.currentTimeMillis()
     SolverUtils.printMemoryDetails()
-//    println("Starting the evaluation . . . ")
+    //    println("Starting the evaluation . . . ")
     val (perQuestionScore, perQuestionResults, otherTimes) = dataset.map {
       case (question, options, correct) =>
         //      println("collecting knolwdge . . . ")
@@ -329,16 +338,25 @@ object ExperimentsApp {
         }
         val solveEnd = System.currentTimeMillis()
         val score = SolverUtils.assignCredit(selected, correct.head - 'A', options.length)
-        if(printMistakes && score < 1.0) {
+        if (printMistakes && score < 1.0) {
           println("Question: " + question + " / options: " + options + "   / selected: " + selected + " / score: " + score)
         }
-        (score, results.statistics, ((knowledgeEnd - knowledgeStart)/ 1000.0, (solveEnd - knowledgeEnd) / 1000.0))
+        if (score > 0) {
+          println("Score " + score + "  selected: " + selected)
+        }
+        (score, results.statistics,
+          ((knowledgeEnd - knowledgeStart) / 1000.0, (solveEnd - knowledgeEnd) / 1000.0, if (selected.nonEmpty) 1.0 else 0.0))
     }.unzip3
-    val (avgKnowledgeTime, avgSolveTime) =  otherTimes.unzip
+    val (avgKnowledgeTime, avgSolveTime, nonEmptyList) = otherTimes.unzip3
+    val avgCoverage = nonEmptyList.sum / nonEmptyList.length
+    val nonZeroScores = perQuestionScore.zip(nonEmptyList).filter(_._2 > 0.0).map(_._1)
     println("Average score: " + perQuestionScore.sum / perQuestionScore.size)
+    println("Avg precision: " + nonZeroScores.sum / nonZeroScores.size)
+    println("avgCoverage: " + avgCoverage)
     println("Total number of questions: " + perQuestionResults.length)
-    println("Avg solve overall time: " + avgSolveTime.sum.toDouble / avgSolveTime.length)
-    println("Avg knowledge extraction time: " + avgKnowledgeTime.sum.toDouble / avgKnowledgeTime.length)
+    println("Total number of questions: " + nonZeroScores.length)
+    println("Avg solve overall time: " + avgSolveTime.sum / avgSolveTime.length)
+    println("Avg knowledge extraction time: " + avgKnowledgeTime.sum / avgKnowledgeTime.length)
     val end = System.currentTimeMillis()
     println("Total time (mins): " + (end - start) / 60000.0)
     val avgResults = perQuestionResults.reduceRight[Stats] { case (a: Stats, b: Stats) => a.sumWith(b) }.divideBy(perQuestionResults.length)
@@ -412,7 +430,7 @@ object ExperimentsApp {
 
   def evaluateTextSolverOnProcessBank(list: List[Paragraph], textSolver: TextSolver) = {
     val qAndpPairs = list.flatMap { p => p.questions.map(q => (q, p)) }
-    val (resultLists, stats) = qAndpPairs.zipWithIndex.map {
+    val (resultLists, stats, nonEmptyList) = qAndpPairs.zipWithIndex.map {
       case ((q, p), idx) =>
         //        println("==================================================")
         //        println("Processed " + idx + " out of " + qAndpPairs.size)
@@ -428,19 +446,22 @@ object ExperimentsApp {
         val (selected, explanation) = textSolver.solve(q.questionText, candidates, p.context)
         val correctLabel = q.answers(correctIndex).answerText
         val score = SolverUtils.assignCredit(selected, correctIndex, candidates.length)
+        println("selected: " + selected + " score: " + score + " explanation: " + explanation)
         //        if (score < 0.5) println(" >>>>>>> Incorrect :" + score)
-        score -> explanation.statistics // -> (explanation.confidence -> correctLabel)
-    }.unzip
+        (score, explanation.statistics, if (selected.nonEmpty) 1.0 else 0.0) // -> (explanation.confidence -> correctLabel)
+    }.unzip3
 
     val avgStats = stats.reduceRight[Stats] { case (a: Stats, b: Stats) => a.sumWith(b) }.divideBy(stats.length)
-
-    println(avgStats.toString)
-
+    val avgCoverage = nonEmptyList.sum / nonEmptyList.length
+    val nonEmptyScores = resultLists.zip(nonEmptyList).filter(_._2 > 0).map(_._1)
+    val avgPrecision = nonEmptyScores.sum / nonEmptyScores.length
     val avgAristoScore = resultLists.sum / resultLists.length
-    //    println(confidences.mkString("\n"))
-
     println("------------")
     println("avgAristoScore: " + avgAristoScore)
+    println("avgPrecision: " + avgPrecision)
+    println("avgCoverage: " + avgCoverage)
+    println("total size: " + resultLists.length)
+    println("total answered: " + nonEmptyScores.length)
   }
 
   def testTheDatastes() = {
@@ -594,7 +615,7 @@ object ExperimentsApp {
   def main(args: Array[String]): Unit = {
     lazy val trainReader = new SQuADReader(Constants.squadTrainingDataFile, Some(annotationUtils.pipelineService), annotationUtils)
     lazy val devReader = new SQuADReader(Constants.squadDevDataFile, Some(annotationUtils.pipelineService), annotationUtils)
-    //lazy val processReader = new ProcessBankReader(true, annotationUtils)
+    //    lazy val processReader = new ProcessBankReader(true, annotationUtils)
     lazy val processReader = new ProcessBankReader(false, annotationUtils)
     val parser = new ArgumentParser(args)
     parser.experimentType() match {
@@ -613,22 +634,22 @@ object ExperimentsApp {
         evaluateTextSolverOnRegents(SolverUtils.publicTrain, salienceSolver)
         evaluateTextSolverOnRegents(SolverUtils.publicTest, salienceSolver)
       case 11 =>
-        //        evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver)
-        //        println("==== regents train  ")
-        //        evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver)
-        //        println("==== regents test  ")
-//        evaluateTextSolverOnRegents(SolverUtils.regentsPerturbed, textILPSolver)
-        //        println("==== regents perturbed  ")
-//                evaluateTextSolverOnRegents(SolverUtils.publicTrain, textILPSolver)
-//        println("==== public train ")
-//        evaluateTextSolverOnRegents(SolverUtils.publicDev, textILPSolver)
-//        println("==== public dev ")
-        evaluateTextSolverOnRegents(SolverUtils.publicTest, textILPSolver)
-        println("==== public test ")
-        evaluateTextSolverOnRegents(SolverUtils.omnibusTrain, textILPSolver)
-        println("==== omnibus train ")
-        evaluateTextSolverOnRegents(SolverUtils.omnibusTest, textILPSolver)
-        println("==== omnibus test ")
+        evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver)
+        println("==== regents train  ")
+        evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver)
+        println("==== regents test  ")
+      // evaluateTextSolverOnRegents(SolverUtils.regentsPerturbed, textILPSolver)
+      //        println("==== regents perturbed  ")
+      //                evaluateTextSolverOnRegents(SolverUtils.publicTrain, textILPSolver)
+      //        println("==== public train ")
+      //        evaluateTextSolverOnRegents(SolverUtils.publicDev, textILPSolver)
+      //        println("==== public dev ")
+      //evaluateTextSolverOnRegents(SolverUtils.publicTest, textILPSolver)
+      //println("==== public test ")
+      //evaluateTextSolverOnRegents(SolverUtils.omnibusTrain, textILPSolver)
+      //println("==== omnibus train ")
+      //evaluateTextSolverOnRegents(SolverUtils.omnibusTest, textILPSolver)
+      //println("==== omnibus test ")
       //        evaluateTextSolverOnRegents(SolverUtils.regentsPerturbed, luceneSolver)
       //        println("==== regents perturbed  ")
       //        evaluateTextSolverOnRegents(SolverUtils.omnibusTest, luceneSolver)
@@ -637,7 +658,6 @@ object ExperimentsApp {
       //        println("==== regents test  ")
       //        evaluateTextSolverOnRegents(SolverUtils.publicTest, luceneSolver)
       //        println("==== public test  ")
-
 
       case 12 => extractKnowledgeSnippet()
       case 13 => testSquadPythonEvaluationScript()
@@ -1069,20 +1089,20 @@ object ExperimentsApp {
         //     evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterWhatDoesItDo, textILPSolver)
         //     println("filterWhatDoesItDo: ")
         //
+        // evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
         evaluateTextSolverOnProcessBank(processReader.testInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
-        //        evaluateTextSolverOnProcessBank(processReader.testInstances.filterNotTrueFalse.filterNotTemporals, slidingWindowSolver)
-        println("no-temporals/no true or false: ")
+      // evaluateTextSolverOnProcessBank(processReader.testInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
+      // println("no-temporals/no true or false: ")
       //
       //      evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals.filterNotWhatDoesItDo.filterNotCResultQuestions, textILPSolver)
       //      println("no-temporals/no true or false/filterNotWhatDoesItDo.filterNotCResultQuestions")
-
-      /*      (0.0 to 3.0 by 0.1).foreach { weight =>
-        val newParams = params.copy(moreThan1AlignmentAnsPenalty = -weight)
-        lazy val solver = new TextILPSolver(annotationUtils, verbose = false, newParams)
-        evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, solver)
-        println("no-temporals/no true or false/weight: " + weight)
-        println("-------------------")
-      }*/
+      //      (0.12 to 0.5 by 0.02).foreach { weight =>
+      //        val newParams = params.copy(minParagraphToQuestionAlignmentScore = weight)
+      //        lazy val solver = new TextILPSolver(annotationUtils, verbose = false, newParams)
+      //        evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, solver)
+      //        println("no-temporals/no true or false/weight: " + weight)
+      //        println("-------------------")
+      //      }
       // evaluateTextSolverOnProcessBank(processReader, slidingWindowSolver)
       case 52 =>
         // write processBank on disk as json
@@ -1484,7 +1504,7 @@ object ExperimentsApp {
             TextILPSolver.getAvgScore(qCons, Seq(c))
           }.zipWithIndex.maxBy(_._1)._2
         }
-        val paragraphs = processReader.trainingInstances.filterWhatDoesItDo
+        val paragraphs = processReader.trainingInstances.filterNotTemporals.filterNotTrueFalse.filterWhatDoesItDo
         paragraphs.foreach { p =>
           val pCons = p.contextTAOpt.get.getView(ViewNames.SHALLOW_PARSE).asScala.toList
           p.questions.foreach { q =>
@@ -1501,34 +1521,28 @@ object ExperimentsApp {
               if (q.correctIdxOpt.get == 1) {
                 a2 += 1
               }
-            }
-            if (a1Idx > qIdx && a2Idx < qIdx) {
+            } else if (a1Idx > qIdx && a2Idx < qIdx) {
               // at least one of the answers happens before the question
               a1 += 1
               if (q.correctIdxOpt.get == 0) {
                 a2 += 1
               }
-            }
-            // both after: closer is the answer
+            } else // both after: closer is the answer
             if (a1Idx > qIdx && a2Idx > qIdx) {
               // at least one of the answers happens before the question
               b1 += 1
               if (a2Idx < a1Idx && q.correctIdxOpt.get == 1) {
                 b2 += 1
-              }
-              if (a2Idx > a1Idx && q.correctIdxOpt.get == 0) {
+              } else if (a2Idx > a1Idx && q.correctIdxOpt.get == 0) {
                 b2 += 1
               }
-            }
-
-            // both before: closed is the answer
+            } else // both before: closed is the answer
             if (a1Idx < qIdx && a2Idx < qIdx) {
               // at least one of the answers happens before the question
               c1 += 1
               if (a2Idx > a1Idx && q.correctIdxOpt.get == 1) {
                 c2 += 1
-              }
-              if (a2Idx < a1Idx && q.correctIdxOpt.get == 0) {
+              } else if (a2Idx < a1Idx && q.correctIdxOpt.get == 0) {
                 c2 += 1
               }
             }
@@ -1537,9 +1551,13 @@ object ExperimentsApp {
         val ratioA = a2.toDouble / a1
         val ratioB = b2.toDouble / b1
         val ratioC = c2.toDouble / c1
+        val total2 = a2 + b2 + c2
+        val total1 = a1 + b1 + c1
+        val ratioTotal = total2.toDouble / total1
         println(s"ratioA: $ratioA - a1: $a1 - a2: $a2")
         println(s"ratioB: $ratioB - b1: $b1 - b2: $b2")
         println(s"ratioC: $ratioC - c1: $c1 - c2: $c2")
+        println(s"ratioC: $ratioTotal - num: $total2 - den: $total1")
         println("-----------------------")
 
       case 70 =>
@@ -1754,10 +1772,10 @@ object ExperimentsApp {
         annotationUtils.annotateVerbSRLwithRemoteServer(pTA)
 
       case 77 =>
-        cacheTheKnowledgeOnDisk(SolverUtils.regentsTrain)
-        println("==== regents train  ")
-        cacheTheKnowledgeOnDisk(SolverUtils.regentsTest)
-        println("==== regents test  ")
+        //        cacheTheKnowledgeOnDisk(SolverUtils.regentsTrain)
+        //        println("==== regents train  ")
+        //        cacheTheKnowledgeOnDisk(SolverUtils.regentsTest)
+        //        println("==== regents test  ")
         cacheTheKnowledgeOnDisk(SolverUtils.regentsPerturbed)
         println("==== regents perturbed  ")
         cacheTheKnowledgeOnDisk(SolverUtils.publicTrain)
@@ -1770,14 +1788,284 @@ object ExperimentsApp {
         println("==== omnibus test ")
 
       case 78 =>
-        evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver, printMistakes = false)
+        //        evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver, printMistakes = false)
+        //        evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver, printMistakes = false)
+
+        //        evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
+        //        println("Train: no-temporals/no true or false: ")
+
+        println("number of questions: " + processReader.testInstances.filterNotTrueFalse.filterNotTemporals.length)
+        evaluateTextSolverOnProcessBank(processReader.testInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
+        println("Test: no-temporals/no true or false: ")
+        println("number of questions: " + processReader.testInstances.filterNotTrueFalse.filterNotTemporals.length)
+
+      //        (0.0 to 3.0 by 0.1).foreach { weight =>
+      //          println("------\n   weight: " + weight)
+      //          val newParams = params.copy(scieneTermBoost = weight)
+      //          lazy val solver = new TextILPSolver(annotationUtils, verbose = false, newParams)
+      //          evaluateTextSolverOnRegents(SolverUtils.regentsTrain, solver, printMistakes = false)
+      //          println("no-temporals/no true or false/weight: " + weight)
+      //        }
 
       case 79 =>
         // try for different sizes of knowledge
-        (8 until 20 by 2).foreach{ s =>
+        (8 until 20 by 2).foreach { s =>
           println("Size: " + s)
           evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver, s)
         }
+
+      case 80 =>
+        // print the questions on which Lucene is correct but TextILP is wrong
+        SolverUtils.regentsTrain.map {
+          case (question, options, correct) =>
+            val knowledgeSnippet = SolverUtils.extractPatagraphGivenQuestionAndFocusSet3(question, options, 8).mkString(" ")
+            val (selected, results) = if (knowledgeSnippet.trim.nonEmpty) {
+              textILPSolver.solve(question, options, knowledgeSnippet)
+            } else {
+              println("Error: knowledge not found .  .  .")
+              // choose all of them
+              options.indices -> EntityRelationResult()
+            }
+            val textIlpScore = SolverUtils.assignCredit(selected, correct.head - 'A', options.length)
+            val (luceneSelected, luceneResults) = luceneSolver.solve(question, options, knowledgeSnippet)
+            val luceneScore = SolverUtils.assignCredit(luceneSelected, correct.head - 'A', options.length)
+            (textIlpScore, luceneScore, question)
+        }.foreach {
+          case (textIlpScore, luceneScore, question) =>
+            if (textIlpScore < luceneScore) {
+              println(question)
+              println("lucene: " + luceneScore + " / " + textIlpScore)
+              println("-------")
+            }
+        }
+
+      case 81 =>
+        val (overalScores, overallLuceneScores) = SolverUtils.regentsTrain.map {
+          case (question, options, correct) =>
+            val (luceneScore, selectedIdx) = SolverUtils.myLuceneSolver(question, options).unzip
+            val score = SolverUtils.assignCredit(selectedIdx, correct.head - 'A', options.length)
+            score -> luceneScore
+        }.unzip
+        println("Avg luceneScore: " + overalScores.sum / overalScores.length)
+
+      case 82 =>
+        // try alignment system
+        val config = new MeteorConfiguration()
+        config.setParaFileURL(new URL("file:/Users/daniel/ideaProjects/TextILP/src/main/resources/data/paraphrase-en.gz"))
+        //        config.setWordFileURL(new URL("file:/Users/daniel/ideaProjects/meteor/src/main/resources/function/"))
+        val scorer = new MeteorScorer(config)
+        val stats = scorer.getMeteorStats("these include actitvies", "these include actitvies")
+        println(stats.score)
+        println(stats.alignment)
+
+      case 83 =>
+        val config = new MeteorConfiguration()
+        config.setParaFileURL(new URL("file:/Users/daniel/ideaProjects/TextILP/src/main/resources/data/paraphrase-en.gz"))
+        val scorer = new MeteorScorer(config)
+
+        // test different metrics for alignment sliding window
+        val fitbGenerator = FillInTheBlankGenerator.mostRecent
+
+        val paragraphs = processReader.testInstances.filterNotTemporals.filterNotTrueFalse
+
+        def compareSimilairityInWndow2(p: Paragraph, questionString: String,
+          windowSize: Int, metric: MeteorScorer): Double = {
+          val paragraphTokens = p.contextTAOpt.get.getTokens
+          val paragraphSize = paragraphTokens.length
+          (0 until paragraphSize - windowSize).map { startIdx =>
+            val endIdx = startIdx + windowSize
+            val paragraphWindow = paragraphTokens.slice(startIdx, endIdx).mkString(" ")
+            val stats = scorer.getMeteorStats(paragraphWindow, questionString)
+            stats.score
+          }.max
+        }
+
+        def compareSimilairityFullParagraph(p: Paragraph, questionString: String, metric: MeteorScorer): Double = {
+          val stats = scorer.getMeteorStats(p.context, questionString)
+          stats.score
+        }
+
+        def compareSimilairityInWndowBySentence(p: Paragraph, questionString: String, metric: MeteorScorer): Double = {
+          val paragraphTokensPerSentence = p.contextTAOpt.get.getTokens.zipWithIndex.map {
+            case (tok, tokId) =>
+              val sentId = p.contextTAOpt.get.getSentenceId(tokId)
+              (tok, sentId)
+          }.groupBy(_._2)
+          println("paragraphTokensPerSentence: ")
+          println(paragraphTokensPerSentence)
+          paragraphTokensPerSentence.map {
+            case (sentId, toks) =>
+              val paragraphWindow = toks.map(_._1).mkString(" ")
+              val stats = scorer.getMeteorStats(paragraphWindow, questionString)
+              stats.score
+          }.max
+        }
+
+        val results2 = paragraphs.flatMap { p =>
+          val pCons = p.contextTAOpt.get.getView(ViewNames.SHALLOW_PARSE).asScala.toList
+          p.questions.map { q =>
+            val qparse = QuestionParse.constructFromString(q.questionText)
+            val fitbQuestionStrOpt = fitbGenerator.generateFITB(qparse).map(_.text)
+            fitbQuestionStrOpt match {
+              case Some(x) =>
+                val str1 = x.replace("BLANK_", q.answers(0).answerText).dropRight(1).toLowerCase
+                val str2 = x.replace("BLANK_", q.answers(1).answerText).dropRight(1).toLowerCase
+                // val score1 = compareSimilairityInWndow2(p, str1, q.qTAOpt.get.getTokens.length + q.answers(0).aTAOpt.get.getTokens.length, scorer)
+                // val score2 = compareSimilairityInWndow2(p, str2, q.qTAOpt.get.getTokens.length + q.answers(1).aTAOpt.get.getTokens.length, scorer)
+                val score1 = compareSimilairityInWndowBySentence(p, str1, scorer)
+                val score2 = compareSimilairityInWndowBySentence(p, str2, scorer)
+                // val score1 = compareSimilairityFullParagraph(p, str1, scorer)
+                // val score2 = compareSimilairityFullParagraph(p, str2, scorer)
+                Some(score1, score2, q.correctIdxOpt.get)
+              case None => None
+            }
+          }.filter(_.isDefined).map(_.get)
+        }
+
+        println("results2: " + results2.length)
+
+        val thresholds = 0.05 to 1.0 by 0.05
+        val buffer = 0.0 to 0.2 by 0.03
+        buffer.foreach { b =>
+          val results = thresholds.map { th =>
+            var numberTriggered = 0
+            var numberAnsweredCorrectly = 0
+            results2.foreach {
+              case (score1, score2, correctIdx) =>
+                val maxS = math.max(score1, score2)
+                if (maxS > th && math.abs(score1 - score2) >= b) {
+                  numberTriggered += 1
+                  if (correctIdx == 0 && score1 > score2) {
+                    numberAnsweredCorrectly += 1
+                  }
+                  if (correctIdx == 1 && score1 < score2) {
+                    numberAnsweredCorrectly += 1
+                  }
+                }
+            }
+            (numberAnsweredCorrectly.toDouble / numberTriggered, numberTriggered, numberTriggered.toDouble / results2.length)
+          }
+          val unzippedR = results.unzip3
+          println(s"($b)\t" + unzippedR._1.mkString(", "))
+          println(s"($b)\t" + unzippedR._2.mkString(", "))
+          println(s"($b)\t" + unzippedR._3.mkString(", "))
+        }
+
+      case 84 =>
+        val (overalScores, overallLuceneScores) = SolverUtils.regentsTrain.map {
+          case (question, options, correct) =>
+            val (luceneScore, selectedIdx) = SolverUtils.myLuceneSolver(question, options).unzip
+            val score = SolverUtils.assignCredit(selectedIdx, correct.head - 'A', options.length)
+            score -> luceneScore
+        }.unzip
+        println("Avg luceneScore: " + overalScores.sum / overalScores.length)
+
+      case 85 =>
+        (0.15 to 0.35 by 0.01).foreach { weight =>
+          val newParams = params.copy(minParagraphToQuestionAlignmentScore = weight)
+          val solver = new TextILPSolver(annotationUtils, verbose = false, newParams)
+          evaluateTextSolverOnRegents(SolverUtils.regentsTrain, solver)
+          println("Regents train param: " + weight)
+          println("-------------------")
+        }
+
+      case 86 =>
+        // printing cause questions
+        val questions = processReader.trainingInstances.filterCauseQuestions
+
+        questions.foreach { p =>
+          p.questions.foreach { q =>
+            println("Question: " + q.questionText)
+            println("-----------")
+          }
+          println("Paragraph: " + p.context)
+          println("-----------")
+        }
+
+      case 87 =>
+        // print the questions on which Lucene is correct but TextILP is wrong (on the Bio data)
+        val paragraphs = processReader.trainingInstances.filterNotTemporals.filterNotTrueFalse
+        val qAndpPairs = paragraphs.flatMap { p => p.questions.map(q => (q, p)) }
+        qAndpPairs.zipWithIndex.map {
+          case ((q, p), idx) =>
+            val candidates = q.answers.map(_.answerText)
+            val correctIndex = q.correctIdxOpt.get
+            val (selected, explanation) = textILPSolver.solve(q.questionText, candidates, p.context)
+            val correctLabel = q.answers(correctIndex).answerText
+            val textIlpScore = SolverUtils.assignCredit(selected, correctIndex, candidates.length)
+
+            def compareSimilairityInWndow2(p: Array[String], q: Array[String], windowSize: Int): Double = {
+              val paragraphSize = p.length
+              (0 until paragraphSize - windowSize).map { startIdx =>
+                val endIdx = startIdx + windowSize
+                val paragraphWindow = p.slice(startIdx, endIdx)
+                paragraphWindow.toSet.intersect(q.toSet).size
+              }.max
+            }
+            val fitbGenerator = FillInTheBlankGenerator.mostRecent
+
+            val luceneSelected = {
+              val qparse = QuestionParse.constructFromString(q.questionText)
+              val fitbQuestionStrOpt = fitbGenerator.generateFITB(qparse).map(_.text)
+              fitbQuestionStrOpt match {
+                case Some(x) =>
+                  val str1 = x.replace("BLANK_", q.answers(0).answerText).dropRight(1).toLowerCase
+                  val str2 = x.replace("BLANK_", q.answers(1).answerText).dropRight(1).toLowerCase
+                  val score1 = compareSimilairityInWndow2(p.context.split(" "), str1.split(" "), str1.split(" ").length)
+                  val score2 = compareSimilairityInWndow2(p.context.split(" "), str2.split(" "), str2.split(" ").length)
+
+                  val maxS = math.max(score1, score2)
+                  if (score1 > score2) {
+                    Seq(0)
+                  } else if (score2 > score1) {
+                    Seq(1)
+                  } else {
+                    Seq(0, 1)
+                  }
+                case None => Seq.empty
+              }
+            }
+            val luceneScore = SolverUtils.assignCredit(luceneSelected, correctIndex, candidates.length)
+
+            (textIlpScore, luceneScore, q)
+        }.foreach {
+          case (textIlpScore, luceneScore, question) =>
+            if (textIlpScore < luceneScore) {
+              println(question)
+              println("lucene: " + luceneScore + " / " + textIlpScore)
+              println("-------")
+            }
+        }
+
+      case 88 =>
+        // fill in black genration with smarter normalization
+        val fitbGenerator = FillInTheBlankGenerator.mostRecent
+        val paragraphs = processReader.trainingInstances.filterNotTemporals.filterNotTrueFalse
+        val qAndpPairs = paragraphs.flatMap { p => p.questions.map(q => (q, p)) }
+        qAndpPairs.foreach {
+          case (q, p) =>
+            println("--------")
+            val qparse = QuestionParse.constructFromString(q.questionText)
+            val fitbQuestionStrOpt = fitbGenerator.generateFITB(qparse).map(_.text)
+            println(q.questionText + " -> " + fitbQuestionStrOpt)
+            if (fitbQuestionStrOpt.isDefined) {
+              q.answers.foreach { ans =>
+                val str1 = fitbQuestionStrOpt.get.replace("BLANK_", ans.answerText).dropRight(1).trim
+                val str2 = annotationUtils.blankQuestionAnswerOptionNormalizer2(ans.answerText, fitbQuestionStrOpt.get, annotationUtils).trim
+                println("\tAns: " + ans.answerText + "\n\t\t---> " + str1 + "\n\t\t---> " + str2)
+                if (str1 != str2)
+                  println("*** different *** ")
+              }
+            }
+        }
+
+      case 89 =>
+        // cached annotaor
+        val taOpt = annotationUtils.annotateWithServerGivenViews(
+          "What would happen if a population is not divided into geographically isolated subpopulations?", Array[String]())
+        taOpt.get.addView(annotationUtils.fillInBlankAnnotator)
+        println(taOpt.get.getAvailableViews())
+        println(taOpt.get.getView(annotationUtils.fillInBlankAnnotator.getViewName))
     }
   }
 }

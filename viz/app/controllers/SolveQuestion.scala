@@ -30,10 +30,10 @@ class SolveQuestion @Inject() extends Controller {
     firstOrderDependencyEdgeAlignments = 0.0,
     activeSentencesDiscount = -2.5, // tuned
     activeParagraphConstituentsWeight = 0.0, // tuned
-    minQuestiontTermsAligned = 1,
-    maxQuestiontTermsAligned = 3,
-    minQuestiontTermsAlignedRatio = 0.1,
-    maxQuestiontTermsAlignedRatio = 0.65,
+    minQuestionTermsAligned = 1,
+    maxQuestionTermsAligned = 3,
+    minQuestionTermsAlignedRatio = 0.1,
+    maxQuestionTermsAlignedRatio = 0.65,
     maxActiveSentences = 2,
     longerThan1TokenAnsPenalty = 0.0,
     longerThan2TokenAnsPenalty = 0.0,
@@ -43,6 +43,9 @@ class SolveQuestion @Inject() extends Controller {
     moreThan1AlignmentAnsPenalty = -0.3,
     moreThan2AlignmentAnsPenalty = -0.5,
     moreThan3AlignmentAnsPenalty = -0.7,
+
+    meteorExactMatchMinScoreValue = 0.3,
+    meteorExactMatchMinScoreDiff = 0.12,
 
     exactMatchMinScoreValue = 0.76,
     exactMatchMinScoreDiff = 0.15,
@@ -62,14 +65,15 @@ class SolveQuestion @Inject() extends Controller {
     maxNumberOfWordsAlignedPerSentence = 8,
     maxAlignmentToRepeatedWordsInParagraph = 3,
     moreThan1AlignmentToParagraphTokenPenalty = 0.0,
-    moreThan2AlignmentToParagraphTokenPenalty  = 0.0,
+    moreThan2AlignmentToParagraphTokenPenalty = 0.0,
     moreThan3AlignmentToParagraphTokenPenalty = 0.0,
 
     // Paragraph: intra-sentence alignment
     coreferenceWeight = 0.0,
     intraSentenceAlignmentScoreDiscount = 0.0,
     entailmentWeight = 0.0,
-    srlAlignmentWeight = 0.0
+    srlAlignmentWeight = 0.0,
+    scieneTermBoost = 0.1
   )
   lazy val textilpSolver = new TextILPSolver(annotationUtils, verbose = true, params = params)
 
@@ -142,7 +146,8 @@ class SolveQuestion @Inject() extends Controller {
     val question = StaticContent.getContentWithPrefilled(index).questionOpt.get.str
     val options = StaticContent.getContentWithPrefilled(index).questionOpt.get.questionChoice
     val snippet = StaticContent.getContentWithPrefilled(index).questionOpt.get.snippet.str
-    Ok(views.html.main("", question, options, snippet, StaticContent.getContentWithPrefilled(index), Json.toJson(ResultJson.emptyEntityRelation).toString))
+    Ok(views.html.main("", question, options, snippet, StaticContent.getContentWithPrefilled(index),
+      Json.toJson(ResultJson.emptyEntityRelation).toString))
   }
 
 }

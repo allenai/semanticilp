@@ -321,10 +321,27 @@ object SolverUtils {
   /** saves the result of query on disk as text file */
   val staticCache = "other/elasticStaticCache/"
   def staticCacheLucene(question: String, focus: String, searchHitSize: Int): Seq[(String, Double)] = {
-    val cacheKey = (util.Arrays.toString(DigestUtils.sha1("elasticWebParagraph:" +
-      question + "-focus:" + focus + "-topK:" + searchHitSize)) + ".txt").replaceAll("\\s", "")
+    val stringKey = "elasticWebParagraph:" + question + "-focus:" + focus + "-topK:" + searchHitSize + Constants.indexNames.keySet
+    val cacheKey = (util.Arrays.toString(DigestUtils.sha1(stringKey)) + ".txt").replaceAll("\\s", "")
     //println("CacheKey: " + cacheKey)
     val f = new File(staticCache + cacheKey)
+
+    def callLuceneServer: Seq[(String, Double)] = {
+      //println("extracting the knowledge from remote server. . . ")
+      // danielk: commenting for now, since I wanna save some time
+      /*
+      val results = extract(question, focus, searchHitSize)
+      val cacheValue = JsArray(results.map { case (key, value) => JsArray(Seq(JsString(key), JsNumber(value))) })
+
+      import java.io._
+      val pw = new PrintWriter(f)
+      pw.write(cacheValue.toString())
+      pw.close()
+      results
+      */
+      Seq.empty
+    }
+
     if (f.exists()) {
       //println("fetching knowledge from cache . . . .")
       val soutceFile = Source.fromFile(f)
@@ -337,9 +354,51 @@ object SolverUtils {
         val score = tupleValues(1).as[JsNumber].value
         key -> score.toDouble
       }
-      //println("done with fetching")
-      a
+      val b = if (a.isEmpty) {
+        //println("Because the document is empty, we're calling the server . . . ")
+        callLuceneServer
+      } else {
+        a
+      }
+      if (b.isEmpty) {
+        //println("nope! Still empty . . .")
+      }
+      b
     } else {
+      callLuceneServer
+    }
+  }
+
+  lazy val scienceTermsMap = {
+    val f = Source.fromFile(new File("other/topicalities.tsv"))
+    val map = f.getLines().toList.drop(1).map { l =>
+      val split = l.split("\t")
+      split(3) -> split(0).toDouble
+    }
+    f.close()
+    map
+  }.toMap
+
+  def myLuceneSolver(question: String, focusSet: Seq[String]): Seq[(Double, Int)] = {
+    println("questin: " + question + "  options: " + focusSet)
+    val scores = focusSet.map(f => myLuceneSolverPerFocus(question, f, 200)).zipWithIndex
+    if (scores.isEmpty) {
+      val maxScore = scores.maxBy(_._1)
+      scores.filter { _._1 == maxScore._1 }
+    } else {
+      println("Empty lucene response ..... ")
+      Seq.empty
+    }
+  }
+
+  def myLuceneSolverPerFocus(question: String, focus: String, searchHitSize: Int): Double = {
+    val cacheKey = (util.Arrays.toString(DigestUtils.sha1("elasticWebParagraph:" +
+      question + "-focus:" + focus + "-topK:" + searchHitSize)) + ".txt").replaceAll("\\s", "")
+    println("cache key: " + focus)
+    println("question: " + question)
+    val f = new File(staticCache + cacheKey)
+
+    def extractAndSaveKnowledge: Double = {
       println("extracting the knowledge from remote server. . . ")
       val results = extract(question, focus, searchHitSize)
       val cacheValue = JsArray(results.map { case (key, value) => JsArray(Seq(JsString(key), JsNumber(value))) })
@@ -348,8 +407,25 @@ object SolverUtils {
       val pw = new PrintWriter(f)
       pw.write(cacheValue.toString())
       pw.close()
-      results
+      if (!results.isEmpty) results.unzip._2.max else -100.0
+    }
+
+    if (f.exists()) {
+      val soutceFile = Source.fromFile(f)
+      val jsonString = soutceFile.getLines().mkString("")
+      soutceFile.close()
+      val json = Json.parse(jsonString)
+      val a = json.as[JsArray].value.map { resultTuple =>
+        val tupleValues = resultTuple.as[JsArray]
+        val key = tupleValues.head.as[JsString].value
+        val score = tupleValues(1).as[JsNumber].value
+        key -> score.toDouble
+      }
+      if (!a.isEmpty) a.unzip._2.max else {
+        extractAndSaveKnowledge
+      }
+    } else {
+      extractAndSaveKnowledge
     }
   }
-
 }

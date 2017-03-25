@@ -339,4 +339,49 @@ class AnnotationUtils() {
     }.toMap
   }
 
+  lazy val fillInBlankAnnotator = new FillInBlankAnnotator
+
+  import scala.collection.JavaConverters._
+
+  def blankQuestionAnswerOptionNormalizer(answerOptionTA: TextAnnotation, blankQuestionTA: TextAnnotation, annotationUtils: AnnotationUtils): String = {
+    val constant = "||||"
+    val qToks = blankQuestionTA.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala
+    val ansToks = answerOptionTA.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala
+    println("qToks: " + qToks)
+    println("ansToks: " + ansToks)
+    val blankIdxOpt = qToks.zipWithIndex.find(_._1.getSurfaceForm.trim == "BLANK_").map(_._2)
+    if (blankIdxOpt.isDefined) {
+      val blankIdx = blankIdxOpt.get
+      val simpleDrop = qToks.slice(0, blankIdx).map(_.getSurfaceForm).mkString("", " ", " ") +
+        constant + qToks.slice(blankIdx + 1, qToks.length).map(_.getSurfaceForm).mkString(" ", " ", "")
+      val filteredQuestion = if (blankIdx > 0 && qToks(blankIdx - 1).getLabel == "VP") {
+        qToks.slice(0, blankIdx - 1).map(_.getSurfaceForm).mkString("", " ", " ") +
+          constant + qToks.slice(blankIdx + 1, qToks.length).map(_.getSurfaceForm).mkString(" ", " ", "")
+      } else if (blankIdx < qToks.length - 1 && qToks(blankIdx + 1).getLabel == "VP") {
+        qToks.slice(0, blankIdx).map(_.getSurfaceForm).mkString("", " ", " ") +
+          constant + qToks.slice(blankIdx + 2, qToks.length).map(_.getSurfaceForm).mkString(" ", " ", "")
+      } else {
+        simpleDrop
+      }
+      if (ansToks.last.getLabel == "VP" || ansToks.head.getLabel == "VP") {
+        filteredQuestion.replace(constant, answerOptionTA.text)
+      } else if (ansToks.length > 2 && ansToks(ansToks.length - 2).getLabel == "VP" &&
+        (ansToks.last.getLabel == "PP" || ansToks.last.getLabel == "NP")) {
+        filteredQuestion.replace(constant, answerOptionTA.text)
+      } else if (ansToks.map(_.getLabel).contains("VP")) {
+        filteredQuestion.replace(constant, answerOptionTA.text)
+      } else {
+        simpleDrop.replace(constant, answerOptionTA.text)
+      }
+    } else {
+      blankQuestionTA.text.replace("BLANK_", answerOptionTA.text).dropRight(1).trim
+    }
+  }
+
+  def blankQuestionAnswerOptionNormalizer2(answerOption: String, blankQuestion: String, annotationUtils: AnnotationUtils): String = {
+    val answerOptionTA = annotationUtils.annotateWithServerGivenViews(answerOption, Array(ViewNames.SHALLOW_PARSE))
+    val blankQuestionTA = annotationUtils.annotateWithServerGivenViews(blankQuestion, Array(ViewNames.SHALLOW_PARSE))
+    blankQuestionAnswerOptionNormalizer(answerOptionTA.get, blankQuestionTA.get, annotationUtils)
+  }
+
 }
