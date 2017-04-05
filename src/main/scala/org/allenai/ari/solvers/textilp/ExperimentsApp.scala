@@ -34,67 +34,10 @@ import scala.io.Source
 
 object ExperimentsApp {
   lazy val annotationUtils = new AnnotationUtils()
-  val params = TextIlpParams(
-    activeQuestionTermWeight = 0.33,
-    alignmentScoreDiscount = 0.0, // not used
-    questionCellOffset = -0.4, // tuned
-    paragraphAnswerOffset = -0.4, // tuned
-    firstOrderDependencyEdgeAlignments = 0.0,
-    activeSentencesDiscount = -2.5, // tuned
-    activeParagraphConstituentsWeight = 0.0, // tuned
-    minQuestionTermsAligned = 1,
-    maxQuestionTermsAligned = 3,
-    minQuestionTermsAlignedRatio = 0.1,
-    maxQuestionTermsAlignedRatio = 0.65,
-    maxActiveSentences = 2,
-    longerThan1TokenAnsPenalty = 0.0,
-    longerThan2TokenAnsPenalty = 0.0,
-    longerThan3TokenAnsPenalty = 0.02,
-
-    // Answer Options: sparsity
-    moreThan1AlignmentAnsPenalty = -0.3,
-    moreThan2AlignmentAnsPenalty = -0.5,
-    moreThan3AlignmentAnsPenalty = -0.7,
-
-    meteorExactMatchMinScoreValue = 0.0, // 0.3,
-    meteorExactMatchMinScoreDiff = 0.0, /// 0.12,
-
-    exactMatchMinScoreValue = 0.76,
-    exactMatchMinScoreDiff = 0.15,
-    exactMatchSoftWeight = 0.0,
-
-    minQuestionToParagraphAlignmentScore = 0.0,
-    minParagraphToQuestionAlignmentScore = 0.00,
-
-    // Question: sparsity
-    moreThan1AlignmentToQuestionTermPenalty = -0.3,
-    moreThan2AlignmentToQuestionTermPenalty = -0.4,
-    moreThan3AlignmentToQuestionTermPenalty = -0.5,
-
-    // Paragraph: proximity inducing
-    activeDist1WordsAlignmentBoost = 0.0,
-    activeDist2WordsAlignmentBoost = 0.0,
-    activeDist3WordsAlignmentBoost = 0.0,
-
-    // Paragraph: sparsity
-    maxNumberOfWordsAlignedPerSentence = 8,
-    maxAlignmentToRepeatedWordsInParagraph = 3,
-    moreThan1AlignmentToParagraphTokenPenalty = 0.0,
-    moreThan2AlignmentToParagraphTokenPenalty = 0.0,
-    moreThan3AlignmentToParagraphTokenPenalty = 0.0,
-
-    // Paragraph: intra-sentence alignment
-    coreferenceWeight = 0.0,
-    intraSentenceAlignmentScoreDiscount = 0.0,
-    entailmentWeight = 0.0,
-    srlAlignmentWeight = 0.0,
-    scieneTermBoost = 0.1
-  )
-  lazy val textILPSolver = new TextILPSolver(annotationUtils, verbose = false, params)
+  lazy val textILPSolver = new TextILPSolver(annotationUtils, verbose = false, SolverUtils.params)
   lazy val salienceSolver = new SalienceSolver()
   lazy val luceneSolver = new LuceneSolver()
   lazy val slidingWindowSolver = new SlidingWindowSolver()
-
   class ArgumentParser(args: Array[String]) extends ScallopConf(args) {
     val experimentType: ScallopOption[Int] = opt[Int]("type", descr = "Experiment type", required = true)
     verify()
@@ -432,22 +375,22 @@ object ExperimentsApp {
     val qAndpPairs = list.flatMap { p => p.questions.map(q => (q, p)) }
     val (resultLists, stats, nonEmptyList) = qAndpPairs.zipWithIndex.map {
       case ((q, p), idx) =>
-        //        println("==================================================")
+        println("==================================================")
         //        println("Processed " + idx + " out of " + qAndpPairs.size)
-        //      println("Paragraph: " + p)
+        println("Paragraph: " + p)
         val candidates = q.answers.map(_.answerText)
         val correctIndex = q.correctIdxOpt.get
-        //          println("correct answer: " + goldCandidates.head)
-        //        println("question: " + q.questionText)
-        //          println("candidates: " + candidates)
+        println("question: " + q.questionText)
+        println("candidates: " + candidates)
         //          println("length of allCandidatesMinusCorrectOnes: " + allCandidatesMinusCorrectOnes.size)
         //          println("candidates.length: " + candidates.length)
-        //          println("correctIndex: " + correctIndex)
         val (selected, explanation) = textSolver.solve(q.questionText, candidates, p.context)
         val correctLabel = q.answers(correctIndex).answerText
         val score = SolverUtils.assignCredit(selected, correctIndex, candidates.length)
+        println("correctIndex: " + correctIndex)
         println("selected: " + selected + " score: " + score + " explanation: " + explanation)
-        //        if (score < 0.5) println(" >>>>>>> Incorrect :" + score)
+        if (score < 0.5) println(" >>>>>>> Incorrect :" + score)
+        if (score > 0.5) println(" >>>>>>> correct :" + score)
         (score, explanation.statistics, if (selected.nonEmpty) 1.0 else 0.0) // -> (explanation.confidence -> correctLabel)
     }.unzip3
 
@@ -1089,9 +1032,8 @@ object ExperimentsApp {
         //     evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterWhatDoesItDo, textILPSolver)
         //     println("filterWhatDoesItDo: ")
         //
-        // evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
-        evaluateTextSolverOnProcessBank(processReader.testInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
-      // evaluateTextSolverOnProcessBank(processReader.testInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
+      //evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
+      evaluateTextSolverOnProcessBank(processReader.testInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
       // println("no-temporals/no true or false: ")
       //
       //      evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals.filterNotWhatDoesItDo.filterNotCResultQuestions, textILPSolver)
@@ -1962,7 +1904,7 @@ object ExperimentsApp {
 
       case 85 =>
         (0.15 to 0.35 by 0.01).foreach { weight =>
-          val newParams = params.copy(minParagraphToQuestionAlignmentScore = weight)
+          val newParams = SolverUtils.params.copy(minParagraphToQuestionAlignmentScore = weight)
           val solver = new TextILPSolver(annotationUtils, verbose = false, newParams)
           evaluateTextSolverOnRegents(SolverUtils.regentsTrain, solver)
           println("Regents train param: " + weight)
@@ -2062,7 +2004,8 @@ object ExperimentsApp {
       case 89 =>
         // cached annotaor
         val taOpt = annotationUtils.annotateWithServerGivenViews(
-          "What would happen if a population is not divided into geographically isolated subpopulations?", Array[String]())
+          "What would happen if a population is not divided into geographically isolated subpopulations?", Array[String]()
+        )
         taOpt.get.addView(annotationUtils.fillInBlankAnnotator)
         println(taOpt.get.getAvailableViews())
         println(taOpt.get.getView(annotationUtils.fillInBlankAnnotator.getViewName))

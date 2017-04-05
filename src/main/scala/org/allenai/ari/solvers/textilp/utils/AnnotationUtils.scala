@@ -56,7 +56,7 @@ class AnnotationUtils() {
     USE_QUANTIFIER)
   val viewsToDisable = Set(USE_SRL_NOM, USE_QUANTIFIER, USE_STANFORD_DEP)
   val viewsToAdd = Seq(ViewNames.POS, ViewNames.LEMMA, ViewNames.NER_CONLL, ViewNames.NER_ONTONOTES,
-    ViewNames.SHALLOW_PARSE, ViewNames.PARSE_STANFORD, ViewNames.DEPENDENCY_STANFORD, ViewNames.SRL_VERB /*, ViewNames.QUANTITIES*/ )
+    ViewNames.SHALLOW_PARSE, ViewNames.PARSE_STANFORD, ViewNames.DEPENDENCY_STANFORD, ViewNames.SRL_VERB/*, ViewNames.QUANTITIES*/ )
 
   lazy val pipelineService = {
     println("Starting to build the pipeline service . . . ")
