@@ -70,7 +70,7 @@ class ProcessBankReader(annotate: Boolean, annotationUtils: AnnotationUtils) {
 }
 
 object ProcessBankReader {
-  val temporalKeywords = Set(" order", " first", " last", " ordering", " time", " final")
+  val temporalKeywords = Set(" order", " first", " last", " ordering", " time", " final", "simultaneously")
   val trueAns = Set("true", "True", "Trure")
   val falseAns = Set("false", "False")
   val trueOrFalse = trueAns ++ falseAns
@@ -108,7 +108,19 @@ object ProcessBankReader {
 
   val whatDoesItDoPattern = "what (does|do|can) .* do\\?".r
 
-  def normalizeText(str: String): String = str.trim.replaceAll("\\(Figure .*\\)", "").replaceAll("\\(see Figure .*\\)", "")
+  def normalizeText(str: String): String = {
+    println("input: " + str)
+    val out = str.trim.replaceAll("\\(Figure \\d{1,2}[\\,\\.]{1}\\d{1,2}\\)", "").
+      replaceAll("\\(see Figure \\d{1,2}[\\,\\.]{1}\\d{1,2}\\)", "").
+      replaceAll("\\(Figure \\d{1,2}[\\,\\.]{1}\\d{1,2}[^ ]\\)", "").
+      replaceAll("\\(Figure \\d{1,2}[\\,\\.]{1}\\d{1,2}[^ ], bottom\\)", "").
+      replaceAll(", as shown in Figure \\d{1,2}[\\,\\.]{1}\\d{1,2}", "").
+      replaceAll("You can see in Figure \\d{1,2}[\\,\\.]{1}\\d{1,2} that", "").
+      replaceAll("Figure \\d{1,2}[\\,\\.]{1}\\d{1,2}", "").
+      replaceAll("in the example shown in Figure \\d{1,2}[\\,\\.]{1}\\d{1,2}\\)", "")
+    println("output: " + out)
+    out
+  }
 
   implicit class ImplicitConversionsFromParagraphs(paragraphList: List[Paragraph]) {
 
