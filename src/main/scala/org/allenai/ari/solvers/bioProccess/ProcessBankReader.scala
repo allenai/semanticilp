@@ -117,7 +117,9 @@ object ProcessBankReader {
       replaceAll(", as shown in Figure \\d{1,2}[\\,\\.]{1}\\d{1,2}", "").
       replaceAll("You can see in Figure \\d{1,2}[\\,\\.]{1}\\d{1,2} that", "").
       replaceAll("Figure \\d{1,2}[\\,\\.]{1}\\d{1,2}", "").
-      replaceAll("in the example shown in Figure \\d{1,2}[\\,\\.]{1}\\d{1,2}\\)", "")
+      replaceAll("in the example shown in Figure \\d{1,2}[\\,\\.]{1}\\d{1,2}\\)", "").
+      replaceAll("see Chapter \\d{1,2}", "").
+      replaceAll("\\(see p. \\d{1,3}\\)", "")
     println("output: " + out)
     out
   }

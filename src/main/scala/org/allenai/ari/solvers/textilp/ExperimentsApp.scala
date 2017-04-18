@@ -373,7 +373,10 @@ object ExperimentsApp {
 
   def evaluateTextSolverOnProcessBank(list: List[Paragraph], textSolver: TextSolver) = {
     val qAndpPairs = list.flatMap { p => p.questions.map(q => (q, p)) }
-    val (resultLists, stats, nonEmptyList) = qAndpPairs.zipWithIndex.map {
+    val (resultLists, stats, nonEmptyList) = qAndpPairs.map {
+      case (q, p) =>
+        (q, SolverUtils.ParagraphSummarization.getSubparagraph(p, q))
+    }.zipWithIndex.map {
       case ((q, p), idx) =>
         println("==================================================")
         //        println("Processed " + idx + " out of " + qAndpPairs.size)
@@ -558,8 +561,8 @@ object ExperimentsApp {
   def main(args: Array[String]): Unit = {
     lazy val trainReader = new SQuADReader(Constants.squadTrainingDataFile, Some(annotationUtils.pipelineService), annotationUtils)
     lazy val devReader = new SQuADReader(Constants.squadDevDataFile, Some(annotationUtils.pipelineService), annotationUtils)
-    //    lazy val processReader = new ProcessBankReader(true, annotationUtils)
-    lazy val processReader = new ProcessBankReader(false, annotationUtils)
+    lazy val processReader = new ProcessBankReader(true, annotationUtils)
+    // lazy val processReader = new ProcessBankReader(false, annotationUtils)
     val parser = new ArgumentParser(args)
     parser.experimentType() match {
       case 1 => generateCandiateAnswers(devReader)
@@ -1019,21 +1022,22 @@ object ExperimentsApp {
         println("training / filterNotTemporals.filterNotTrueFalse: " + processReader.trainingInstances.filterNotTemporals.filterNotTrueFalse.flatMap(_.questions).length)
         println("testing / filterNotTemporals.filterNotTrueFalse: " + processReader.testInstances.filterNotTemporals.filterNotTrueFalse.flatMap(_.questions).length)
       case 51 =>
-        // evaluate processBank
-        //        evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterTemporals, textILPSolver)
-        //        println("filterTemporals: ")
+      // evaluate processBank
+      //        evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterTemporals, textILPSolver)
+      //        println("filterTemporals: ")
 
-        //      evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterCauseQuestions, textILPSolver)
-        //      println("filterCauseQuestions: ")
+      //      evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterCauseQuestions, textILPSolver)
+      //      println("filterCauseQuestions: ")
 
-        //      evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterCResultQuestions, textILPSolver)
-        //      println("filterCResultQuestions: ")
+      //      evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterCResultQuestions, textILPSolver)
+      //      println("filterCResultQuestions: ")
 
-        //     evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterWhatDoesItDo, textILPSolver)
-        //     println("filterWhatDoesItDo: ")
-        //
-      //evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
+      //     evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterWhatDoesItDo, textILPSolver)
+      //     println("filterWhatDoesItDo: ")
+      //
+      evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
       evaluateTextSolverOnProcessBank(processReader.testInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
+
       // println("no-temporals/no true or false: ")
       //
       //      evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals.filterNotWhatDoesItDo.filterNotCResultQuestions, textILPSolver)
@@ -1712,6 +1716,11 @@ object ExperimentsApp {
         val pTA = annotationUtils.pipelineService.createBasicTextAnnotation("", "",
           "After gametes fuse and form a diploid zygote, meiosis occurs without a multicellular diploid offspring developing. Meiosis produces not gametes but haploid cells that then divide by mitosis and give rise to either unicellular descendants or a haploid multicellular adult organism. Subsequently, the haploid organism carries out further mitoses, producing the cells that develop into gametes.")
         annotationUtils.annotateVerbSRLwithRemoteServer(pTA)
+        annotationUtils.pipelineExternalAnnotatorsServerClient.addView(pTA)
+        println("available views: " + pTA.getAvailableViews)
+
+        println(pTA.getView(ViewNames.SRL_VERB))
+        println(pTA.getView("SRL_VERB_PATH_LSTM"))
 
       case 77 =>
         //        cacheTheKnowledgeOnDisk(SolverUtils.regentsTrain)
@@ -2009,6 +2018,39 @@ object ExperimentsApp {
         taOpt.get.addView(annotationUtils.fillInBlankAnnotator)
         println(taOpt.get.getAvailableViews())
         println(taOpt.get.getView(annotationUtils.fillInBlankAnnotator.getViewName))
+
+      case 90 =>
+        // choosing the sentence that contains the question and answer
+        val paragraphs = processReader.trainingInstances.filterNotTemporals.filterNotTrueFalse
+        val qAndpPairs = paragraphs.flatMap { p => p.questions.map(q => (q, p)) }
+        qAndpPairs.foreach {
+          case (q, p) =>
+            val sentences = p.contextTAOpt.get.getView(ViewNames.SENTENCE).getConstituents.asScala
+            val sortedSentences = sentences.map(s => s -> SolverUtils.ParagraphSummarization.scoreTheSentence(q, s)).sortBy(-_._2)
+            val maxScore = sortedSentences.head._2
+            println("----------")
+            println(q.questionText)
+            println(q.answers)
+            println(q.correctIdxOpt)
+            println("getQuestionKeyTerms(q): " + SolverUtils.ParagraphSummarization.getQuestionKeyTerms(q))
+            println(sortedSentences.mkString("\n"))
+        }
+
+      case 91 =>
+        // this gives you the paragraph sentences
+
+        val paragraphs = processReader.trainingInstances.filterNotTemporals.filterNotTrueFalse
+        val qAndpPairs = paragraphs.flatMap { p => p.questions.map(q => (q, p)) }
+        qAndpPairs.foreach {
+          case (q, p) =>
+            val sentences = p.contextTAOpt.get.getView(ViewNames.SENTENCE).getConstituents.asScala.zipWithIndex.map(x => x._2 -> x._1)
+            println("----------")
+            println(q.questionText)
+            println(q.answers)
+            println(q.correctIdxOpt)
+            println(sentences.mkString("\n"))
+        }
+
     }
   }
 }

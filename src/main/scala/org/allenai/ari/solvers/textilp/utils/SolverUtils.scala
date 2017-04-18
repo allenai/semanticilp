@@ -487,4 +487,38 @@ object SolverUtils {
       extractAndSaveKnowledge
     }
   }
+
+  object ParagraphSummarization {
+    // here: sentence selection; mostly for processBank data
+    val notToContain = Set("what", "What", "is", "would happen", "does", "What process", "would happen",
+      "happens", "can happen", "would necessarily not happen", "do", "does", "is caused")
+
+    def getQuestionKeyTerms(q: Question): Seq[String] = {
+      q.qTAOpt.get.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala.
+        filter(c => c.getLabel == "NP" || c.getLabel == "VP").map(_.getSurfaceForm.toLowerCase).
+        filter(c => !notToContain.contains(c)).flatMap(_.split("^do ")).flatMap(_.split("^does ")).
+        flatMap(_.split("^the ")).flatMap(_.split("^were not ")).flatMap(_.split("^is ")).
+        flatMap(_.split("^an ")).map(_.trim).
+        filter(_.nonEmpty)
+    }
+
+    def scoreTheSentence(q: Question, sentence: Constituent): Double = {
+      val keyTerms = getQuestionKeyTerms(q)
+      keyTerms.count(sentence.getSurfaceForm.toLowerCase.contains).toDouble
+    }
+
+    def getSubparagraph(p: Paragraph, q: Question): Paragraph = {
+      val sentences = p.contextTAOpt.get.getView(ViewNames.SENTENCE).getConstituents.asScala
+      println("sentences: " + sentences)
+      val sortedSentences = sentences.map(s => s -> scoreTheSentence(q, s)).zipWithIndex.sortBy(-_._1._2)
+      val maxScore = sortedSentences.head._1._2
+      val selectedIdx = sortedSentences.filter(_._1._2 == maxScore).map(_._2)
+      val maxIdx = sentences.length
+      val allSelected = (selectedIdx.map(_ + 1) ++ selectedIdx).filter(_ < maxIdx)
+      val subParagraph = allSelected.map(sentences(_)).mkString(" ")
+      println("subParagraph: " + subParagraph)
+      Paragraph(subParagraph, p.questions, None)
+    }
+  }
+
 }

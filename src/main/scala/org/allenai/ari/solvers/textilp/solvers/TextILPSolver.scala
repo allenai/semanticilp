@@ -21,6 +21,9 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
 
 object TextILPSolver {
+  val pathLSTMViewName = "SRL_VERB_PATH_LSTM"
+  val srlViewName = if(true) ViewNames.SRL_VERB else pathLSTMViewName
+
   val epsilon = 0.001
   val oneActiveSentenceConstraint = true
 
@@ -54,7 +57,7 @@ object TextILPSolver {
   val essentialTermMinimalSetTopK = 3
   val essentialTermMaximalSetBottomK = 0
   val essentialTermMinimalSetSlack = 1
-  val essentialTermMaximalSetSlack = 0
+  val essentialTermMaximalSetSlack = 0?
   val trueFalseThreshold = 5.5 // this has to be tuned
 
   lazy val keywordTokenizer = KeywordTokenizer.Default
@@ -177,7 +180,9 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
         if (useRemoteAnnotation) {
           //          annotationUtils.annotateViewLwithRemoteServer(ViewNames.SHALLOW_PARSE, ansTA)
           //          annotationUtils.annotateViewLwithRemoteServer(ViewNames.DEPENDENCY_STANFORD, ansTA)
-          Some(annotationUtils.pipelineServerClient.annotate(o))
+          val ta = annotationUtils.pipelineServerClient.annotate(o)
+          // annotationUtils.pipelineExternalAnnotatorsServerClient.addView(ta)
+          Some(ta)
         } else {
           val ta = annotationUtils.pipelineService.createBasicTextAnnotation("", "", o)
           annotationUtils.pipelineService.addView(ta, ViewNames.SHALLOW_PARSE)
@@ -196,6 +201,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
         //annotationUtils.annotateViewLwithRemoteServer(ViewNames.SHALLOW_PARSE, qTA)
         //        annotationUtils.annotateViewLwithRemoteServer(qTA)
         val clientTa = annotationUtils.pipelineServerClient.annotate(question)
+        //annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
         clientTa.addView(annotationUtils.fillInBlankAnnotator)
         Some(clientTa)
       } else {
@@ -218,6 +224,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
           //          annotationUtils.annotateViewLwithRemoteServer(ViewNames.DEPENDENCY_STANFORD, pTA)
           //annotationUtils.annotateViewLwithRemoteServer(pTA)
           val clientTa = annotationUtils.pipelineServerClient.annotate(snippet)
+          //annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
           Some(clientTa)
         } else {
           val ta = annotationUtils.pipelineService.createBasicTextAnnotation("", "", snippet)
@@ -241,9 +248,27 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     }
     val p = Paragraph(snippet, Seq(q), pTA)
 
-    val resultSRLV1 = SRLSolverV1(q, p)
-    lazy val resultSRLV2 = SRLSolverV2(q, p)
-    lazy val resultSRLV3 = SRLSolverV3(q, p, aligner)
+    def SRLSolverV1WithAllViews(q: Question, p: Paragraph): (Seq[Int], EntityRelationResult) = {
+      val srlVerb = SRLSolverV1(q, p, ViewNames.SRL_VERB)
+      //if(srlVerb._1.isEmpty)  SRLSolverV1(q, p, TextILPSolver.pathLSTMViewName) else srlVerb
+      srlVerb
+    }
+
+    def SRLSolverV2WithAllViews(q: Question, p: Paragraph): (Seq[Int], EntityRelationResult) = {
+      val srlVerb = SRLSolverV2(q, p, ViewNames.SRL_VERB)
+      //if(srlVerb._1.isEmpty)  SRLSolverV1(q, p, TextILPSolver.pathLSTMViewName) else srlVerb
+      srlVerb
+    }
+
+    def SRLSolverV3WithAllViews(q: Question, p: Paragraph, alignmentFunction: AlignmentFunction): (Seq[Int], EntityRelationResult) = {
+      val srlVerb = SRLSolverV3(q, p, alignmentFunction, ViewNames.SRL_VERB)
+      //if(srlVerb._1.isEmpty)  SRLSolverV1(q, p, TextILPSolver.pathLSTMViewName) else srlVerb
+      srlVerb
+    }
+
+    lazy val resultSRLV1 = SRLSolverV1WithAllViews(q, p)
+    lazy val resultSRLV2 = SRLSolverV2WithAllViews(q, p)
+    lazy val resultSRLV3 = SRLSolverV3WithAllViews(q, p, aligner)
     lazy val resultMeteor = MeteorSolver(q, p, aligner)
     lazy val resultWhatDoesItdo = WhatDoesItDoSolver(q, p)
     // SimilarityMetricSolver(q, p)
@@ -253,27 +278,26 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
 
     if(resultSRLV1._1.isEmpty) {
       if(resultSRLV2._1.isEmpty) {
-        resultSRLV3
-        /*if(resultSRLV3._1.isEmpty) {
+//        if(resultSRLV3._1.isEmpty) {
           //if(resultMeteor._1.isEmpty) {
-            if(resultWhatDoesItdo._1.isEmpty) {
+            //if(resultWhatDoesItdo._1.isEmpty) {
 //              if(resultCause._1.isEmpty) {
 //                resultILP
 //              }
 //              else {
-                resultCause
+//                resultCause
 //              }
-            }
-            else {
-              resultWhatDoesItdo
-            }
+//            }
+//            else {
+//              resultWhatDoesItdo
+//            }
           //}
           //else {
             //resultMeteor
           //}
-        }
-        else {*/
-          resultSRLV3
+//        }
+//        else {
+            resultSRLV3
         //}
       }
       else {
@@ -475,10 +499,10 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     *    Its A1/A0 argument has enough similarity with one of the terms in the questions
     *    Its A1/A0 argument has enough similarity with the target answer option.
     */
-  def SRLSolverV3(q: Question, p: Paragraph, alignmentFunction: AlignmentFunction): (Seq[Int], EntityRelationResult) = {
-    val uniqueSelected = if (q.qTAOpt.get.hasView(ViewNames.SRL_VERB) && p.contextTAOpt.get.hasView(ViewNames.SRL_VERB)) {
+  def SRLSolverV3(q: Question, p: Paragraph, alignmentFunction: AlignmentFunction, srlViewName: String): (Seq[Int], EntityRelationResult) = {
+    val uniqueSelected = if (q.qTAOpt.get.hasView(srlViewName) && p.contextTAOpt.get.hasView(srlViewName)) {
       val qCons = q.qTAOpt.get.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala.map(_.getSurfaceForm)
-      val pSRLView = p.contextTAOpt.get.getView(ViewNames.SRL_VERB)
+      val pSRLView = p.contextTAOpt.get.getView(srlViewName)
       val pSRLCons = pSRLView.getConstituents.asScala
       println("pSRLCons: " + pSRLCons.mkString("\n"))
       println("--------")
@@ -555,7 +579,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     uniqueSelected -> EntityRelationResult()
   }
 
-  def SRLSolverV2(q: Question, p: Paragraph): (Seq[Int], EntityRelationResult) = {
+  def SRLSolverV2(q: Question, p: Paragraph, srlViewName: String): (Seq[Int], EntityRelationResult) = {
     println("q: " + q.questionText)
     val fillInBlank = q.qTAOpt.get.getView(annotationUtils.fillInBlankAnnotator.getViewName).getConstituents.get(0).getLabel
     println("fillInBlank: " + fillInBlank)
@@ -571,10 +595,10 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       val questionAndAnsOption = annotationUtils.blankQuestionAnswerOptionNormalizer(ans.aTAOpt.get, fillInBlankTA, annotationUtils)
       println("questionAndAnsOption: " + questionAndAnsOption)
       val questionAndAnsOptionTA = annotationUtils.pipelineServerClient.annotate(questionAndAnsOption)
-      if (questionAndAnsOptionTA.hasView(ViewNames.SRL_VERB) && p.contextTAOpt.get.hasView(ViewNames.SRL_VERB)) {
+      if (questionAndAnsOptionTA.hasView(srlViewName) && p.contextTAOpt.get.hasView(srlViewName)) {
         println("--------------")
         if (matchPredicatesAndArguments(questionAndAnsOptionTA, p.contextTAOpt.get, ans, keytermsWithWHOverlap = false,
-          doOverlapWithQuestion = true, fillInBlank)) 1.0 else 0.0
+          doOverlapWithQuestion = true, fillInBlank, srlViewName)) 1.0 else 0.0
       }
       else {
         0.0
@@ -601,13 +625,15 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     selectedAnswers.distinct -> EntityRelationResult()
   }
 
-  def SRLSolverV1(q: Question, p: Paragraph): (Seq[Int], EntityRelationResult) = {
-    val selectedAnswers = if (q.qTAOpt.get.hasView(ViewNames.SRL_VERB) && p.contextTAOpt.get.hasView(ViewNames.SRL_VERB)) {
+  def SRLSolverV1(q: Question, p: Paragraph, srlViewName: String): (Seq[Int], EntityRelationResult) = {
+    println("p view names: " + p.contextTAOpt.get.getAvailableViews)
+    println("q view names: " + q.qTAOpt.get.getAvailableViews)
+    val selectedAnswers = if (q.qTAOpt.get.hasView(srlViewName) && p.contextTAOpt.get.hasView(srlViewName)) {
       val results = q.answers.map { ans =>
         println("----------------")
         println("Ans: " + ans)
         if (matchPredicatesAndArguments(q.qTAOpt.get, p.contextTAOpt.get, ans, keytermsWithWHOverlap = true,
-          doOverlapWithQuestion = false, q.questionText)) 1.0 else 0.0
+          doOverlapWithQuestion = false, q.questionText, srlViewName)) 1.0 else 0.0
       }
       if (verbose) println("results: " + results)
       if (results.sum == 1) {
@@ -646,10 +672,10 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
                                   pTA: TextAnnotation, ans: Answer,
                                   keytermsWithWHOverlap: Boolean = true,
                                   doOverlapWithQuestion: Boolean = false,
-                                  originalQuestion: String): Boolean = {
+                                  originalQuestion: String, srlViewName: String): Boolean = {
     val verbose = true
-    val qSRLView = qTA.getView(ViewNames.SRL_VERB)
-    val pSRLView = pTA.getView(ViewNames.SRL_VERB)
+    val qSRLView = qTA.getView(srlViewName)
+    val pSRLView = pTA.getView(srlViewName)
     val qSRLCons = qSRLView.getConstituents.asScala
     val pSRLCons = pSRLView.getConstituents.asScala
 
