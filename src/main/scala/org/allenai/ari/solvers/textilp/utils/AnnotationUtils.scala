@@ -2,23 +2,24 @@ package org.allenai.ari.solvers.textilp.utils
 
 import java.io.File
 import java.net.URLEncoder
+import java.util
 import java.util.Properties
 
 import edu.illinois.cs.cogcomp.annotation.AnnotatorServiceConfigurator
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
-import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{ Constituent, TextAnnotation }
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, TextAnnotation}
 import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper
-import edu.illinois.cs.cogcomp.core.utilities.configuration.{ Configurator, ResourceManager }
-import edu.illinois.cs.cogcomp.curator.CuratorFactory
+import edu.illinois.cs.cogcomp.core.utilities.configuration.{Configurator, ResourceManager}
+import edu.illinois.cs.cogcomp.curator.{CuratorConfigurator, CuratorFactory}
 import edu.illinois.cs.cogcomp.pipeline.common.PipelineConfigurator
 import edu.illinois.cs.cogcomp.pipeline.common.PipelineConfigurator._
 import edu.illinois.cs.cogcomp.pipeline.main.PipelineFactory
 import edu.illinois.cs.cogcomp.saulexamples.nlp.QuestionTypeClassification.QuestionTypeAnnotator
-import org.allenai.ari.solvers.squad.{ CandidateGeneration, SQuADReader }
-import org.allenai.ari.solvers.textilp.{ Paragraph, Question, TopicGroup }
+import org.allenai.ari.solvers.squad.{CandidateGeneration, SQuADReader}
+import org.allenai.ari.solvers.textilp.{Paragraph, Question, TopicGroup}
 import org.allenai.common.cache.JsonQueryCache
-import play.api.libs.json.{ JsArray, JsNumber, Json }
-import redis.clients.jedis.{ JedisPool, Protocol }
+import play.api.libs.json.{JsArray, JsNumber, Json}
+import redis.clients.jedis.{JedisPool, Protocol}
 import spray.json.DefaultJsonProtocol._
 
 import scala.io.Source
@@ -76,14 +77,13 @@ class AnnotationUtils() {
   }
 
   lazy val curatorService = {
-    //    val a = new AnnotatorServiceConfigurator().getDefaultConfig
-    //    val settings = new Properties()
-    //    settings.setProperty("cacheDirectory", "annotation-cache-textilp")
-    //settings.setProperty("disableCache", Configurator.TRUE)
+    val settings = new Properties()
+//    settings.setProperty(CuratorConfigurator.DISABLE_CACHE.key, Configurator.FALSE)
+//    settings.setProperty(CuratorConfigurator.CACHE_FORCE_UPDATE.key, Configurator.TRUE)
     //viewsToDisable.foreach{ key => settings.setProperty(key.value, Configurator.FALSE) }
-    //    val rm = new ResourceManager(settings)
+    val rm = new ResourceManager(settings)
     //viewsToDisable.foreach { v => settings.setProperty(v.key, Configurator.FALSE) }
-    //val config = new CuratorConfigurator().getConfig(rm)
+    val config = new CuratorConfigurator().getConfig(rm)
     CuratorFactory.buildCuratorClient()
   }
 
@@ -116,6 +116,19 @@ class AnnotationUtils() {
       synchronizedRedisClient.put(cacheKey, SerializationHelper.serializeToJson(textAnnotation))
       textAnnotation
     }
+  }
+
+  def annotateWithCuratorAndSaveUnderName(string: String, newViewName: String, oldViewName: String, ta: TextAnnotation): TextAnnotation = {
+    try {
+      val set = new util.HashSet[String]()
+      set.add(oldViewName)
+      val ta1 = curatorService.createAnnotatedTextAnnotation("", "", string, set)
+      ta.addView(newViewName, ta1.getView(oldViewName))
+    }
+    catch {
+      case e: Exception => e.printStackTrace()
+    }
+    ta
   }
 
   val useRemoteServer = true

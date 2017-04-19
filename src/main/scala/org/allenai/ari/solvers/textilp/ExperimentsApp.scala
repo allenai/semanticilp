@@ -375,8 +375,10 @@ object ExperimentsApp {
     val qAndpPairs = list.flatMap { p => p.questions.map(q => (q, p)) }
     val (resultLists, stats, nonEmptyList) = qAndpPairs.map {
       case (q, p) =>
-        (q, SolverUtils.ParagraphSummarization.getSubparagraph(p, q))
-    }.zipWithIndex.map {
+        //(q, SolverUtils.ParagraphSummarization.getSubparagraph(p, q))
+        (q, p)
+    }.
+      zipWithIndex.map {
       case ((q, p), idx) =>
         println("==================================================")
         //        println("Processed " + idx + " out of " + qAndpPairs.size)

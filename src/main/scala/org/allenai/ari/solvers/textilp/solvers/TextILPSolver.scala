@@ -22,7 +22,7 @@ import scala.collection.mutable.ArrayBuffer
 
 object TextILPSolver {
   val pathLSTMViewName = "SRL_VERB_PATH_LSTM"
-  val srlViewName = if(true) ViewNames.SRL_VERB else pathLSTMViewName
+  val curatorSRLViewName = "SRL_VERB_CURATOR"
 
   val epsilon = 0.001
   val oneActiveSentenceConstraint = true
@@ -57,7 +57,7 @@ object TextILPSolver {
   val essentialTermMinimalSetTopK = 3
   val essentialTermMaximalSetBottomK = 0
   val essentialTermMinimalSetSlack = 1
-  val essentialTermMaximalSetSlack = 0?
+  val essentialTermMaximalSetSlack = 0
   val trueFalseThreshold = 5.5 // this has to be tuned
 
   lazy val keywordTokenizer = KeywordTokenizer.Default
@@ -164,7 +164,7 @@ case class TextIlpParams(
                         )
 
 class TextILPSolver(annotationUtils: AnnotationUtils,
-                    verbose: Boolean = true, params: TextIlpParams,
+                    verbose: Boolean = false, params: TextIlpParams,
                     useRemoteAnnotation: Boolean = true) extends TextSolver {
 
   lazy val aligner = new AlignmentFunction("Entailment", 0.0,
@@ -181,7 +181,6 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
           //          annotationUtils.annotateViewLwithRemoteServer(ViewNames.SHALLOW_PARSE, ansTA)
           //          annotationUtils.annotateViewLwithRemoteServer(ViewNames.DEPENDENCY_STANFORD, ansTA)
           val ta = annotationUtils.pipelineServerClient.annotate(o)
-          // annotationUtils.pipelineExternalAnnotatorsServerClient.addView(ta)
           Some(ta)
         } else {
           val ta = annotationUtils.pipelineService.createBasicTextAnnotation("", "", o)
@@ -201,7 +200,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
         //annotationUtils.annotateViewLwithRemoteServer(ViewNames.SHALLOW_PARSE, qTA)
         //        annotationUtils.annotateViewLwithRemoteServer(qTA)
         val clientTa = annotationUtils.pipelineServerClient.annotate(question)
-        //annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
+        annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
+        annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
         clientTa.addView(annotationUtils.fillInBlankAnnotator)
         Some(clientTa)
       } else {
@@ -224,7 +224,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
           //          annotationUtils.annotateViewLwithRemoteServer(ViewNames.DEPENDENCY_STANFORD, pTA)
           //annotationUtils.annotateViewLwithRemoteServer(pTA)
           val clientTa = annotationUtils.pipelineServerClient.annotate(snippet)
-          //annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
+          annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
+          annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
           Some(clientTa)
         } else {
           val ta = annotationUtils.pipelineService.createBasicTextAnnotation("", "", snippet)
@@ -249,21 +250,52 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     val p = Paragraph(snippet, Seq(q), pTA)
 
     def SRLSolverV1WithAllViews(q: Question, p: Paragraph): (Seq[Int], EntityRelationResult) = {
-      val srlVerb = SRLSolverV1(q, p, ViewNames.SRL_VERB)
-      //if(srlVerb._1.isEmpty)  SRLSolverV1(q, p, TextILPSolver.pathLSTMViewName) else srlVerb
-      srlVerb
+      lazy val srlVerbPipeline = SRLSolverV1(q, p, ViewNames.SRL_VERB)
+      lazy val srlVerbCurator = SRLSolverV1(q, p, TextILPSolver.curatorSRLViewName)
+      if(srlVerbPipeline._1.nonEmpty) {
+        srlVerbPipeline
+      }
+      else if (srlVerbCurator._1.nonEmpty) {
+        srlVerbCurator
+      }
+      else {
+        SRLSolverV1(q, p, TextILPSolver.pathLSTMViewName)
+      }
     }
 
     def SRLSolverV2WithAllViews(q: Question, p: Paragraph): (Seq[Int], EntityRelationResult) = {
-      val srlVerb = SRLSolverV2(q, p, ViewNames.SRL_VERB)
-      //if(srlVerb._1.isEmpty)  SRLSolverV1(q, p, TextILPSolver.pathLSTMViewName) else srlVerb
-      srlVerb
+      lazy val srlVerbPipeline = SRLSolverV2(q, p, ViewNames.SRL_VERB)
+      lazy val srlVerbCurator = SRLSolverV2(q, p, TextILPSolver.curatorSRLViewName)
+      if(srlVerbPipeline._1.nonEmpty) {
+        srlVerbPipeline
+      }
+      else if (srlVerbCurator._1.nonEmpty) {
+        srlVerbCurator
+      }
+      else {
+        SRLSolverV2(q, p, TextILPSolver.pathLSTMViewName)
+      }
     }
 
     def SRLSolverV3WithAllViews(q: Question, p: Paragraph, alignmentFunction: AlignmentFunction): (Seq[Int], EntityRelationResult) = {
-      val srlVerb = SRLSolverV3(q, p, alignmentFunction, ViewNames.SRL_VERB)
-      //if(srlVerb._1.isEmpty)  SRLSolverV1(q, p, TextILPSolver.pathLSTMViewName) else srlVerb
-      srlVerb
+      lazy val srlVerbPipeline = SRLSolverV3(q, p, alignmentFunction, ViewNames.SRL_VERB)
+      lazy val srlVerbCurator = try { // because curator annotation stuff fail sometime
+        SRLSolverV3(q, p, alignmentFunction, TextILPSolver.curatorSRLViewName)
+      }
+      catch {
+        case e: Exception => e.printStackTrace()
+          SRLSolverV3(q, p, alignmentFunction, TextILPSolver.pathLSTMViewName)
+      }
+
+      if(srlVerbPipeline._1.nonEmpty) {
+        srlVerbPipeline
+      }
+      else if (srlVerbCurator._1.nonEmpty) {
+        srlVerbCurator
+      }
+      else {
+        SRLSolverV3(q, p, alignmentFunction, TextILPSolver.pathLSTMViewName)
+      }
     }
 
     lazy val resultSRLV1 = SRLSolverV1WithAllViews(q, p)
@@ -273,32 +305,32 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     lazy val resultWhatDoesItdo = WhatDoesItDoSolver(q, p)
     // SimilarityMetricSolver(q, p)
     lazy val resultCause = CauseResultRules(q, p)
+    //lazy val pSummary = SolverUtils.ParagraphSummarization.getSubparagraph(p, q)
     lazy val resultILP = createILPModel(q, p, ilpSolver, aligner)
-
 
     if(resultSRLV1._1.isEmpty) {
       if(resultSRLV2._1.isEmpty) {
-//        if(resultSRLV3._1.isEmpty) {
+        if(resultSRLV3._1.isEmpty) {
           //if(resultMeteor._1.isEmpty) {
-            //if(resultWhatDoesItdo._1.isEmpty) {
-//              if(resultCause._1.isEmpty) {
-//                resultILP
-//              }
-//              else {
-//                resultCause
-//              }
-//            }
-//            else {
-//              resultWhatDoesItdo
-//            }
+            if(resultWhatDoesItdo._1.isEmpty) {
+              if(resultCause._1.isEmpty) {
+                resultILP
+              }
+              else {
+                resultCause
+              }
+            }
+            else {
+              resultWhatDoesItdo
+            }
           //}
           //else {
             //resultMeteor
           //}
-//        }
-//        else {
+        }
+        else {
             resultSRLV3
-        //}
+        }
       }
       else {
         resultSRLV2
@@ -659,6 +691,12 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     selectedAnswers.distinct -> EntityRelationResult()
   }
 
+
+//  def SRLILPSolverV1(q: Question, p: Paragraph, srlViewName: String): (Seq[Int], EntityRelationResult) = {
+//    val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
+//
+//  }
+
   // input supposed to be a predicate (i.e. it gets connected to other arguments via outgoing edges)
   def getConstituentsInFrame(c: Constituent): Seq[Constituent] = {
     c.getOutgoingRelations.asScala.map(_.getTarget)
@@ -776,11 +814,12 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
 
   def createILPModel[V <: IlpVar](
                                    q: Question,
-                                   p: Paragraph,
+                                   p1: Paragraph,
                                    ilpSolver: IlpSolver[V, _],
                                    alignmentFunction: AlignmentFunction
                                  ): (Seq[Int], EntityRelationResult) = {
 
+    val p = SolverUtils.ParagraphSummarization.getSubparagraph(p1, q, Some(annotationUtils))
 
     val modelCreationStart = System.currentTimeMillis()
 
