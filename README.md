@@ -12,6 +12,4 @@ A structured question answering system on top of free-form text, and borrows ide
  > run 
 ```
 
-
 To stop it, just do Ctrl+D. 
-

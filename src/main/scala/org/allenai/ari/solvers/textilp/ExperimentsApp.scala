@@ -379,25 +379,26 @@ object ExperimentsApp {
         (q, p)
     }.
       zipWithIndex.map {
-      case ((q, p), idx) =>
-        println("==================================================")
-        //        println("Processed " + idx + " out of " + qAndpPairs.size)
-        println("Paragraph: " + p)
-        val candidates = q.answers.map(_.answerText)
-        val correctIndex = q.correctIdxOpt.get
-        println("question: " + q.questionText)
-        println("candidates: " + candidates)
-        //          println("length of allCandidatesMinusCorrectOnes: " + allCandidatesMinusCorrectOnes.size)
-        //          println("candidates.length: " + candidates.length)
-        val (selected, explanation) = textSolver.solve(q.questionText, candidates, p.context)
-        val correctLabel = q.answers(correctIndex).answerText
-        val score = SolverUtils.assignCredit(selected, correctIndex, candidates.length)
-        println("correctIndex: " + correctIndex)
-        println("selected: " + selected + " score: " + score + " explanation: " + explanation)
-        if (score < 0.5) println(" >>>>>>> Incorrect :" + score)
-        if (score > 0.5) println(" >>>>>>> correct :" + score)
-        (score, explanation.statistics, if (selected.nonEmpty) 1.0 else 0.0) // -> (explanation.confidence -> correctLabel)
-    }.unzip3
+        case ((q, p), idx) =>
+          println("==================================================")
+          //        println("Processed " + idx + " out of " + qAndpPairs.size)
+          println("Paragraph: " + p)
+          val candidates = q.answers.map(_.answerText)
+          val correctIndex = q.correctIdxOpt.get
+          println("question: " + q.questionText)
+          println("candidates: " + candidates)
+          //          println("length of allCandidatesMinusCorrectOnes: " + allCandidatesMinusCorrectOnes.size)
+          //          println("candidates.length: " + candidates.length)
+          val (selected, explanation) = textSolver.solve(q.questionText, candidates, p.context)
+          val correctLabel = q.answers(correctIndex).answerText
+          val score = SolverUtils.assignCredit(selected, correctIndex, candidates.length)
+          println("correctIndex: " + correctIndex)
+          println("selected: " + selected + " score: " + score + " explanation: " + explanation)
+          if (score < 0.5 && selected.nonEmpty) println(" >>>>>>> Selected and Incorrect :" + score + s"  ${q.questionText}")
+          if (score < 0.5) println(" >>>>>>> Incorrect :" + score)
+          if (score > 0.5) println(" >>>>>>> correct :" + score)
+          (score, explanation.statistics, if (selected.nonEmpty) 1.0 else 0.0) // -> (explanation.confidence -> correctLabel)
+      }.unzip3
 
     val avgStats = stats.reduceRight[Stats] { case (a: Stats, b: Stats) => a.sumWith(b) }.divideBy(stats.length)
     val avgCoverage = nonEmptyList.sum / nonEmptyList.length
@@ -1024,21 +1025,21 @@ object ExperimentsApp {
         println("training / filterNotTemporals.filterNotTrueFalse: " + processReader.trainingInstances.filterNotTemporals.filterNotTrueFalse.flatMap(_.questions).length)
         println("testing / filterNotTemporals.filterNotTrueFalse: " + processReader.testInstances.filterNotTemporals.filterNotTrueFalse.flatMap(_.questions).length)
       case 51 =>
-      // evaluate processBank
-      //        evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterTemporals, textILPSolver)
-      //        println("filterTemporals: ")
+        // evaluate processBank
+        //        evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterTemporals, textILPSolver)
+        //        println("filterTemporals: ")
 
-      //      evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterCauseQuestions, textILPSolver)
-      //      println("filterCauseQuestions: ")
+        //      evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterCauseQuestions, textILPSolver)
+        //      println("filterCauseQuestions: ")
 
-      //      evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterCResultQuestions, textILPSolver)
-      //      println("filterCResultQuestions: ")
+        //      evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterCResultQuestions, textILPSolver)
+        //      println("filterCResultQuestions: ")
 
-      //     evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterWhatDoesItDo, textILPSolver)
-      //     println("filterWhatDoesItDo: ")
-      //
-      evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
-      evaluateTextSolverOnProcessBank(processReader.testInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
+        //     evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterWhatDoesItDo, textILPSolver)
+        //     println("filterWhatDoesItDo: ")
+        //
+        evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
+        evaluateTextSolverOnProcessBank(processReader.testInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
 
       // println("no-temporals/no true or false: ")
       //
@@ -1716,13 +1717,18 @@ object ExperimentsApp {
       case 76 =>
         // test SRL annotation
         val pTA = annotationUtils.pipelineService.createBasicTextAnnotation("", "",
-          "After gametes fuse and form a diploid zygote, meiosis occurs without a multicellular diploid offspring developing. Meiosis produces not gametes but haploid cells that then divide by mitosis and give rise to either unicellular descendants or a haploid multicellular adult organism. Subsequently, the haploid organism carries out further mitoses, producing the cells that develop into gametes.")
+          "Called the whole-genome shotgun approach, it essentially skips the linkage mapping and physical mapping stages and starts directly with the sequencing of DNA fragments from randomly cut DNA. Powerful computer programs then assemble the resulting very large number of overlapping short sequences into a single continuous sequence (Figure 21.3). In 1998, despite the skepticism of many scientists, Venter set up a company (Celera Genomics) and declared his intention to sequence the entire human genome. Five years later, and 13 years after the Human Genome Project began, Celera Genomics and the public consortium jointly announced that sequencing of the human genome was largely complete.")
         annotationUtils.annotateVerbSRLwithRemoteServer(pTA)
         annotationUtils.pipelineExternalAnnotatorsServerClient.addView(pTA)
         println("available views: " + pTA.getAvailableViews)
 
-        println(pTA.getView(ViewNames.SRL_VERB))
-        println(pTA.getView("SRL_VERB_PATH_LSTM"))
+        println("SRL_VERB: " + pTA.getView(ViewNames.SRL_VERB))
+        println("SRL_VERB_PATH_LSTM: " + pTA.getView("SRL_VERB_PATH_LSTM"))
+        println("Constituents: " + pTA.getView("SRL_VERB_PATH_LSTM").getConstituents.asScala)
+        println("Constituents.size: " + pTA.getView("SRL_VERB_PATH_LSTM").getConstituents.asScala.size)
+        println("Distinct constituents: " + pTA.getView("SRL_VERB_PATH_LSTM").getConstituents.asScala.distinct)
+        println("Distinct constituents.size: " + pTA.getView("SRL_VERB_PATH_LSTM").getConstituents.asScala.distinct.size)
+
 
       case 77 =>
         //        cacheTheKnowledgeOnDisk(SolverUtils.regentsTrain)

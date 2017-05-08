@@ -517,7 +517,7 @@ object SolverUtils {
       val allSelected = (selectedIdx.map(_ + 1) ++ selectedIdx).filter(_ < maxIdx)
       val subParagraph = allSelected.map(sentences(_)).mkString(" ")
       println("subParagraph: " + subParagraph)
-      val taOpt = annotationUtilsOpt.map{ annotationUtils =>
+      val taOpt = annotationUtilsOpt.map { annotationUtils =>
         val clientTa = annotationUtils.pipelineServerClient.annotate(subParagraph)
         annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
         clientTa

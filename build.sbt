@@ -5,7 +5,7 @@ import sbt.Keys._
 //import org.allenai.plugins.CoreRepositories.Resolvers
 //import org.allenai.plugins.StylePlugin
 
-val cogcompNLPVersion = "3.0.105"
+val cogcompNLPVersion = "3.1.16"
 val ccgGroupId = "edu.illinois.cs.cogcomp"
 
 lazy val commonSettings = Seq(
@@ -13,7 +13,7 @@ lazy val commonSettings = Seq(
   version := "1.5",
   scalaVersion := "2.11.8",
   javaOptions ++= Seq("-Xmx25G", "-XX:MaxMetaspaceSize=5g"),
-  fork := true,
+   fork := true,
   // Make sure SCIP libraries are locatable.
   javaOptions += s"-Djava.library.path=lib",
   envVars ++= Map(
@@ -34,7 +34,7 @@ def textualEntailment(component: String) = ("org.allenai.textual-entailment" %% 
     .exclude("org.slf4j", "log4j-over-slf4j")
     .exclude("edu.stanford.nlp", "stanford-corenlp")
 
-def ccgLib(component: String) = (ccgGroupId % component % cogcompNLPVersion withSources).exclude(ccgGroupId, "illinois-depparse")
+def ccgLib(component: String) = (ccgGroupId % component % cogcompNLPVersion withSources).exclude("edu.cmu.cs.ark", "ChuLiuEdmonds")
 
 val sprayVersion = "1.3.3"
 def sprayModule(id: String): ModuleID = "io.spray" %% s"spray-$id" % sprayVersion
@@ -74,10 +74,12 @@ lazy val root = (project in file(".")).
       ccgLib("illinois-core-utilities"),
       ccgLib("illinois-inference"),
       ccgLib("illinois-nlp-pipeline"),
+      "edu.cmu.cs.ark" % "ChuLiuEdmonds" % "1.0" force(),
       //ccgGroupId % "illinois-llm" % "1.1.4",
       ccgGroupId % "saul-examples_2.11" % "0.5.7-SNAPSHOT",
       ccgGroupId % "scip-jni" % "3.1.1",
       "edu.cmu" % "Meteor" % "1.5",
+      "org.slf4j" % "slf4j-log4j12" % "1.7.12",
       nlpstack("chunk") ,
       nlpstack("lemmatize"),
       nlpstack("tokenize"),
@@ -91,6 +93,7 @@ lazy val root = (project in file(".")).
 //      "org.apache.lucene" % "lucene-core" % "6.4.1",
       "org.scalaz" %% "scalaz-core" % "7.2.8",
       "com.github.mpkorstanje" % "simmetrics-core" % "4.1.1",
+      "github.sahand" % "sahand-client_2.11" % "1.2.1",
 //      "com.quantifind" %% "wisp" % "0.0.4",
       "io.github.pityka" %% "nspl-awt" % "0.0.7"//,
 //      "io.github.pityka" %% "nspl-scalatags-js" % "0.0.7"
@@ -103,6 +106,15 @@ lazy val root = (project in file(".")).
       "CogcompSoftware" at "http://cogcomp.cs.illinois.edu/m2repo/"
     )
   )
+/*
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.7.12</version>
+            <optional>true</optional>
+        </dependency>
+ */
+
 
 lazy val viz = (project in file("viz")).
   settings(commonSettings: _*).
@@ -122,9 +134,10 @@ lazy val viz = (project in file("viz")).
       "org.webjars" % "headjs" % "1.0.3"
     ),
     resolvers ++= Seq("scalaz-bintray" at "http://dl.bintray.com/scalaz/releases")//,
-    //projectDependencies := {
-    //  Seq((projectID in root).value.exclude("org.slf4j", "slf4j-log4j12"))
-    //}//,
+//    projectDependencies := {
+      //Seq((projectID in root).value.exclude("org.slf4j", "slf4j-log4j12"))
+      //Seq((projectID in root).value.exclude("edu.cmu.cs.ark", "ChuLiuEdmonds"))
+//    }//,
     // resourceDirectories in Compile +=  "/Users/daniel/ideaProjects/TextILP/src/main/resources" //baseDirectory.value / "myresources"
     //, unmanagedBase := baseDirectory.value / "lib"
   )

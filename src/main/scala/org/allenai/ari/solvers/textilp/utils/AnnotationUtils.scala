@@ -7,19 +7,19 @@ import java.util.Properties
 
 import edu.illinois.cs.cogcomp.annotation.AnnotatorServiceConfigurator
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
-import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, TextAnnotation}
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{ Constituent, TextAnnotation }
 import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper
-import edu.illinois.cs.cogcomp.core.utilities.configuration.{Configurator, ResourceManager}
-import edu.illinois.cs.cogcomp.curator.{CuratorConfigurator, CuratorFactory}
+import edu.illinois.cs.cogcomp.core.utilities.configuration.{ Configurator, ResourceManager }
+import edu.illinois.cs.cogcomp.curator.{ CuratorConfigurator, CuratorFactory }
 import edu.illinois.cs.cogcomp.pipeline.common.PipelineConfigurator
 import edu.illinois.cs.cogcomp.pipeline.common.PipelineConfigurator._
 import edu.illinois.cs.cogcomp.pipeline.main.PipelineFactory
 import edu.illinois.cs.cogcomp.saulexamples.nlp.QuestionTypeClassification.QuestionTypeAnnotator
-import org.allenai.ari.solvers.squad.{CandidateGeneration, SQuADReader}
-import org.allenai.ari.solvers.textilp.{Paragraph, Question, TopicGroup}
+import org.allenai.ari.solvers.squad.{ CandidateGeneration, SQuADReader }
+import org.allenai.ari.solvers.textilp.{ Paragraph, Question, TopicGroup }
 import org.allenai.common.cache.JsonQueryCache
-import play.api.libs.json.{JsArray, JsNumber, Json}
-import redis.clients.jedis.{JedisPool, Protocol}
+import play.api.libs.json.{ JsArray, JsNumber, Json }
+import redis.clients.jedis.{ JedisPool, Protocol }
 import spray.json.DefaultJsonProtocol._
 
 import scala.io.Source
@@ -57,7 +57,8 @@ class AnnotationUtils() {
     USE_QUANTIFIER)
   val viewsToDisable = Set(USE_SRL_NOM, USE_QUANTIFIER, USE_STANFORD_DEP)
   val viewsToAdd = Seq(ViewNames.POS, ViewNames.LEMMA, ViewNames.NER_CONLL, ViewNames.NER_ONTONOTES,
-    ViewNames.SHALLOW_PARSE, ViewNames.PARSE_STANFORD, ViewNames.DEPENDENCY_STANFORD, ViewNames.SRL_VERB /*, ViewNames.QUANTITIES*/ )
+    ViewNames.SHALLOW_PARSE, ViewNames.PARSE_STANFORD, ViewNames.DEPENDENCY_STANFORD, ViewNames.SRL_VERB,
+    ViewNames.SRL_COMMA/*, ViewNames.QUANTITIES*/ )
 
   lazy val pipelineService = {
     println("Starting to build the pipeline service . . . ")
@@ -78,8 +79,8 @@ class AnnotationUtils() {
 
   lazy val curatorService = {
     val settings = new Properties()
-//    settings.setProperty(CuratorConfigurator.DISABLE_CACHE.key, Configurator.FALSE)
-//    settings.setProperty(CuratorConfigurator.CACHE_FORCE_UPDATE.key, Configurator.TRUE)
+    //    settings.setProperty(CuratorConfigurator.DISABLE_CACHE.key, Configurator.FALSE)
+    //    settings.setProperty(CuratorConfigurator.CACHE_FORCE_UPDATE.key, Configurator.TRUE)
     //viewsToDisable.foreach{ key => settings.setProperty(key.value, Configurator.FALSE) }
     val rm = new ResourceManager(settings)
     //viewsToDisable.foreach { v => settings.setProperty(v.key, Configurator.FALSE) }
@@ -91,9 +92,9 @@ class AnnotationUtils() {
 
   lazy val pipelineServerClient = {
     val x = new ServerClientAnnotator()
-    x.setUrl("http://austen.cs.illinois.edu", "8080")
+    x.setUrl("http://austen.cs.illinois.edu", "5800")
     x.setViewsAll(viewsToAdd.toArray)
-    x.useCaching()
+    x.useCaching("remotePipelineCachingTextilp2.cache")
     x
   }
 
@@ -124,8 +125,7 @@ class AnnotationUtils() {
       set.add(oldViewName)
       val ta1 = curatorService.createAnnotatedTextAnnotation("", "", string, set)
       ta.addView(newViewName, ta1.getView(oldViewName))
-    }
-    catch {
+    } catch {
       case e: Exception => e.printStackTrace()
     }
     ta

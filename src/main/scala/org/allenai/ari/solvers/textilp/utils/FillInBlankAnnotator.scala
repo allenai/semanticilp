@@ -9,7 +9,7 @@ import org.apache.commons.codec.digest.DigestUtils
 import org.mapdb.{ DBMaker, HTreeMap, Serializer }
 
 class FillInBlankAnnotator extends Annotator("FillInBlankGenerator", Array.empty) {
-  private val db = DBMaker.fileDB("fillInBlankGenerator.cache").closeOnJvmShutdown().transactionEnable().make()
+  private var db = DBMaker.fileDB("fillInBlankGenerator.cache").closeOnJvmShutdown().transactionEnable().make()
   lazy val fitbGenerator = FillInTheBlankGenerator.mostRecent
   override def initialize(rm: ResourceManager): Unit = {
     // do nothing
@@ -37,4 +37,11 @@ class FillInBlankAnnotator extends Annotator("FillInBlankGenerator", Array.empty
   }
 
   def close = db.close()
+
+  def useCaching(str: String) = {
+    db.close()
+    db = DBMaker.fileDB(str).closeOnJvmShutdown().transactionEnable().make()
+  }
+
+
 }
