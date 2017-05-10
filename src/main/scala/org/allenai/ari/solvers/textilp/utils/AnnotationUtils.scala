@@ -58,7 +58,7 @@ class AnnotationUtils() {
   val viewsToDisable = Set(USE_SRL_NOM, USE_QUANTIFIER, USE_STANFORD_DEP)
   val viewsToAdd = Seq(ViewNames.POS, ViewNames.LEMMA, ViewNames.NER_CONLL, ViewNames.NER_ONTONOTES,
     ViewNames.SHALLOW_PARSE, ViewNames.PARSE_STANFORD, ViewNames.DEPENDENCY_STANFORD, ViewNames.SRL_VERB,
-    ViewNames.SRL_COMMA/*, ViewNames.QUANTITIES*/ )
+    ViewNames.SRL_COMMA /*, ViewNames.QUANTITIES*/ )
 
   lazy val pipelineService = {
     println("Starting to build the pipeline service . . . ")
@@ -101,7 +101,7 @@ class AnnotationUtils() {
   lazy val pipelineExternalAnnotatorsServerClient = {
     val x = new ServerClientAnnotator()
     x.setUrl("http://sauron.cs.illinois.edu", "8080")
-    x.setViewsAll(Array("SRL_VERB_PATH_LSTM"))
+    x.setViewsAll(Array("SRL_VERB_PATH_LSTM", "STANFORD_COREF"))
     x.useCaching("externalAnnotations.cache")
     x
   }

@@ -1039,7 +1039,7 @@ object ExperimentsApp {
         //     println("filterWhatDoesItDo: ")
         //
         evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
-        evaluateTextSolverOnProcessBank(processReader.testInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
+//        evaluateTextSolverOnProcessBank(processReader.testInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
 
       // println("no-temporals/no true or false: ")
       //
@@ -1728,7 +1728,6 @@ object ExperimentsApp {
         println("Constituents.size: " + pTA.getView("SRL_VERB_PATH_LSTM").getConstituents.asScala.size)
         println("Distinct constituents: " + pTA.getView("SRL_VERB_PATH_LSTM").getConstituents.asScala.distinct)
         println("Distinct constituents.size: " + pTA.getView("SRL_VERB_PATH_LSTM").getConstituents.asScala.distinct.size)
-
 
       case 77 =>
         //        cacheTheKnowledgeOnDisk(SolverUtils.regentsTrain)

@@ -43,5 +43,4 @@ class FillInBlankAnnotator extends Annotator("FillInBlankGenerator", Array.empty
     db = DBMaker.fileDB(str).closeOnJvmShutdown().transactionEnable().make()
   }
 
-
 }
