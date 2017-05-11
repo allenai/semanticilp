@@ -339,7 +339,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       createILPModel(q, p, ilpSolver, aligner, Set(SRLV1), true)
     }
 
-    if(resultSRLV1._1.isEmpty) {
+/*    if(resultSRLV1._1.isEmpty) {
       if(resultSRLV2._1.isEmpty) {
         if(resultSRLV3._1.isEmpty) {
           if(srlV1ILPWithSummary._1.isEmpty) {
@@ -384,7 +384,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     }
     else {
       resultSRLV1
-    }
+    }*/
     //resultILP
     //resultVerbSRLPlusCoref
 //    resultVerbSRLPlusCommaSRL
@@ -837,8 +837,6 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
                                    reasoningTypes: Set[ReasoningType],
                                    useSummary: Boolean = false
                                  ): (Seq[Int], EntityRelationResult) = {
-
-    val activeConstaints = false
 
     //val p = if(reasoningTypes.contains(SimpleMatching)) SolverUtils.ParagraphSummarization.getSubparagraph(p1, q, Some(annotationUtils)) else p1
     //val p = SolverUtils.ParagraphSummarization.getSubparagraph(p1, q, Some(annotationUtils))
@@ -1405,14 +1403,12 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       interParagraphAlignments ++= verbSRLEdges.toBuffer
 
       // constraint: the predicate can be active only if at least one of the its connected arguments are active
-      if(true) {
-        pVerbPredicates.foreach { predicate =>
-          val predicateVar = activeParagraphVerbSRLConstituents(predicate)
-          val arguments = pVerbPredicateToArgumentMap(predicate)
-          val argumentsVars = arguments.map(activeParagraphVerbSRLConstituents)
-          val weights = arguments.map(_ => 1.0)
-          ilpSolver.addConsBasicLinear(s"", argumentsVars :+ predicateVar, weights :+ -1.0, Some(0.0), None)
-        }
+      pVerbPredicates.foreach { predicate =>
+        val predicateVar = activeParagraphVerbSRLConstituents(predicate)
+        val arguments = pVerbPredicateToArgumentMap(predicate)
+        val argumentsVars = arguments.map(activeParagraphVerbSRLConstituents)
+        val weights = arguments.map(_ => 1.0)
+        ilpSolver.addConsBasicLinear(s"", argumentsVars :+ predicateVar, weights :+ -1.0, Some(0.0), None)
       }
 
       paragraphAnswerAlignments ++= argumentAnswerAlignments.toBuffer
@@ -1772,16 +1768,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       val pCorefConstituents = if (pTA.hasView(TextILPSolver.stanfordCorefViewName)) pTA.getView(TextILPSolver.stanfordCorefViewName).getConstituents.asScala else Seq.empty
       val pCorefConstituentGroups = pCorefConstituents.groupBy(_.getLabel)
 
-      println("pVerbPredicates " + pVerbPredicates)
       val pVerbPredicateToArgumentMap = pVerbConstituents.map(c => c -> c.getOutgoingRelations.asScala.map(_.getTarget)).toMap
       val qVerbPredicateToArgumentMap = qVerbConstituents.map(c => c -> c.getOutgoingRelations.asScala.map(_.getTarget)).toMap
-
-      println("pVerbPredicateToArgumentMap.size: " + pVerbPredicateToArgumentMap.size)
-      println("qVerbPredicateToArgumentMap.size: " + qVerbPredicateToArgumentMap.size)
-      println("pVerbArguments.size: " + pVerbArguments.size)
-      println("qVerbArguments.size: " + qVerbArguments.size)
-      println("qVerbConstituents.size: " + qVerbConstituents.size)
-      println("pVerbConstituents.size: " + pVerbConstituents.size)
 
       // active paragraph comma-srl constituents
       val activeParagrapCorefConstituents = pCorefConstituents.zipWithIndex.map{ case(c, idx) =>
@@ -1814,16 +1802,12 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       }.toMap
 
       // constraint: have at most 1 coref chain
-      // TODO: tune this
-      ilpSolver.addConsAtMostOne(s"", activeCorefChains.values.toSeq)
+      ilpSolver.addConsAtMostOne(s"", activeCorefChains.values.toSeq) //TODO: tune this
 
-      // constraint:
-      // have some constituents used from the question
-      println("activeQuestionVerbSRLConstituents.values.toSeq: " + activeQuestionVerbSRLConstituents.values.toSeq.size)
+      // constraint: have some constituents used from the question
       ilpSolver.addConsAtLeastK(s"", activeQuestionVerbSRLConstituents.values.toSeq, 1.0)
 
-      // constraint:
-      // have at most k active srl-verb predicates in the paragraph
+      // constraint: have at most k active srl-verb predicates in the paragraph
       val predicateVariables = pVerbPredicates.map(activeParagraphVerbSRLConstituents)
       ilpSolver.addConsAtMostK(s"", predicateVariables, 1.0) // TODO: tune this number
 
