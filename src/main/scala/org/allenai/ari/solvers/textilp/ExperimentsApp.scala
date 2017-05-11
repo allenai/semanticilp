@@ -397,6 +397,7 @@ object ExperimentsApp {
           if (score < 0.5 && selected.nonEmpty) println(" >>>>>>> Selected and Incorrect :" + score + s"  ${q.questionText}")
           if (score < 0.5) println(" >>>>>>> Incorrect :" + score)
           if (score > 0.5) println(" >>>>>>> correct :" + score)
+          println(s"Processed $idx out of ${qAndpPairs}")
           (score, explanation.statistics, if (selected.nonEmpty) 1.0 else 0.0) // -> (explanation.confidence -> correctLabel)
       }.unzip3
 

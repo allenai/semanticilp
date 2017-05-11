@@ -79,6 +79,11 @@ class SolveQuestion @Inject() extends Controller {
     } else if (solverType.toLowerCase.contains("textilp")) {
       println("Calling textilp. . . ")
       val (_, out) = textilpSolver.solve(question, optionsPostProcessed, snippetPostprocessed)
+//      val time = java.lang.System.currentTimeMillis()
+//      TextILPSolver.sahandClient.useCache("sahandClient-" + time.toString)
+//      annotationUtils.pipelineServerClient.useCaching("pipelineServerClient-" + time.toString)
+//      annotationUtils.pipelineExternalAnnotatorsServerClient.useCaching("pipelineExternalAnnotatorsServerClient-" + time.toString)
+//      annotationUtils.fillInBlankAnnotator.useCaching("fillInBlankAnnotator-" + time.toString)
       println("textilp solver response ..... ")
       println(out)
       out
