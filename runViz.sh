@@ -1,0 +1,1 @@
+sbt "project viz" "run"

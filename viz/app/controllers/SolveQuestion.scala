@@ -77,7 +77,7 @@ class SolveQuestion @Inject() extends Controller {
       println(out)
       out
     } else if (solverType.toLowerCase.contains("textilp")) {
-      println("Calling textilp. . . ")
+      println("Calling te xtilp. . . ")
       val (_, out) = textilpSolver.solve(question, optionsPostProcessed, snippetPostprocessed)
 //      val time = java.lang.System.currentTimeMillis()
 //      TextILPSolver.sahandClient.useCache("sahandClient-" + time.toString)

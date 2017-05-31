@@ -57,7 +57,7 @@ class AnnotationUtils() {
     USE_QUANTIFIER)
   val viewsToDisable = Set(USE_SRL_NOM, USE_QUANTIFIER, USE_STANFORD_DEP)
   val viewsToAdd = Seq(ViewNames.POS, ViewNames.LEMMA, ViewNames.NER_CONLL, ViewNames.NER_ONTONOTES,
-    ViewNames.SHALLOW_PARSE, ViewNames.PARSE_STANFORD, ViewNames.DEPENDENCY_STANFORD, ViewNames.SRL_VERB,
+    ViewNames.SHALLOW_PARSE, ViewNames.PARSE_STANFORD, ViewNames.DEPENDENCY_STANFORD, ViewNames.SRL_VERB, ViewNames.SRL_PREP,
     ViewNames.SRL_COMMA /*, ViewNames.QUANTITIES*/ )
 
   lazy val pipelineService = {
@@ -94,7 +94,7 @@ class AnnotationUtils() {
     val x = new ServerClientAnnotator()
     x.setUrl("http://austen.cs.illinois.edu", "5800")
     x.setViewsAll(viewsToAdd.toArray)
-    x.useCaching("remotePipelineCachingTextilp2.cache")
+    x.useCaching("remotePipelineCachingTextilp4.cache")
     x
   }
 

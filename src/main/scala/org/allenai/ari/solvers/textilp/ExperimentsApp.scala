@@ -382,7 +382,7 @@ object ExperimentsApp {
         case ((q, p), idx) =>
           println("==================================================")
           //        println("Processed " + idx + " out of " + qAndpPairs.size)
-          println("Paragraph: " + p)
+          //println("Paragraph: " + p)
           val candidates = q.answers.map(_.answerText)
           val correctIndex = q.correctIdxOpt.get
           println("question: " + q.questionText)
@@ -397,7 +397,7 @@ object ExperimentsApp {
           if (score < 0.5 && selected.nonEmpty) println(" >>>>>>> Selected and Incorrect :" + score + s"  ${q.questionText}")
           if (score < 0.5) println(" >>>>>>> Incorrect :" + score)
           if (score > 0.5) println(" >>>>>>> correct :" + score)
-          println(s"Processed $idx out of ${qAndpPairs}")
+          println(s"Processed $idx out of ${qAndpPairs.length}")
           (score, explanation.statistics, if (selected.nonEmpty) 1.0 else 0.0) // -> (explanation.confidence -> correctLabel)
       }.unzip3
 
@@ -565,8 +565,8 @@ object ExperimentsApp {
   def main(args: Array[String]): Unit = {
     lazy val trainReader = new SQuADReader(Constants.squadTrainingDataFile, Some(annotationUtils.pipelineService), annotationUtils)
     lazy val devReader = new SQuADReader(Constants.squadDevDataFile, Some(annotationUtils.pipelineService), annotationUtils)
-    lazy val processReader = new ProcessBankReader(true, annotationUtils)
-    // lazy val processReader = new ProcessBankReader(false, annotationUtils)
+    //lazy val processReader = new ProcessBankReader(true, annotationUtils)
+    lazy val processReader = new ProcessBankReader(false, annotationUtils)
     val parser = new ArgumentParser(args)
     parser.experimentType() match {
       case 1 => generateCandiateAnswers(devReader)

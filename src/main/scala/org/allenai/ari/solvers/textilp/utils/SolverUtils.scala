@@ -514,7 +514,7 @@ object SolverUtils {
       val maxScore = sortedSentences.head._1._2
       val selectedIdx = sortedSentences.filter(_._1._2 == maxScore).map(_._2)
       val maxIdx = sentences.length
-      val allSelected = (selectedIdx.map(_ + 1) ++ selectedIdx).filter(_ < maxIdx)
+      val allSelected = (selectedIdx ++ selectedIdx.map(_ + 1)).filter(_ < maxIdx).distinct
       val subParagraph = allSelected.map(sentences(_)).mkString(" ")
       println("subParagraph: " + subParagraph)
       val taOpt = annotationUtilsOpt.map { annotationUtils =>
