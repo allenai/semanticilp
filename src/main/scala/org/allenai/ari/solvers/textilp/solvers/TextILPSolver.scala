@@ -1117,9 +1117,6 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
                 ilpSolver.addConsBasicLinear("NoActivePairIfNonAreActive", Seq(activePair, b._3), Seq(-1.0, 1.0), None, Some(0.0))
                 activePair
               }
-            //        println("ansList1: " + ansList1)
-            //        println("ansList2: " + ansList2)
-            //        println("variablesPairsInAnswerOptionsWithDependencyRelation: " + variablesPairsInAnswerOptionsWithDependencyRelation.length)
 
             // if the paragraph relation pair is active, at least one answer response pair should be active
             // in other words
@@ -1841,8 +1838,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
           (pPrepPredicate, arg, x)
         }
 
-
-      // constraint: use exactly one rpep-srl predicate
+      // constraint: use exactly one prep-srl predicate
       val predicateVars = pPrepPredicates.map(activeParagraphPrepSRLConstituents)
       val weights = predicateVars.map(_ => 1.0)
       ilpSolver.addConsBasicLinear(s"", predicateVars, weights, Some(1.0), Some(3.0))
