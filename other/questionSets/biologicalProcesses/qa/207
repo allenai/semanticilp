@@ -1,0 +1,28 @@
+<annotation>
+  <id>207</id>
+  <text>
+    Increasingly, the remarkable ability of certain microorganisms to transform chemicals is being exploited for environmental cleanup. If the growth needs of such microbes make them unsuitable for direct use, scientists can now transfer the genes for their valuable metabolic capabilities into other microorganisms, which can then be used to treat environmental problems.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>207:1307925491</qid>
+      <q>Microorganisms do what?</q>
+      <a0>exploit environmental cleanup</a0>
+      <a1>transform chemicals</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>207:1723506872</qid>
+      <q>
+        What is enabled by the transfer of genes for valuable metabolic capabilities into other microorganisms?
+      </q>
+      <a0>environment problems</a0>
+      <a1>environmental cleanup</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

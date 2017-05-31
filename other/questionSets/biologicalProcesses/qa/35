@@ -1,0 +1,39 @@
+<annotation>
+  <id>35</id>
+  <text>
+    A release factor, a protein shaped like an aminoacyl tRNA, binds directly to the stop codon in the A site. The release factor causes the addition of a water molecule instead of an amino acid to the polypeptide chain. (There are plenty of water molecules available in the aqueous cellular environment.) This reaction breaks (hydrolyzes) the bond between the completed polypeptide and the tRNA in the P site, releasing the polypeptide through the exit tunnel of the ribosome's large subunit.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>35:1701611512</qid>
+      <q>What does the release factor do?</q>
+      <a0>
+        hydrolyzes the bond between the completed polypeptide and the tRNA in the P site
+      </a0>
+      <a1>binds directly to the stop codon</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>35:1935089655</qid>
+      <q>What would happen without the release factor?</q>
+      <a0>The polypeptide would not be released</a0>
+      <a1>there would not be plenty of water molecules available</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>35:581910299</qid>
+      <q>
+        Addition of a water molecule instead of an amino acid to the polypeptide chain hydrolyzes the bond between the completed polypeptide and the tRNA
+      </q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

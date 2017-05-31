@@ -1,0 +1,30 @@
+<annotation>
+  <id>119</id>
+  <text>
+    The scanning electron microscope (SEM) is especially useful for detailed study of the topography of a specimen (see Figure 6.3). The electron beam scans the surface of the sample, usually coated with a thin film of gold. The beam excites electrons on the surface, and these secondary electrons are detected by a device that translates the pattern of electrons into an electronic signal to a video screen. The result is an image of the specimen's surface that appears three-dimensional.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>119:1195274717</qid>
+      <q>An SEM emits a beam of secondary electrons</q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>119:1130551724</qid>
+      <q>What is the correct order of events?</q>
+      <a0>
+        Secondary electrons are detected, the electron beam scans the sample, then the image is translated into a three-dimensional image
+      </a0>
+      <a1>
+        Electron beam scans sample, secondary electrons are detected, then the image is translated into a three-dimensional image
+      </a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

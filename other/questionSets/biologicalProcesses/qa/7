@@ -1,0 +1,26 @@
+<annotation>
+  <id>7</id>
+  <text>
+    Tilting head-downward, the beetle faces into the winds that blow fog across the dunes. Droplets of moisture from the fog collect on the beetle's body and run down into its mouth.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>7:1844549223</qid>
+      <q>What entity runs down into the beetle's mouth?</q>
+      <a0>Fog</a0>
+      <a1>Droplets of moisture</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>7:1594182962</qid>
+      <q>What would happen if fog did not collect on the beetle's body?</q>
+      <a0>Droplets of moisture would not run into its mouth.</a0>
+      <a1>The fog would not blow across the dunes</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

@@ -1,0 +1,37 @@
+<annotation>
+  <id>73</id>
+  <text>
+    How does NAD+ trap electrons from glucose and other organic molecules? Enzymes called dehydrogenases remove a pair of hydrogen atoms (2 electrons and 2 protons) from the substrate (glucose, in this example), thereby oxidizing it. The enzyme delivers the 2 electrons along with 1 proton to its coenzyme, NAD+ (Figure 9.4). The other proton is released as a hydrogen ion (H+) into the surrounding solution. By receiving 2 negatively charged electrons but only 1 positively charged proton, NAD+ has its charge neutralized when it is reduced to NADH. The name NADH shows the hydrogen that has been received in the reaction. NAD+ is the most versatile electron acceptor in cellular respiration and functions in several of the redox steps during the breakdown of glucose.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>73:2038634249</qid>
+      <q>Which molecule receives only 1 positively charged proton?</q>
+      <a0>NADH</a0>
+      <a1>NAD+</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>73:1168543736</qid>
+      <q>
+        A dehydrogenase delivers the 2 electrons along along with 1 proton to its coenzyme
+      </q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>73:184837701</qid>
+      <q>What happens to the 2 electrons?</q>
+      <a0>released into the surrounding solution</a0>
+      <a1>delivered to NAD+</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

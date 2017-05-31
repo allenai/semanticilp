@@ -1,0 +1,37 @@
+<annotation>
+  <id>190</id>
+  <text>
+    The first is called Northern blotting (a play on words based on this method's close similarity to Southern blotting). In this method, we carry out gel electrophoresis on samples of mRNA from hummingbird embryos at different stages of development, transfer the samples to a nitrocellulose membrane, and then allow the mRNAs on the membrane to hybridize with a labeled probe recognizing beta-globin mRNA. If we expose a film to the membrane, the resulting image will look similar to the Southern blot in Figure 20.11, with one band of a given size showing up in each sample.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>190:1819477171</qid>
+      <q>What is required for Northern blotting?</q>
+      <a0>a play on words</a0>
+      <a1>gel electrophoresis</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>190:1181944862</qid>
+      <q>Which event occurs first?</q>
+      <a0>mRNAs on the membrane hybridize with a labeled probe</a0>
+      <a1>gel electrophoresis</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>190:1320405681</qid>
+      <q>
+        What happens after the transfer of the samples to a nitrocellulose membrane?
+      </q>
+      <a0>gel electrophoresis</a0>
+      <a1>one band showing up in each sample</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

@@ -1,0 +1,35 @@
+<annotation>
+  <id>145</id>
+  <text>
+    When a few individuals become isolated from a larger population, this smaller group may establish a new population whose gene pool differs from the source population; this is called the founder effect. The founder effect might occur, for example, when a few members of a population are blown by a storm to a new island. Genetic drift, in which chance events alter allele frequencies, will occur in such a case if the storm indiscriminately transports some individuals (and their alleles), but not others, from the source population. The founder effect probably accounts for the relatively high frequency of certain inherited disorders among isolated human populations.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>145:1221667432</qid>
+      <q>Which event occurs first?</q>
+      <a0>the smaller group may establish a new population</a0>
+      <a1>a few individuals become isolated from a larger population</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>145:1983476445</qid>
+      <q>Genetic drift describes what process?</q>
+      <a0>chance events alter allele frequencies</a0>
+      <a1>the founder effect</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>145:417450918</qid>
+      <q>What is the result of the founder effect?</q>
+      <a0>the storm indiscriminately transports some individuals</a0>
+      <a1>a new population whose gene pool differs from the source population</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

@@ -1,0 +1,35 @@
+<annotation>
+  <id>44</id>
+  <text>
+    The two regions, one on each X chromosome, associate briefly with each other in each cell at an early stage of embryonic development. Then one of the genes, called XIST (for X-inactive specific transcript) becomes active only on the chromosome that will become the Barr body. Multiple copies of the RNA product of this gene apparently attach to the X chromosome on which they are made, eventually almost covering it. Interaction of this RNA with the chromosome seems to initiate X inactivation, and the RNA products of other genes nearby on the X chromosome help to regulate the process.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>44:61328139</qid>
+      <q>What would happen without XIST?</q>
+      <a0>One X chromosome would not be almost covered by RNA</a0>
+      <a1>Embryonic development would not occur</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>44:1554794437</qid>
+      <q>X inactivation occurs on the X chromosome that will become the barr body</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>44:1773081739</qid>
+      <q>What is caused by the interaction of RNA with the chromosome?</q>
+      <a0>RNA products of other genes nearby</a0>
+      <a1>X inactivation</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

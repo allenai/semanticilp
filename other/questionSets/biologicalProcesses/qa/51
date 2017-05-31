@@ -1,0 +1,17 @@
+<annotation>
+  <id>51</id>
+  <text>
+    By binary fission (see Figure 12.12), a single prokaryotic cell divides into 2 cells, which then divide into 4, 8, 16, and so on.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>51:842612004</qid>
+      <q>2 cells produce a single prokaryotic cell by binary fission</q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

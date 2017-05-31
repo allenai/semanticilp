@@ -1,0 +1,26 @@
+<annotation>
+  <id>136</id>
+  <text>
+    During the process called transposition, a transposable element moves from one site in a cell's DNA to a different target site by a type of recombination process. Transposable elements are sometimes called &quot;jumping genes,&quot; but it should be kept in mind that they never completely detach from the cell's DNA. Instead, the original and new DNA sites are brought together by enzymes and other proteins that bend the DNA.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>136:1880450435</qid>
+      <q>Transposable elements completely detach from the cell's DNA</q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>136:1819744903</qid>
+      <q>What is required for a transposable elements to move?</q>
+      <a0>completely detach from the cell's DNA</a0>
+      <a1>enzymes and other proteins</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

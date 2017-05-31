@@ -1,0 +1,28 @@
+<annotation>
+  <id>116</id>
+  <text>
+    The binding of a specific signaling molecule to a receptor in the plasma membrane triggers the first step in the chain of molecular interactions: the signal transduction pathway: that leads to a particular response within the cell. Like falling dominoes, the signal-activated receptor activates another molecule, which activates yet another molecule, and so on, until the protein that produces the final cellular response is activated.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>116:836494501</qid>
+      <q>What would happen without the signal transduction pathway?</q>
+      <a0>The cellular response would not be activated</a0>
+      <a1>
+        The receptor in the plasma membrane would not bind to signaling molecules
+      </a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>116:337161709</qid>
+      <q>What directly causes the final cellular response?</q>
+      <a0>a protein</a0>
+      <a1>signaling molecules</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

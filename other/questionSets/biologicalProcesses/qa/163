@@ -1,0 +1,35 @@
+<annotation>
+  <id>163</id>
+  <text>
+    Likewise, the appearance of structurally complex eukaryotic cells sparked the evolution of greater morphological diversity than was possible for the simpler prokaryotic cells. After the first eukaryotes appeared, a great range of unicellular forms evolved, giving rise to the diversity of single-celled eukaryotes that continue to flourish today. Another wave of diversification also occurred: Some single-celled eukaryotes gave rise to multicellular forms, whose descendants include a variety of algae, plants, fungi, and animals.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>163:1268187351</qid>
+      <q>What was required for the evolution of greater morphological diversity?</q>
+      <a0>simpler prokaryotic cells</a0>
+      <a1>the first eukaryotes</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>163:1052060520</qid>
+      <q>algae, plants, fungi, and animals produced single-celled eukaryotes</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>163:1288922567</qid>
+      <q>What was produced by the diversification?</q>
+      <a0>single-celled eukaryotes</a0>
+      <a1>multicellular forms</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

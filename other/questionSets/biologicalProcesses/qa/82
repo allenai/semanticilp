@@ -1,0 +1,44 @@
+<annotation>
+  <id>82</id>
+  <text>
+    Now that we know about the role of cAMP in G protein signaling pathways, we can explain in molecular detail how certain microbes cause disease. Consider cholera, a disease that is frequently epidemic in places where the water supply is contaminated with human feces. People acquire the cholera bacterium, Vibrio cholerae, by drinking contaminated water. The bacteria form a biofilm on the lining of the small intestine and produce a toxin. The cholera toxin is an enzyme that chemically modifies a G protein involved in regulating salt and water secretion. Because the modified G protein is unable to hydrolyze GTP to GDP, it remains stuck in its active form, continuously stimulating adenylyl cyclase to make cAMP. The resulting high concentration of cAMP causes the intestinal cells to secrete large amounts of salts into the intestines, with water following by osmosis. An infected person quickly develops profuse diarrhea and if left untreated can soon die from the loss of water and salts.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>82:1558593697</qid>
+      <q>What does Vibrio cholerae do?</q>
+      <a0>produces a toxin</a0>
+      <a1>Drinks contaminated water</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>82:444592847</qid>
+      <q>The cholera toxin does what?</q>
+      <a0>regulates salt and water secretion</a0>
+      <a1>chemically modifies a G protein</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>82:243544029</qid>
+      <q>which event occurs first?</q>
+      <a0>an infected person quickly develops profuse diarrhea</a0>
+      <a1>intestinal cells secrete large amounts of salt into the intestine</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>82:121678206</qid>
+      <q>The modified G protein hydrolyzes GTP to GDP</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

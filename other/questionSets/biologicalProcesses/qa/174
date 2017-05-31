@@ -1,0 +1,35 @@
+<annotation>
+  <id>174</id>
+  <text>
+    &amp;#x278E; First, plating out all the bacteria on solid nutrient medium containing ampicillin allows us to distinguish the cells that have taken up plasmids, whether recombinant or not, from the other cells. Under these conditions, only cells with a plasmid will reproduce because only they have the ampR gene conferring resistance to the ampicillin in the medium. Each reproducing bacterium forms a clone of cells. Once the clone contains between 105 and 108 cells, it is visible as a mass, or colony, on the agar. As cells reproduce, any foreign genes carried by recombinant plasmids are also copied (cloned).
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>174:1356516250</qid>
+      <q>Which event occurs first?</q>
+      <a0>a clone of cells is formed</a0>
+      <a1>plating out all the bacteria</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>174:559415646</qid>
+      <q>What does the ampR gene do?</q>
+      <a0>forms a clone of cells</a0>
+      <a1>confers resistance to the ampicillin in the medium</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>174:452573511</qid>
+      <q>What happens because reproducing bacteria form clones of cells?</q>
+      <a0>Any foreign genes carried by recombinant plasmids are also copied</a0>
+      <a1>The ampR gene will confer resistance to the ampicillin in the medium</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

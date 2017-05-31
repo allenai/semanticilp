@@ -1,0 +1,53 @@
+<annotation>
+  <id>86</id>
+  <text>
+    The light reactions are the steps of photosynthesis that convert solar energy to chemical energy. Water is split, providing a source of electrons and protons (hydrogen ions, H+) and giving off O2 as a by-product. Light absorbed by chlorophyll drives a transfer of the electrons and hydrogen ions from water to an acceptor called NADP+ (nicotinamide adenine dinucleotide phosphate), where they are temporarily stored. The electron acceptor NADP+ is first cousin to NAD+, which functions as an electron carrier in cellular respiration; the two molecules differ only by the presence of an extra phosphate group in the NADP+ molecule. The light reactions use solar power to reduce NADP+ to NADPH by adding a pair of electrons along with an H+. The light reactions also generate ATP, using chemiosmosis to power the addition of a phosphate group to ADP, a process called photophosphorylation. Thus, light energy is initially converted to chemical energy in the form of two compounds: NADPH, a source of electrons as &quot;reducing power&quot; that can be passed along to an electron acceptor, reducing it, and ATP, the versatile energy currency of cells. Notice that the light reactions produce no sugar; that happens in the second stage of photosynthesis, the Calvin cycle.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>86:932472992</qid>
+      <q>What is the final product of the light reactions?</q>
+      <a0>cells</a0>
+      <a1>ATP</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>86:237364635</qid>
+      <q>Which of the following is required for the light reactions?</q>
+      <a0>NAD+</a0>
+      <a1>NADP+</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>86:315528885</qid>
+      <q>How is ATP made?</q>
+      <a0>adding a pair of electrons along with H+</a0>
+      <a1>Photophosphorylation</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>86:2028113369</qid>
+      <q>The Calvin cycle produces sugar</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>86:991350426</qid>
+      <q>What do light reactions eventually produce?</q>
+      <a0>ATP</a0>
+      <a1>cells</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

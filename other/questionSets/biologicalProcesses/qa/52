@@ -1,0 +1,35 @@
+<annotation>
+  <id>52</id>
+  <text>
+    The original cell produces a copy of its chromosome and surrounds it with a tough multilayered structure, forming the endospore. Water is removed from the endospore, and its metabolism halts. The original cell then lyses, releasing the endospore.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>52:877990829</qid>
+      <q>What would happen if the cell did not lyse?</q>
+      <a0>The endospore would not be released</a0>
+      <a1>water would not be removed from the endospore</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>52:41015149</qid>
+      <q>The endospore's metabolism halts</q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>52:1049087613</qid>
+      <q>What will not happen if the original cell does not lyse?</q>
+      <a0>endospore is not released</a0>
+      <a1>metabolism halts</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

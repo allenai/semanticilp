@@ -1,0 +1,37 @@
+<annotation>
+  <id>187</id>
+  <text>
+    The sequence of nucleotides in any cloned DNA fragment of up to 800-1,000 base pairs in length can be determined rapidly with machines that carry out sequencing reactions and separate the labeled reaction products by length. Technique This method synthesizes a set of DNA strands complementary to the original DNA fragment.  Each strand starts with the same primer and ends with a dideoxyribonucleotide (ddNTP), a modified nucleotide. Incorporation of a ddNTP terminates a growing DNA strand because it lacks a 3' OH group, the site for attachment of the next nucleotide (see Figure 16.14). In the set of strands synthesized, each nucleotide position along the original sequence is represented by strands ending at that point with the complementary ddNTP. Because each type of ddNTP is tagged with a distinct fluorescent label, the identity of the ending nucleotides of the new strands, and ultimately the entire original sequence, can be determined.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>187:1824953036</qid>
+      <q>What does ddNTP do?</q>
+      <a0>attachment of the next nucleotide</a0>
+      <a1>terminates a growing DNA strand</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>187:291414531</qid>
+      <q>ddNTP is required to determine the entire original sequence</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>187:1868639039</qid>
+      <q>What will not happen without a distinct fluorescent label?</q>
+      <a0>
+        each nucleotide position along the original sequence is not represented by strands ending at that point with the complementary ddNT
+      </a0>
+      <a1>The entire nucleotide can not be determined</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

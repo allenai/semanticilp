@@ -1,0 +1,37 @@
+<annotation>
+  <id>197</id>
+  <text>
+    John Gurdon and colleagues at Oxford University, in England, destroyed the nuclei of frog (Xenopus laevis) eggs by exposing the eggs to ultraviolet light. They then transplanted nuclei from cells of frog embryos and tadpoles into the enucleated eggs. Results When the transplanted nuclei came from an early embryo, whose cells are relatively undifferentiated, most of the recipient eggs developed into tadpoles. But when the nuclei came from the fully differentiated intestinal cells of a tadpole, fewer than 2% of the eggs developed into normal tadpoles, and most of the embryos stopped developing at a much earlier stage.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>197:1404274090</qid>
+      <q>How are enucleated eggs produced?</q>
+      <a0>ultraviolet light</a0>
+      <a1>transplanted nuclei</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>197:812069542</qid>
+      <q>
+        When the transplanted nuclei came from an early embryo, fewer than 2% of the recipient eggs developed into normal tadpoles
+      </q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>197:415591788</qid>
+      <q>What would happen without transplanted nuclei?</q>
+      <a0>tadpoles would not develop</a0>
+      <a1>enucleated eggs would not be produced</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

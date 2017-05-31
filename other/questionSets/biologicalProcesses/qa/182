@@ -1,0 +1,26 @@
+<annotation>
+  <id>182</id>
+  <text>
+    In electroporation, a brief electrical pulse applied to a solution containing cells creates temporary holes in their plasma membranes, through which DNA can enter. (This technique is now commonly used for bacteria as well. )
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>182:53285321</qid>
+      <q>DNA does what?</q>
+      <a0>Is used for bacteria</a0>
+      <a1>enters through temporary holes in plasma membranes</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>182:713990458</qid>
+      <q>What creates temporary holes in the plasma membranes?</q>
+      <a0>DNA</a0>
+      <a1>a brief electrical pulse</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

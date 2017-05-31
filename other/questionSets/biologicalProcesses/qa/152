@@ -1,0 +1,41 @@
+<annotation>
+  <id>152</id>
+  <text>
+    A second form of polyploidy can occur when two different species interbreed and produce hybrid offspring. Most such hybrids are sterile because the set of chromosomes from one species cannot pair during meiosis with the set of chromosomes from the other species. However, an infertile hybrid may be able to propagate itself asexually (as many plants can do). In subsequent generations, various mechanisms can change a sterile hybrid into a fertile polyploid called an allopolyploid (Figure 24.11).
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>152:320227584</qid>
+      <q>
+        What is the final result of an infertile hybrid propagating itself asexually?
+      </q>
+      <a0>other species</a0>
+      <a1>an allopolyploid</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>152:95611533</qid>
+      <q>Why are most hybrids sterile?</q>
+      <a0>
+        various mechanisms can change a sterile hybrid into a fertile polyploid
+      </a0>
+      <a1>meiosis is prevented</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>152:1180235226</qid>
+      <q>
+        What would happen if the set of chromosomes could pair during meiosis with the set of chromosomes from the other species?
+      </q>
+      <a0>most hybrids would not be sterile</a0>
+      <a1>hybrid offspring would not be produced</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

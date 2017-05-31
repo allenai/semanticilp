@@ -1,0 +1,26 @@
+<annotation>
+  <id>8</id>
+  <text>
+    New layers of sediment cover older ones and compress them into superimposed layers of rock called strata (singular, stratum). The fossils in a particular stratum provide a glimpse of some of the organisms that populated Earth at the time that layer formed. Later, erosion may carve through upper (younger) strata, revealing deeper (older) strata that had been buried.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>8:1601602445</qid>
+      <q>What would happen if new layers of sediment did not cover older ones?</q>
+      <a0>Strata would not form</a0>
+      <a1>Erosion would not occur</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>8:91263090</qid>
+      <q>Newer layers are upper strata</q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

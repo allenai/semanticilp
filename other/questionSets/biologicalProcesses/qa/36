@@ -1,0 +1,37 @@
+<annotation>
+  <id>36</id>
+  <text>
+    When cAMP binds to this regulatory protein, CAP assumes its active shape and can attach to a specific site at the upstream end of the lac promoter (Figure 18.5a). This attachment increases the affinity of RNA polymerase for the promoter, which is actually rather low even when no repressor is bound to the operator.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>36:1137772354</qid>
+      <q>What would happen without CAP?</q>
+      <a0>affinity of RNA polymerase for the promoter would not increase</a0>
+      <a1>No repressor would bind to the operator</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>36:1520312224</qid>
+      <q>What does cAMP do?</q>
+      <a0>Assumes its active shape</a0>
+      <a1>binds to a regulatory protein</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>36:785610830</qid>
+      <q>
+        What happens when the CAP attaches to a specific site at the upstream end of the lac promoter?
+      </q>
+      <a0>no repressor is bound to the operator</a0>
+      <a1>increase in the affinity of RNA polymerase for the promoter</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

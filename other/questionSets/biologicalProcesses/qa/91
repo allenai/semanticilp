@@ -1,0 +1,35 @@
+<annotation>
+  <id>91</id>
+  <text>
+    As a polypeptide chain grows from a bound ribosome, the chain is threaded into the ER lumen through a pore formed by a protein complex in the ER membrane. As the new polypeptide enters the ER lumen, it folds into its native shape.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>91:1939363771</qid>
+      <q>What would happen if the chain is not threaded into the ER lumen?</q>
+      <a0>the new polypeptide would not enter the ER lumen</a0>
+      <a1>The protein complex would not be formed</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>91:306605721</qid>
+      <q>What folds into its native shape?</q>
+      <a0>the new polypeptide</a0>
+      <a1>The ER lumen</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>91:258341233</qid>
+      <q>The bound ribosome is threaded into the ER lumen</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

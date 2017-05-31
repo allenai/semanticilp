@@ -1,0 +1,44 @@
+<annotation>
+  <id>60</id>
+  <text>
+    Each mammalian Toll-like receptor (TLR) binds to fragments of molecules characteristic of a set of pathogens (Figure 43.6). In each case, the recognized macromolecule is normally absent from the vertebrate body and is an essential component of certain groups of pathogens. After detecting invading pathogens, a phagocytic cell engulfs them, trapping them in a vacuole. The vacuole then fuses with a lysosome (see Figure 43.3), leading to destruction of the invaders in two ways. First, gases produced in the lysosome poison the engulfed pathogens. Second, lysozyme and other enzymes in the lysosome degrade the components of the pathogens.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>60:1970301131</qid>
+      <q>What is the result of gasses being produced in the lysosome?</q>
+      <a0>engulfed pathogens are poisoned</a0>
+      <a1>degradation of the components of the pathogens</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>60:562918320</qid>
+      <q>The Toll-like receptor binds to what?</q>
+      <a0>a macromolecule that is normally absent from the vertebrate body</a0>
+      <a1>a phagocytic cell</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>60:1244407907</qid>
+      <q>What would happen if the vacuole did not fuse with a lysosome?</q>
+      <a0>Destruction of invaders would not occur</a0>
+      <a1>pathogens would not be trapped in a vacuole</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>60:434725141</qid>
+      <q>Phagocytic cells trap invading pathogens in a vacuole</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

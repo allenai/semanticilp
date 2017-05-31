@@ -1,0 +1,26 @@
+<annotation>
+  <id>164</id>
+  <text>
+    The Cambrian explosion changed all of that. In a relatively short period of time (10 million years), predators over 1 m in length emerged that had claws and other features for capturing prey; simultaneously, new defensive adaptations, such as sharp spines and heavy body armor, appeared in their prey (see Figure 25.4).
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>164:1385630931</qid>
+      <q>The Cambrian explosion produced what?</q>
+      <a0>10 million years</a0>
+      <a1>predators over 1 m in length</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>164:812476872</qid>
+      <q>Predators emerged that had new defensive adaptations</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

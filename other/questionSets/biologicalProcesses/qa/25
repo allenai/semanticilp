@@ -1,0 +1,39 @@
+<annotation>
+  <id>25</id>
+  <text>
+    To do this, they first remove eggs from a female of the recipient species and fertilize them in vitro. Meanwhile, they have cloned the desired gene from the donor organism. They then inject the cloned DNA directly into the nuclei of the fertilized eggs. Some of the cells integrate the foreign DNA, the transgene, into their genomes and are able to express the foreign gene. The engineered embryos are then surgically implanted in a surrogate mother.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>25:1336947912</qid>
+      <q>Which of he following events can occur at the same time?</q>
+      <a0>
+        cloning a desired gene and injecting the cloned DNA directly into the nuclei of the fertilized eggs.
+      </a0>
+      <a1>removal of eggs from a female and cloning a desired gene</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>25:1211874730</qid>
+      <q>What would happen without the desired gene from the donor organism?</q>
+      <a0>Engineered embryos would not be produced</a0>
+      <a1>Fertilized eggs would not be produced</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>25:374364019</qid>
+      <q>
+        What would happen if cells did not integrate the foreign DNA into their genomes?
+      </q>
+      <a0>The cells would not be able to express the foreign gene</a0>
+      <a1>Fertilized eggs would not be produced</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

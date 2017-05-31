@@ -1,0 +1,28 @@
+<annotation>
+  <id>210</id>
+  <text>
+    Advocates of a cautious approach toward GM crops fear that transgenic plants might pass their new genes to close relatives in nearby wild areas. We know that lawn and crop grasses, for example, commonly exchange genes with wild relatives via pollen transfer. If crop plants carrying genes for resistance to herbicides, diseases, or insect pests pollinated wild ones, the offspring might become super weeds that are very difficult to control.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>210:742915307</qid>
+      <q>transgenic crops might do what?</q>
+      <a0>fear</a0>
+      <a1>pass their new genes to close relatives</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>210:243585405</qid>
+      <q>
+        What can be produced if crop plants carrying genes for resistance pollinated wild ones?
+      </q>
+      <a0>super weeds</a0>
+      <a1>insect pests</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

@@ -1,0 +1,37 @@
+<annotation>
+  <id>127</id>
+  <text>
+    Organisms share many characteristics, leading Darwin to perceive unity in life. He attributed the unity of life to the descent of all organisms from an ancestor that lived in the remote past. He also thought that as the descendants of that ancestral organism lived in various habitats over millions of years, they accumulated diverse modifications, or adaptations, that fit them to specific ways of life. Darwin reasoned that over long periods of time, descent with modification eventually led to the rich diversity of life we see today.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>127:1840466117</qid>
+      <q>What lead Darwin to perceive unity in life?</q>
+      <a0>organisms share many characteristics</a0>
+      <a1>The remote past</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>127:697484405</qid>
+      <q>What caused adaptations?</q>
+      <a0>the remote past</a0>
+      <a1>various habitats</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>127:1966006326</qid>
+      <q>What does descent with modification eventually lead to?</q>
+      <a0>rich diversity of life</a0>
+      <a1>long periods of time</a1>
+      <correct>0</correct>
+      <comments>
+        Bad rewrite of a &quot;what is the final result&quot; type question
+      </comments>
+    </question>
+  </questions>
+</annotation>

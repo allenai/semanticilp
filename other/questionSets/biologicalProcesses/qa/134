@@ -1,0 +1,26 @@
+<annotation>
+  <id>134</id>
+  <text>
+    In the past, gene annotation was carried out laboriously by individual scientists interested in particular genes, but the process has now been largely automated. The usual approach is to use software to scan the stored sequences for transcriptional and translational start and stop signals, for RNA-splicing sites, and for other telltale signs of protein-coding genes. The software also looks for certain short sequences that  specify known mRNAs. Thousands of such sequences, called expressed sequence tags, or ESTs, have been collected from cDNA sequences and are cataloged in computer databases. This type of analysis identifies sequences that may be previously unknown protein-coding genes.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>134:1716042274</qid>
+      <q>What has been largely automated?</q>
+      <a0>individual scientists</a0>
+      <a1>gene annotation</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>134:1616438027</qid>
+      <q>Which of the following is not used by the software?</q>
+      <a0>telltale signs of protein-coding genes</a0>
+      <a1>individual scientists</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

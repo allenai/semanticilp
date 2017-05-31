@@ -1,0 +1,35 @@
+<annotation>
+  <id>173</id>
+  <text>
+    &amp;#x278D; The DNA mixture is then added to bacteria that have a mutation in the lacZ gene on their own chromosome, making them unable to hydrolyze lactose or X-gal. Under suitable experimental conditions, the cells take up foreign DNA by transformation (see p. 306). Some cells acquire a recombinant plasmid carrying a gene, while others may take up a nonrecombinant plasmid, a fragment of noncoding hummingbird DNA, or nothing at all.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>173:639231357</qid>
+      <q>The foreign DNA does what?</q>
+      <a0>makes bacteria unable to hydrolyze lactose or X-gal</a0>
+      <a1>Is taken up by transformation</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>173:1971991936</qid>
+      <q>What can the bacteria do?</q>
+      <a0>hydrolyze lactose or X-gal</a0>
+      <a1>acquire a recombinant plasmid</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>173:647016768</qid>
+      <q>Some cells may take up nothing at all</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

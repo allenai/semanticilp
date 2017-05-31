@@ -1,0 +1,28 @@
+<annotation>
+  <id>149</id>
+  <text>
+    Stabilizing selection (Figure 23.13c) acts against both extreme phenotypes and favors intermediate variants. This mode of selection reduces variation and tends to maintain the status quo for a particular phenotypic character. For example, the birth weights of most human babies lie in the range of 3-4 kg (6.6-8.8 pounds); babies who are either much smaller or much larger suffer higher rates of mortality.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>149:1559202959</qid>
+      <q>Stabilizing selection results in what?</q>
+      <a0>extreme phenotypes</a0>
+      <a1>intermediate variants</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>149:1315972107</qid>
+      <q>
+        Human babies that in the range of 3-4 kg suffer higher rates of mortality
+      </q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

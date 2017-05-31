@@ -1,0 +1,26 @@
+<annotation>
+  <id>16</id>
+  <text>
+    The term refers to the last stage of infection, during which the bacterium lyses (breaks open) and releases the phages that were produced within the cell. Each of these phages can then infect a healthy cell, and a few successive lytic cycles can destroy an entire bacterial population in just a few hours.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>16:1520264239</qid>
+      <q>What is the direct result of lysing?</q>
+      <a0>Phages are released</a0>
+      <a1>Infection of a healthy cell</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>16:1709485887</qid>
+      <q>Phages are produced during lysing</q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

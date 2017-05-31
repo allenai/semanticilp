@@ -1,0 +1,35 @@
+<annotation>
+  <id>194</id>
+  <text>
+    In one application of this approach, called in vitro mutagenesis, specific mutations are introduced into a cloned gene, and then the mutated gene is returned to a cell in such a way that it disables (knocks out) the normal cellular copies of the same gene. If the introduced mutations alter or destroy the function of the gene product, the phenotype of the mutant cell may help reveal the function of the missing normal protein.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>194:1047106821</qid>
+      <q>a cell disables the normal cellular copies of the same gene</q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>194:1421409368</qid>
+      <q>Which event occurs first?</q>
+      <a0>introduced mutations alter or destroy the function of the gene product</a0>
+      <a1>specific mutations are introduced</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>194:1100845350</qid>
+      <q>What happens if the mutations alter the function of the gene product?</q>
+      <a0>the mutated gene is returned to a cell</a0>
+      <a1>the function of the missing normal protein is revealed</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

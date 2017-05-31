@@ -1,0 +1,17 @@
+<annotation>
+  <id>162</id>
+  <text>
+    The amount of atmospheric O2 increased gradually from about 2.7 to 2.3 billion years ago, but then shot up relatively rapidly to between 1% and 10% of its present level (Figure 25.8). This &quot;oxygen revolution&quot; had an enormous impact on life. In certain of its chemical forms, oxygen attacks chemical bonds and can inhibit enzymes and damage cells. As a result, the rising concentration of atmospheric O2 probably doomed many prokaryotic groups.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>162:2049910539</qid>
+      <q>The increase of atmospheric O2 produced what?</q>
+      <a0>an enormous impact on life</a0>
+      <a1>many prokaryotic groups</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

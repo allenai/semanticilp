@@ -1,0 +1,37 @@
+<annotation>
+  <id>201</id>
+  <text>
+    There are two major potential uses for human iPS cells. First, cells from patients suffering from diseases can be reprogrammed to become iPS cells, which can act as model cells for studying the disease and potential treatments. Human iPS cell lines have already been developed from individuals with type 1 diabetes, Parkinson's disease, and at least a dozen other diseases. Second, in the field of regenerative medicine, a patient's own cells could be reprogrammed into iPS cells and then used to replace nonfunctional tissues (Figure 20.22).
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>201:116105028</qid>
+      <q>
+        What act as model cells for studying the disease and potential treatments?
+      </q>
+      <a0>patients suffering from diseases</a0>
+      <a1>iPS cells</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>201:1837673539</qid>
+      <q>What is necessary for replacement of nonfunctional tissues?</q>
+      <a0>Parkinson's disease</a0>
+      <a1>iPS cells</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>201:1289358009</qid>
+      <q>What happens when the patient's own cells are reprogrammed?</q>
+      <a0>Human iPS cell lines are developed</a0>
+      <a1>replacement of nonfunctional tissues</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

@@ -1,0 +1,17 @@
+<annotation>
+  <id>144</id>
+  <text>
+    As you read in Chapter 22, Darwin's concept of natural selection is based on differential success in survival and reproduction: Individuals in a population exhibit variations in their heritable traits, and those with traits that are better suited to their environment tend to produce more offspring than those with traits that are not as well suited. In genetic terms, we now know that selection results in alleles being passed to the next generation in proportions that differ from those in the present generation.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>144:50870208</qid>
+      <q>What produces more offspring?</q>
+      <a0>Those with traits that are better suited to their environment</a0>
+      <a1>those with traits that are not as well suited</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

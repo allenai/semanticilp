@@ -1,0 +1,39 @@
+<annotation>
+  <id>62</id>
+  <text>
+    Recognition of protein antigens by T cells begins when a pathogen or part of a pathogen either infects or is taken in by a host cell (Figure 43.12a). Inside the host cell, enzymes in the cell cleave the antigen into smaller peptides. Each peptide, called an antigen fragment, then binds to an MHC molecule inside the cell. Movement of the MHC molecule and bound antigen fragment to the cell surface results in antigen presentation, the display of the antigen fragment in an exposed groove of the MHC protein. Figure 43.12b shows a close-up view of antigen presentation, which advertises the fact that a host cell contains a foreign substance. If the cell displaying an antigen fragment encounters a T cell with the right specificity, the antigen receptor on the T cell can bind to both the antigen fragment and the MHC molecule.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>62:1274474991</qid>
+      <q>What would happen if the MHC molecule did not move to the cell surface?</q>
+      <a0>The cell would not encounter a T-cell with the right specificity</a0>
+      <a1>Figure 43.12b would not show a close-up view</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>62:1201159395</qid>
+      <q>Which event occurs first?</q>
+      <a0>
+        a pathogen or part of a pathogen either infects or is taken in by a host cell
+      </a0>
+      <a1>Recognition of protein antigens by T cells</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>62:666678273</qid>
+      <q>
+        Antigen presentation is necessary for the T cell to bind to both the antigen fragment and the MHC molecule
+      </q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

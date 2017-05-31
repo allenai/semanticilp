@@ -1,0 +1,41 @@
+<annotation>
+  <id>79</id>
+  <text>
+    A photon of light strikes a pigment molecule in a light-harvesting complex of PS II, boosting one of its electrons to a higher energy level. As this electron falls back to its ground state, an electron in a nearby pigment molecule is simultaneously raised to an excited state. The process continues, with the energy being relayed to other pigment molecules until it reaches the P680 pair of chlorophyll a molecules in the PS II reaction-center complex. It excites an electron in this pair of chlorophylls to a higher energy state.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>79:661670181</qid>
+      <q>Which events can occur at the same time?</q>
+      <a0>
+        a photon strikes a pigment molecule and an electron falls back to its ground state
+      </a0>
+      <a1>
+        an electron falls back to its ground state, and an electron in a nearby pigment molecule is raised to an excited state
+      </a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>79:1232993787</qid>
+      <q>What would happen without other pigment molecules?</q>
+      <a0>the energy would not reach the P680 pair of chlorophyll a molecules</a0>
+      <a1>a photon of light would not strike a pigment molecule</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>79:1031711532</qid>
+      <q>Which of the following happens first?</q>
+      <a0>
+        an electron in the P680 pair of chlorophylls is excited to a higher energy state
+      </a0>
+      <a1>a photon of light strikes a pigment molecule</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

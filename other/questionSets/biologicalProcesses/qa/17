@@ -1,0 +1,53 @@
+<annotation>
+  <id>17</id>
+  <text>
+    After HIV enters a host cell, its reverse transcriptase molecules are released into the cytoplasm, where they catalyze synthesis of viral DNA. The newly made viral DNA then enters the cell's nucleus and integrates into the DNA of a chromosome. The integrated viral DNA, called a provirus, never leaves the host's genome, remaining a permanent resident of the cell. (Recall that a prophage, in contrast, leaves the host's genome at the start of a lytic cycle.) The host's RNA polymerase transcribes the proviral DNA into RNA molecules, which can function both as mRNA for the synthesis of viral proteins and as genomes for the new viruses that will be assembled and released from the cell.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>17:1672611125</qid>
+      <q>What produces viral DNA?</q>
+      <a0>cytoplasm</a0>
+      <a1>reverse transcriptase molecules</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>17:1151704343</qid>
+      <q>Which entity is part of HIV?</q>
+      <a0>Prophage</a0>
+      <a1>Provirus</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>17:482909057</qid>
+      <q>What can RNA become?</q>
+      <a0>A provirus</a0>
+      <a1>Genomes for the new viruses</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>17:1504050137</qid>
+      <q>What is required to make mRNA?</q>
+      <a0>RNA polymerase</a0>
+      <a1>A prophage</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>17:1076968836</qid>
+      <q>What would happen without RNA molecules?</q>
+      <a0>synthesis of viral proteins would not occur</a0>
+      <a1>RNA polymerase would not transcribe proviral DNA</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

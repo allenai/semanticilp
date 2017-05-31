@@ -1,0 +1,35 @@
+<annotation>
+  <id>123</id>
+  <text>
+    A cell such as an amoeba crawls along a surface by extending cellular extensions called pseudopodia (from the Greek  pseudes, false, and pod, foot), and moving toward them. Pseudopodia extend by assembly of actin subunits into microfilament networks that convert cytoplasm from a sol to a gel inside these cell projections. Cell surface proteins on the pseudopodium make strong attachments to the &quot;road.&quot; Next, the interaction of microfilaments with myosin near the cell's trailing end causes contraction of that region, loosening its cell-surface attachments and pulling it forward toward the pseudopodia.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>123:537218565</qid>
+      <q>What converts cytoplasm from a sol to a gel?</q>
+      <a0>microfilament networks</a0>
+      <a1>pseudopodia</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>123:1742328222</qid>
+      <q>What would happen without cell surface proteins?</q>
+      <a0>actin subunits could not assemble into microfilament networks</a0>
+      <a1>The amoeba could not crawl along a surface</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>123:557129250</qid>
+      <q>Cytoplasm is converted from a sol to a gel inside pseudopodia</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

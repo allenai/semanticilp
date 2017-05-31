@@ -1,0 +1,30 @@
+<annotation>
+  <id>161</id>
+  <text>
+    Though we usually cannot date these old fossils directly, an indirect method can be used to infer the age of fossils that are sandwiched between two layers of volcanic rocks. As lava cools into volcanic rock, radioisotopes from the surrounding environment become trapped in the newly formed rock. Some of the trapped radioisotopes have long half-lives, allowing geologists to estimate the ages of ancient volcanic rocks.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>161:86389326</qid>
+      <q>
+        What would happen if the trapped radioisotopes did not have long half-lives?
+      </q>
+      <a0>
+        radioisotopes from the surrounding environment would not become trapped in the newly formed rock
+      </a0>
+      <a1>geologists could not estimate the ages of ancient volcanic rocks</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>161:1393351502</qid>
+      <q>What is required to estimate the ages of ancient volcanic rock?</q>
+      <a0>radioisotopes</a0>
+      <a1>old fossils</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

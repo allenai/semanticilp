@@ -1,0 +1,30 @@
+<annotation>
+  <id>141</id>
+  <text>
+    By a similar process, a particular exon within a gene could be duplicated on one chromosome and deleted from the other. The gene with the duplicated exon would code for a protein containing a second copy of the encoded domain. This change in the protein's structure could augment its function by increasing its stability, enhancing its ability to bind a particular ligand, or altering some other property.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>141:740384494</qid>
+      <q>What entity could be duplicated?</q>
+      <a0>a gene</a0>
+      <a1>a particular exon</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>141:1214981765</qid>
+      <q>
+        What would happen if a particular exon within a gene was not duplicated on one chromosome and deleted from another?
+      </q>
+      <a0>the protein would not be able to bind a particular ligand</a0>
+      <a1>
+        The gene with the duplicated exon would not code for a protein containing a second copy of the encoded domain
+      </a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

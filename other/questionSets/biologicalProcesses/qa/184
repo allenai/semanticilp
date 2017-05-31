@@ -1,0 +1,39 @@
+<annotation>
+  <id>184</id>
+  <text>
+    Many approaches for studying DNA molecules involve gel electrophoresis. This technique uses a gel made of a polymer, such as the polysaccharide agarose. The gel acts as a molecular sieve to separate nucleic acids or proteins on the basis of size, electrical charge, and other physical properties (Figure 20.9). Because nucleic acid molecules carry negative charges on their phosphate groups, they all travel toward the positive pole in an electric field. As they move, the thicket of agarose fibers impedes longer molecules more than it does shorter ones, separating them by length. Thus, gel electrophoresis separates a mixture of linear DNA molecules into bands, each band consisting of many thousands of DNA molecules of the same length.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>184:409906307</qid>
+      <q>Polysaccharide agarose does what?</q>
+      <a0>studies DNA molecules</a0>
+      <a1>acts as a molecular sieve</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>184:557633116</qid>
+      <q>Nucleic acid molecules do what?</q>
+      <a0>impede longer molecules</a0>
+      <a1>move toward the positive pole</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>184:1487026843</qid>
+      <q>
+        What happens because longer molecules are impeded more than shorter ones?
+      </q>
+      <a0>
+        nucleic acid molecules carry negative charges on their phosphate groups
+      </a0>
+      <a1>a mixture of linear DNA molecules is separated into bands</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

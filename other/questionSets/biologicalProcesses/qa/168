@@ -1,0 +1,39 @@
+<annotation>
+  <id>168</id>
+  <text>
+    The most commonly used restriction enzymes recognize sequences containing four to eight nucleotides. Because any sequence this short usually occurs (by chance) many times in a long DNA molecule, a restriction enzyme will make many cuts in a DNA molecule, yielding a set of restriction fragments. All copies of a particular DNA molecule always yield the same set of restriction fragments when exposed to the same restriction enzyme. In other words, a restriction enzyme cuts a DNA molecule in a reproducible way.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>168:1366910987</qid>
+      <q>What will make many cuts?</q>
+      <a0>A DNA molecule</a0>
+      <a1>a restriction enzyme</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>168:568664665</qid>
+      <q>
+        What would happen if a restriction enzyme did not make many cuts in a DNA molecule?
+      </q>
+      <a0>
+        restriction enzymes would not recognize sequences containing four to eight nucleotides
+      </a0>
+      <a1>a set of restriction fragments would not be produced</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>168:1347234780</qid>
+      <q>What is produced when a DNA molecule is cut many times?</q>
+      <a0>A set of restriction fragments</a0>
+      <a1>A restriction enzyme</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

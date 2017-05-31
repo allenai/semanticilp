@@ -1,0 +1,35 @@
+<annotation>
+  <id>18</id>
+  <text>
+    During each cycle, the reaction mixture is heated to denature (separate) the DNA strands and then cooled to allow annealing (hydrogen bonding) of short, single-stranded DNA primers complementary to sequences on opposite strands at each end of the target sequence; finally, a heat-stable DNA polymerase extends the primers in the 5' &amp;rarr; 3' direction.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>18:1806217698</qid>
+      <q>What would happen without annealing?</q>
+      <a0>The reaction mixture would not be heated</a0>
+      <a1>DNA polymerase would not extend primers</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>18:364449546</qid>
+      <q>Single-stranded DNA extends the primers</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>18:1546416723</qid>
+      <q>Each cycle begins with heating the reaction mixture</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

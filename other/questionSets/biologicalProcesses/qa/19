@@ -1,0 +1,37 @@
+<annotation>
+  <id>19</id>
+  <text>
+    Following enzymatic degradation of the mRNA, a second DNA strand, complementary to the first, is synthesized by DNA polymerase. The resulting double-stranded DNA is called complementary DNA (cDNA). To create a library, the researchers must now modify the cDNA by adding restriction enzyme recognition sequences at each end. Then the cDNA is inserted into vector DNA in a manner similar to the insertion of genomic DNA fragments.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>19:1601025120</qid>
+      <q>What would happen without DNA polymerase?</q>
+      <a0>A second DNA strand would not be synthesized</a0>
+      <a1>mRNA would not be degraded</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>19:1881310154</qid>
+      <q>What is necessary to make cDNA?</q>
+      <a0>DNA polymease</a0>
+      <a1>A library</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>19:1121120279</qid>
+      <q>
+        Restriction enzyme recognition sequences are necessary to produce a library
+      </q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

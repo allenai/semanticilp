@@ -1,0 +1,37 @@
+<annotation>
+  <id>156</id>
+  <text>
+    Next let's consider the case in which two species contact one another in a hybrid zone, but the barriers to reproduction are not strong. So much gene flow may occur that reproductive barriers weaken further and the gene pools of the two species become increasingly alike. In effect, the speciation process reverses, eventually causing the two hybridizing species to fuse into a single species.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>156:972921351</qid>
+      <q>If the speciation process reverses, what is the result?</q>
+      <a0>two hybridizing species</a0>
+      <a1>a single species</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>156:1228372951</qid>
+      <q>
+        what would happen if two species did not contact one another in a hybrid zone?
+      </q>
+      <a0>gene flow would not occur</a0>
+      <a1>The speciation process would not occur</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>156:1197960824</qid>
+      <q>What is caused by the reversal of the speciation process?</q>
+      <a0>two hybridizing species</a0>
+      <a1>a single species</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

@@ -1,0 +1,26 @@
+<annotation>
+  <id>202</id>
+  <text>
+    Gene therapy: introducing genes into an afflicted individual for therapeutic purposes: holds great potential for treating the relatively small number of disorders traceable to a single defective gene. In theory, a normal allele of the defective gene could be inserted into the somatic cells of the tissue affected by the disorder. Figure 20.23 Gene therapy using a retroviral vector. A retrovirus that has been rendered harmless is used as a vector in this procedure, which exploits the ability of a retrovirus to insert a DNA transcript of its RNA genome into the chromosomal DNA of its host cell (see Figure 19.8). If the foreign gene carried by the retroviral vector is expressed, the cell and its descendants will possess the gene product. Cells that reproduce throughout life, such as bone marrow cells, are ideal candidates for gene therapy. For gene therapy of somatic cells to be permanent, the cells that receive the normal allele must be ones that multiply throughout the patient's life.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>202:818901020</qid>
+      <q>A retrovirus does what?</q>
+      <a0>possesses the gene product</a0>
+      <a1>carries a foreign gene</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>202:2063154468</qid>
+      <q>A retrovirus inserts RNA into the chromosomal DNA of its host cell</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

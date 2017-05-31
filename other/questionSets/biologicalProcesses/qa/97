@@ -1,0 +1,35 @@
+<annotation>
+  <id>97</id>
+  <text>
+    Soil-dwelling bacteria called myxobacteria (&quot;slime bacteria&quot;) use chemical signals to share information about nutrient availability. When food is scarce, starving cells secrete a molecule that stimulates neighboring cells to aggregate. The cells form a structure, called a fruiting body, that produces thick-walled spores capable of surviving until the environment improves.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>97:1199804984</qid>
+      <q>A fruiting body is formed when?</q>
+      <a0>food is scarce</a0>
+      <a1>the environment improves</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>97:1462750086</qid>
+      <q>What would happen if starving cells did not secrete a molecule?</q>
+      <a0>food would not be scarce</a0>
+      <a1>a fruiting body would not be formed</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>97:1630084083</qid>
+      <q>What happens when food is scarce?</q>
+      <a0>thick-walled spores are produced</a0>
+      <a1>the environment improves</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

@@ -1,0 +1,35 @@
+<annotation>
+  <id>10</id>
+  <text>
+    During meiosis, homologous chromosomes, one inherited from each parent, trade some of their alleles by crossing over. These homologous chromosomes and the alleles they carry are then distributed at random into gametes. Then, because myriad possible mating combinations exist in a population, fertilization brings together gametes that are likely to have different genetic backgrounds. The combined effects of these three mechanisms ensure that sexual reproduction rearranges existing alleles into fresh combinations each generation, providing much of the genetic variation that makes evolution possible.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>10:981009584</qid>
+      <q>What would happen without crossing over?</q>
+      <a0>homologous chromosomes would not trade some of their alleles</a0>
+      <a1>homologous chromosomes would not carry alleles</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>10:1114000914</qid>
+      <q>What would happen without fertilization?</q>
+      <a0>gametes would not be brought together</a0>
+      <a1>alleles would not be distributed at random into gametes</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>10:1764392412</qid>
+      <q>What is the result of sexual reproduction?</q>
+      <a0>rearrangement of alleles into fresh combinations</a0>
+      <a1>crossing over</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

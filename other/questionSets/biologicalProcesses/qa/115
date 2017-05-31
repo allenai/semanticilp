@@ -1,0 +1,55 @@
+<annotation>
+  <id>115</id>
+  <text>
+    In one pathway, cyclic GMP, or cGMP, acts as a signaling molecule whose effects include relaxation of smooth muscle cells in artery walls. A compound that inhibits the hydrolysis of cGMP to GMP, thus prolonging the signal, was originally prescribed for chest pains because it increased blood flow to the heart muscle. Under the trade name Viagra, this compound is now widely used as a treatment for erectile dysfunction in human males. Because Viagra leads to dilation of blood vessels, it also allows increased blood flow to the penis, optimizing physiological conditions for penile erections.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>115:949358312</qid>
+      <q>Hydrolysis of cGMP to GMP causes erections</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>115:1054144614</qid>
+      <q>Viagra inhibits hydrolysis of cGMP to GMP</q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>115:525689384</qid>
+      <q>
+        Relaxation of smooth muscle in artery walls leads to increased blood flow
+      </q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>115:756467433</qid>
+      <q>What would happen without cGMP?</q>
+      <a0>Increased blood flow to the heart muscle</a0>
+      <a1>Erectile dysfunction occurs</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>115:1113728519</qid>
+      <q>Which acts as a signaling molecule?</q>
+      <a0>GMP</a0>
+      <a1>cGMP</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

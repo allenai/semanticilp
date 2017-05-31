@@ -1,0 +1,44 @@
+<annotation>
+  <id>147</id>
+  <text>
+    Thus, as predicted, drift had reduced the genetic variation of the small 1993 population. Drift may also have increased the frequency of harmful alleles, leading to the low egg-hatching rate. To counteract these negative effects, 271 birds from neighboring states were added to the Illinois population over four years. This strategy succeeded: New alleles entered the population, and the egg-hatching rate improved to over 90%. Overall, studies on the Illinois greater prairie chicken illustrate the powerful effects of genetic drift in small populations and provide hope that in at least some populations, these effects can be reversed.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>147:558522624</qid>
+      <q>what was the result of drift?</q>
+      <a0>New alleles entered the population</a0>
+      <a1>the low egg-hatching rate</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>147:1797952602</qid>
+      <q>What was the result of new alleles entering the population?</q>
+      <a0>the egg-hatching rate improved</a0>
+      <a1>271 birds from neighboring states were added</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>147:1661008076</qid>
+      <q>genetic drift can be reversed</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>147:737598373</qid>
+      <q>What would happen if 271 birds from neighboring states were not added?</q>
+      <a0>New alleles would not have entered the population</a0>
+      <a1>genetic drift would not have occured</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

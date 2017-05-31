@@ -1,0 +1,26 @@
+<annotation>
+  <id>126</id>
+  <text>
+    In 1795, Scottish geologist James Hutton (1726-1797) proposed that Earth's geologic features could be explained by gradual mechanisms still operating today. For example, he suggested that valleys were often formed by rivers wearing through rocks and that rocks containing marine fossils were formed when sediments that had eroded from the land were carried by rivers to the sea, where they buried dead marine organisms.The leading geologist of Darwin's time, Charles Lyell (1797-1875), incorporated Hutton's thinking into his principle of uniformitarianism, which stated that mechanisms of change are constant over time. Lyell proposed that the same geologic processes are operating today as in the past, and at the same rate.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>126:1766970986</qid>
+      <q>How were valleys formed?</q>
+      <a0>rivers wearing through rocks</a0>
+      <a1>rocks containing marine fossils</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>126:1774164758</qid>
+      <q>How were rocks containing marine fossils formed?</q>
+      <a0>sediments eroded from the land were carried by rivers to the sea</a0>
+      <a1>rivers wearing through rocks</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

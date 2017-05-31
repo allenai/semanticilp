@@ -1,0 +1,39 @@
+<annotation>
+  <id>70</id>
+  <text>
+    In a light microscope (LM), visible light is passed through the specimen and then through glass lenses. The lenses refract (bend) the light in such a way that the image of the specimen is magnified as it is projected into the eye or into a camera (see Appendix D).
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>70:109517534</qid>
+      <q>What would happen without the specimen?</q>
+      <a0>the image of the specimen would not be projected</a0>
+      <a1>lenses would not refract the light</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>70:186719256</qid>
+      <q>What is the correct order of events?</q>
+      <a0>
+        light passes through the specimen, then light passes through glass lenses
+      </a0>
+      <a1>
+        lenses refract the light, then visible light passes through the specimen
+      </a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>70:365560368</qid>
+      <q>The specimen refracts the light</q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

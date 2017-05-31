@@ -1,0 +1,35 @@
+<annotation>
+  <id>198</id>
+  <text>
+    These researchers achieved the necessary dedifferentiation of donor nuclei by culturing mammary cells in nutrient-poor medium. They then fused these cells with enucleated sheep eggs. The resulting diploid cells divided to form early embryos, which were implanted into surrogate mothers. Out of several hundred implanted embryos, one successfully completed normal development, and Dolly was born.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>198:1093497030</qid>
+      <q>What is necessary for dedifferentiation of donor nuclei?</q>
+      <a0>enucleated sheep eggs</a0>
+      <a1>nutrient-poor medium</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>198:1447998841</qid>
+      <q>What were implanted into surrogate mothers?</q>
+      <a0>early embryos</a0>
+      <a1>diploid cells</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>198:1414355583</qid>
+      <q>What happened because of one successfully completed normal development?</q>
+      <a0>several hundred implanted embryos</a0>
+      <a1>Dolly was born</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

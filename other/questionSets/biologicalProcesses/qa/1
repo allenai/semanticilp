@@ -1,0 +1,66 @@
+<annotation>
+  <id>1</id>
+  <text>
+    After gametes fuse and form a diploid zygote, meiosis occurs without a multicellular diploid offspring developing. Meiosis produces not gametes but haploid cells that then divide by mitosis and give rise to either unicellular descendants or a haploid multicellular adult organism. Subsequently, the haploid organism carries out further mitoses, producing the cells that develop into gametes.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>1:1138501491</qid>
+      <q>What does meiosis directly produce?</q>
+      <a0>Gametes</a0>
+      <a1>Haploid cells</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>1:144098386</qid>
+      <q>What would happen without mitosis?</q>
+      <a0>Gametes would not be produced</a0>
+      <a1>Haploid cells would not be produced</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>1:600528336</qid>
+      <q>What is the correct order of events?</q>
+      <a0>
+        Gametes fuse, then form a diploid zygote, then meiosis produces haploid cells
+      </a0>
+      <a1>
+        Gametes fuse, then form a diploid zygote, then a multicellular diploid offspring develops
+      </a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>1:1887149181</qid>
+      <q>Which process do diploid zygotes undergo?</q>
+      <a0>Mitosis</a0>
+      <a1>Meiosis</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>1:1783311416</qid>
+      <q>What would happen without meiosis?</q>
+      <a0>Gametes would not fuse</a0>
+      <a1>Haploid cells would not be produced</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>1:1046218342</qid>
+      <q>Meiosis directly produces cells that develop into gametes</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

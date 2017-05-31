@@ -1,0 +1,52 @@
+<annotation>
+  <id>4</id>
+  <text>
+    Crossing over begins very early in prophase I as homologous chromosomes pair loosely along their lengths. Each gene on one homolog is aligned precisely with the corresponding gene on the other homolog. In a single crossover event, the DNA of two nonsister chromatids: one maternal and one paternal chromatid of a homologous pair: is broken by specific proteins at precisely corresponding points, and the two segments beyond the crossover point are each joined to the other chromatid. Thus, a paternal chromatid is joined to a piece of maternal chromatid beyond the crossover point, and vice versa. In this way, crossing over produces chromosomes with new combinations of maternal and paternal alleles (see Figure 13.11).
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>4:1418910444</qid>
+      <q>Which entities are responsible for breaking DNA?</q>
+      <a0>homologous pairs</a0>
+      <a1>proteins</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>4:816618625</qid>
+      <q>What is the correct order of events?</q>
+      <a0>
+        homologous chromosomes pair, then DNA is broken, and then two segments are joined
+      </a0>
+      <a1>
+        homologous chromosomes pair, then new combinations of maternal and paternal alleles are produced, then DNA is broken
+      </a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>4:849001385</qid>
+      <q>What would happen without the specific proteins?</q>
+      <a0>Homologous chromosomes would not pair</a0>
+      <a1>
+        new combinations of maternal and paternal alleles would not be produced
+      </a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>4:792574467</qid>
+      <q>Which of the following events occur at the same time?</q>
+      <a0>crossing over and homologs align</a0>
+      <a1>
+        DNA of nonsister chromatids is broken and two segments beyond the crossover point are each joined to the other chromatid
+      </a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

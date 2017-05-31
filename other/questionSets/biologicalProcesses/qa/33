@@ -1,0 +1,35 @@
+<annotation>
+  <id>33</id>
+  <text>
+    In making a primary transcript from a gene, RNA polymerase II transcribes both introns and exons from the DNA, but the mRNA molecule that enters the cytoplasm is an abridged version. The introns are cut out from the molecule and the exons joined together, forming an mRNA molecule with a continuous coding sequence.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>33:90824227</qid>
+      <q>RNA polymerase II cuts out introns</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>33:1937024257</qid>
+      <q>What does RNA polymerase II produce?</q>
+      <a0>an abridged version</a0>
+      <a1>a primary transcript from a gene</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>33:2076764093</qid>
+      <q>mRNA with a continuous coding sequence enters the cytoplasm</q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

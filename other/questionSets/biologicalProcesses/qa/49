@@ -1,0 +1,26 @@
+<annotation>
+  <id>49</id>
+  <text>
+    When the organism dies, it stops accumulating carbon, and the amount of carbon-12 in its tissues does not change over time. However, the carbon-14 that it contains at the time of death slowly decays into another element, nitrogen-14.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>49:484039131</qid>
+      <q>Carbon-12 slowly decays into nitrogen-14.</q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>49:1194208522</qid>
+      <q>What happens when an organism dies?</q>
+      <a0>the time of death slowly decays into another element</a0>
+      <a1>the amount of carbon-12 in its tissues does not change over time</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

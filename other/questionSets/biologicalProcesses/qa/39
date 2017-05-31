@@ -1,0 +1,44 @@
+<annotation>
+  <id>39</id>
+  <text>
+    According to one model, an RNA transcript produced from DNA in the centromeric region of the chromosome is copied into double-stranded RNA by a yeast enzyme and then processed into siRNAs. These siRNAs associate with a complex of proteins (different from the one shown in Figure 18.15) and act as a homing device, targeting the complex back to RNA transcripts being made from the centromeric sequences of DNA. Once there, proteins in the complex recruit enzymes that modify the chromatin, turning it into the highly condensed heterochromatin found at the centromere.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>39:2142873823</qid>
+      <q>What would happen without siRNAs?</q>
+      <a0>The RNA transcript would not be produced</a0>
+      <a1>the complex of proteins would not act as a homing device</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>39:751058199</qid>
+      <q>What would happen without the yeast enzyme?</q>
+      <a0>The RNA transcript would not be produced</a0>
+      <a1>the RNA transcript would not be copied into double-stranded RNA</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>39:1827377124</qid>
+      <q>siRNAs recruit enzymes that modify the chromatin</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>39:1116119337</qid>
+      <q>What is produced by enzymes that modify the chromatin?</q>
+      <a0>highly condensed heterochromatin</a0>
+      <a1>proteins in the complex</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

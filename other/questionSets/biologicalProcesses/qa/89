@@ -1,0 +1,35 @@
+<annotation>
+  <id>89</id>
+  <text>
+    Like an animal cell, the plant cell swells as water enters by osmosis (Figure 7.15b). However, the relatively inelastic wall will expand only so much before it exerts a back pressure on the cell, called turgor pressure, that opposes further water uptake. At this point, the cell is turgid (very firm), which is the healthy state for most plant cells.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>89:749350457</qid>
+      <q>What is required for the wall to exert a back pressure on the cell?</q>
+      <a0>an animal cell</a0>
+      <a1>water</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>89:1296775802</qid>
+      <q>How does water enter the cell?</q>
+      <a0>osmosis</a0>
+      <a1>the relatively inelastic wall will expand</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>89:786522925</qid>
+      <q>Turgor pressure is caused by and prevents water uptake.</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

@@ -1,0 +1,30 @@
+<annotation>
+  <id>27</id>
+  <text>
+    After such long fragments were put in order, each fragment was cut into smaller pieces, which were cloned in plasmids or phages, ordered in turn, and finally sequenced.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>27:401185334</qid>
+      <q>long fragments are cloned into plasmids or phages</q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>27:1104976078</qid>
+      <q>What is the correct order of events?</q>
+      <a0>
+        long fragments are put in order, then each fragment is cut, then the smaller pieces are cloned into plasmids are phages
+      </a0>
+      <a1>
+        long fragments are put in order, then each fragment is cut, then plasmids or phages are sequenced
+      </a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

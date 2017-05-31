@@ -1,0 +1,37 @@
+<annotation>
+  <id>55</id>
+  <text>
+    One way a triploid cell may arise is by the fertilization of an abnormal diploid egg produced by nondisjunction of all its chromosomes. Tetraploidy could result from the failure of a 2n zygote to divide after replicating its chromosomes. Subsequent normal mitotic divisions would then produce a 4n embryo.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>55:1497172764</qid>
+      <q>What can cause a triploid cell?</q>
+      <a0>fertilization of an abnormal diploid egg</a0>
+      <a1>failure of a 2n zygote to divide after replicating its chromosomes</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>55:2081442829</qid>
+      <q>Tetraploidy involves a 4n embryo</q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>55:2136983537</qid>
+      <q>
+        Fertilization of an abnormal diploid egg produced by nondisjunction of all its chromosomes results in what?
+      </q>
+      <a0>Tetraploidy</a0>
+      <a1>a triploid cell</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

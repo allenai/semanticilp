@@ -1,0 +1,41 @@
+<annotation>
+  <id>74</id>
+  <text>
+    When the cell is stimulated, gated channels open that facilitate Na+ diffusion. Sodium ions then &quot;fall&quot; down their electrochemical gradient, driven by the concentration gradient of Na+ and by the attraction of these cations to the negative side (inside) of the membrane.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>74:2051563341</qid>
+      <q>Which event occurs first?</q>
+      <a0>the cell is stimulated</a0>
+      <a1>sodium ions &quot;fall&quot; down their electrochemical gradient</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>74:632375555</qid>
+      <q>
+        What would happen without the concentration gradient of Na+ and the attraction of these cations to the negative side of the membrane?
+      </q>
+      <a0>
+        sodium ions would not &quot;fall&quot; down their electrochemical gradient
+      </a0>
+      <a1>Gated channels would not open</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>74:583547236</qid>
+      <q>
+        Sodium ions &quot;fall&quot; down their electrochemical gradient to the inside of the membrane
+      </q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

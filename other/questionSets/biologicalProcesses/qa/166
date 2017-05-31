@@ -1,0 +1,37 @@
+<annotation>
+  <id>166</id>
+  <text>
+    Hundreds of different restriction enzymes have been identified and isolated. Each restriction enzyme is very specific, recognizing a particular short DNA sequence, or restriction site, and cutting both DNA strands at precise points within this restriction site. The DNA of a bacterial cell is protected from the cell's own restriction enzymes by the addition of methyl groups (CH3) to adenines or cytosines within the sequences recognized by the enzymes.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>166:590832951</qid>
+      <q>Restriction enzymes do what?</q>
+      <a0>Cut both DNA strands at precise points</a0>
+      <a1>protect the DNA of a bacterial cell</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>166:1924280362</qid>
+      <q>What protects the DNA of a bacterial cell?</q>
+      <a0>methyl groups</a0>
+      <a1>the cell's own restriction enzymes</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>166:1646528735</qid>
+      <q>What would happen without restriction sites?</q>
+      <a0>DNA strands would not be cut</a0>
+      <a1>
+        Hundreds of different restriction enzymes would not have been identified and isolated
+      </a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

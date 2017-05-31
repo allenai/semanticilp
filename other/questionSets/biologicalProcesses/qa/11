@@ -1,0 +1,53 @@
+<annotation>
+  <id>11</id>
+  <text>
+    A sudden change in the environment, such as a fire or flood, may drastically reduce the size of a population. A severe drop in population size can cause the bottleneck effect, so named because the population has passed through a &quot;bottleneck&quot; that reduces its size (Figure 23.10). By chance alone, certain alleles may be overrepresented among the survivors, others may be underrepresented, and some may be absent altogether. Ongoing genetic drift is likely to have substantial effects on the gene pool until the population becomes large enough that chance events have less impact.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>11:381096036</qid>
+      <q>what is the result of a fire?</q>
+      <a0>flood</a0>
+      <a1>The bottleneck effect</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>11:799861449</qid>
+      <q>What is the end result of a flood?</q>
+      <a0>Genetic drift</a0>
+      <a1>The population becomes large</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>11:224054051</qid>
+      <q>What makes chance events have less impact?</q>
+      <a0>The population becomes large</a0>
+      <a1>The bottleneck effect</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>11:2040808739</qid>
+      <q>What two events can happen at the same time?</q>
+      <a0>Ongoing genetic drift and the population becomes large</a0>
+      <a1>A severe drop in population and the bottleneck effect</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>11:2093600527</qid>
+      <q>What is caused by flood?</q>
+      <a0>The population becomes large</a0>
+      <a1>genetic drift</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

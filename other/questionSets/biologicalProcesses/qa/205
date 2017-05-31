@@ -1,0 +1,35 @@
+<annotation>
+  <id>205</id>
+  <text>
+    You learned earlier in the chapter about DNA cloning and gene expression systems for producing large quantities of proteins that are present naturally in only minute amounts. The host cells used in such expression systems can even be engineered to secrete a protein as it is made, thereby simplifying the task of purifying it by traditional biochemical methods.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>205:161853720</qid>
+      <q>What is required for producing large quantities of proteins?</q>
+      <a0>the chapter</a0>
+      <a1>DNA cloning and gene expression systems</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>205:944707398</qid>
+      <q>Host cells can do what?</q>
+      <a0>secrete a protein as it is made</a0>
+      <a1>traditional biochemical methods</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>205:1566400429</qid>
+      <q>What simplifies the task of purifying proteins?</q>
+      <a0>expression systems are engineered to secrete a protein</a0>
+      <a1>traditional biochemical methods</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

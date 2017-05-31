@@ -1,0 +1,26 @@
+<annotation>
+  <id>203</id>
+  <text>
+    In a trial begun in France in 2000, ten young children with SCID were treated by the same procedure. Nine of these patients showed significant, definitive improvement after two years, the first indisputable success of gene therapy. However, three of the patients subsequently developed leukemia, a type of blood cell cancer, and one of them died. Two factors may have contributed to the development of leukemia: the insertion of the retroviral vector near a gene involved in the proliferation of blood cells and an unknown function of the replacement gene itself.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>203:430848789</qid>
+      <q>What would happen without gene therapy?</q>
+      <a0>leukemia would not have developed</a0>
+      <a1>Ten young children would not have SCID</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>203:1159928695</qid>
+      <q>The procedure caused leukemia in three of the patients</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

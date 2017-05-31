@@ -1,0 +1,37 @@
+<annotation>
+  <id>132</id>
+  <text>
+    Also, the development of newer sequencing techniques, generally called sequencing by synthesis (see Chapter 20), has resulted in massive increases in speed and decreases in the cost of sequencing entire genomes. In these new techniques, many very small fragments (fewer than 100 base pairs) are sequenced at the same time, and computer software rapidly assembles the complete sequence. Because of the sensitivity of these techniques, the fragments can be sequenced directly; the cloning step (stage &amp;#x278B; in Figure 21.3) is unnecessary.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>132:2114205630</qid>
+      <q>
+        What has caused massive increases in speed and decreases in the cost of sequencing?
+      </q>
+      <a0>entire genomes</a0>
+      <a1>sequencing by synthesis</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>132:424573659</qid>
+      <q>What are sequenced?</q>
+      <a0>very small fragments</a0>
+      <a1>new techniques</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>132:1555388294</qid>
+      <q>What is required for sequencing?</q>
+      <a0>the cloning step</a0>
+      <a1>fragments</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

@@ -1,0 +1,39 @@
+<annotation>
+  <id>64</id>
+  <text>
+    In response to a specific antigen and to immune cell signals (not shown), one B cell divides and forms a clone of cells. The remaining B cells, which have antigen receptors specific for other antigens, do not respond. The clone of cells formed by the selected B cell gives rise to memory B cells and antibody-secreting plasma cells.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>64:708625794</qid>
+      <q>Antibody-secreting plasma cells are produced in response to what?</q>
+      <a0>memory B cells</a0>
+      <a1>a specific antigen and immune cell signals</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>64:2083096736</qid>
+      <q>
+        In response to a specific antigen and to immune cell signals, one B cell produces what?
+      </q>
+      <a0>other antigens</a0>
+      <a1>memory B cells and antibody-secreting plasma cells</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>64:1731049417</qid>
+      <q>
+        The remaining B cells are necessary to produce memory B cells and antibody-secreting plasma cells
+      </q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

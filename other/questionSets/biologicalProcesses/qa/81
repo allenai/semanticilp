@@ -1,0 +1,46 @@
+<annotation>
+  <id>81</id>
+  <text>
+    A second photosynthetic adaptation to arid conditions has evolved in many succulent (water-storing) plants, numerous cacti, pineapples, and representatives of several other plant families. These plants open their stomata during the night and close them during the day, just the reverse of how other plants behave. Closing stomata during the day helps desert plants conserve water, but it also prevents CO2 from entering the leaves. During the night, when their stomata are open, these plants take up CO2 and incorporate it into a variety of organic acids. This mode of carbon fixation is called crassulacean acid metabolism, or CAM, after the plant family Crassulaceae, the succulents in which the process was first discovered. The mesophyll cells of CAM plants store the organic acids they make during the night in their vacuoles until morning, when the stomata close. During the day, when the light reactions can supply ATP and NADPH for the Calvin cycle, CO2 is released from the organic acids made the night before to become incorporated into sugar in the chloroplasts. Figure 10.21 C4 and CAM photosynthesis compared. Both adaptations are characterized by A; preliminary incorporation of CO2 into organic acids, followed by B; transfer of CO2 to the Calvin cycle. The C4 and CAM pathways are two evolutionary solutions to the problem of maintaining photosynthesis with stomata partially or completely closed on hot, dry days.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>81:1924038843</qid>
+      <q>
+        Other plants open their stomata during the night and close them during the day.
+      </q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>81:496456244</qid>
+      <q>succulents make organic acids during the night</q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>81:699481888</qid>
+      <q>What is incorporated into sugar in the chloroplasts?</q>
+      <a0>CO2</a0>
+      <a1>Organic acids</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>81:1795979320</qid>
+      <q>What would happen without vacuoles?</q>
+      <a0>the stomata could not close</a0>
+      <a1>plants could not store the organic acids</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

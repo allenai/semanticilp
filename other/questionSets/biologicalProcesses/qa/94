@@ -1,0 +1,26 @@
+<annotation>
+  <id>94</id>
+  <text>
+    Sutherland's research team discovered that epinephrine stimulates glycogen breakdown by somehow activating a cytosolic enzyme, glycogen phosphorylase. However, when epinephrine was added to a test-tube mixture containing the enzyme and its substrate, glycogen, no breakdown occurred. Epinephrine could activate glycogen phosphorylase only when the hormone was added to a solution containing intact cells.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>94:490942489</qid>
+      <q>What is required for epinephrine to activate glycogen phosphorylase?</q>
+      <a0>intact cells</a0>
+      <a1>a test-tube mixture</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>94:337434669</qid>
+      <q>What directly causes breakdown of glycogen?</q>
+      <a0>epinephrine</a0>
+      <a1>glycogen phosphorylase</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

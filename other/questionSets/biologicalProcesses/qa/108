@@ -1,0 +1,44 @@
+<annotation>
+  <id>108</id>
+  <text>
+    The actin microfilaments interact with the myosin molecules, causing the ring to contract. The contraction of the dividing cell's ring of microfilaments is like the pulling of a drawstring. The cleavage furrow deepens until the parent cell is pinched in two, producing two completely separated cells, each with its own nucleus and share of cytosol, organelles, and other subcellular structures.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>108:1148594867</qid>
+      <q>What would happen without actin microfilaments?</q>
+      <a0>Each cell would not have myosin molecules</a0>
+      <a1>The cleavage furrow would not deepen</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>108:2128746577</qid>
+      <q>What do microfilament rings do?</q>
+      <a0>separate the nucleus from the cytosol</a0>
+      <a1>Pinch the parent cell in two</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>108:951720108</qid>
+      <q>The cleavage furrow creates actin microfilaments</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>108:592872473</qid>
+      <q>What would happen if the cleavage furrow did not deepen?</q>
+      <a0>The nucleus of the parent cell would not be produced</a0>
+      <a1>The parent cell would not divide</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

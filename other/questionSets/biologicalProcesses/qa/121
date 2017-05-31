@@ -1,0 +1,37 @@
+<annotation>
+  <id>121</id>
+  <text>
+    A cell is frozen and fractured with a knife. The fracture plane often follows the hydrophobic interior of a membrane, splitting the phospholipid bilayer into two separated layers. Each membrane protein goes wholly with one of the layers.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>121:395927859</qid>
+      <q>Each membrane protein is fractured</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>121:1975885163</qid>
+      <q>What entity fractures the cell?</q>
+      <a0>The hyrdophobic interior</a0>
+      <a1>a knife</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>121:1894427324</qid>
+      <q>
+        What would happen if the phospholipid bilayer was not split into two separated layers?
+      </q>
+      <a0>the cell would not be frozen</a0>
+      <a1>Each membrane protein would not go wholly with one of the layers</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

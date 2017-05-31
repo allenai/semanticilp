@@ -1,0 +1,21 @@
+<annotation>
+  <id>22</id>
+  <text>
+    In this method, we carry out gel electrophoresis on samples of mRNA from hummingbird embryos at different stages of development, transfer the samples to a nitrocellulose membrane, and then allow the mRNAs on the membrane to hybridize with a labeled probe recognizing beta-globin mRNA.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>22:1104976078</qid>
+      <q>What is the correct order of events?</q>
+      <a0>
+        Gel electrophoresis, then transfer of samples to nitrocellulose membrane, then mRNAs hybridize to a labeled probe
+      </a0>
+      <a1>
+        Gel electrophoresis, then embryo development, then transfer of samples to a nitrocellulose membrane.
+      </a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

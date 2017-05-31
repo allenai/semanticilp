@@ -1,0 +1,39 @@
+<annotation>
+  <id>200</id>
+  <text>
+    Although adult animals have only tiny numbers of stem cells, scientists are learning to identify and isolate these cells from various tissues and, in some cases, to grow them in culture. With the right culture conditions (for instance, the addition of specific growth factors), cultured stem cells from adult animals have been made to differentiate into multiple types of specialized cells, although none are as versatile as ES cells.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>200:1651602404</qid>
+      <q>What grows in culture?</q>
+      <a0>stem cells</a0>
+      <a1>scientists</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>200:1813885584</qid>
+      <q>
+        What causes stem cells to differentiate into multiple types of specialized cells?
+      </q>
+      <a0>the right culture conditions</a0>
+      <a1>adult animals</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>200:219514364</qid>
+      <q>
+        Specific growth factors differentiate into multiple types of specialized cells
+      </q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

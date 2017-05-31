@@ -1,0 +1,35 @@
+<annotation>
+  <id>72</id>
+  <text>
+    As we described in Chapter 6, the cell secretes certain biological molecules by the fusion of vesicles with the plasma membrane; this process is called exocytosis. A transport vesicle that has budded from the Golgi apparatus moves along microtubules of the cytoskeleton to the plasma membrane. When the vesicle membrane and plasma membrane come into contact, specific proteins rearrange the lipid molecules of the two bilayers so that the two membranes fuse. The contents of the vesicle then spill to the outside of the cell, and the vesicle membrane becomes part of the plasma membrane (see Figure 7.12, step 4).
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>72:55890885</qid>
+      <q>The Golgi apparatus moves along microtubules</q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>72:1823273627</qid>
+      <q>Which event occurs first?</q>
+      <a0>The cell secretes certain biological molecules</a0>
+      <a1>a transport vesicle moves along microtubules</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>72:1970578796</qid>
+      <q>The transport vesicle membrane fuses with the plasma membrane</q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

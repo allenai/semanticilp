@@ -1,0 +1,30 @@
+<annotation>
+  <id>150</id>
+  <text>
+    If individuals who are heterozygous at a particular locus have greater fitness than do both kinds of homozygotes, they exhibit heterozygote advantage. In such a case, natural selection tends to maintain two or more alleles at that locus.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>150:584712935</qid>
+      <q>
+        If individuals exhibit heterozygote advantage at a particular locus, natural selection tends to maintain two or more alleles at that locus
+      </q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>150:1201266850</qid>
+      <q>What is required for heterozygote advantage?</q>
+      <a0>natural selection</a0>
+      <a1>
+        individuals who are heterozygous at a particular locus have greater fitness than do both kinds of homozygotes
+      </a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

@@ -1,0 +1,26 @@
+<annotation>
+  <id>75</id>
+  <text>
+    A small area of the plasma membrane sinks inward to form a pocket. As the pocket deepens, it pinches in, forming a vesicle containing material that had been outside the cell.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>75:1638840557</qid>
+      <q>The plasma membrane had been outside the cell</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>75:493651301</qid>
+      <q>What happens because the pocket deepens?</q>
+      <a0>The plasma membrane sinks</a0>
+      <a1>A vesicle containing material is formed</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

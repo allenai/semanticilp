@@ -1,0 +1,35 @@
+<annotation>
+  <id>193</id>
+  <text>
+    Genome-wide expression studies are made possible by DNA microarray assays. A DNA microarray consists of tiny amounts of a large number of single-stranded DNA fragments representing different genes fixed to a glass slide in a tightly spaced array, or grid (see Figure 20.1). (The microarray is also called a DNA chip by analogy to a computer chip. ) Ideally, these fragments represent all the genes of an organism. Figure 20.15 outlines how the DNA fragments on a microarray are tested for hybridization with cDNA molecules that have been prepared from the mRNAs in particular cells of interest and labeled with fluorescent dyes.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>193:129499632</qid>
+      <q>What is fixed to a glass slide?</q>
+      <a0>a large number</a0>
+      <a1>DNA fragments</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>193:700882626</qid>
+      <q>What is required to produce cDNA molecules?</q>
+      <a0>mRNAs</a0>
+      <a1>a microarray</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>193:1816212663</qid>
+      <q>What is labeled with fluorescent dyes?</q>
+      <a0>mRNAs</a0>
+      <a1>cDNA molecules</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

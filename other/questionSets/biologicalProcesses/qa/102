@@ -1,0 +1,26 @@
+<annotation>
+  <id>102</id>
+  <text>
+    When a molecule absorbs a photon of light, one of the molecule's electrons is elevated to an orbital where it has more potential energy. When the electron is in its normal orbital, the pigment molecule is said to be in its ground state. Absorption of a photon boosts an electron to an orbital of higher energy, and the pigment molecule is then said to be in an excited state. The only photons absorbed are those whose energy is exactly equal to the energy difference between the ground state and an excited state, and this energy difference varies from one kind of molecule to another.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>102:2005118599</qid>
+      <q>what would happen if an electron was not boosted?</q>
+      <a0>the pigment molecule would not be in an excited state</a0>
+      <a1>absorption of a photon would not occur</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>102:1553484829</qid>
+      <q>What happens when a molecule absorbs a photon of light?</q>
+      <a0>the pigment molecule goes to an excited state</a0>
+      <a1>the pigment molecule goes to its ground state</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

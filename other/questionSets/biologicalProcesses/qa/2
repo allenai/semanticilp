@@ -1,0 +1,30 @@
+<annotation>
+  <id>2</id>
+  <text>
+    After the chromosomes duplicate in interphase, the diploid cell divides twice, yielding four haploid daughter cells.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>2:619160687</qid>
+      <q>Haploid cells duplicate chromosomes during interphase</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>2:1025089259</qid>
+      <q>What is the correct order of events?</q>
+      <a0>
+        Chromosomes duplicate, then four haploid cells are produced, then the diploid cell divides twice
+      </a0>
+      <a1>
+        Chromosomes duplicate, then the cell divides twice, then four haploid cells are produced
+      </a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

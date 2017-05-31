@@ -1,0 +1,46 @@
+<annotation>
+  <id>175</id>
+  <text>
+    Second, the presence of X-gal in the medium allows us to distinguish colonies with recombinant plasmids from those with nonrecombinant plasmids. Colonies containing nonrecombinant plasmids have the lacZ gene intact and will produce functional beta-galactosidase. These colonies will be blue because the enzyme hydrolyzes the X-gal in the medium, forming a blue product. In contrast, no functional beta-galactosidase is produced in colonies containing recombinant plasmids with foreign DNA inserted into the lacZ gene; these colonies will therefore be white.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>175:577339982</qid>
+      <q>What would happen without X-gal?</q>
+      <a0>Functional beta-galactosidase will not be produced</a0>
+      <a1>
+        colonies with recombinant plasmids could not be distinguished from those with nonrecombinant plasmids
+      </a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>175:1202672920</qid>
+      <q>Colonies containing recombinant plasmids will be what?</q>
+      <a0>white</a0>
+      <a1>Blue</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>175:451087750</qid>
+      <q>Colonies containing nonrecombinant plasmids will be what?</q>
+      <a0>blue</a0>
+      <a1>white</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>175:247331621</qid>
+      <q>recombinant plasmids produce functional beta-galactosidase</q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

@@ -1,0 +1,26 @@
+<annotation>
+  <id>21</id>
+  <text>
+    After we've identified the location of a clone carrying the beta-globin gene, we can grow some cells from that colony in liquid culture in a large tank and then easily isolate many copies of the gene for our studies.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>21:1536702239</qid>
+      <q>What is the final product of growing cells in liquid culture?</q>
+      <a0>many copies of the gene</a0>
+      <a1>a clone carrying the beta-globin gene</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>21:1721719798</qid>
+      <q>What is produced by growing cells in a liquid culture?</q>
+      <a0>many copies of the gene</a0>
+      <a1>the beta-globulin gene</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

@@ -1,0 +1,26 @@
+<annotation>
+  <id>120</id>
+  <text>
+    The transmission electron microscope (TEM) is used to study the internal structure of cells (see Figure 6.3). The TEM aims an electron beam through a very thin section of the specimen, similar to the way a light microscope transmits light through a slide. The specimen has been stained with atoms of heavy metals, which attach to certain cellular structures, thus enhancing the electron density of some parts of the cell more than others. The electrons passing through the specimen are scattered more in the denser regions, so fewer are transmitted. The image displays the pattern of transmitted electrons. Instead of using glass lenses, the TEM uses electromagnets as lenses to bend the paths of the electrons, ultimately focusing the image onto a monitor for viewing.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>120:2110483427</qid>
+      <q>The TEM uses what?</q>
+      <a0>an electron beam</a0>
+      <a1>a light microscope</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>120:293085786</qid>
+      <q>what do atoms of heavy metals do?</q>
+      <a0>use electromagnets</a0>
+      <a1>enhance electron density of some parts of the cell more than others</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

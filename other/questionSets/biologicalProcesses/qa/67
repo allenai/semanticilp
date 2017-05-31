@@ -1,0 +1,37 @@
+<annotation>
+  <id>67</id>
+  <text>
+    When a photon strikes a pigment molecule in a light-harvesting complex, the energy is passed from molecule to molecule until it reaches the reaction-center complex. Here, an excited electron from the special pair of chlorophyll a molecules is transferred to the primary electron acceptor.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>67:1397104049</qid>
+      <q>Where does an excited electron go?</q>
+      <a0>the primary electron acceptor</a0>
+      <a1>the reaction-center complex</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>67:1466432952</qid>
+      <q>What is transferred to the primary electron acceptor?</q>
+      <a0>an excited electron</a0>
+      <a1>chlorophyll a molecules</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>67:649620044</qid>
+      <q>What would happen without the reaction-center complex?</q>
+      <a0>the energy would not be passed from molecule to molecule</a0>
+      <a1>
+        an excited electron would not be transferred to the primary electron acceptor
+      </a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

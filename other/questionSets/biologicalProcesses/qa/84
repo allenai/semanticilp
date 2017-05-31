@@ -1,0 +1,35 @@
+<annotation>
+  <id>84</id>
+  <text>
+    Cytokinesis in plant cells, which have cell walls, is markedly different. There is no cleavage furrow. Instead, during telophase, vesicles derived from the Golgi apparatus move along microtubules to the middle of the cell, where they coalesce, producing a cell plate (Figure 12.10b). Cell wall materials carried in the vesicles collect in the cell plate as it grows. The cell plate enlarges until its surrounding membrane fuses with the plasma membrane along the perimeter of the cell. Two daughter cells result, each with its own plasma membrane. Meanwhile, a new cell wall arising from the contents of the cell plate has formed between the daughter cells. Figure 12.11 Mitosis in a plant cell. These light micrographs show mitosis in cells of an onion root.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>84:718658616</qid>
+      <q>What is required for cytokinesis in plant cells?</q>
+      <a0>cleavage furrow</a0>
+      <a1>vesicles</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>84:1430381448</qid>
+      <q>What move(s) along microtubules to the middle of the cell?</q>
+      <a0>vesicles</a0>
+      <a1>the Golgi apparatus</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>84:840011300</qid>
+      <q>What is formed because hte cell plate enlarges?</q>
+      <a0>Two daughter cells</a0>
+      <a1>light micrographs</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>
