@@ -1,0 +1,1 @@
+Occasional errors during PCR replication impose limits on the number of good copies that can be made by this method. When PCR is used to provide the specific DNA fragment for cloning, the resulting clones are sequenced to select clones with error-free inserts. PCR errors also impose limits on the length of DNA fragments that can be copied.

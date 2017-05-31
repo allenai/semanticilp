@@ -1,0 +1,72 @@
+T1	Entity 99 110	This enzyme
+T2	Entity 116 119	CO2
+T3	Entity 123 142	phosphoenolpyruvate
+T4	Entity 144 147	PEP
+T5	Trigger 111 115	adds
+R1	Theme Arg1:T5 Arg2:T2	
+R2	Theme Arg1:T5 Arg2:T3	
+*	Coref T3 T4
+R3	Agent Arg1:T5 Arg2:T1	
+T6	Entity 162 194	four-carbon product oxaloacetate
+R4	Result Arg1:T5 Arg2:T6	
+T8	Trigger 568 574	export
+T9	Entity 575 601	their four-carbon products
+T10	Entity 651 670	bundle-sheath cells
+T11	Entity 679 692	plasmodesmata
+T12	Entity 548 567	the mesophyll cells
+R5	Agent Arg1:T8 Arg2:T12	
+R6	Theme Arg1:T8 Arg2:T9	
+R7	Dest Arg1:T8 Arg2:T10	
+R8	Other Arg1:T8 Arg2:T11	
+#1	AnnotatorNotes R8	Which relation?
+T13	Entity 719 742	the bundle-sheath cells
+T14	Entity 744 769	the four-carbon compounds
+T15	Trigger 770 777	release
+T16	Entity 778 781	CO2
+T17	Trigger 792 805	reassimilated
+T18	Entity 811 827	organic material
+T19	Entity 831 838	rubisco
+T20	Trigger 847 859	Calvin cycle
+T21	Trigger 861 878	The same reaction
+T22	Entity 891 899	pyruvate
+T23	Trigger 910 921	transported
+T24	Entity 925 940	mesophyll cells
+T25	Entity 949 952	ATP
+T26	Trigger 964 971	convert
+T27	Entity 972 980	pyruvate
+T28	Entity 984 987	PEP
+T29	Trigger 1002 1016	reaction cycle
+R9	Theme Arg1:T26 Arg2:T27	
+R10	Result Arg1:T26 Arg2:T28	
+R11	Theme Arg1:T26 Arg2:T25	
+R12	Theme Arg1:T23 Arg2:T22	
+R13	Dest Arg1:T23 Arg2:T24	
+R14	Enable Arg1:T26 Arg2:T29	
+R15	Result Arg1:T21 Arg2:T22	
+R16	Loc Arg1:T15 Arg2:T13	
+R17	Theme Arg1:T15 Arg2:T14	
+R18	Result Arg1:T15 Arg2:T16	
+R19	Theme Arg1:T17 Arg2:T16	
+R20	Result Arg1:T17 Arg2:T18	
+R21	Agent Arg1:T17 Arg2:T19	
+*	Same T17 T20
+R22	Enable Arg1:T8 Arg2:T15	
+*	Coref T6 T9
+R23	Enable Arg1:T5 Arg2:T8	
+R24	Enable Arg1:T15 Arg2:T17	
+R25	Enable Arg1:T21 Arg2:T23	
+T7	Entity 942 947	There
+*	Coref T24 T7
+R26	Loc Arg1:T26 Arg2:T7	
+R27	Enable Arg1:T23 Arg2:T26	
+*	Same T15 T21
+T30	Entity 1060 1119	the "price" of concentrating CO2 in the bundle-sheath cells
+*	Coref T25 T30 T34
+T31	Trigger 1179 1199	cyclic electron flow
+T32	Entity 1149 1168	bundle-sheath cells
+R28	Agent Arg1:T31 Arg2:T32	
+T33	Trigger 1124 1132	generate
+T34	Entity 1133 1147	this extra ATP
+R29	Theme Arg1:T33 Arg2:T34	
+R30	Enable Arg1:T31 Arg2:T33	
+R31	Enable Arg1:T33 Arg2:T26	

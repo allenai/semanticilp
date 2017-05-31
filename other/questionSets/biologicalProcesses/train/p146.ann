@@ -1,0 +1,44 @@
+T1	Trigger 121 130	converted
+T2	Entity 134 142	farmland
+T3	Entity 147 157	other uses
+T4	Entity 165 192	the 19th and 20th centuries
+T5	Entity 101 115	these prairies
+R1	Theme Arg1:T1 Arg2:T5	
+R2	Result Arg1:T1 Arg2:T2	
+R3	Result Arg1:T1 Arg2:T3	
+R4	Other Arg1:T1 Arg2:T4	
+T6	Trigger 233 242	plummeted
+T7	Entity 194 232	the number of greater prairie chickens
+R5	Theme Arg1:T6 Arg2:T7	
+R6	Enable Arg1:T1 Arg2:T6	
+T8	Entity 354 377	The few surviving birds
+T9	Trigger 382 392	low levels
+T10	Entity 396 413	genetic variation
+R7	Agent Arg1:T9 Arg2:T8	
+R8	Theme Arg1:T9 Arg2:T10	
+T11	Entity 419 446	less than 50% of their eggs
+T12	Trigger 447 454	hatched
+R9	Theme Arg1:T12 Arg2:T11	
+T13	Trigger 587 600	genetic drift
+T14	Trigger 608 622	the bottleneck
+T15	Entity 649 666	genetic variation
+T16	Trigger 641 645	loss
+T17	Trigger 674 682	increase
+T18	Entity 686 718	the frequency of harmful alleles
+R10	Theme Arg1:T17 Arg2:T18	
+R11	Theme Arg1:T16 Arg2:T15	
+R13	Cause Arg1:T13 Arg2:T16	
+R14	Cause Arg1:T13 Arg2:T17	
+R15	Enable Arg1:T6 Arg2:T13	
+T19	Entity 269 298	only two Illinois populations
+T20	Trigger 299 307	remained
+T21	Entity 333 352	fewer than 50 birds
+R18	Theme Arg1:T20 Arg2:T19	
+R19	Result Arg1:T20 Arg2:T21	
+R20	Enable Arg1:T6 Arg2:T20	
+R12	Enable Arg1:T6 Arg2:T14	
+R21	Cause Arg1:T14 Arg2:T13	
+R16	Cause Arg1:T16 Arg2:T9	
+R17	Cause Arg1:T17 Arg2:T12	
+T22	Entity 72 96	the prairies of Illinois
+*	Coref T22 T5

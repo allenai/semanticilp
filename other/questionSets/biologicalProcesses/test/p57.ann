@@ -1,0 +1,37 @@
+T1	Trigger 11 22	replication
+T2	Entity 7 10	DNA
+R1	Theme Arg1:T1 Arg2:T2	
+T3	Entity 24 39	DNA polymerases
+T4	Trigger 40 49	proofread
+T5	Entity 50 65	each nucleotide
+T6	Entity 74 86	its template
+T7	Entity 98 100	it
+T8	Trigger 104 109	added
+T9	Entity 113 131	the growing strand
+R2	Dest Arg1:T8 Arg2:T9	
+R3	Theme Arg1:T8 Arg2:T7	
+*	Coref T7 T5
+R4	Theme Arg1:T4 Arg2:T5	
+R5	Theme Arg1:T4 Arg2:T6	
+R6	Agent Arg1:T4 Arg2:T3	
+R7	Agent Arg1:T8 Arg2:T3	
+R8	Super Arg1:T4 Arg2:T1	
+R9	Enable Arg1:T8 Arg2:T4	
+R10	Super Arg1:T8 Arg2:T1	
+T10	Trigger 138 145	finding
+T11	Entity 146 178	an incorrectly paired nucleotide
+T12	Entity 180 194	the polymerase
+T13	Trigger 195 202	removes
+T14	Entity 203 217	the nucleotide
+R11	Agent Arg1:T13 Arg2:T12	
+*	Coref T12 T3
+R12	Agent Arg1:T10 Arg2:T12	
+R13	Theme Arg1:T10 Arg2:T11	
+*	Coref T14 T11
+R14	Theme Arg1:T13 Arg2:T14	
+R15	Enable Arg1:T4 Arg2:T10	
+R16	Enable Arg1:T10 Arg2:T13	
+R17	Super Arg1:T10 Arg2:T1	
+R18	Super Arg1:T13 Arg2:T1	
+T15	Trigger 235 244	synthesis
+R19	Enable Arg1:T13 Arg2:T15	

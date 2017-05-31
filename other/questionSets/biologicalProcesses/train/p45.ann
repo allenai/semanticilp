@@ -1,0 +1,10 @@
+T1	Trigger 3 24	allopatric speciation
+T2	Trigger 77 86	gene flow
+T3	Entity 107 119	a population
+T4	Trigger 123 130	divided
+T5	Entity 136 174	geographically isolated subpopulations
+R1	Theme Arg1:T4 Arg2:T3	
+R2	Result Arg1:T4 Arg2:T5	
+R3	Prevent Arg1:T4 Arg2:T2	
+R4	Super Arg1:T4 Arg2:T1	
+R5	Super Arg1:T2 Arg2:T1	

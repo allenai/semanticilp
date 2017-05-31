@@ -1,0 +1,35 @@
+T1	Trigger 70 77	treated
+T2	Trigger 155 166	improvement
+T3	Trigger 276 285	developed
+T4	Trigger 341 345	died
+T5	Trigger 416 425	insertion
+T6	Trigger 515 531	unknown function
+R3	Cause Arg1:T3 Arg2:T4	
+R4	Cause Arg1:T1 Arg2:T2	
+R5	Cause Arg1:T1 Arg2:T3	
+T7	Entity 36 64	ten young children with SCID
+R6	Theme Arg1:T1 Arg2:T7	
+T8	Entity 101 123	Nine of these patients
+T9	Entity 184 230	the first indisputable success of gene therapy
+R7	Theme Arg1:T2 Arg2:T8	
+R8	Result Arg1:T2 Arg2:T9	
+T10	Entity 241 262	three of the patients
+T11	Entity 286 294	leukemia
+T12	Entity 296 323	a type of blood cell cancer
+*	Coref T11 T12 T17
+R9	Agent Arg1:T3 Arg2:T10	
+R10	Theme Arg1:T3 Arg2:T11	
+T13	Entity 329 340	one of them
+R11	Theme Arg1:T4 Arg2:T13	
+T15	Entity 535 562	the replacement gene itself
+T16	Trigger 387 398	development
+T17	Entity 402 410	leukemia
+*	Same T3 T16
+R1	Enable-or Arg1:T5 Arg2:T16	
+R2	Enable-or Arg1:T6 Arg2:T16	
+R12	Theme Arg1:T16 Arg2:T17	
+T14	Entity 429 450	the retroviral vector
+T18	Entity 451 507	near a gene involved in the proliferation of blood cells
+R13	Theme Arg1:T5 Arg2:T14	
+R14	Dest Arg1:T5 Arg2:T18	
+R15	Theme Arg1:T6 Arg2:T15	

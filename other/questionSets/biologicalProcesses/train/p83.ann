@@ -1,0 +1,43 @@
+T1	Trigger 17 28	cytokinesis
+T2	Trigger 58 66	cleavage
+R1	Super Arg1:T2 Arg2:T1	
+T3	Trigger 86 94	cleavage
+*	Same T2 T3
+T4	Trigger 102 112	appearance
+R2	Super Arg1:T4 Arg2:T3	
+T5	Trigger 376 384	interact
+T6	Trigger 432 440	contract
+R3	Cause Arg1:T5 Arg2:T6	
+T7	Trigger 446 457	contraction
+T8	Trigger 561 568	deepens
+T9	Trigger 594 601	pinched
+R4	Cause Arg1:T8 Arg2:T9	
+R5	Cause Arg1:T7 Arg2:T8	
+T10	Entity 3 15	animal cells
+R6	Loc Arg1:T1 Arg2:T10	
+T11	Entity 116 133	a cleavage furrow
+R7	Theme Arg1:T4 Arg2:T11	
+T12	Entity 135 200	a shallow groove in the cell surface near the old metaphase plate
+*	Coref T11 T12
+T13	Trigger 261 277	contractile ring
+T14	Entity 221 255	the cytoplasmic side of the furrow
+R8	Loc Arg1:T13 Arg2:T14	
+R9	Super Arg1:T13 Arg2:T3	
+T15	Entity 281 349	actin microfilaments associated with molecules of the protein myosin
+R11	Theme Arg1:T13 Arg2:T15	
+T16	Entity 351 375	The actin microfilaments
+R12	Theme Arg1:T5 Arg2:T16	
+T17	Entity 390 410	the myosin molecules
+R13	Theme Arg1:T5 Arg2:T17	
+T18	Entity 420 428	the ring
+R14	Theme Arg1:T6 Arg2:T18	
+T19	Entity 461 503	the dividing cell's ring of microfilaments
+R15	Theme Arg1:T7 Arg2:T19	
+T20	Entity 545 560	cleavage furrow
+R16	Theme Arg1:T8 Arg2:T20	
+T21	Entity 575 590	the parent cell
+R17	Theme Arg1:T9 Arg2:T21	
+T22	Entity 620 744	two completely separated cells, each with its own nucleus and share of cytosol, organelles, and other subcellular structures
+R18	Result Arg1:T9 Arg2:T22	
+R10	Enable Arg1:T6 Arg2:T13	
+*	Same T6 T7

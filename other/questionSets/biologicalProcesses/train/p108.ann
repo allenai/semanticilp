@@ -1,0 +1,19 @@
+T1	Trigger 25 33	interact
+T2	Trigger 81 89	contract
+T3	Entity 0 24	The actin microfilaments
+T4	Entity 39 59	the myosin molecules
+T5	Entity 69 77	the ring
+R1	Theme Arg1:T1 Arg2:T3	
+R2	Theme Arg1:T1 Arg2:T4	
+R4	Theme Arg1:T2 Arg2:T5	
+T8	Trigger 210 217	deepens
+T9	Entity 190 209	The cleavage furrow
+R6	Theme Arg1:T8 Arg2:T9	
+T10	Trigger 243 250	pinched
+T11	Entity 224 239	the parent cell
+T12	Entity 269 299	two completely separated cells
+R7	Theme Arg1:T10 Arg2:T11	
+R8	Result Arg1:T10 Arg2:T12	
+R9	Cause Arg1:T8 Arg2:T10	
+R3	Cause Arg1:T2 Arg2:T8	
+R5	Cause Arg1:T1 Arg2:T2	

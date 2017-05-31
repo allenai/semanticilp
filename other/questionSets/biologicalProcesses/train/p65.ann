@@ -1,0 +1,37 @@
+T1	Trigger 58 62	bind
+T2	Trigger 245 250	binds
+T3	Trigger 304 310	joined
+T4	Trigger 329 337	interact
+T5	Trigger 376 385	exchanged
+T6	Entity 0 57	The antigen receptors on the surface of the helper T cell
+T7	Entity 66 86	the antigen fragment
+R1	Agent Arg1:T1 Arg2:T6	
+R2	Theme Arg1:T1 Arg2:T7	
+R5	Cause Arg1:T2 Arg2:T3	
+R7	Enable Arg1:T1 Arg2:T4	
+R6	Enable Arg1:T3 Arg2:T4	
+T10	Entity 195 244	an accessory protein on the helper T cell surface
+T11	Entity 254 279	the class II MHC molecule
+R9	Agent Arg1:T2 Arg2:T10	
+R10	Theme Arg1:T2 Arg2:T11	
+T12	Entity 294 303	the cells
+R11	Theme Arg1:T3 Arg2:T12	
+T13	Entity 315 328	the two cells
+R12	Theme Arg1:T4 Arg2:T13	
+T14	Entity 339 371	signals in the form of cytokines
+R13	Theme Arg1:T5 Arg2:T14	
+T15	Entity 389 404	both directions
+R14	Dest Arg1:T5 Arg2:T15	
+T8	Trigger 120 130	displaying
+T9	Entity 94 119	the class II MHC molecule
+R3	Theme Arg1:T1 Arg2:T9	
+T16	Entity 131 144	that fragment
+R4	Theme Arg1:T8 Arg2:T16	
+R15	Agent Arg1:T8 Arg2:T9	
+*	Coref T7 T16
+T17	Entity 148 175	the antigen-presenting cell
+R16	Loc Arg1:T8 Arg2:T17	
+R17	Enable Arg1:T8 Arg2:T1	
+#1	AnnotatorNotes R1	When we have "Binds", the two entities are kind of interchangeable, so both theme?
+R8	Super Arg1:T5 Arg2:T4	
+*	Coref T12 T13

@@ -1,0 +1,37 @@
+T1	Trigger 20 25	drift
+T2	Trigger 30 37	reduced
+T3	Trigger 90 95	Drift
+T4	Trigger 110 119	increased
+R1	Enable Arg1:T1 Arg2:T2	
+*	Same T1 T3
+R2	Enable Arg1:T3 Arg2:T4	
+T5	Entity 38 88	the genetic variation of the small 1993 population
+T6	Entity 120 152	the frequency of harmful alleles
+T7	Entity 165 190	the low egg-hatching rate
+R3	Theme Arg1:T2 Arg2:T5	
+R4	Theme Arg1:T4 Arg2:T6	
+R5	Result Arg1:T4 Arg2:T7	
+T8	Trigger 195 205	counteract
+R6	Cause Arg1:T4 Arg2:T8	
+T9	Trigger 269 274	added
+T10	Trigger 356 363	entered
+R7	Enable Arg1:T9 Arg2:T10	
+T11	Trigger 406 414	improved
+R8	Cause Arg1:T10 Arg2:T11	
+R9	Super Arg1:T9 Arg2:T8	
+R10	Super Arg1:T10 Arg2:T8	
+R11	Super Arg1:T11 Arg2:T8	
+T12	Entity 206 228	these negative effects
+T13	Entity 230 263	271 birds from neighboring states
+T14	Entity 278 301	the Illinois population
+T15	Entity 344 355	New alleles
+T16	Entity 364 378	the population
+T17	Entity 384 405	the egg-hatching rate
+T18	Entity 418 426	over 90%
+R12	Theme Arg1:T8 Arg2:T12	
+R13	Theme Arg1:T9 Arg2:T13	
+R14	Dest Arg1:T9 Arg2:T14	
+R15	Theme Arg1:T10 Arg2:T15	
+R16	Theme Arg1:T10 Arg2:T16	
+R17	Theme Arg1:T11 Arg2:T17	
+R18	Result Arg1:T11 Arg2:T18	

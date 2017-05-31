@@ -1,0 +1,16 @@
+T1	TriggerNot 196 202	divide
+T2	Trigger 209 220	replicating
+T3	Trigger 256 273	mitotic divisions
+T4	Trigger 136 147	Tetraploidy
+R1	Enable Arg1:T2 Arg2:T1	
+R2	Enable Arg1:T1 Arg2:T3	
+R3	Super Arg1:T3 Arg2:T4	
+R4	Super Arg1:T2 Arg2:T4	
+R5	Super Arg1:T1 Arg2:T4	
+T5	Entity 181 192	a 2n zygote
+T6	Entity 221 236	its chromosomes
+T7	Entity 285 304	produce a 4n embryo
+R6	Result Arg1:T3 Arg2:T7	
+R7	Theme Arg1:T2 Arg2:T6	
+R8	Agent Arg1:T2 Arg2:T5	
+R9	Theme Arg1:T1 Arg2:T5	

@@ -1,0 +1,54 @@
+T1	Trigger 86 95	metaphase
+T2	Trigger 48 55	overlap
+T3	Entity 0 47	Nonkinetochore microtubules from opposite poles
+R1	Theme Arg1:T2 Arg2:T3	
+R2	Super Arg1:T2 Arg2:T1	
+T4	Trigger 122 130	anaphase
+T5	Trigger 157 164	reduced
+T6	Entity 132 153	the region of overlap
+R3	Theme Arg1:T5 Arg2:T6	
+T7	Trigger 212 216	walk
+T8	Entity 168 211	motor proteins attached to the microtubules
+R4	Agent Arg1:T7 Arg2:T8	
+T9	Entity 222 243	away from one another
+R5	Dest Arg1:T7 Arg2:T9	
+R6	Cause Arg1:T7 Arg2:T5	
+R7	Super Arg1:T7 Arg2:T4	
+T10	Trigger 288 292	push
+T11	Entity 271 287	the microtubules
+T12	Entity 316 335	their spindle poles
+T13	Trigger 340 346	pushed
+R8	Theme Arg1:T10 Arg2:T11	
+T14	Entity 293 314	apart from each other
+R9	Dest Arg1:T10 Arg2:T14	
+R10	Theme Arg1:T13 Arg2:T12	
+T15	Entity 347 352	apart
+R11	Dest Arg1:T13 Arg2:T15	
+T16	Trigger 354 364	elongating
+T17	Entity 365 373	the cell
+R12	Theme Arg1:T16 Arg2:T17	
+R13	Cause Arg1:T10 Arg2:T13	
+R14	Cause Arg1:T13 Arg2:T16	
+R15	Cause Arg1:T7 Arg2:T10	
+T18	Trigger 410 418	lengthen
+T19	Entity 393 409	the microtubules
+T20	Trigger 435 443	addition
+T21	Entity 447 463	tubulin subunits
+T22	Entity 467 489	their overlapping ends
+R16	Theme Arg1:T18 Arg2:T19	
+R17	Theme Arg1:T20 Arg2:T21	
+R18	Loc Arg1:T20 Arg2:T22	
+R19	Cause Arg1:T20 Arg2:T18	
+T23	Trigger 533 540	overlap
+T24	Entity 504 520	the microtubules
+R20	Theme Arg1:T23 Arg2:T24	
+R21	Enable Arg1:T18 Arg2:T23	
+R22	Enable Arg1:T1 Arg2:T4	
+*	Same T23 T2
+T27	Entity 217 221	them
+R25	Theme Arg1:T7 Arg2:T27	
+*	Coref T27 T3
+R23	Super Arg1:T5 Arg2:T4	
+*	Coref T15 T14
+R24	Super Arg1:T16 Arg2:T4	
+R26	Super Arg1:T23 Arg2:T4	

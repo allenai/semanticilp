@@ -1,0 +1,23 @@
+T1	Trigger 29 48	gel electrophoresis
+T2	Trigger 129 137	transfer
+T3	Trigger 224 233	hybridize
+T4	Entity 52 127	samples of mRNA from hummingbird embryos at different stages of development
+R1	Theme Arg1:T1 Arg2:T4	
+R3	Enable Arg1:T1 Arg2:T2	
+R4	Enable Arg1:T2 Arg2:T3	
+T6	Entity 138 149	the samples
+T7	Entity 153 178	a nitrocellulose membrane
+R5	Theme Arg1:T2 Arg2:T6	
+R6	Dest Arg1:T2 Arg2:T7	
+T8	Entity 195 220	the mRNAs on the membrane
+R7	Theme Arg1:T3 Arg2:T8	
+T10	Entity 239 254	a labeled probe
+R9	Theme Arg1:T3 Arg2:T10	
+T11	Entity 16 18	we
+R10	Agent Arg1:T1 Arg2:T11	
+R11	Agent Arg1:T2 Arg2:T11	
+T12	Trigger 255 266	recognizing
+R12	Enable Arg1:T12 Arg2:T3	
+T13	Entity 267 283	beta-globin mRNA
+R13	Agent Arg1:T12 Arg2:T10	
+R14	Theme Arg1:T12 Arg2:T13	

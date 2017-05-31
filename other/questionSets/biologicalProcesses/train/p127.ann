@@ -1,0 +1,32 @@
+T1	Trigger 259 264	lived
+T2	Trigger 314 325	accumulated
+T3	Trigger 453 478	descent with modification
+R1	Enable Arg1:T1 Arg2:T2	
+T5	Entity 216 258	the descendants of that ancestral organism
+T6	Entity 268 284	various habitats
+T7	Entity 309 313	they
+T8	Entity 326 347	diverse modifications
+T9	Entity 352 363	adaptations
+T11	Entity 285 307	over millions of years
+T12	Entity 497 536	the rich diversity of life we see today
+R3	Theme Arg1:T1 Arg2:T5	
+R4	Loc Arg1:T1 Arg2:T6	
+R5	Other Arg1:T1 Arg2:T11	
+*	Coref T7 T5
+R6	Agent Arg1:T2 Arg2:T7	
+*	Coref T8 T9
+R7	Theme Arg1:T2 Arg2:T8	
+T13	Trigger 119 126	descent
+*	Same T13 T3
+T14	Trigger 370 373	fit
+R10	Enable Arg1:T2 Arg2:T14	
+R2	Result Arg1:T3 Arg2:T12	
+T4	Entity 94 111	the unity of life
+T15	Entity 130 143	all organisms
+T16	Entity 149 190	an ancestor that lived in the remote past
+R9	Result Arg1:T13 Arg2:T4	
+R12	Theme Arg1:T13 Arg2:T15	
+R13	Source Arg1:T13 Arg2:T16	
+R11	Super Arg1:T1 Arg2:T3	
+R14	Super Arg1:T2 Arg2:T3	
+R15	Super Arg1:T14 Arg2:T3	

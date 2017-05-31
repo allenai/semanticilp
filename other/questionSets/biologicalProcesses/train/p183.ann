@@ -1,0 +1,11 @@
+T1	Trigger 122 125	PCR
+T2	Trigger 209 218	sequenced
+T3	Trigger 222 228	select
+R1	Enable Arg1:T1 Arg2:T2	
+R2	Enable Arg1:T2 Arg2:T3	
+T4	Entity 145 182	the specific DNA fragment for cloning
+T5	Entity 184 204	the resulting clones
+T6	Entity 229 259	clones with error-free inserts
+R3	Result Arg1:T1 Arg2:T4	
+R4	Theme Arg1:T2 Arg2:T5	
+R5	Theme Arg1:T3 Arg2:T6	

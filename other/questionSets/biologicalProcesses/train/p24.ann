@@ -1,0 +1,54 @@
+T1	Trigger 89 97	isolated
+T2	Trigger 136 146	engineered
+T3	Trigger 60 66	obtain
+T4	Trigger 3 8	clone
+T5	Trigger 174 180	insert
+T6	Trigger 321 329	returned
+T7	Trigger 403 413	reproduces
+T8	Trigger 436 445	divisions
+R1	Enable Arg1:T1 Arg2:T2	
+R2	Enable Arg1:T2 Arg2:T3	
+R3	Enable Arg1:T3 Arg2:T5	
+R4	Enable Arg1:T5 Arg2:T6	
+R5	Enable Arg1:T6 Arg2:T7	
+*	Same T7 T8
+R6	Super Arg1:T3 Arg2:T4	
+R7	Super Arg1:T5 Arg2:T4	
+R8	Super Arg1:T6 Arg2:T4	
+R9	Super Arg1:T7 Arg2:T4	
+T9	Entity 9 22	pieces of DNA
+T10	Entity 26 40	the laboratory
+T11	Entity 42 53	researchers
+T12	Entity 67 76	a plasmid
+T13	Entity 103 119	a bacterial cell
+T14	Entity 151 168	efficient cloning
+T15	Entity 181 184	DNA
+T16	Entity 190 204	another source
+T17	Entity 206 219	"foreign" DNA
+T19	Entity 273 299	a recombinant DNA molecule
+T20	Entity 301 312	The plasmid
+T21	Entity 333 349	a bacterial cell
+T22	Entity 361 384	a recombinant bacterium
+T23	Entity 386 402	This single cell
+T24	Entity 454 470	a clone of cells
+T25	Entity 472 515	a population of genetically identical cells
+R10	Theme Arg1:T4 Arg2:T9	
+R11	Source Arg1:T4 Arg2:T10	
+R12	Agent Arg1:T3 Arg2:T11	
+R13	Theme Arg1:T3 Arg2:T12	
+R14	Source Arg1:T1 Arg2:T13	
+R15	Theme Arg1:T1 Arg2:T12	
+R16	Theme Arg1:T2 Arg2:T12	
+R17	Result Arg1:T2 Arg2:T14	
+R18	Theme Arg1:T5 Arg2:T15	
+R19	Source Arg1:T5 Arg2:T16	
+*	Coref T17 T16
+R20	Result Arg1:T5 Arg2:T19	
+R21	Theme Arg1:T6 Arg2:T20	
+R22	Dest Arg1:T6 Arg2:T21	
+R23	Result Arg1:T6 Arg2:T22	
+*	Coref T22 T23
+*	Coref T19 T20
+R24	Theme Arg1:T7 Arg2:T23	
+R25	Result Arg1:T8 Arg2:T24	
+*	Coref T24 T25

@@ -1,0 +1,1 @@
+These technological advances have also facilitated an approach called metagenomics (from the Greek meta, beyond), in which DNA from a group of species (a metagenome) is collected from an environmental sample and sequenced. Again, computer software accomplishes the task of sorting out the partial sequences and assembling them into specific genomes. 

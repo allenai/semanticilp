@@ -1,0 +1,1 @@
+When cAMP binds to this regulatory protein, CAP assumes its active shape and can attach to a specific site at the upstream end of the lac promoter (Figure 18.5a). This attachment increases the affinity of RNA polymerase for the promoter, which is actually rather low even when no repressor is bound to the operator. 

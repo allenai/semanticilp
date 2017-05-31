@@ -1,0 +1,1 @@
+ During each cycle, the reaction mixture is heated to denature (separate) the DNA strands and then cooled to allow annealing (hydrogen bonding) of short, single-stranded DNA primers complementary to sequences on opposite strands at each end of the target sequence; finally, a heat-stable DNA polymerase extends the primers in the 5' &rarr; 3' direction.

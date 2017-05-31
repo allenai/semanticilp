@@ -1,0 +1,49 @@
+T1	Trigger 10 21	homogenized
+T2	Entity 25 34	a blender
+T3	Trigger 38 43	break
+T4	Entity 44 48	them
+T5	Entity 0 5	Cells
+R1	Theme Arg1:T1 Arg2:T5	
+R2	Loc Arg1:T1 Arg2:T2	
+*	Coref T4 T5
+R3	Theme Arg1:T3 Arg2:T4	
+R4	Super Arg1:T3 Arg2:T1	
+T6	Entity 53 74	The resulting mixture
+T7	Entity 76 86	homogenate
+T8	Trigger 91 102	centrifuged
+R5	Result Arg1:T1 Arg2:T6	
+*	Coref T6 T7
+R6	Theme Arg1:T8 Arg2:T7	
+R7	Enable Arg1:T1 Arg2:T8	
+T9	Entity 104 119	The supernatant
+T10	Entity 121 127	liquid
+*	Coref T10 T9
+R8	Result Arg1:T8 Arg2:T9	
+T11	Trigger 132 138	poured
+T12	Entity 144 156	another tube
+R9	Dest Arg1:T11 Arg2:T12	
+R10	Theme Arg1:T11 Arg2:T10	
+R11	Enable Arg1:T8 Arg2:T11	
+T13	Trigger 161 172	centrifuged
+T14	Entity 176 190	a higher speed
+T15	Entity 195 208	a longer time
+R12	Theme Arg1:T13 Arg2:T10	
+R13	Loc Arg1:T13 Arg2:T14	
+R14	Other Arg1:T13 Arg2:T15	
+R15	Enable Arg1:T11 Arg2:T13	
+T16	Trigger 256 283	differential centrifugation
+R16	Super Arg1:T13 Arg2:T16	
+R17	Super Arg1:T11 Arg2:T16	
+T17	Entity 296 315	a series of pellets
+R18	Result Arg1:T16 Arg2:T17	
+R19	Super Arg1:T8 Arg2:T16	
+R20	Super Arg1:T1 Arg2:T16	
+T18	Trigger 322 332	containing
+T19	Entity 333 358	different cell components
+R21	Theme Arg1:T18 Arg2:T19	
+R22	Agent Arg1:T18 Arg2:T17	
+R23	Enable Arg1:T16 Arg2:T18	
+T20	Trigger 226 234	repeated
+T21	Entity 210 222	This process
+R24	Theme Arg1:T20 Arg2:T21	
+R25	Super Arg1:T20 Arg2:T16	

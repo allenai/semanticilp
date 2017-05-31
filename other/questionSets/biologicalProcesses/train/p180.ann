@@ -1,0 +1,38 @@
+T1	Trigger 94 100	screen
+T2	Trigger 3 8	using
+R1	Enable Arg1:T2 Arg2:T1	
+T3	Trigger 169 179	identified
+R2	Enable Arg1:T1 Arg2:T3	
+T4	Trigger 242 246	grow
+R3	Enable Arg1:T3 Arg2:T4	
+T5	Trigger 325 332	isolate
+R4	Enable Arg1:T4 Arg2:T5	
+T6	Trigger 420 428	identify
+R5	Enable Arg1:T3 Arg2:T17	
+T7	Entity 9 76	probes with different nucleotide sequences in different experiments
+R6	Theme Arg1:T2 Arg2:T7	
+T8	Entity 78 89	researchers
+R7	Agent Arg1:T2 Arg2:T8	
+R8	Agent Arg1:T1 Arg2:T8	
+T9	Entity 101 135	the collection of bacterial clones
+R9	Theme Arg1:T1 Arg2:T9	
+T10	Entity 140 155	different genes
+R10	Result Arg1:T1 Arg2:T10	
+T11	Entity 180 233	the location of a clone carrying the beta-globin gene
+R11	Theme Arg1:T3 Arg2:T11	
+T12	Entity 235 237	we
+R12	Agent Arg1:T3 Arg2:T12	
+T13	Entity 247 274	some cells from that colony
+R13	Agent Arg1:T4 Arg2:T12	
+R14	Theme Arg1:T4 Arg2:T13	
+T14	Entity 275 308	in liquid culture in a large tank
+R15	Loc Arg1:T4 Arg2:T14	
+T15	Entity 333 356	many copies of the gene
+R16	Theme Arg1:T5 Arg2:T15	
+R17	Agent Arg1:T5 Arg2:T12	
+T16	Entity 390 405	the cloned gene
+T17	Trigger 411 416	probe
+R18	Agent Arg1:T17 Arg2:T16	
+R19	Enable Arg1:T17 Arg2:T6	
+T18	Entity 429 481	similar or identical genes in DNA from other sources
+R20	Theme Arg1:T6 Arg2:T18	

@@ -1,0 +1,34 @@
+T1	Trigger 7 13	cloned
+T2	Trigger 44 48	make
+T3	Trigger 87 96	hybridize
+T4	Trigger 150 157	provide
+T5	Trigger 108 119	transcribed
+T6	Trigger 275 282	measure
+R2	Enable Arg1:T1 Arg2:T5	
+R3	Enable Arg1:T2 Arg2:T3	
+R4	Enable Arg1:T5 Arg2:T3	
+R5	Enable Arg1:T3 Arg2:T4	
+R6	Enable Arg1:T4 Arg2:T6	
+T7	Entity 14 26	a given gene
+T8	Entity 28 39	researchers
+R7	Agent Arg1:T1 Arg2:T8	
+R8	Theme Arg1:T1 Arg2:T7	
+R9	Agent Arg1:T2 Arg2:T8	
+T9	Entity 49 76	labeled nucleic acid probes
+R10	Result Arg1:T2 Arg2:T9	
+T10	Entity 102 107	mRNAs
+R11	Theme Arg1:T5 Arg2:T10	
+T11	Entity 125 133	the gene
+R12	Source Arg1:T5 Arg2:T11	
+*	Coref T7 T11
+R13	Theme Arg1:T3 Arg2:T9	
+R14	Theme Arg1:T3 Arg2:T10	
+T12	Entity 135 145	The probes
+T13	Entity 158 229	information about when or where in the organism the gene is transcribed
+*	Coref T9 T12
+R15	Agent Arg1:T4 Arg2:T12	
+R16	Theme Arg1:T4 Arg2:T13	
+T14	Entity 286 301	gene expression
+R17	Theme Arg1:T6 Arg2:T14	
+T15	Entity 231 251	Transcription levels
+R1	Agent Arg1:T6 Arg2:T15	

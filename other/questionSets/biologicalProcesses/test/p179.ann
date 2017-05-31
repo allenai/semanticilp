@@ -1,0 +1,27 @@
+T1	Entity 0 21	Cells from each clone
+T2	Trigger 26 33	applied
+T3	Entity 37 62	a special nylon membrane.
+T4	Trigger 181 185	hold
+T5	Entity 146 166	only a few membranes
+T6	Entity 186 226	samples of all the clones in the library
+T7	Entity 81 109	room for thousands of clones
+T8	Trigger 77 80	has
+T9	Entity 228 249	This set of membranes
+T10	Entity 253 271	an arrayed library
+T11	Trigger 284 292	screened
+T12	Entity 297 312	a specific gene
+T13	Entity 319 334	a labeled probe
+R1	Theme Arg1:T11 Arg2:T12	
+R2	Agent Arg1:T11 Arg2:T13	
+R3	Theme Arg1:T11 Arg2:T10	
+*	Coref T10 T9 T5
+R4	Agent Arg1:T4 Arg2:T5	
+R5	Theme Arg1:T4 Arg2:T6	
+R6	Theme Arg1:T2 Arg2:T1	
+R7	Loc Arg1:T2 Arg2:T3	
+T14	Entity 63 76	Each membrane
+R8	Enable Arg1:T8 Arg2:T4	
+R9	Agent Arg1:T8 Arg2:T14	
+R10	Theme Arg1:T8 Arg2:T7	
+R11	Enable Arg1:T2 Arg2:T4	
+R12	Enable Arg1:T4 Arg2:T11	

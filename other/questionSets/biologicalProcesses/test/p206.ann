@@ -1,0 +1,20 @@
+T1	Trigger 770 777	amplify
+T2	Trigger 945 955	determined
+T3	Trigger 959 974	electrophoresis
+T4	Trigger 755 758	PCR
+R1	Enable Arg1:T4 Arg2:T1	
+R2	Enable Arg1:T1 Arg2:T3	
+R3	Enable Arg1:T3 Arg2:T2	
+T5	Entity 789 793	STRs
+T6	Entity 801 873	sets of primers that are labeled with different-colored fluorescent tags
+T7	Entity 910 931	the number of repeats
+T8	Entity 875 899	the length of the region
+R4	Theme Arg1:T1 Arg2:T5	
+R5	Theme Arg1:T2 Arg2:T8	
+R6	Theme Arg1:T2 Arg2:T7	
+T9	Trigger 795 800	using
+R7	Enable Arg1:T9 Arg2:T2	
+R8	Theme Arg1:T9 Arg2:T6	
+T10	Entity 154 158	STRs
+T11	Entity 132 152	short tandem repeats
+*	Coref T11 T10 T5

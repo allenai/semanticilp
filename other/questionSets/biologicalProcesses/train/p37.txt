@@ -1,0 +1,1 @@
+To mark a particular protein for destruction, the cell commonly attaches molecules of a small protein called ubiquitin to the protein. Giant protein complexes called proteasomes then recognize the ubiquitin-tagged proteins and degrade them (Figure 18.14). 

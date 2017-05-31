@@ -1,0 +1,89 @@
+T1	Trigger 8 15	flowing
+T2	Trigger 36 41	enter
+T3	Trigger 79 87	anchored
+T4	Trigger 113 118	enter
+T5	Trigger 149 157	changing
+T6	Trigger 202 207	spins
+T7	Trigger 241 246	makes
+T8	Trigger 272 279	leaving
+T9	Trigger 294 309	passing through
+T10	Trigger 377 385	Spinning
+T11	Trigger 425 429	spin
+T12	Trigger 448 455	extends
+T13	Trigger 502 517	held stationary
+T14	Trigger 541 548	Turning
+T15	Trigger 560 569	activates
+T16	Trigger 607 614	produce
+*	Same T11 T14
+*	Same T6 T10
+R1	Enable Arg1:T1 Arg2:T2	
+R2	Enable Arg1:T3 Arg2:T6	
+R3	Enable Arg1:T2 Arg2:T4	
+R4	Cause Arg1:T4 Arg2:T5	
+R5	Cause Arg1:T5 Arg2:T6	
+R6	Cause Arg1:T7 Arg2:T8	
+R7	Cause Arg1:T8 Arg2:T9	
+R8	Enable Arg1:T6 Arg2:T7	
+R9	Cause Arg1:T10 Arg2:T11	
+R10	Enable Arg1:T12 Arg2:T15	
+R11	Enable Arg1:T13 Arg2:T15	
+R12	Enable Arg1:T15 Arg2:T16	
+R13	Cause Arg1:T14 Arg2:T15	
+T17	Entity 0 7	H+ ions
+R14	Theme Arg1:T1 Arg2:T17	
+T18	Entity 16 35	down their gradient
+R15	Dest Arg1:T1 Arg2:T18	
+T19	Entity 42 68	a half channel in a stator
+R16	Theme Arg1:T2 Arg2:T19	
+R17	Agent Arg1:T2 Arg2:T17	
+T21	Entity 91 103	the membrane
+R20	Loc Arg1:T3 Arg2:T21	
+T22	Entity 105 112	H+ ions
+*	Coref T17 T22
+R21	Agent Arg1:T4 Arg2:T22	
+T23	Entity 119 147	binding sites within a rotor
+R22	Dest Arg1:T4 Arg2:T23	
+R23	Agent Arg1:T5 Arg2:T22	
+T24	Entity 158 183	the shape of each subunit
+R24	Theme Arg1:T5 Arg2:T24	
+T25	Entity 192 201	the rotor
+R25	Theme Arg1:T6 Arg2:T25	
+T26	Entity 215 227	the membrane
+R26	Loc Arg1:T6 Arg2:T26	
+T27	Entity 229 240	Each H+ ion
+R27	Agent Arg1:T7 Arg2:T27	
+T28	Entity 247 264	one complete turn
+R28	Theme Arg1:T7 Arg2:T28	
+R29	Agent Arg1:T8 Arg2:T27	
+T29	Entity 280 289	the rotor
+R30	Theme Arg1:T8 Arg2:T29	
+R31	Agent Arg1:T9 Arg2:T27	
+T30	Entity 310 345	a second half channel in the stator
+R32	Theme Arg1:T9 Arg2:T30	
+T31	Entity 351 375	the mitochondrial matrix
+R33	Dest Arg1:T9 Arg2:T31	
+T32	Entity 389 398	the rotor
+R34	Theme Arg1:T10 Arg2:T32	
+*	Coref T25 T29 T32
+T33	Entity 406 421	an internal rod
+R35	Theme Arg1:T11 Arg2:T33	
+T34	Entity 439 447	This rod
+*	Coref T33 T34 T37
+R36	Theme Arg1:T12 Arg2:T34	
+T35	Entity 474 491	the knob below it
+R37	Dest Arg1:T12 Arg2:T35	
+R38	Theme Arg1:T13 Arg2:T35	
+T36	Entity 521 539	part of the stator
+R39	Agent Arg1:T13 Arg2:T36	
+T37	Entity 552 559	the rod
+R40	Theme Arg1:T14 Arg2:T37	
+T38	Entity 570 597	catalytic sites in the knob
+R41	Theme Arg1:T15 Arg2:T38	
+T39	Entity 615 618	ATP
+T40	Entity 624 627	ADP
+T41	Entity 632 635	P_i
+R42	Agent Arg1:T16 Arg2:T38	
+R43	Result Arg1:T16 Arg2:T39	
+R44	Source Arg1:T16 Arg2:T40	
+R45	Source Arg1:T16 Arg2:T41	
+R18	Theme Arg1:T3 Arg2:T19	

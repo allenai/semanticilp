@@ -1,0 +1,39 @@
+T1	Trigger 12 20	presence
+T2	Trigger 57 68	distinguish
+T3	Trigger 154 164	containing
+T4	Trigger 208 214	intact
+T5	Trigger 224 231	produce
+R1	Super Arg1:T4 Arg2:T3	
+R2	Enable Arg1:T3 Arg2:T5	
+T6	Trigger 286 290	blue
+T7	Trigger 310 320	hydrolyzes
+R3	Enable Arg1:T5 Arg2:T7	
+R4	Cause Arg1:T7 Arg2:T6	
+R5	Enable Arg1:T1 Arg2:T2	
+R6	Enable Arg1:T6 Arg2:T2	
+T8	Entity 33 43	the medium
+T9	Entity 51 53	us
+T10	Entity 69 103	colonies with recombinant plasmids
+T11	Entity 145 153	Colonies
+T12	Entity 165 188	nonrecombinant plasmids
+T13	Entity 194 207	the lacZ gene
+T14	Entity 232 261	functional beta-galactosidase
+T15	Entity 263 277	These colonies
+T16	Entity 299 309	the enzyme
+T17	Entity 321 344	the X-gal in the medium
+T19	Entity 354 368	a blue product
+R7	Loc Arg1:T1 Arg2:T8	
+T20	Entity 24 29	X-gal
+R8	Theme Arg1:T1 Arg2:T20	
+R9	Agent Arg1:T2 Arg2:T9	
+R10	Theme Arg1:T2 Arg2:T10	
+R11	Agent Arg1:T3 Arg2:T11	
+R12	Theme Arg1:T3 Arg2:T12	
+R13	Theme Arg1:T4 Arg2:T13	
+R14	Result Arg1:T5 Arg2:T14	
+R15	Theme Arg1:T6 Arg2:T15	
+*	Coref T11 T15
+*	Coref T16 T14
+R16	Agent Arg1:T7 Arg2:T16	
+R17	Theme Arg1:T7 Arg2:T17	
+R18	Result Arg1:T7 Arg2:T19	

@@ -1,0 +1,24 @@
+T3	Trigger 133 141	isolated
+T1	Trigger 304 313	reproduce
+T2	Trigger 385 398	differentiate
+R1	Enable Arg1:T3 Arg2:T1	
+R2	Enable Arg1:T1 Arg2:T2	
+T4	Entity 115 125	Stem cells
+T5	Entity 147 243	early embryos at a stage called the blastula stage or its human equivalent, the blastocyst stage
+T6	Entity 272 303	these embryonic stem (ES) cells
+T7	Entity 263 270	culture
+R3	Theme Arg1:T3 Arg2:T4	
+R4	Source Arg1:T3 Arg2:T5	
+T8	Entity 365 369	they
+T9	Entity 404 439	a wide variety of specialized cells
+T10	Entity 456 460	eggs
+T11	Entity 465 470	sperm
+R5	Loc Arg1:T1 Arg2:T7	
+*	Coref T4 T6 T8
+R6	Theme Arg1:T1 Arg2:T6	
+R7	Theme Arg1:T2 Arg2:T8	
+R8	Result Arg1:T2 Arg2:T9	
+R9	Result Arg1:T2 Arg2:T10	
+R10	Result Arg1:T2 Arg2:T11	
+#1	AnnotatorNotes R9	An example of specialized cells
+#2	AnnotatorNotes R10	An example of specialized cell

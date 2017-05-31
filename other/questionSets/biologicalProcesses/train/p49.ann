@@ -1,0 +1,22 @@
+T1	Trigger 18 22	dies
+T2	Entity 5 17	the organism
+T3	Trigger 33 45	accumulating
+T4	Entity 46 52	carbon
+T5	Entity 24 26	it
+*	Coref T5 T2
+T6	Entity 58 96	the amount of carbon-12 in its tissues
+T7	TriggerNot 106 112	change
+R1	Theme Arg1:T7 Arg2:T6	
+R2	Theme Arg1:T3 Arg2:T4	
+R3	Agent Arg1:T3 Arg2:T5	
+R4	Theme Arg1:T1 Arg2:T2	
+R5	Prevent Arg1:T1 Arg2:T3	
+R6	Cause Arg1:T3 Arg2:T7	
+T8	Entity 133 184	the carbon-14 that it contains at the time of death
+T9	Trigger 192 198	decays
+T10	Entity 204 219	another element
+T11	Entity 221 232	nitrogen-14
+*	Coref T10 T11
+R7	Result Arg1:T9 Arg2:T10	
+R8	Theme Arg1:T9 Arg2:T8	
+R9	Enable Arg1:T1 Arg2:T9	

@@ -1,0 +1,36 @@
+T1	Trigger 75 80	lyses
+T2	Trigger 82 93	breaks open
+*	Same T1 T2
+T3	Trigger 99 107	releases
+R1	Cause Arg1:T2 Arg2:T3	
+T4	Trigger 129 137	produced
+R2	Enable Arg1:T4 Arg2:T3	
+T5	Trigger 185 191	infect
+R3	Enable Arg1:T3 Arg2:T5	
+T6	Trigger 246 253	destroy
+R4	Enable Arg1:T5 Arg2:T6	
+T7	Trigger 23 33	last stage
+R5	Super Arg1:T1 Arg2:T7	
+R6	Super Arg1:T3 Arg2:T7	
+#1	AnnotatorNotes T7	"last stage of infection" or just "infection"? would be better if it just said "lytic phase"! BH: I think what you have is fine, it's probably the best thing we can do here..
+T8	Entity 61 74	the bacterium
+R7	Theme Arg1:T1 Arg2:T8	
+T9	Entity 108 118	the phages
+R8	Theme Arg1:T3 Arg2:T9	
+R9	Agent Arg1:T3 Arg2:T8	
+R10	Theme Arg1:T4 Arg2:T9	
+T10	Entity 145 153	the cell
+R11	Loc Arg1:T4 Arg2:T10	
+T11	Entity 155 175	Each of these phages
+R12	Agent Arg1:T5 Arg2:T11	
+T12	Entity 192 206	a healthy cell
+R13	Theme Arg1:T5 Arg2:T12	
+T13	Entity 212 241	a few successive lytic cycles
+R14	Agent Arg1:T6 Arg2:T13	
+T14	Entity 254 284	an entire bacterial population
+R15	Theme Arg1:T6 Arg2:T14	
+*	Coref T9 T11
+T15	Entity 37 46	infection
+R16	Theme Arg1:T7 Arg2:T15	
+R17	Super Arg1:T2 Arg2:T7	
+#2	AnnotatorNotes R17	Do I need this relation, since event is same as "lyses" and lyses has a super arrow? BH: Putting this arrow is good for program simplicity sake..

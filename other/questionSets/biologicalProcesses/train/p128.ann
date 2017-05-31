@@ -1,0 +1,44 @@
+T1	Trigger 16 23	produce
+T2	Trigger 126 133	survive
+T3	Trigger 138 147	reproduce
+R1	Prevent Arg1:T1 Arg2:T2	
+R2	Prevent Arg1:T1 Arg2:T3	
+T5	Trigger 289 294	leave
+T6	Trigger 426 438	accumulation
+T7	Entity 163 174	Individuals
+T11	Entity 295 332	more offspring than other individuals
+R7	Agent Arg1:T5 Arg2:T7	
+R8	Result Arg1:T5 Arg2:T11	
+T13	Entity 442 458	favorable traits
+T12	Trigger 353 360	unequal
+T14	Entity 361 408	ability of individuals to survive and reproduce
+R10	Theme Arg1:T12 Arg2:T14	
+R11	Enable Arg1:T5 Arg2:T12	
+R9	Enable Arg1:T12 Arg2:T6	
+T15	Entity 462 476	the population
+R12	Theme Arg1:T6 Arg2:T13	
+R13	Loc Arg1:T6 Arg2:T15	
+T16	Entity 0 11	All species
+T17	Entity 24 73	more offspring than their environment can support
+R16	Agent Arg1:T1 Arg2:T16	
+R17	Result Arg1:T1 Arg2:T17	
+T18	Entity 94 117	many of these offspring
+R18	Theme Arg1:T2 Arg2:T18	
+R19	Theme Arg1:T3 Arg2:T18	
+T4	Trigger 181 190	inherited
+T8	Entity 191 197	traits
+R3	Agent Arg1:T4 Arg2:T7	
+R4	Theme Arg1:T4 Arg2:T8	
+T9	Trigger 232 241	surviving
+T10	Trigger 246 257	reproducing
+R5	Enable Arg1:T4 Arg2:T9	
+R6	Enable Arg1:T4 Arg2:T10	
+R20	Theme Arg1:T9 Arg2:T7	
+R21	Theme Arg1:T10 Arg2:T7	
+T19	Entity 261 280	a given environment
+R22	Loc Arg1:T9 Arg2:T19	
+R23	Loc Arg1:T10 Arg2:T19	
+*	Same T2 T9
+*	Same T3 T10
+R14	Enable Arg1:T10 Arg2:T5	
+R15	Enable Arg1:T9 Arg2:T10	

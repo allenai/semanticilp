@@ -1,0 +1,72 @@
+T1	Trigger 97 107	polyploidy
+T2	Trigger 3 11	accident
+T3	Trigger 15 22	meiosis
+T5	Trigger 201 210	evolution
+T4	Trigger 267 274	provide
+T6	Trigger 368 380	accumulating
+T7	Trigger 357 364	diverge
+T8	Trigger 413 420	persist
+T9	Trigger 451 459	survives
+T10	Trigger 464 474	reproduces
+T11	Trigger 520 526	evolve
+T12	Trigger 572 581	expressed
+T13	Trigger 587 597	divergence
+T14	Trigger 658 663	novel
+T15	Trigger 677 685	changing
+T16	Trigger 732 744	accumulation
+R2	Enable Arg1:T10 Arg2:T8	
+R3	Enable Arg1:T9 Arg2:T8	
+R4	Enable Arg1:T6 Arg2:T8	
+R5	Enable Arg1:T8 Arg2:T7	
+R6	Enable Arg1:T7 Arg2:T11	
+*	Same T11 T5
+R7	Enable Arg1:T13 Arg2:T14	
+R8	Cause Arg1:T14 Arg2:T15	
+R9	Enable Arg1:T12 Arg2:T13	
+R10	Enable Arg1:T13 Arg2:T16	
+*	Same T16 T6
+*	Same T13 T7
+R11	Enable Arg1:T4 Arg2:T7	
+R12	Enable Arg1:T3 Arg2:T2	
+R13	Super Arg1:T3 Arg2:T1	
+R14	Super Arg1:T2 Arg2:T1	
+T17	Entity 37 74	one or more extra sets of chromosomes
+T18	Entity 175 179	they
+T19	Entity 214 219	genes
+T20	Entity 224 244	a polyploid organism
+T21	Entity 246 262	one set of genes
+T22	Entity 275 311	essential functions for the organism
+T23	Entity 313 352	The genes in the one or more extra sets
+T24	Entity 381 390	mutations
+T25	Entity 392 408	these variations
+T26	Entity 424 450	the organism carrying them
+T27	Entity 489 515	genes with novel functions
+T28	Entity 539 568	one copy of an essential gene
+T29	Entity 601 613	another copy
+T30	Entity 626 645	its encoded protein
+T31	Entity 686 710	the organism's phenotype
+T32	Entity 748 757	mutations
+T33	Entity 765 799	the branching off of a new species
+R15	Result Arg1:T3 Arg2:T17	
+R16	Agent Arg1:T5 Arg2:T18	
+R17	Theme Arg1:T5 Arg2:T19	
+R18	Loc Arg1:T4 Arg2:T20	
+R19	Agent Arg1:T4 Arg2:T21	
+R20	Theme Arg1:T4 Arg2:T22	
+R21	Theme Arg1:T7 Arg2:T23	
+R22	Agent Arg1:T6 Arg2:T23	
+R23	Theme Arg1:T6 Arg2:T24	
+R24	Theme Arg1:T8 Arg2:T25	
+R25	Loc Arg1:T8 Arg2:T26	
+R26	Theme Arg1:T9 Arg2:T26	
+R27	Theme Arg1:T10 Arg2:T26	
+R28	Theme Arg1:T11 Arg2:T27	
+R29	Theme Arg1:T12 Arg2:T28	
+R30	Theme Arg1:T13 Arg2:T29	
+R31	Theme Arg1:T14 Arg2:T30	
+R32	Theme Arg1:T15 Arg2:T31	
+R33	Theme Arg1:T16 Arg2:T32	
+R34	Result Arg1:T16 Arg2:T33	
+T34	Trigger 123 132	accidents
+*	Same T2 T34
+R1	Enable Arg1:T34 Arg2:T5	

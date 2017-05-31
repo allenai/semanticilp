@@ -1,0 +1,29 @@
+T1	Trigger 59 64	binds
+T2	Trigger 137 145	addition
+R1	Cause Arg1:T1 Arg2:T2	
+T3	Trigger 316 322	breaks
+T4	Trigger 324 334	hydrolyzes
+R2	Cause Arg1:T2 Arg2:T3	
+*	Same T3 T4
+T5	Trigger 407 416	releasing
+R3	Enable Arg1:T4 Arg2:T5	
+T6	Entity 0 16	A release factor
+T7	Entity 18 57	a protein shaped like an aminoacyl tRNA
+T8	Entity 77 105	the stop codon in the A site
+*	Coref T7 T6 T9
+R4	Theme Arg1:T1 Arg2:T7	
+R5	Loc Arg1:T1 Arg2:T8	
+T9	Entity 107 125	The release factor
+T10	Entity 149 165	a water molecule
+T11	Entity 194 215	the polypeptide chain
+R6	Agent Arg1:T2 Arg2:T9	
+R7	Theme Arg1:T2 Arg2:T10	
+R8	Loc Arg1:T2 Arg2:T11	
+T12	Entity 302 315	This reaction
+T13	Entity 336 405	the bond between the completed polypeptide and the tRNA in the P site
+T14	Entity 417 432	the polypeptide
+T15	Entity 441 488	the exit tunnel of the ribosome's large subunit
+R9	Agent Arg1:T3 Arg2:T12	
+R10	Theme Arg1:T3 Arg2:T13	
+R11	Theme Arg1:T5 Arg2:T14	
+R12	Dest Arg1:T5 Arg2:T15	

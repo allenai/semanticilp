@@ -1,0 +1,1 @@
+Only a cell that took up a plasmid, which has the ampR gene, will reproduce and form a colony. Colonies with nonrecombinant plasmids will be blue because they can hydrolyze X-gal, forming a blue product. Colonies with recombinant plasmids, in which lacZ is disrupted, will be white because they cannot hydrolyze X-gal.

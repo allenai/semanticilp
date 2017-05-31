@@ -1,0 +1,35 @@
+T1	Trigger 71 94	sequencing by synthesis
+T2	Trigger 31 52	sequencing techniques
+*	Same T1 T2 T3
+T3	Trigger 221 235	new techniques
+T4	Trigger 295 304	sequenced
+T5	Trigger 353 362	assembles
+R1	Enable Arg1:T4 Arg2:T5	
+R2	Super Arg1:T4 Arg2:T3	
+R3	Super Arg1:T5 Arg2:T3	
+T6	TriggerNot 479 486	cloning
+T7	Trigger 455 464	sequenced
+R4	Enable Arg1:T6 Arg2:T7	
+*	Same T7 T4
+T8	Trigger 137 146	increases
+T9	Trigger 160 169	decreases
+R5	Enable Arg1:T1 Arg2:T8	
+R6	Enable Arg1:T1 Arg2:T9	
+T10	Entity 150 155	speed
+R7	Theme Arg1:T8 Arg2:T10	
+T11	Entity 173 210	the cost of sequencing entire genomes
+R8	Theme Arg1:T9 Arg2:T11	
+T12	Entity 237 290	many very small fragments (fewer than 100 base pairs)
+R9	Theme Arg1:T4 Arg2:T12	
+T13	Entity 327 344	computer software
+T14	Entity 363 384	the complete sequence
+R10	Agent Arg1:T5 Arg2:T13	
+R11	Theme Arg1:T5 Arg2:T14	
+T15	Entity 434 447	the fragments
+R12	Theme Arg1:T7 Arg2:T15	
+*	Coref T12 T15
+T16	Entity 305 321	at the same time
+R13	Other Arg1:T4 Arg2:T16	
+T17	Entity 465 473	directly
+R14	Other Arg1:T7 Arg2:T17	
+R15	Super Arg1:T6 Arg2:T3	

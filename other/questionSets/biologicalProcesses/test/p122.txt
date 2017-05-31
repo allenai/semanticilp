@@ -1,0 +1,1 @@
+Each molecule of 3-phosphoglycerate receives an additional phosphate group from ATP, becoming 1,3-bisphosphoglycerate. Next, a pair of electrons donated from NADPH reduces 1,3-bisphosphoglycerate, which also loses a phosphate group, becoming G3P. 

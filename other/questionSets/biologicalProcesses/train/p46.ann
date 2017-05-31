@@ -1,0 +1,29 @@
+T1	Trigger 16 26	separation
+T2	Trigger 70 77	diverge
+T3	Entity 41 65	the separated gene pools
+R1	Theme Arg1:T2 Arg2:T3	
+R2	Enable Arg1:T1 Arg2:T2	
+T4	Trigger 89 98	mutations
+T5	Trigger 150 155	alter
+T7	Trigger 110 127	natural selection
+T8	Trigger 132 145	genetic drift
+T9	Entity 156 174	allele frequencies
+T10	Entity 196 221	the separated populations
+R6	Theme Arg1:T5 Arg2:T9	
+R7	Loc Arg1:T5 Arg2:T10	
+R9	Enable Arg1:T4 Arg2:T5	
+T11	Trigger 223 245	Reproductive isolation
+T13	Trigger 332 339	diverge
+R4	Enable-or Arg1:T7 Arg2:T5	
+R5	Enable-or Arg1:T8 Arg2:T5	
+T14	Trigger 280 289	selection
+T15	Trigger 293 298	drift
+T16	Entity 313 328	the populations
+R11	Theme Arg1:T13 Arg2:T16	
+R12	Enable-or Arg1:T15 Arg2:T13	
+R13	Enable-or Arg1:T14 Arg2:T13	
+R14	Enable Arg1:T13 Arg2:T11	
+*	Same T7 T14
+*	Same T8 T15
+R8	Enable Arg1:T5 Arg2:T2	
+*	Same T2 T13

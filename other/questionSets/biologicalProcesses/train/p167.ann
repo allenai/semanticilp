@@ -1,0 +1,22 @@
+T1	Trigger 54 64	recognizes
+T2	Trigger 142 146	cuts
+T3	Trigger 289 298	base-pair
+R1	Enable Arg1:T1 Arg2:T2	
+R2	Enable Arg1:T2 Arg2:T3	
+T4	Entity 47 52	EcoRI
+T5	Entity 0 22	The restriction enzyme
+T6	Entity 65 98	a specific six-base-pair sequence
+T7	Entity 100 120	the restriction site
+T8	Entity 150 179	the sugar-phosphate backbones
+T9	Entity 187 200	this sequence
+T10	Entity 212 238	fragments with sticky ends
+*	Coref T4 T5
+R4	Theme Arg1:T1 Arg2:T6	
+*	Coref T7 T6 T9
+R5	Theme Arg1:T2 Arg2:T8	
+R6	Loc Arg1:T2 Arg2:T9	
+R7	Result Arg1:T2 Arg2:T10	
+T11	Entity 240 284	Any fragments with complementary sticky ends
+R8	Theme Arg1:T3 Arg2:T11	
+R9	Agent Arg1:T2 Arg2:T5	
+R3	Agent Arg1:T1 Arg2:T5	

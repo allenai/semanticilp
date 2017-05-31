@@ -1,0 +1,39 @@
+T1	Trigger 20 37	Northern blotting
+T2	Trigger 147 166	gel electrophoresis
+T3	Trigger 247 255	transfer
+T4	Trigger 342 351	hybridize
+T5	Trigger 409 415	expose
+T6	Trigger 546 553	showing
+T7	Entity 170 245	samples of mRNA from hummingbird embryos at different stages of development
+R1	Theme Arg1:T2 Arg2:T7	
+R3	Super Arg1:T2 Arg2:T1	
+R4	Enable Arg1:T2 Arg2:T3	
+T9	Entity 256 267	the samples
+R5	Theme Arg1:T3 Arg2:T9	
+T10	Entity 271 296	a nitrocellulose membrane
+R6	Dest Arg1:T3 Arg2:T10	
+R7	Enable Arg1:T3 Arg2:T4	
+T11	Entity 313 338	the mRNAs on the membrane
+R8	Theme Arg1:T4 Arg2:T11	
+T13	Entity 357 401	a labeled probe recognizing beta-globin mRNA
+R10	Theme Arg1:T4 Arg2:T13	
+T14	Entity 521 545	one band of a given size
+T15	Entity 560 571	each sample
+R11	Loc Arg1:T6 Arg2:T15	
+R12	Theme Arg1:T6 Arg2:T14	
+T16	Entity 416 422	a film
+T17	Entity 426 438	the membrane
+R13	Theme Arg1:T5 Arg2:T16	
+R14	Loc Arg1:T5 Arg2:T17	
+R15	Enable Arg1:T5 Arg2:T6	
+R16	Enable Arg1:T4 Arg2:T6	
+R17	Super Arg1:T3 Arg2:T1	
+R18	Super Arg1:T4 Arg2:T1	
+R19	Super Arg1:T5 Arg2:T1	
+T18	Entity 134 136	we
+R20	Agent Arg1:T2 Arg2:T18	
+R21	Agent Arg1:T3 Arg2:T18	
+T19	Entity 406 408	we
+R23	Agent Arg1:T5 Arg2:T19	
+*	Coref T18 T19
+*	Coref T7 T9

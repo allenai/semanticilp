@@ -1,0 +1,13 @@
+T1	Trigger 96 106	activating
+T2	Trigger 75 84	breakdown
+T3	Entity 43 54	epinephrine
+T4	Entity 66 74	glycogen
+T5	Entity 107 125	a cytosolic enzyme
+T6	Entity 127 149	glycogen phosphorylase
+*	Coref T5 T6
+R2	Agent Arg1:T1 Arg2:T3	
+R3	Theme Arg1:T1 Arg2:T5	
+R4	Theme Arg1:T2 Arg2:T4	
+T7	Trigger 55 65	stimulates
+R1	Super Arg1:T1 Arg2:T7	
+R5	Enable Arg1:T7 Arg2:T2	

@@ -1,0 +1,36 @@
+T1	Trigger 16 23	absorbs
+T2	Entity 5 15	a molecule
+R1	Agent Arg1:T1 Arg2:T2	
+T4	Trigger 78 86	elevated
+T5	Entity 43 74	one of the molecule's electrons
+R3	Theme Arg1:T4 Arg2:T5	
+T6	Entity 90 135	an orbital where it has more potential energy
+R4	Dest Arg1:T4 Arg2:T6	
+R5	Cause Arg1:T1 Arg2:T4	
+T7	Trigger 165 179	normal orbital
+T8	Entity 142 154	the electron
+R6	Theme Arg1:T7 Arg2:T8	
+T9	Trigger 223 235	ground state
+T10	Entity 181 201	the pigment molecule
+R7	Theme Arg1:T9 Arg2:T10	
+T11	Trigger 237 247	Absorption
+T12	Entity 267 278	an electron
+T13	Entity 251 259	a photon
+R9	Theme Arg1:T11 Arg2:T13	
+T15	Trigger 361 374	excited state
+T16	Entity 315 335	the pigment molecule
+R11	Theme Arg1:T15 Arg2:T16	
+R14	Cause Arg1:T7 Arg2:T9	
+T21	Trigger 260 266	boosts
+R18	Enable Arg1:T9 Arg2:T11	
+*	Coref T10 T16
+*	Coref T5 T8
+R8	Cause Arg1:T11 Arg2:T21	
+R13	Theme Arg1:T21 Arg2:T12	
+T17	Entity 282 309	an orbital of higher energy
+R16	Dest Arg1:T21 Arg2:T17	
+*	Same T1 T11
+T3	Entity 24 41	a photon of light
+R2	Theme Arg1:T1 Arg2:T3	
+*	Coref T3 T13
+R12	Cause Arg1:T21 Arg2:T15	

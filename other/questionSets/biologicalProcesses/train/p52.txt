@@ -1,0 +1,1 @@
+The original cell produces a copy of its chromosome and surrounds it with a tough multilayered structure, forming the endospore. Water is removed from the endospore, and its metabolism halts. The original cell then lyses, releasing the endospore.

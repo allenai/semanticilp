@@ -1,0 +1,34 @@
+T1	Trigger 103 115	phagocytosis
+T2	Trigger 39 48	engulfing
+R3	Super Arg1:T2 Arg2:T1	
+T4	Trigger 238 243	fuses
+T5	Trigger 275 281	digest
+R4	Enable Arg1:T1 Arg2:T4	
+R5	Enable Arg1:T4 Arg2:T5	
+T6	Trigger 393 397	pass
+T7	Trigger 426 435	nutrients
+R6	Enable Arg1:T5 Arg2:T6	
+R7	Enable Arg1:T6 Arg2:T7	
+T8	Entity 12 31	many other protists
+T9	Entity 0 7	Amoebas
+T10	Entity 49 66	smaller organisms
+T11	Entity 70 84	food particles
+R1	Agent Arg1:T2 Arg2:T9	
+R2	Agent Arg1:T2 Arg2:T8	
+R8	Theme Arg1:T2 Arg2:T10	
+R9	Theme Arg1:T2 Arg2:T11	
+T3	Entity 197 213	The food vacuole
+T12	Entity 249 259	a lysosome
+T13	Entity 261 274	whose enzymes
+T14	Entity 282 290	the food
+R10	Theme Arg1:T4 Arg2:T3	
+R11	Theme Arg1:T4 Arg2:T12	
+R12	Agent Arg1:T5 Arg2:T13	
+R13	Theme Arg1:T5 Arg2:T14	
+T15	Entity 315 391	Digestion products, including simple sugars, amino acids, and other monomers
+T16	Entity 403 414	the cytosol
+T17	Entity 440 448	the cell
+R14	Theme Arg1:T7 Arg2:T17	
+R15	Theme Arg1:T6 Arg2:T15	
+R16	Dest Arg1:T6 Arg2:T16	
+R17	Agent Arg1:T7 Arg2:T15	

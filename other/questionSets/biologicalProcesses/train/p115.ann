@@ -1,0 +1,50 @@
+T1	Entity 16 26	cyclic GMP
+T2	Entity 31 35	cGMP
+T3	Entity 45 65	a signaling molecule
+T4	Trigger 88 98	relaxation
+T5	Trigger 72 79	effects
+T6	Entity 102 137	smooth muscle cells in artery walls
+R1	Theme Arg1:T4 Arg2:T6	
+R2	Super Arg1:T4 Arg2:T5	
+R3	Agent Arg1:T5 Arg2:T3	
+*	Coref T3 T2 T1
+T7	Trigger 155 163	inhibits
+T8	Entity 139 149	A compound
+T9	Trigger 200 210	prolonging
+T10	Trigger 168 178	hydrolysis
+T11	Entity 182 186	cGMP
+T12	Entity 190 193	GMP
+R4	Prevent Arg1:T7 Arg2:T10	
+R5	Agent Arg1:T7 Arg2:T8	
+R6	Theme Arg1:T10 Arg2:T11	
+R7	Result Arg1:T10 Arg2:T12	
+T13	Entity 211 221	the signal
+R8	Theme Arg1:T9 Arg2:T13	
+R9	Enable Arg1:T7 Arg2:T9	
+T16	Trigger 276 285	increased
+R10	Enable Arg1:T9 Arg2:T16	
+T17	Entity 286 316	blood flow to the heart muscle
+R12	Theme Arg1:T16 Arg2:T17	
+T14	Entity 339 345	Viagra
+*	Coref T14 T8 T19 T21
+T15	Trigger 385 394	treatment
+T18	Entity 399 434	erectile dysfunction in human males
+R11	Theme Arg1:T15 Arg2:T18	
+R13	Agent Arg1:T15 Arg2:T14	
+T19	Entity 273 275	it
+R15	Agent Arg1:T16 Arg2:T19	
+T20	Trigger 460 468	dilation
+T21	Entity 444 450	Viagra
+R16	Agent Arg1:T20 Arg2:T21	
+T22	Entity 472 485	blood vessels
+R17	Theme Arg1:T20 Arg2:T22	
+T23	Trigger 502 511	increased
+T24	Entity 512 535	blood flow to the penis
+R18	Cause Arg1:T20 Arg2:T23	
+R19	Theme Arg1:T23 Arg2:T24	
+R14	Enable Arg1:T9 Arg2:T20	
+T25	Trigger 577 593	penile erections
+R21	Enable Arg1:T23 Arg2:T25	
+R20	Enable Arg1:T25 Arg2:T15	
+R22	Prevent Arg1:T9 Arg2:T4	
+R23	Prevent Arg1:T20 Arg2:T4	

@@ -1,0 +1,20 @@
+T1	Trigger 10 15	binds
+T2	Trigger 60 72	active shape
+T3	Trigger 81 87	attach
+T4	Trigger 179 188	increases
+T5	Entity 5 9	cAMP
+T6	Entity 19 42	this regulatory protein
+R1	Agent Arg1:T1 Arg2:T5	
+R2	Theme Arg1:T1 Arg2:T6	
+T7	Entity 44 47	CAP
+R3	Cause Arg1:T1 Arg2:T2	
+R4	Enable Arg1:T2 Arg2:T3	
+R5	Theme Arg1:T2 Arg2:T7	
+R6	Theme Arg1:T3 Arg2:T7	
+T8	Entity 91 146	a specific site at the upstream end of the lac promoter
+R7	Loc Arg1:T3 Arg2:T8	
+T9	Trigger 168 178	attachment
+*	Same T3 T9
+R8	Cause Arg1:T9 Arg2:T4	
+T10	Entity 189 236	the affinity of RNA polymerase for the promoter
+R9	Theme Arg1:T4 Arg2:T10	

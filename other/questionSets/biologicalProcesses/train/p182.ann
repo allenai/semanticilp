@@ -1,0 +1,19 @@
+T1	Trigger 3 18	electroporation
+T2	Trigger 84 91	creates
+T3	Trigger 157 162	enter
+T5	Entity 92 107	temporary holes
+T6	Entity 111 133	their plasma membranes
+R2	Theme Arg1:T2 Arg2:T5	
+R3	Loc Arg1:T2 Arg2:T6	
+T7	Entity 149 152	DNA
+R4	Theme Arg1:T3 Arg2:T7	
+R5	Enable Arg1:T2 Arg2:T3	
+R6	Super Arg1:T2 Arg2:T1	
+T8	Entity 20 44	a brief electrical pulse
+T4	Trigger 45 52	applied
+T9	Entity 56 83	a solution containing cells
+R1	Cause Arg1:T4 Arg2:T2	
+R7	Theme Arg1:T4 Arg2:T8	
+R8	Loc Arg1:T4 Arg2:T9	
+R9	Super Arg1:T4 Arg2:T1	
+R10	Super Arg1:T3 Arg2:T1	

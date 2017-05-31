@@ -1,0 +1,14 @@
+T1	Trigger 137 143	combat
+T2	Trigger 163 171	blocking
+T3	Trigger 74 82	survival
+R1	Cause Arg1:T2 Arg2:T1	
+R2	Prevent Arg1:T1 Arg2:T3	
+T4	Entity 63 73	tumor cell
+R3	Theme Arg1:T3 Arg2:T4	
+T5	Entity 116 131	small molecules
+R4	Agent Arg1:T1 Arg2:T5	
+T6	Entity 144 159	certain cancers
+R5	Theme Arg1:T1 Arg2:T6	
+R6	Agent Arg1:T2 Arg2:T5	
+T7	Entity 188 202	these proteins
+R7	Theme Arg1:T2 Arg2:T7	

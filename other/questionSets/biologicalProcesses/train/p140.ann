@@ -1,0 +1,26 @@
+T1	Trigger 36 47	replication
+T2	Trigger 6 14	slippage
+T3	Trigger 72 78	shifts
+T4	Trigger 169 176	skipped
+T5	Trigger 209 219	used twice
+T6	Trigger 268 275	deleted
+T7	Trigger 279 289	duplicated
+R1	Super Arg1:T2 Arg2:T1	
+R2	Cause Arg1:T2 Arg2:T3	
+R3	Cause-or Arg1:T3 Arg2:T4	
+R4	Cause-or Arg1:T3 Arg2:T5	
+R5	Cause Arg1:T4 Arg2:T6	
+R6	Cause Arg1:T5 Arg2:T7	
+T8	Entity 32 35	DNA
+R7	Theme Arg1:T1 Arg2:T8	
+T9	Entity 59 71	the template
+R8	Theme Arg1:T3 Arg2:T9	
+T10	Entity 129 158	a part of the template strand
+T11	Entity 180 205	the replication machinery
+R9	Theme Arg1:T4 Arg2:T10	
+R10	Agent Arg1:T4 Arg2:T11	
+R11	Agent Arg1:T5 Arg2:T11	
+R12	Theme Arg1:T5 Arg2:T10	
+T12	Entity 248 264	a segment of DNA
+R13	Theme Arg1:T6 Arg2:T12	
+R14	Theme Arg1:T7 Arg2:T12	

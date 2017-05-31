@@ -1,0 +1,18 @@
+T1	TriggerNot 67 82	linkage mapping
+T2	Trigger 140 150	sequencing
+T3	Trigger 11 40	whole-genome shotgun approach
+T8	Trigger 223 231	assemble
+R8	Enable Arg1:T2 Arg2:T8	
+T9	Entity 191 217	Powerful computer programs
+T10	Entity 232 294	the resulting very large number of overlapping short sequences
+T11	Entity 300 328	a single continuous sequence
+R9	Agent Arg1:T8 Arg2:T9	
+R10	Theme Arg1:T8 Arg2:T10	
+R11	Result Arg1:T8 Arg2:T11	
+R1	Super Arg1:T1 Arg2:T3	
+R5	Super Arg1:T2 Arg2:T3	
+R12	Super Arg1:T8 Arg2:T3	
+T4	TriggerNot 87 103	physical mapping
+R2	Super Arg1:T4 Arg2:T3	
+T5	Entity 154 189	DNA fragments from randomly cut DNA
+R3	Theme Arg1:T2 Arg2:T5	

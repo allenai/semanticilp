@@ -1,0 +1,47 @@
+T1	Trigger 13 18	holds
+T2	Trigger 60 69	positions
+T3	Trigger 93 101	addition
+T4	Trigger 158 167	catalyzes
+T5	Trigger 172 181	formation
+T6	Trigger 222 236	becomes longer
+T7	Trigger 241 247	passes
+T8	Trigger 344 352	released
+T9	Trigger 328 336	complete
+R1	Enable Arg1:T1 Arg2:T2	
+R2	Enable Arg1:T2 Arg2:T4	
+R3	Cause Arg1:T4 Arg2:T5	
+R4	Cause Arg1:T5 Arg2:T3	
+R5	Cause Arg1:T3 Arg2:T6	
+R6	Enable Arg1:T6 Arg2:T7	
+R7	Enable Arg1:T6 Arg2:T9	
+R8	Enable Arg1:T9 Arg2:T8	
+T10	Entity 0 12	The ribosome
+T11	Entity 19 27	the tRNA
+T12	Entity 32 36	mRNA
+R9	Agent Arg1:T1 Arg2:T10	
+R10	Theme Arg1:T1 Arg2:T11	
+R11	Theme Arg1:T1 Arg2:T12	
+R12	Agent Arg1:T2 Arg2:T10	
+T13	Entity 70 88	the new amino acid
+R13	Theme Arg1:T2 Arg2:T13	
+T14	Entity 105 148	the carboxyl end of the growing polypeptide
+R14	Theme Arg1:T3 Arg2:T13	
+R15	Dest Arg1:T3 Arg2:T14	
+T15	Entity 150 152	It
+*	Coref T10 T15
+R16	Agent Arg1:T4 Arg2:T15	
+T16	Entity 185 201	the peptide bond
+R17	Theme Arg1:T5 Arg2:T16	
+T17	Entity 206 221	the polypeptide
+R18	Theme Arg1:T6 Arg2:T17	
+T18	Entity 238 240	it
+*	Coref T17 T18 T20 T21
+R19	Theme Arg1:T7 Arg2:T18	
+T19	Entity 256 302	an exit tunnel in the ribosome's large subunit
+R20	Dest Arg1:T7 Arg2:T19	
+T20	Entity 309 324	the polypeptide
+R21	Theme Arg1:T9 Arg2:T20	
+T21	Entity 338 340	it
+R22	Theme Arg1:T8 Arg2:T21	
+T22	Entity 361 376	the exit tunnel
+*	Coref T19 T22

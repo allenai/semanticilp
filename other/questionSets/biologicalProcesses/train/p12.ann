@@ -1,0 +1,11 @@
+T1	Trigger 24 37	genetic drift
+T2	Entity 45 59	the bottleneck
+T3	Trigger 78 82	loss
+T4	Entity 86 103	genetic variation
+T5	Trigger 111 119	increase
+T6	Entity 123 155	the frequency of harmful alleles
+R1	Other Arg1:T1 Arg2:T2	
+R2	Cause Arg1:T1 Arg2:T3	
+R3	Cause Arg1:T1 Arg2:T5	
+R4	Theme Arg1:T3 Arg2:T4	
+R5	Theme Arg1:T5 Arg2:T6	

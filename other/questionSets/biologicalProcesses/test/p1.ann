@@ -1,0 +1,30 @@
+T1	Trigger 23 27	form
+T2	Trigger 14 18	fuse
+T3	Trigger 46 53	meiosis
+T4	Trigger 115 122	Meiosis
+T6	Trigger 172 178	divide
+T7	Trigger 336 343	mitoses
+R1	Enable Arg1:T2 Arg2:T1	
+R2	Enable Arg1:T1 Arg2:T3	
+*	Same T3 T4
+R3	Enable Arg1:T4 Arg2:T10	
+R4	Enable Arg1:T6 Arg2:T7	
+T5	Entity 6 13	gametes
+T8	Entity 28 44	a diploid zygote
+T9	Entity 148 161	haploid cells
+T10	Trigger 182 189	mitosis
+T11	Entity 214 237	unicellular descendants
+T12	Entity 241 279	a haploid multicellular adult organism
+R5	Enable Arg1:T10 Arg2:T6	
+T13	Entity 295 315	the haploid organism
+T14	Entity 355 390	the cells that develop into gametes
+R6	Theme Arg1:T2 Arg2:T5	
+R7	Theme Arg1:T1 Arg2:T5	
+R8	Result Arg1:T1 Arg2:T8	
+R9	Result Arg1:T4 Arg2:T9	
+R10	Theme Arg1:T6 Arg2:T9	
+R11	Result Arg1:T6 Arg2:T11	
+R12	Result Arg1:T6 Arg2:T12	
+R13	Theme Arg1:T7 Arg2:T13	
+R14	Result Arg1:T7 Arg2:T14	
+*	Coref T13 T12

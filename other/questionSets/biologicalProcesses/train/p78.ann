@@ -1,0 +1,65 @@
+T1	Trigger 4 9	cycle
+T2	Trigger 20 33	incorporating
+T3	Entity 34 50	CO2 from the air
+T4	Entity 56 108	organic molecules already present in the chloroplast
+R1	Theme Arg1:T2 Arg2:T3	
+R2	Result Arg1:T2 Arg2:T4	
+R3	Super Arg1:T2 Arg2:T1	
+T5	Trigger 123 136	incorporation
+T6	Entity 140 146	carbon
+T7	Entity 152 169	organic compounds
+T8	Trigger 182 197	carbon fixation
+*	Same T2 T5 T8
+R4	Theme Arg1:T5 Arg2:T6	
+R5	Result Arg1:T5 Arg2:T7	
+T9	Trigger 203 215	Calvin cycle
+*	Same T1 T9 T24
+T10	Trigger 221 228	reduces
+T11	Entity 229 245	the fixed carbon
+T12	Entity 249 261	carbohydrate
+T13	Trigger 269 277	addition
+T14	Entity 281 290	electrons
+R6	Theme Arg1:T13 Arg2:T14	
+R7	Enable Arg1:T13 Arg2:T10	
+R8	Super Arg1:T10 Arg2:T9	
+R9	Super Arg1:T13 Arg2:T9	
+R10	Theme Arg1:T10 Arg2:T11	
+R11	Result Arg1:T10 Arg2:T12	
+T15	Entity 292 310	The reducing power
+T16	Entity 326 331	NADPH
+T17	Trigger 339 347	acquired
+T18	Entity 348 370	its cargo of electrons
+T19	Trigger 378 393	light reactions
+T20	Trigger 314 322	provided
+R12	Super Arg1:T17 Arg2:T19	
+R13	Theme Arg1:T17 Arg2:T18	
+R14	Agent Arg1:T17 Arg2:T16	
+R15	Agent Arg1:T20 Arg2:T16	
+R16	Theme Arg1:T20 Arg2:T15	
+R17	Enable Arg1:T20 Arg2:T13	
+R18	Enable Arg1:T17 Arg2:T20	
+T21	Trigger 398 405	convert
+T22	Entity 406 409	CO2
+T23	Entity 413 425	carbohydrate
+T24	Trigger 431 443	Calvin cycle
+T25	Entity 458 492	chemical energy in the form of ATP
+T26	Trigger 525 540	light reactions
+R19	Result Arg1:T26 Arg2:T25	
+R20	Theme Arg1:T24 Arg2:T25	
+R21	Enable Arg1:T26 Arg2:T24	
+*	Same T26 T19 T31
+R22	Theme Arg1:T21 Arg2:T22	
+R23	Result Arg1:T21 Arg2:T23	
+R24	Super Arg1:T21 Arg2:T24	
+*	Same T21 T10
+T27	Trigger 558 570	Calvin cycle
+T28	Entity 582 587	sugar
+T29	Entity 632 637	NADPH
+T30	Entity 642 645	ATP
+T31	Trigger 662 677	light reactions
+R25	Result Arg1:T27 Arg2:T28	
+R26	Result Arg1:T31 Arg2:T30	
+R27	Result Arg1:T31 Arg2:T29	
+R28	Enable Arg1:T31 Arg2:T27	
+R29	Theme Arg1:T27 Arg2:T29	
+R30	Theme Arg1:T27 Arg2:T30	

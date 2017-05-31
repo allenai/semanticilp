@@ -1,0 +1,33 @@
+T4	Trigger 120 137	natural selection
+T5	Trigger 171 183	modification
+T6	Entity 187 194	species
+T7	Entity 200 228	many hundreds of generations
+R3	Theme Arg1:T5 Arg2:T6	
+R4	Other Arg1:T5 Arg2:T7	
+R5	Enable Arg1:T4 Arg2:T5	
+T8	Entity 379 404	less favorable variations
+T9	Trigger 410 418	diminish
+T10	Trigger 345 355	accumulate
+T11	Entity 359 373	the population
+T12	Entity 302 329	the advantageous variations
+R6	Theme Arg1:T10 Arg2:T12	
+R7	Loc Arg1:T10 Arg2:T11	
+R8	Theme Arg1:T9 Arg2:T8	
+R9	Loc Arg1:T9 Arg2:T11	
+T13	Trigger 242 252	advantages
+T14	Trigger 431 443	this process
+T15	Trigger 449 457	increase
+T16	Entity 458 513	the frequency of individuals with favorable adaptations
+T17	Trigger 524 530	refine
+T18	Entity 531 580	the match between organisms and their environment
+R10	Theme Arg1:T17 Arg2:T18	
+R11	Theme Arg1:T15 Arg2:T16	
+R12	Cause Arg1:T15 Arg2:T17	
+R13	Enable Arg1:T14 Arg2:T15	
+R14	Super Arg1:T10 Arg2:T14	
+R15	Super Arg1:T9 Arg2:T14	
+*	Same T14 T5
+T1	Entity 256 277	some heritable traits
+R1	Theme Arg1:T13 Arg2:T1	
+R2	Enable Arg1:T13 Arg2:T15	
+R16	Enable Arg1:T13 Arg2:T9	

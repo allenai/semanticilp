@@ -1,0 +1,34 @@
+T1	Trigger 18 26	produces
+T2	Trigger 56 65	surrounds
+T3	Trigger 138 145	removed
+T4	Trigger 185 190	halts
+T5	Trigger 215 220	lyses
+T6	Trigger 222 231	releasing
+R1	Enable Arg1:T1 Arg2:T2	
+R2	Enable Arg1:T2 Arg2:T3	
+R3	Cause Arg1:T3 Arg2:T4	
+R4	Enable Arg1:T4 Arg2:T5	
+R5	Cause Arg1:T5 Arg2:T6	
+T7	Entity 0 17	The original cell
+T8	Entity 27 51	a copy of its chromosome
+T9	Entity 66 68	it
+T10	Entity 74 104	a tough multilayered structure
+T11	Entity 114 127	the endospore
+R6	Agent Arg1:T1 Arg2:T7	
+R7	Theme Arg1:T1 Arg2:T8	
+*	Coref T8 T9
+R9	Theme Arg1:T2 Arg2:T9	
+R8	Agent Arg1:T2 Arg2:T10	
+R10	Result Arg1:T2 Arg2:T11	
+T12	Entity 129 134	Water
+T13	Entity 151 164	the endospore
+R11	Theme Arg1:T3 Arg2:T12	
+R12	Source Arg1:T3 Arg2:T13	
+T14	Entity 170 184	its metabolism
+R13	Theme Arg1:T4 Arg2:T14	
+*	Coref T13 T11 T16
+T15	Entity 192 209	The original cell
+R14	Theme Arg1:T5 Arg2:T15	
+T16	Entity 232 245	the endospore
+R15	Theme Arg1:T6 Arg2:T16	
+*	Coref T7 T15

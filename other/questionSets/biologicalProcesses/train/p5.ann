@@ -1,0 +1,49 @@
+T1	Trigger 38 47	defective
+T2	Trigger 51 57	absent
+T3	Trigger 98 105	inherit
+T4	Trigger 166 181	abnormally high
+T5	Entity 85 93	children
+T6	Entity 106 147	two recessive alleles for cystic fibrosis
+R1	Agent Arg1:T3 Arg2:T5	
+R2	Theme Arg1:T3 Arg2:T6	
+R3	Cause-or Arg1:T3 Arg2:T1	
+R4	Cause-or Arg1:T3 Arg2:T2	
+T7	Entity 0 33	These chloride transport channels
+R5	Theme Arg1:T1 Arg2:T7	
+R6	Theme Arg1:T2 Arg2:T7	
+T8	Entity 61 81	the plasma membranes
+R7	Loc Arg1:T2 Arg2:T8	
+R8	Loc Arg1:T1 Arg2:T8	
+R9	Cause-or Arg1:T1 Arg2:T4	
+R10	Cause-or Arg1:T2 Arg2:T4	
+T9	Trigger 281 288	thicker
+T10	Trigger 293 301	stickier
+R11	Cause Arg1:T4 Arg2:T9	
+R12	Cause Arg1:T4 Arg2:T10	
+T11	Trigger 325 334	builds up
+R13	Cause Arg1:T9 Arg2:T11	
+R14	Cause Arg1:T10 Arg2:T11	
+T12	Entity 182 221	concentration of extracellular chloride
+R15	Theme Arg1:T4 Arg2:T12	
+T13	Entity 236 270	the mucus that coats certain cells
+R16	Theme Arg1:T9 Arg2:T13	
+R17	Theme Arg1:T10 Arg2:T13	
+T14	Entity 315 324	The mucus
+R18	Theme Arg1:T11 Arg2:T14	
+*	Coref T13 T14
+T15	Entity 338 350	the pancreas
+T16	Entity 352 357	lungs
+T17	Entity 359 374	digestive tract
+T18	Entity 380 392	other organs
+R19	Loc Arg1:T11 Arg2:T15	
+R20	Loc Arg1:T11 Arg2:T16	
+R21	Loc Arg1:T11 Arg2:T17	
+R22	Loc Arg1:T11 Arg2:T18	
+T19	Entity 405 435	multiple (pleiotropic) effects
+R23	Result Arg1:T11 Arg2:T19	
+T20	Entity 447 495	poor absorption of nutrients from the intestines
+R24	Result Arg1:T11 Arg2:T20	
+T21	Entity 497 515	chronic bronchitis
+R25	Result Arg1:T11 Arg2:T21	
+T22	Entity 521 551	recurrent bacterial infections
+R26	Result Arg1:T11 Arg2:T22	

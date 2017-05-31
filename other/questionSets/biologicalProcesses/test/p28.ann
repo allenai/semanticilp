@@ -1,0 +1,10 @@
+T1	Trigger 160 171	transcribed
+T2	Trigger 265 275	translated
+T3	Entity 127 156	The series of words in a gene
+T4	Entity 177 249	a complementary series of nonoverlapping, three-nucleotide words in mRNA
+T5	Entity 281 303	a chain of amino acids
+R1	Theme Arg1:T1 Arg2:T3	
+R2	Result Arg1:T1 Arg2:T4	
+R3	Theme Arg1:T2 Arg2:T4	
+R4	Result Arg1:T2 Arg2:T5	
+R5	Enable Arg1:T1 Arg2:T2	

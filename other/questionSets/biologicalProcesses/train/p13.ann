@@ -1,0 +1,42 @@
+T1	Entity 88 157	another population consisting primarily of white-flowered individuals
+T2	Entity 159 163	CWCW
+T3	Entity 195 207	these plants
+T4	Entity 233 266	plants in our original population
+T5	Entity 31 78	our original hypothetical wildflower population
+*	Coref T1 T2 T3
+T6	Trigger 174 182	carrying
+T8	Trigger 223 232	pollinate
+T9	Trigger 300 306	modify
+T10	Trigger 396 405	exchanged
+T11	Trigger 427 436	gene flow
+T12	Trigger 446 452	reduce
+T13	Trigger 534 543	gene flow
+T14	Trigger 574 583	combining
+R2	Enable Arg1:T6 Arg2:T8	
+R3	Enable Arg1:T8 Arg2:T9	
+R4	Enable Arg1:T8 Arg2:T10	
+*	Same T10 T11 T13
+R5	Cause Arg1:T11 Arg2:T12	
+R6	Enable Arg1:T13 Arg2:T14	
+*	Coref T5 T4
+T15	Entity 166 173	Insects
+T16	Entity 183 189	pollen
+R7	Agent Arg1:T6 Arg2:T15	
+R8	Theme Arg1:T6 Arg2:T16	
+R9	Source Arg1:T6 Arg2:T3	
+R10	Theme Arg1:T8 Arg2:T4	
+T17	Entity 268 293	The introduced CW alleles
+T18	Entity 307 374	our original population's allele frequencies in the next generation
+R11	Agent Arg1:T9 Arg2:T17	
+R12	Theme Arg1:T9 Arg2:T18	
+T19	Entity 384 391	alleles
+T20	Entity 414 425	populations
+T21	Entity 453 496	the genetic differences between populations
+R13	Theme Arg1:T10 Arg2:T19	
+R14	Loc Arg1:T10 Arg2:T20	
+R15	Theme Arg1:T12 Arg2:T21	
+T22	Entity 558 573	two populations
+T23	Entity 589 632	a single population with a common gene pool
+R16	Theme Arg1:T14 Arg2:T22	
+R17	Result Arg1:T14 Arg2:T23	
+R1	Agent Arg1:T8 Arg2:T15	

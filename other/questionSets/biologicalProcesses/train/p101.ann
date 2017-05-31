@@ -1,0 +1,48 @@
+T2	Trigger 37 51	photosynthesis
+T3	Entity 65 77	solar energy
+T4	Entity 81 96	chemical energy
+T6	Trigger 107 112	split
+T7	Entity 98 103	Water
+T9	Entity 193 195	O2
+R1	Theme Arg1:T6 Arg2:T7	
+R5	Result Arg1:T6 Arg2:T9	
+T1	Trigger 4 19	light reactions
+R6	Super Arg1:T1 Arg2:T2	
+T5	Trigger 57 64	convert
+R7	Theme Arg1:T5 Arg2:T3	
+R8	Result Arg1:T5 Arg2:T4	
+T12	Entity 329 380	NADP+ (nicotinamide adenine dinucleotide phosphate)
+T14	Trigger 252 260	transfer
+T10	Trigger 219 227	absorbed
+T11	Entity 231 242	chlorophyll
+T17	Entity 213 218	Light
+R2	Agent Arg1:T10 Arg2:T11	
+R3	Theme Arg1:T10 Arg2:T17	
+R10	Cause Arg1:T10 Arg2:T14	
+T22	Entity 301 306	water
+R14	Source Arg1:T14 Arg2:T22	
+T23	Trigger 409 415	stored
+R15	Loc Arg1:T23 Arg2:T12	
+R16	Cause Arg1:T14 Arg2:T23	
+R17	Enable Arg1:T10 Arg2:T6	
+R18	Super Arg1:T6 Arg2:T5	
+R19	Super Arg1:T10 Arg2:T5	
+T13	Entity 310 321	an acceptor
+R13	Dest Arg1:T14 Arg2:T13	
+*	Coref T13 T12
+T8	Entity 124 145	a source of electrons
+T16	Entity 150 177	protons (hydrogen ions, H+)
+R4	Result Arg1:T6 Arg2:T8	
+R9	Result Arg1:T6 Arg2:T16	
+T15	Entity 264 277	the electrons
+T18	Entity 282 295	hydrogen ions
+R11	Theme Arg1:T14 Arg2:T15	
+R12	Theme Arg1:T14 Arg2:T18	
+T19	Entity 388 392	they
+R20	Theme Arg1:T23 Arg2:T19	
+R21	Coref Arg1:T15 Arg2:T19	
+R22	Coref Arg1:T8 Arg2:T15	
+R23	Coref Arg1:T16 Arg2:T18	
+R24	Super Arg1:T5 Arg2:T2	
+R25	Cause Arg1:T1 Arg2:T5	
+R26	Enable Arg1:T6 Arg2:T14	

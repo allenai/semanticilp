@@ -1,0 +1,23 @@
+T1	Trigger 120 124	move
+T2	Trigger 189 195	mating
+R1	Cause Arg1:T1 Arg2:T2	
+T3	Trigger 297 305	exchange
+R2	Cause Arg1:T2 Arg2:T3	
+T4	Entity 321 372	fewer genetic differences between those populations
+T5	Entity 309 316	alleles
+T6	Entity 107 113	Humans
+T7	Entity 148 157	the world
+T8	Entity 219 281	members of populations that previously had very little contact
+R3	Theme Arg1:T2 Arg2:T8	
+R4	Theme Arg1:T1 Arg2:T6	
+R5	Dest Arg1:T1 Arg2:T7	
+R6	Theme Arg1:T3 Arg2:T5	
+R7	Result Arg1:T3 Arg2:T4	
+T9	Trigger 9 18	gene flow
+T10	Entity 65 84	evolutionary change
+T11	Entity 88 105	human populations
+R8	Result Arg1:T9 Arg2:T10	
+R9	Loc Arg1:T9 Arg2:T11	
+R10	Super Arg1:T1 Arg2:T9	
+R11	Super Arg1:T2 Arg2:T9	
+*	Same T9 T3

@@ -1,0 +1,41 @@
+T1	Trigger 9 15	change
+T2	Trigger 46 50	fire
+T3	Trigger 54 59	flood
+R1	Super Arg1:T2 Arg2:T1	
+R2	Super Arg1:T3 Arg2:T1	
+#1	AnnotatorNotes R1	example of
+#2	AnnotatorNotes R2	example of
+T4	Trigger 77 83	reduce
+R3	Enable Arg1:T1 Arg2:T4	
+T5	Trigger 119 123	drop
+*	Same T4 T5
+T6	Trigger 157 174	bottleneck effect
+R4	Enable Arg1:T5 Arg2:T6	
+T7	Trigger 320 335	overrepresented
+T8	Trigger 371 387	underrepresented
+T9	Trigger 405 411	absent
+R5	Cause Arg1:T6 Arg2:T7	
+R6	Cause Arg1:T6 Arg2:T8	
+R7	Cause Arg1:T6 Arg2:T9	
+T10	Trigger 476 483	effects
+R8	Enable Arg1:T7 Arg2:T10	
+R9	Enable Arg1:T8 Arg2:T10	
+R10	Enable Arg1:T9 Arg2:T10	
+T11	Trigger 432 445	genetic drift
+R11	Enable Arg1:T11 Arg2:T10	
+T12	Entity 19 34	the environment
+R12	Theme Arg1:T1 Arg2:T12	
+T13	Entity 84 108	the size of a population
+R13	Theme Arg1:T4 Arg2:T13	
+T14	Entity 127 142	population size
+R14	Theme Arg1:T5 Arg2:T14	
+T15	Entity 297 312	certain alleles
+R15	Theme Arg1:T7 Arg2:T15	
+T16	Entity 342 355	the survivors
+R16	Loc Arg1:T7 Arg2:T16	
+T17	Entity 357 363	others
+R17	Theme Arg1:T8 Arg2:T17	
+T18	Entity 393 397	some
+R18	Theme Arg1:T9 Arg2:T18	
+T19	Entity 487 500	the gene pool
+R19	Theme Arg1:T10 Arg2:T19	

@@ -1,0 +1,28 @@
+T1	Trigger 17 27	stimulated
+T2	Trigger 44 48	open
+T3	Trigger 69 78	diffusion
+T4	Trigger 97 103	"fall"
+T5	Trigger 155 177	concentration gradient
+T6	Trigger 196 206	attraction
+R1	Cause Arg1:T1 Arg2:T2	
+R2	Enable Arg1:T2 Arg2:T3	
+*	Same T3 T4
+R3	Cause Arg1:T5 Arg2:T4	
+R4	Cause Arg1:T6 Arg2:T4	
+T7	Entity 5 13	the cell
+R5	Theme Arg1:T1 Arg2:T7	
+T8	Entity 29 43	gated channels
+R6	Theme Arg1:T2 Arg2:T8	
+T9	Entity 65 68	Na+
+R7	Theme Arg1:T3 Arg2:T9	
+T10	Entity 80 91	Sodium ions
+*	Coref T9 T10 T12 T13
+R8	Theme Arg1:T4 Arg2:T10	
+T11	Entity 104 139	down their electrochemical gradient
+R9	Dest Arg1:T4 Arg2:T11	
+T12	Entity 181 184	Na+
+R10	Theme Arg1:T5 Arg2:T12	
+T13	Entity 210 223	these cations
+R11	Theme Arg1:T6 Arg2:T13	
+T14	Entity 227 269	the negative side (inside) of the membrane
+R12	Agent Arg1:T6 Arg2:T14	

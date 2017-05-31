@@ -1,0 +1,45 @@
+T1	Trigger 62 65	use
+T2	Trigger 86 91	share
+R1	Enable Arg1:T1 Arg2:T2	
+T3	Trigger 146 152	scarce
+T4	Trigger 169 176	secrete
+T5	Trigger 193 203	stimulates
+T6	Trigger 225 234	aggregate
+T7	Trigger 246 250	form
+T8	Trigger 293 301	produces
+T9	Trigger 333 342	surviving
+R2	Cause Arg1:T3 Arg2:T4	
+R3	Cause Arg1:T4 Arg2:T5	
+R4	Cause Arg1:T5 Arg2:T6	
+R5	Enable Arg1:T6 Arg2:T7	
+R6	Super Arg1:T8 Arg2:T7	
+R7	Enable Arg1:T8 Arg2:T9	
+R8	Enable Arg1:T2 Arg2:T5	
+T10	Entity 45 59	slime bacteria
+T11	Entity 0 42	Soil-dwelling bacteria called myxobacteria
+*	Coref T11 T10
+R9	Agent Arg1:T1 Arg2:T10	
+T12	Entity 66 82	chemical signals
+T13	Entity 92 131	information about nutrient availability
+R10	Theme Arg1:T1 Arg2:T12	
+R11	Theme Arg1:T2 Arg2:T13	
+T14	Entity 138 142	food
+T15	Entity 154 168	starving cells
+T16	Entity 177 187	a molecule
+T17	Entity 204 221	neighboring cells
+R12	Theme Arg1:T3 Arg2:T14	
+R13	Agent Arg1:T4 Arg2:T15	
+R14	Theme Arg1:T4 Arg2:T16	
+R15	Theme Arg1:T5 Arg2:T17	
+R16	Agent Arg1:T5 Arg2:T16	
+R17	Theme Arg1:T6 Arg2:T17	
+T18	Entity 236 245	The cells
+*	Coref T18 T17
+T19	Entity 251 262	a structure
+T20	Entity 273 286	fruiting body
+*	Coref T19 T20
+R18	Agent Arg1:T7 Arg2:T18	
+R19	Result Arg1:T7 Arg2:T19	
+R20	Agent Arg1:T8 Arg2:T20	
+T21	Entity 302 321	thick-walled spores
+R21	Result Arg1:T8 Arg2:T21	

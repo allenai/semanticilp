@@ -1,0 +1,22 @@
+T1	Trigger 38 50	acts against
+T2	Trigger 79 85	favors
+T3	Trigger 0 21	Stabilizing selection
+T4	Entity 51 74	both extreme phenotypes
+T5	Entity 86 107	intermediate variants
+R2	Theme Arg1:T1 Arg2:T4	
+R4	Theme Arg1:T2 Arg2:T5	
+T6	Trigger 132 139	reduces
+T7	Trigger 163 171	maintain
+T8	Entity 109 131	This mode of selection
+R5	Agent Arg1:T6 Arg2:T8	
+T9	Entity 140 149	variation
+R6	Theme Arg1:T6 Arg2:T9	
+R7	Agent Arg1:T7 Arg2:T8	
+T10	Entity 172 224	the status quo for a particular phenotypic character
+R8	Theme Arg1:T7 Arg2:T10	
+R9	Enable Arg1:T1 Arg2:T6	
+R10	Enable Arg1:T2 Arg2:T6	
+R11	Enable Arg1:T1 Arg2:T7	
+R12	Enable Arg1:T2 Arg2:T7	
+R1	Cause Arg1:T3 Arg2:T1	
+R3	Cause Arg1:T3 Arg2:T2	

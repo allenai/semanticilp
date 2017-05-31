@@ -1,0 +1,37 @@
+T1	Trigger 65 75	interbreed
+T2	Entity 88 104	hybrid offspring
+T3	Entity 43 64	two different species
+T4	Entity 0 27	A second form of polyploidy
+T5	Trigger 128 135	sterile
+T6	Entity 106 123	Most such hybrids
+T7	Entity 144 183	the set of chromosomes from one species
+T8	TriggerNot 191 195	pair
+T9	Trigger 203 210	meiosis
+T10	Entity 216 261	the set of chromosomes from the other species
+R1	Theme Arg1:T8 Arg2:T7	
+R2	Theme Arg1:T8 Arg2:T10	
+R3	Super Arg1:T8 Arg2:T9	
+R4	Cause Arg1:T8 Arg2:T5	
+R5	Theme Arg1:T5 Arg2:T6	
+T11	Entity 272 291	an infertile hybrid
+T12	Trigger 307 316	propagate
+T13	Entity 362 384	subsequent generations
+T14	Trigger 409 415	change
+T15	Entity 416 432	a sterile hybrid
+T16	Entity 438 457	a fertile polyploid
+T17	Entity 468 481	allopolyploid
+*	Coref T17 T16 T4
+R6	Theme Arg1:T14 Arg2:T15	
+R7	Loc Arg1:T14 Arg2:T13	
+R8	Result Arg1:T14 Arg2:T16	
+R9	Enable Arg1:T12 Arg2:T14	
+R10	Enable Arg1:T5 Arg2:T12	
+R11	Agent Arg1:T12 Arg2:T11	
+R12	Enable Arg1:T1 Arg2:T5	
+R13	Result Arg1:T1 Arg2:T2	
+R14	Theme Arg1:T1 Arg2:T3	
+T18	Entity 317 323	itself
+R15	Theme Arg1:T12 Arg2:T18	
+*	Coref T18 T11
+T19	Entity 386 404	various mechanisms
+R16	Agent Arg1:T14 Arg2:T19	

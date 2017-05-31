@@ -1,0 +1,67 @@
+T3	Trigger 53 61	proposed
+T4	Entity 9 40	Scottish geologist James Hutton
+R1	Agent Arg1:T3 Arg2:T4	
+T5	Entity 67 92	Earth's geologic features
+R2	Result Arg1:T3 Arg2:T5	
+T6	Entity 115 155	gradual mechanisms still operating today
+R3	Theme Arg1:T3 Arg2:T6	
+T8	Trigger 224 231	wearing
+T10	Trigger 323 329	eroded
+T11	Trigger 349 356	carried
+T12	Trigger 390 396	buried
+R5	Enable Arg1:T10 Arg2:T11	
+R6	Enable Arg1:T11 Arg2:T12	
+T13	Trigger 173 182	suggested
+R10	Enable Arg1:T13 Arg2:T3	
+T16	Entity 170 172	he
+*	Coref T4 T16
+T17	Entity 188 195	valleys
+T18	Entity 217 223	rivers
+T19	Entity 240 245	rocks
+T20	Entity 255 286	rocks containing marine fossils
+T21	Entity 304 313	sediments
+T22	Entity 335 343	the land
+T23	Entity 360 366	rivers
+T24	Entity 370 377	the sea
+T25	Entity 385 389	they
+*	Coref T25 T21
+T26	Entity 397 418	dead marine organisms
+R13	Agent Arg1:T13 Arg2:T16	
+R14	Theme Arg1:T13 Arg2:T17	
+R4	Enable Arg1:T8 Arg2:T13	
+R8	Agent Arg1:T8 Arg2:T18	
+R15	Theme Arg1:T8 Arg2:T19	
+R16	Result Arg1:T8 Arg2:T17	
+R7	Enable Arg1:T10 Arg2:T13	
+R9	Enable Arg1:T11 Arg2:T13	
+R17	Enable Arg1:T12 Arg2:T13	
+R20	Result Arg1:T12 Arg2:T20	
+R21	Theme Arg1:T10 Arg2:T21	
+R22	Source Arg1:T10 Arg2:T22	
+R23	Agent Arg1:T11 Arg2:T23	
+R24	Dest Arg1:T11 Arg2:T24	
+R25	Agent Arg1:T12 Arg2:T25	
+R26	Result Arg1:T12 Arg2:T26	
+T1	Entity 420 458	The leading geologist of Darwin's time
+T2	Entity 460 473	Charles Lyell
+T7	Trigger 487 499	incorporated
+T9	Entity 500 517	Hutton's thinking
+T14	Entity 523 557	his principle of uniformitarianism
+T15	Trigger 565 571	stated
+T27	Entity 577 620	mechanisms of change are constant over time
+T28	Entity 622 627	Lyell
+T29	Trigger 628 636	proposed
+T30	Entity 642 726	the same geologic processes are operating today as in the past, and at the same rate
+R11	Enable Arg1:T3 Arg2:T7	
+*	Coref T2 T28 T1
+R12	Enable Arg1:T7 Arg2:T15	
+R18	Enable Arg1:T7 Arg2:T29	
+R19	Agent Arg1:T7 Arg2:T2	
+R27	Theme Arg1:T7 Arg2:T9	
+R28	Result Arg1:T7 Arg2:T14	
+R29	Agent Arg1:T15 Arg2:T14	
+R30	Other Arg1:T15 Arg2:T27	
+R31	Agent Arg1:T29 Arg2:T28	
+*	Coref T30 T27
+R32	Other Arg1:T29 Arg2:T30	
+R33	Theme Arg1:T11 Arg2:T21	

@@ -1,0 +1,26 @@
+T1	Trigger 34 45	transcribes
+T3	Trigger 307 310	cut
+T4	Trigger 340 349	releasing
+T5	Trigger 392 402	processing
+R1	Enable Arg1:T1 Arg2:T3	
+R2	Cause Arg1:T3 Arg2:T4	
+R3	Enable Arg1:T4 Arg2:T5	
+T2	Entity 16 33	RNA polymerase II
+T6	Entity 46 67	a sequence on the DNA
+T7	Entity 75 110	the polyadenylation signal sequence
+*	Coref T6 T7
+R4	Agent Arg1:T1 Arg2:T2	
+R5	Theme Arg1:T1 Arg2:T6	
+T8	Entity 188 253	a point about 10-35 nucleotides downstream from the AAUAAA signal
+R6	Loc Arg1:T3 Arg2:T8	
+T9	Entity 255 306	proteins associated with the growing RNA transcript
+T10	Entity 311 313	it
+T11	Entity 324 338	the polymerase
+T12	Entity 350 362	the pre-mRNA
+*	Coref T12 T10 T13
+R7	Agent Arg1:T3 Arg2:T9	
+R8	Theme Arg1:T3 Arg2:T10	
+R9	Source Arg1:T3 Arg2:T11	
+R10	Theme Arg1:T4 Arg2:T12	
+T13	Entity 368 376	pre-mRNA
+R11	Theme Arg1:T5 Arg2:T13	

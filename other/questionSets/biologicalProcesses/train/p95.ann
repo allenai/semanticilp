@@ -1,0 +1,40 @@
+T1	Trigger 11 20	Reception
+T2	Entity 24 75	the target cell's detection of a signaling molecule
+T3	Entity 88 104	outside the cell
+R1	Source Arg1:T1 Arg2:T3	
+R2	Theme Arg1:T1 Arg2:T2	
+T4	Trigger 166 171	binds
+R3	Super Arg1:T4 Arg2:T1	
+T5	Trigger 364 376	transduction
+T6	Trigger 262 269	binding
+*	Same T6 T4
+T7	Trigger 296 303	changes
+T8	Trigger 401 409	converts
+T9	Entity 424 480	a form that can bring about a specific cellular response
+T10	Entity 410 420	the signal
+R4	Cause Arg1:T6 Arg2:T7	
+R5	Enable Arg1:T7 Arg2:T8	
+T11	Trigger 966 974	response
+R6	Super Arg1:T7 Arg2:T5	
+R7	Super Arg1:T8 Arg2:T5	
+T13	Trigger 980 988	response
+R8	Enable Arg1:T8 Arg2:T11	
+*	Same T11 T13
+T12	Entity 143 165	the signaling molecule
+T14	Entity 175 242	a receptor protein located at the cell's surface or inside the cell
+R9	Theme Arg1:T4 Arg2:T12	
+R10	Theme Arg1:T4 Arg2:T14	
+T15	Entity 273 295	the signaling molecule
+T16	Entity 304 324	the receptor protein
+R11	Theme Arg1:T6 Arg2:T15	
+R12	Theme Arg1:T7 Arg2:T16	
+R13	Theme Arg1:T8 Arg2:T10	
+R14	Result Arg1:T8 Arg2:T9	
+T17	Entity 907 928	the transduced signal
+R15	Agent Arg1:T11 Arg2:T17	
+T18	Entity 1045 1067	catalysis by an enzyme
+T19	Entity 1107 1140	rearrangement of the cytoskeleton
+T20	Entity 1145 1188	activation of specific genes in the nucleus
+R16	Theme Arg1:T13 Arg2:T18	
+R17	Theme Arg1:T13 Arg2:T19	
+R18	Theme Arg1:T13 Arg2:T20	

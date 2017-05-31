@@ -1,0 +1,46 @@
+T1	Trigger 44 53	processes
+T2	Trigger 101 118	natural selection
+T3	Trigger 131 139	produced
+R1	Enable Arg1:T2 Arg2:T3	
+R2	Enable Arg1:T1 Arg2:T3	
+T4	Trigger 222 231	synthesis
+T5	Trigger 306 313	joining
+R3	Enable Arg1:T4 Arg2:T5	
+T6	Trigger 399 408	packaging
+R4	Enable Arg1:T5 Arg2:T6	
+T7	Trigger 474 484	maintained
+R5	Cause Arg1:T6 Arg2:T7	
+T8	Trigger 563 579	self-replicating
+T9	Trigger 611 622	inheritance
+R6	Enable Arg1:T8 Arg2:T9	
+R7	Enable Arg1:T6 Arg2:T8	
+T10	Entity 57 68	early Earth
+R8	Loc Arg1:T1 Arg2:T10	
+T11	Entity 140 157	very simple cells
+R9	Result Arg1:T3 Arg2:T11	
+T12	Entity 235 258	small organic molecules
+R10	Result Arg1:T4 Arg2:T12	
+T13	Entity 268 301	amino acids and nitrogenous bases
+*	Coref T12 T13 T14
+T14	Entity 317 338	these small molecules
+R11	Theme Arg1:T5 Arg2:T14	
+T15	Entity 344 358	macromolecules
+R12	Result Arg1:T5 Arg2:T15	
+T16	Entity 368 394	proteins and nucleic acids
+*	Coref T15 T16 T17
+T17	Entity 412 427	these molecules
+R13	Theme Arg1:T6 Arg2:T17	
+T18	Entity 433 443	protocells
+R14	Result Arg1:T6 Arg2:T18	
+T19	Entity 445 468	droplets with membranes
+*	Coref T18 T19
+R15	Agent Arg1:T7 Arg2:T19	
+T20	Entity 485 548	an internal chemistry different from that of their surroundings
+R16	Theme Arg1:T7 Arg2:T20	
+T21	Entity 580 589	molecules
+R17	Theme Arg1:T8 Arg2:T21	
+R18	Enable Arg1:T9 Arg2:T2	
+T22	Entity 22 30	chemical
+R19	Theme Arg1:T1 Arg2:T22	
+T23	Entity 35 43	physical
+R20	Theme Arg1:T1 Arg2:T23	

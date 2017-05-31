@@ -1,0 +1,39 @@
+T1	Trigger 3 9	making
+T2	Entity 10 30	a primary transcript
+T3	Entity 36 42	a gene
+T4	Entity 44 61	RNA polymerase II
+T5	Trigger 62 73	transcribes
+T6	Entity 79 86	introns
+T7	Entity 91 96	exons
+T8	Entity 102 109	the DNA
+T9	Entity 115 132	the mRNA molecule
+T10	Trigger 138 144	enters
+T11	Entity 145 158	the cytoplasm
+T12	Entity 162 181	an abridged version
+*	Coref T12 T9
+R1	Theme Arg1:T10 Arg2:T9	
+R2	Dest Arg1:T10 Arg2:T11	
+R3	Theme Arg1:T5 Arg2:T6	
+R4	Theme Arg1:T5 Arg2:T7	
+R5	Source Arg1:T5 Arg2:T8	
+R6	Agent Arg1:T5 Arg2:T4	
+R8	Theme Arg1:T1 Arg2:T2	
+R9	Source Arg1:T1 Arg2:T3	
+R10	Agent Arg1:T1 Arg2:T4	
+T13	Entity 183 194	The introns
+T14	Trigger 199 202	cut
+T15	Entity 212 224	the molecule
+T16	Entity 229 238	the exons
+T17	Trigger 239 245	joined
+T18	Entity 264 314	an mRNA molecule with a continuous coding sequence
+R11	Result Arg1:T17 Arg2:T18	
+R12	Theme Arg1:T17 Arg2:T16	
+R13	Theme Arg1:T14 Arg2:T13	
+R14	Source Arg1:T14 Arg2:T15	
+R15	Enable Arg1:T14 Arg2:T17	
+R7	Super Arg1:T5 Arg2:T1	
+R16	Super Arg1:T14 Arg2:T1	
+R17	Enable Arg1:T5 Arg2:T14	
+R18	Enable Arg1:T5 Arg2:T17	
+R19	Super Arg1:T17 Arg2:T1	
+R20	Enable Arg1:T1 Arg2:T10	

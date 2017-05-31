@@ -1,0 +1,63 @@
+T1	Trigger 337 343	starts
+T2	Trigger 369 373	ends
+T3	Trigger 460 470	terminates
+T4	Trigger 503 508	lacks
+R1	Cause Arg1:T4 Arg2:T3	
+T5	Trigger 786 792	tagged
+T6	Trigger 939 949	determined
+R2	Enable Arg1:T5 Arg2:T6	
+T7	Trigger 682 693	represented
+T8	Trigger 150 160	sequencing
+T9	Trigger 175 183	separate
+T10	Trigger 102 112	determined
+R3	Enable Arg1:T8 Arg2:T10	
+R4	Enable Arg1:T9 Arg2:T10	
+R5	Cause Arg1:T3 Arg2:T2	
+R6	Enable Arg1:T1 Arg2:T7	
+R7	Enable Arg1:T2 Arg2:T7	
+R8	Enable Arg1:T7 Arg2:T6	
+*	Same T10 T6
+T14	Entity 0 94	The sequence of nucleotides in any cloned DNA fragment of up to 800-1,000 base pairs in length
+R12	Theme Arg1:T10 Arg2:T14	
+T15	Entity 126 134	machines
+R13	Agent Arg1:T8 Arg2:T15	
+T16	Entity 184 213	the labeled reaction products
+R14	Theme Arg1:T9 Arg2:T16	
+R15	Agent Arg1:T9 Arg2:T15	
+T17	Entity 325 336	Each strand
+R18	Theme Arg1:T1 Arg2:T17	
+T18	Entity 349 364	the same primer
+R19	Agent Arg1:T1 Arg2:T18	
+R20	Theme Arg1:T2 Arg2:T17	
+T19	Entity 379 402	a dideoxyribonucleotide
+R21	Agent Arg1:T2 Arg2:T19	
+T20	Entity 404 409	ddNTP
+*	Coref T19 T20 T21
+T21	Entity 412 433	a modified nucleotide
+T22	Entity 452 459	a ddNTP
+R22	Agent Arg1:T3 Arg2:T22	
+T23	Entity 471 491	a growing DNA strand
+R23	Theme Arg1:T3 Arg2:T23	
+T24	Entity 500 502	it
+*	Coref T24 T22
+R24	Agent Arg1:T4 Arg2:T24	
+T25	Entity 509 522	a 3' OH group
+R25	Theme Arg1:T4 Arg2:T25	
+T26	Entity 524 570	the site for attachment of the next nucleotide
+*	Coref T25 T26
+T27	Entity 626 678	each nucleotide position along the original sequence
+R26	Theme Arg1:T7 Arg2:T27	
+T28	Entity 697 754	strands ending at that point with the complementary ddNTP
+R27	Agent Arg1:T7 Arg2:T28	
+T29	Entity 591 624	In the set of strands synthesized
+R28	Loc Arg1:T7 Arg2:T29	
+T30	Entity 764 782	each type of ddNTP
+T31	Entity 798 826	a distinct fluorescent label
+R29	Theme Arg1:T5 Arg2:T30	
+R30	Theme Arg1:T5 Arg2:T31	
+T32	Entity 828 885	the identity of the ending nucleotides of the new strands
+T33	Entity 891 930	ultimately the entire original sequence
+R31	Theme Arg1:T6 Arg2:T32	
+R32	Theme Arg1:T6 Arg2:T33	
+T11	Trigger 435 448	Incorporation
+R9	Cause Arg1:T11 Arg2:T3	

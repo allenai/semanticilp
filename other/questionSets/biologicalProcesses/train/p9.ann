@@ -1,0 +1,52 @@
+T1	Trigger 21 33	deactivating
+T2	Trigger 65 75	synthesize
+R1	Prevent Arg1:T1 Arg2:T2	
+T3	Trigger 248 258	synthesize
+T4	Trigger 311 323	not affected
+R2	Enable Arg1:T4 Arg2:T3	
+T5	Trigger 358 366	survived
+R3	Enable Arg1:T3 Arg2:T5	
+T6	Trigger 398 408	reproduced
+R4	Enable Arg1:T5 Arg2:T6	
+T7	Trigger 512 518	common
+R5	Enable Arg1:T6 Arg2:T7	
+T8	Trigger 535 541	spread
+R6	Enable Arg1:T7 Arg2:T8	
+T9	Trigger 135 145	variations
+R7	Enable Arg1:T9 Arg2:T3	
+R8	Enable Arg1:T1 Arg2:T3	
+T10	Entity 0 11	Methicillin
+R9	Agent Arg1:T1 Arg2:T10	
+T11	Entity 34 43	a protein
+R10	Theme Arg1:T1 Arg2:T11	
+T12	Entity 49 57	bacteria
+R11	Agent Arg1:T2 Arg2:T12	
+T13	Entity 76 92	their cell walls
+R12	Theme Arg1:T2 Arg2:T13	
+T14	Entity 103 124	S. aureus populations
+R13	Theme Arg1:T9 Arg2:T14	
+T15	Entity 149 201	how strongly their members were affected by the drug
+R14	Theme Arg1:T9 Arg2:T15	
+#1	AnnotatorNotes T15	Not sure what to do here...
+T16	Entity 218 234	some individuals
+R15	Agent Arg1:T3 Arg2:T16	
+T17	Entity 259 275	their cell walls
+R16	Theme Arg1:T3 Arg2:T17	
+T18	Entity 282 301	a different protein
+T19	Entity 327 338	methicillin
+R17	Agent Arg1:T4 Arg2:T19	
+R18	Theme Arg1:T4 Arg2:T18	
+T20	Entity 340 357	These individuals
+R19	Agent Arg1:T5 Arg2:T20	
+T21	Entity 367 393	the methicillin treatments
+R20	Theme Arg1:T5 Arg2:T21	
+T22	Entity 412 424	higher rates
+R21	Agent Arg1:T6 Arg2:T20	
+R22	Theme Arg1:T6 Arg2:T22	
+T23	Entity 464 491	these resistant individuals
+R23	Theme Arg1:T7 Arg2:T23	
+T24	Entity 545 549	MRSA
+R24	Theme Arg1:T8 Arg2:T24	
+*	Coref T13 T17
+*	Coref T16 T20 T23
+*	Coref T10 T19

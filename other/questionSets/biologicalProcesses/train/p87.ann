@@ -1,0 +1,39 @@
+T1	Trigger 3 23	alcohol fermentation
+T2	Entity 40 48	pyruvate
+T3	Trigger 52 61	converted
+T4	Entity 65 72	ethanol
+T5	Entity 74 87	ethyl alcohol
+*	Coref T5 T4 T14
+R1	Result Arg1:T3 Arg2:T4	
+R2	Theme Arg1:T3 Arg2:T2	
+*	Same T3 T1
+T6	Entity 127 141	carbon dioxide
+T7	Trigger 118 126	releases
+T8	Entity 147 159	the pyruvate
+R3	Theme Arg1:T7 Arg2:T6	
+R4	Source Arg1:T7 Arg2:T8	
+T9	Entity 183 219	the two-carbon compound acetaldehyde
+T10	Trigger 170 179	converted
+R5	Theme Arg1:T10 Arg2:T8	
+R6	Result Arg1:T10 Arg2:T9	
+R7	Cause Arg1:T7 Arg2:T10	
+T11	Trigger 257 264	reduced
+T12	Entity 241 253	acetaldehyde
+T13	Entity 268 272	NADH
+T14	Entity 276 283	ethanol
+R8	Theme Arg1:T11 Arg2:T12	
+R9	Agent Arg1:T11 Arg2:T13	
+R10	Result Arg1:T11 Arg2:T14	
+R11	Enable Arg1:T10 Arg2:T11	
+*	Coref T9 T12
+*	Coref T2 T8
+T15	Trigger 290 301	regenerates
+T16	Entity 316 320	NAD+
+T17	Trigger 352 362	glycolysis
+R12	Result Arg1:T15 Arg2:T16	
+R13	Cause Arg1:T3 Arg2:T15	
+R14	Super Arg1:T7 Arg2:T3	
+R15	Super Arg1:T10 Arg2:T3	
+R16	Super Arg1:T11 Arg2:T3	
+R17	Theme Arg1:T17 Arg2:T16	
+R18	Enable Arg1:T15 Arg2:T17	

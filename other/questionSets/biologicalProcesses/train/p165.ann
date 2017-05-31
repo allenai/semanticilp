@@ -1,0 +1,63 @@
+T1	Trigger 370 382	transporting
+T2	Trigger 457 462	slows
+T3	Trigger 286 293	prevent
+T4	Trigger 252 261	reproduce
+T5	Trigger 84 92	colonize
+T6	Trigger 159 166	venture
+*	Same T5 T6
+T7	Trigger 215 226	adaptations
+R1	Enable Arg1:T7 Arg2:T6	
+R2	Enable Arg1:T7 Arg2:T4	
+R3	Enable Arg1:T7 Arg2:T3	
+R4	Super Arg1:T1 Arg2:T3	
+R5	Super Arg1:T2 Arg2:T3	
+T8	Trigger 514 525	adaptations
+*	Same T8 T7
+T9	Trigger 720 731	diversified
+T10	Trigger 621 624	had
+T11	Trigger 647 653	lacked
+T12	Entity 9 65	larger forms of life, such as fungi, plants, and animals
+R6	Super Arg1:T11 Arg2:T8	
+R7	Super Arg1:T10 Arg2:T8	
+R8	Enable Arg1:T8 Arg2:T9	
+R9	Theme Arg1:T5 Arg2:T12	
+T13	Entity 93 97	land
+T14	Entity 104 131	about 500 million years ago
+R10	Loc Arg1:T5 Arg2:T13	
+R11	Other Arg1:T5 Arg2:T14	
+T15	Entity 146 158	evolutionary
+T16	Entity 174 194	aquatic environments
+T17	Entity 265 269	land
+T18	Entity 294 305	dehydration
+R12	Theme Arg1:T6 Arg2:T15	
+R13	Source Arg1:T6 Arg2:T16	
+R14	Loc Arg1:T4 Arg2:T17	
+R15	Theme Arg1:T3 Arg2:T18	
+T19	Entity 348 365	a vascular system
+T20	Entity 393 403	internally
+T21	Entity 408 435	a waterproof coating of wax
+T22	Entity 439 451	their leaves
+T23	Entity 463 480	the loss of water
+T24	Entity 484 491	the air
+R16	Theme Arg1:T1 Arg2:T19	
+R17	Other Arg1:T1 Arg2:T20	
+R18	Agent Arg1:T2 Arg2:T21	
+R19	Loc Arg1:T2 Arg2:T22	
+R20	Theme Arg1:T2 Arg2:T23	
+R21	Dest Arg1:T2 Arg2:T24	
+T25	Entity 539 560	420 million years ago
+T26	Entity 576 588	small plants
+T27	Entity 625 642	a vascular system
+T28	Entity 654 674	true roots or leaves
+R22	Other Arg1:T8 Arg2:T25	
+R23	Agent Arg1:T10 Arg2:T26	
+R24	Theme Arg1:T10 Arg2:T27	
+R25	Theme Arg1:T11 Arg2:T28	
+T29	Entity 679 707	about 50 million years later
+T30	Entity 709 715	plants
+T31	Entity 753 758	reeds
+T32	Entity 763 805	treelike plants with true roots and leaves
+R26	Other Arg1:T9 Arg2:T29	
+R27	Agent Arg1:T9 Arg2:T30	
+R28	Result Arg1:T9 Arg2:T31	
+R29	Result Arg1:T9 Arg2:T32	

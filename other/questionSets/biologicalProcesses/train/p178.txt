@@ -1,0 +1,1 @@
+Recall that the clones in our hummingbird genomic library have been stored in a multiwell plate (see Figure 20.5c). If we transfer a few cells from each well to a defined location on a membrane made of nylon or nitrocellulose, we can screen a large number of clones simultaneously for the presence of DNA complementary to our DNA probe (Figure 20.7).

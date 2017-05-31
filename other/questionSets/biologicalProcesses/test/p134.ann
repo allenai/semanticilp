@@ -1,0 +1,36 @@
+T1	Trigger 203 207	scan
+T2	Trigger 13 28	gene annotation
+T3	Trigger 528 537	collected
+T4	Trigger 566 575	cataloged
+R1	Enable Arg1:T1 Arg2:T3	
+R2	Enable Arg1:T3 Arg2:T4	
+T5	Trigger 621 631	identifies
+R3	Enable Arg1:T4 Arg2:T5	
+R4	Super Arg1:T1 Arg2:T2	
+R5	Super Arg1:T3 Arg2:T2	
+R6	Super Arg1:T4 Arg2:T2	
+T6	Entity 191 199	software
+T7	Entity 208 367	the stored sequences for transcriptional and translational start and stop signals, for RNA-splicing sites, and for other telltale signs of protein-coding genes
+T8	Entity 397 446	certain short sequences that  specify known mRNAs
+R7	Agent Arg1:T1 Arg2:T6	
+R8	Theme Arg1:T1 Arg2:T7	
+T9	Trigger 387 392	looks
+*	Same T1 T9
+T10	Entity 369 381	The software
+*	Coref T6 T10
+R9	Agent Arg1:T9 Arg2:T10	
+R10	Theme Arg1:T9 Arg2:T8	
+T11	Entity 512 516	ESTs
+T12	Entity 484 507	expressed sequence tags
+T13	Entity 448 475	Thousands of such sequences
+T14	Entity 543 557	cDNA sequences
+*	Coref T11 T12 T13
+R11	Theme Arg1:T3 Arg2:T11	
+R12	Source Arg1:T3 Arg2:T14	
+T15	Entity 579 597	computer databases
+R13	Theme Arg1:T4 Arg2:T11	
+R14	Loc Arg1:T4 Arg2:T15	
+T16	Entity 599 620	This type of analysis
+T17	Entity 632 693	sequences that may be previously unknown protein-coding genes
+R15	Agent Arg1:T5 Arg2:T16	
+R16	Theme Arg1:T5 Arg2:T17	

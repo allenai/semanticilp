@@ -1,0 +1,31 @@
+T1	Trigger 23 28	grows
+T2	Trigger 65 73	threaded
+T3	Trigger 107 113	formed
+R1	Enable Arg1:T1 Arg2:T2	
+R2	Enable Arg1:T3 Arg2:T2	
+T4	Trigger 178 184	enters
+T5	Trigger 202 207	folds
+R3	Cause Arg1:T2 Arg2:T4	
+R4	Cause Arg1:T4 Arg2:T5	
+T6	Entity 3 22	a polypeptide chain
+T7	Entity 34 50	a bound ribosome
+R5	Theme Arg1:T1 Arg2:T6	
+R6	Source Arg1:T1 Arg2:T7	
+T8	Entity 52 61	the chain
+*	Coref T8 T6 T13 T15
+T9	Entity 79 91	the ER lumen
+R7	Theme Arg1:T2 Arg2:T8	
+R8	Dest Arg1:T2 Arg2:T9	
+T10	Entity 100 106	a pore
+T11	Entity 117 153	a protein complex in the ER membrane
+R9	Result Arg1:T3 Arg2:T10	
+R10	Agent Arg1:T3 Arg2:T11	
+T13	Entity 158 177	the new polypeptide
+T14	Entity 185 197	the ER lumen
+R12	Theme Arg1:T4 Arg2:T13	
+R13	Dest Arg1:T4 Arg2:T14	
+T15	Entity 199 201	it
+T16	Entity 213 229	its native shape
+R14	Theme Arg1:T5 Arg2:T15	
+R15	Result Arg1:T5 Arg2:T16	
+*	Coref T9 T14

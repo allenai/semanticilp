@@ -1,0 +1,74 @@
+T1	Trigger 95 102	infects
+T2	Trigger 109 117	taken in
+T3	Trigger 192 198	cleave
+T4	Trigger 0 11	Recognition
+T5	Entity 35 42	T cells
+T6	Entity 15 31	protein antigens
+R1	Theme Arg1:T4 Arg2:T6	
+R2	Agent Arg1:T4 Arg2:T5	
+T7	Trigger 281 286	binds
+T8	Trigger 323 331	Movement
+T9	Trigger 410 430	antigen presentation
+T10	Trigger 686 696	encounters
+T11	Trigger 773 777	bind
+R3	Enable Arg1:T1 Arg2:T3	
+R4	Enable Arg1:T2 Arg2:T3	
+R5	Enable Arg1:T3 Arg2:T7	
+R6	Enable Arg1:T7 Arg2:T8	
+R8	Enable Arg1:T10 Arg2:T11	
+T13	Entity 150 170	Inside the host cell
+T14	Entity 172 191	enzymes in the cell
+T15	Entity 199 210	the antigen
+T16	Entity 216 232	smaller peptides
+T17	Entity 234 246	Each peptide
+T18	Entity 255 274	an antigen fragment
+T19	Entity 290 321	an MHC molecule inside the cell
+T20	Entity 335 351	the MHC molecule
+T21	Entity 356 378	bound antigen fragment
+T22	Entity 382 398	the cell surface
+R9	Loc Arg1:T3 Arg2:T13	
+R10	Agent Arg1:T3 Arg2:T14	
+R11	Theme Arg1:T3 Arg2:T15	
+R12	Result Arg1:T3 Arg2:T16	
+T23	Entity 55 65	a pathogen
+T24	Entity 69 87	part of a pathogen
+R13	Agent Arg1:T1 Arg2:T23	
+R14	Theme Arg1:T2 Arg2:T23	
+R15	Theme Arg1:T2 Arg2:T24	
+T25	Entity 121 132	a host cell
+R16	Theme Arg1:T1 Arg2:T25	
+R17	Agent Arg1:T2 Arg2:T25	
+*	Coref T16 T17 T18 T6
+R18	Theme Arg1:T7 Arg2:T18	
+R19	Theme Arg1:T7 Arg2:T19	
+R20	Theme Arg1:T8 Arg2:T20	
+R21	Theme Arg1:T8 Arg2:T21	
+R22	Dest Arg1:T8 Arg2:T22	
+R23	Cause Arg1:T8 Arg2:T9	
+T26	Entity 646 685	the cell displaying an antigen fragment
+T27	Entity 697 732	a T cell with the right specificity
+T28	Entity 734 768	the antigen receptor on the T cell
+T29	Entity 786 806	the antigen fragment
+T30	Entity 811 827	the MHC molecule
+R24	Theme Arg1:T10 Arg2:T26	
+R25	Theme Arg1:T10 Arg2:T27	
+R26	Agent Arg1:T11 Arg2:T28	
+R27	Theme Arg1:T11 Arg2:T29	
+R28	Agent Arg1:T11 Arg2:T30	
+*	Coref T5 T27
+T12	Trigger 436 443	display
+*	Same T9 T12
+T31	Entity 447 467	the antigen fragment
+T32	Entity 471 507	an exposed groove of the MHC protein
+R29	Theme Arg1:T12 Arg2:T31	
+R30	Loc Arg1:T12 Arg2:T32	
+R7	Enable Arg1:T9 Arg2:T10	
+R31	Super Arg1:T1 Arg2:T4	
+R32	Super Arg1:T2 Arg2:T4	
+R33	Super Arg1:T3 Arg2:T4	
+R34	Super Arg1:T7 Arg2:T4	
+R35	Super Arg1:T8 Arg2:T4	
+R36	Super Arg1:T9 Arg2:T4	
+R37	Super Arg1:T12 Arg2:T4	
+R38	Super Arg1:T10 Arg2:T4	
+R39	Super Arg1:T11 Arg2:T4	

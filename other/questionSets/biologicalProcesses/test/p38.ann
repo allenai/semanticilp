@@ -1,0 +1,36 @@
+T1	Trigger 52 56	fold
+T2	Trigger 77 84	forming
+T3	Trigger 214 217	cut
+T4	Trigger 249 256	trimmed
+T5	Trigger 389 397	degraded
+T6	Trigger 443 448	forms
+R1	Enable Arg1:T3 Arg2:T4	
+R2	Cause-or Arg1:T4 Arg2:T5	
+R3	Cause-or Arg1:T4 Arg2:T6	
+R4	Enable Arg1:T1 Arg2:T2	
+R5	Enable Arg1:T2 Arg2:T3	
+T7	Entity 432 441	the miRNA
+T8	Entity 405 421	the other strand
+*	Coref T7 T8
+T9	Entity 25 46	longer RNA precursors
+T10	Entity 85 137	one or more short double-stranded hairpin structures
+T11	Entity 198 210	each hairpin
+*	Coref T11 T10 T13
+T12	Entity 228 241	the precursor
+T13	Entity 243 245	it
+T14	Entity 260 269	an enzyme
+T15	Entity 288 293	Dicer
+*	Coref T15 T14
+T16	Entity 300 361	a short double-stranded fragment of about 22 nucleotide pairs
+T17	Entity 363 385	One of the two strands
+T18	Entity 449 484	a complex with one or more proteins
+R6	Result Arg1:T6 Arg2:T18	
+R7	Theme Arg1:T1 Arg2:T9	
+R8	Result Arg1:T2 Arg2:T10	
+R9	Theme Arg1:T3 Arg2:T11	
+R10	Source Arg1:T3 Arg2:T12	
+R11	Theme Arg1:T4 Arg2:T13	
+R12	Agent Arg1:T4 Arg2:T14	
+R13	Result Arg1:T4 Arg2:T16	
+R14	Theme Arg1:T5 Arg2:T17	
+R15	Theme Arg1:T6 Arg2:T7	

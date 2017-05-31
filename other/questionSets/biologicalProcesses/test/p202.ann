@@ -1,0 +1,49 @@
+T1	Trigger 0 12	Gene therapy
+T2	Trigger 14 25	introducing
+T3	Trigger 113 121	treating
+T4	Trigger 259 267	inserted
+R2	Enable Arg1:T2 Arg2:T3	
+T6	Trigger 514 520	insert
+T7	Trigger 637 644	carried
+T8	Trigger 673 682	expressed
+T9	Trigger 718 725	possess
+T10	Entity 26 31	genes
+R4	Theme Arg1:T2 Arg2:T10	
+T11	Entity 37 60	an afflicted individual
+R5	Dest Arg1:T2 Arg2:T11	
+T12	Entity 65 85	therapeutic purposes
+R6	Result Arg1:T2 Arg2:T12	
+T13	Entity 122 199	the relatively small number of disorders traceable to a single defective gene
+R7	Theme Arg1:T3 Arg2:T13	
+T14	Entity 212 249	a normal allele of the defective gene
+T15	Entity 273 329	the somatic cells of the tissue affected by the disorder
+R8	Theme Arg1:T4 Arg2:T14	
+R9	Dest Arg1:T4 Arg2:T15	
+T5	Trigger 442 448	vector
+R10	Enable Arg1:T6 Arg2:T5	
+R11	Enable Arg1:T5 Arg2:T4	
+R12	Enable Arg1:T7 Arg2:T8	
+R13	Enable Arg1:T4 Arg2:T8	
+R14	Cause Arg1:T8 Arg2:T9	
+*	Same T1 T2
+R1	Super Arg1:T4 Arg2:T1	
+R3	Super Arg1:T5 Arg2:T1	
+T16	Entity 384 428	A retrovirus that has been rendered harmless
+R15	Theme Arg1:T5 Arg2:T16	
+T17	Entity 498 510	a retrovirus
+R16	Agent Arg1:T6 Arg2:T17	
+T18	Entity 521 555	a DNA transcript of its RNA genome
+R17	Theme Arg1:T6 Arg2:T18	
+T19	Entity 561 597	the chromosomal DNA of its host cell
+R18	Dest Arg1:T6 Arg2:T19	
+T20	Entity 620 636	the foreign gene
+R19	Theme Arg1:T7 Arg2:T20	
+T21	Entity 648 669	the retroviral vector
+R20	Agent Arg1:T7 Arg2:T21	
+R21	Theme Arg1:T8 Arg2:T20	
+T22	Entity 684 692	the cell
+T23	Entity 697 712	its descendants
+R22	Agent Arg1:T9 Arg2:T22	
+R23	Agent Arg1:T9 Arg2:T23	
+T24	Entity 726 742	the gene product
+R24	Theme Arg1:T9 Arg2:T24	

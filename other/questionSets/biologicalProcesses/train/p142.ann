@@ -1,0 +1,11 @@
+T1	Trigger 79 86	changes
+T2	Entity 90 114	gene expression patterns
+T3	Trigger 21 28	changes
+T4	Entity 32 72	regulatory sequences of particular genes
+R1	Theme Arg1:T1 Arg2:T2	
+R2	Theme Arg1:T3 Arg2:T4	
+R3	Cause Arg1:T3 Arg2:T1	
+T5	Trigger 138 145	changes
+T6	Entity 149 158	body form
+R4	Enable Arg1:T1 Arg2:T5	
+R5	Theme Arg1:T5 Arg2:T6	

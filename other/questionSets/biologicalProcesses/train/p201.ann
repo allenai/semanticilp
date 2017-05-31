@@ -1,0 +1,25 @@
+T1	Trigger 114 126	reprogrammed
+T2	Trigger 165 170	model
+T3	Trigger 181 189	studying
+R1	Enable Arg1:T1 Arg2:T2	
+R2	Enable Arg1:T2 Arg2:T3	
+T5	Trigger 452 464	reprogrammed
+T6	Trigger 497 504	replace
+R3	Enable Arg1:T5 Arg2:T6	
+T8	Entity 63 106	cells from patients suffering from diseases
+T10	Entity 137 146	iPS cells
+R7	Theme Arg1:T1 Arg2:T8	
+R8	Theme Arg1:T2 Arg2:T10	
+R10	Result Arg1:T1 Arg2:T10	
+T12	Entity 190 201	the disease
+T13	Entity 206 226	potential treatments
+R12	Theme Arg1:T3 Arg2:T12	
+R13	Theme Arg1:T3 Arg2:T13	
+T15	Entity 421 442	a patient's own cells
+R15	Theme Arg1:T5 Arg2:T15	
+T16	Entity 470 479	iPS cells
+R16	Result Arg1:T5 Arg2:T16	
+T17	Entity 505 526	nonfunctional tissues
+R17	Agent Arg1:T6 Arg2:T16	
+R18	Theme Arg1:T6 Arg2:T17	
+*	Same T1 T5

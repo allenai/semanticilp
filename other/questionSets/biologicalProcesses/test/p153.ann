@@ -1,0 +1,27 @@
+T1	Trigger 99 108	colonized
+T2	Trigger 135 145	introduced
+T3	Trigger 241 248	favored
+T4	Trigger 405 427	prezygotic restriction
+R1	Enable Arg1:T2 Arg2:T1	
+T5	Entity 82 98	some populations
+T6	Entity 109 120	apple trees
+T7	Entity 149 166	European settlers
+T8	Entity 219 236	natural selection
+T9	Entity 249 291	apple-feeding flies with rapid development
+T10	Trigger 431 440	gene flow
+R4	Prevent Arg1:T4 Arg2:T10	
+T11	Entity 449 468	the two populations
+R5	Source Arg1:T10 Arg2:T11	
+R6	Dest Arg1:T10 Arg2:T11	
+R7	Agent Arg1:T1 Arg2:T5	
+R8	Loc Arg1:T1 Arg2:T6	
+R9	Theme Arg1:T2 Arg2:T6	
+R10	Agent Arg1:T2 Arg2:T7	
+R11	Agent Arg1:T3 Arg2:T8	
+R12	Theme Arg1:T3 Arg2:T9	
+T12	Trigger 334 352	temporal isolation
+R2	Enable Arg1:T1 Arg2:T12	
+R3	Enable Arg1:T3 Arg2:T12	
+R13	Enable Arg1:T12 Arg2:T4	
+T13	Entity 293 324	These apple-feeding populations
+R14	Theme Arg1:T12 Arg2:T13	

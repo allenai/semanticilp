@@ -1,0 +1,13 @@
+T1	Trigger 3 17	binary fission
+T2	Trigger 64 71	divides
+T3	Trigger 97 103	divide
+R1	Enable Arg1:T2 Arg2:T3	
+R2	Super Arg1:T2 Arg2:T1	
+T4	Entity 38 63	a single prokaryotic cell
+R3	Theme Arg1:T2 Arg2:T4	
+T5	Entity 77 84	2 cells
+R4	Result Arg1:T2 Arg2:T5	
+R5	Theme Arg1:T3 Arg2:T5	
+T6	Entity 109 129	4, 8, 16, and so on.
+R6	Result Arg1:T3 Arg2:T6	
+#1	AnnotatorNotes R6	How do I do this one?

@@ -1,0 +1,15 @@
+T1	Trigger 22 31	duplicate
+T2	Entity 6 21	the chromosomes
+T3	Trigger 35 45	interphase
+T4	Entity 47 63	the diploid cell
+T5	Trigger 64 71	divides
+T6	Entity 72 77	twice
+T7	Trigger 79 87	yielding
+T8	Entity 88 115	four haploid daughter cells
+R1	Super Arg1:T1 Arg2:T3	
+R2	Theme Arg1:T1 Arg2:T2	
+R3	Agent Arg1:T5 Arg2:T4	
+R4	Other Arg1:T5 Arg2:T6	
+R5	Result Arg1:T7 Arg2:T8	
+R6	Cause Arg1:T5 Arg2:T7	
+R7	Enable Arg1:T3 Arg2:T5	

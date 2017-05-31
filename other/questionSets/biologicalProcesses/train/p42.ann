@@ -1,0 +1,24 @@
+T1	Trigger 25 36	transcribed
+T3	Trigger 362 369	cleaved
+T4	Trigger 411 418	combine
+T5	Entity 0 20	These rRNA molecules
+R1	Theme Arg1:T1 Arg2:T5	
+T6	Entity 42 126	a single transcription unit that is repeated tandemly hundreds to thousands of times
+R2	Source Arg1:T1 Arg2:T6	
+T7	Entity 130 196	one or several clusters in the genome of a multicellular eukaryote
+T12	Entity 336 358	The primary transcript
+T13	Entity 379 403	the three rRNA molecules
+R10	Theme Arg1:T3 Arg2:T12	
+R11	Result Arg1:T3 Arg2:T13	
+R12	Enable Arg1:T3 Arg2:T4	
+R13	Theme Arg1:T4 Arg2:T13	
+T14	Entity 424 432	proteins
+T15	Entity 437 459	one other kind of rRNA
+T16	Entity 460 469	(5S rRNA)
+T17	Entity 478 496	ribosomal subunits
+R14	Theme Arg1:T4 Arg2:T14	
+R15	Theme Arg1:T4 Arg2:T15	
+*	Coref T15 T16
+R16	Result Arg1:T4 Arg2:T17	
+R4	Enable Arg1:T1 Arg2:T3	
+R3	Loc Arg1:T1 Arg2:T7	

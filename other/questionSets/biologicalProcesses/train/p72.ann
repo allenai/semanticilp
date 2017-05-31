@@ -1,0 +1,63 @@
+T1	Trigger 152 162	exocytosis
+T2	Trigger 39 47	secretes
+T3	Trigger 84 90	fusion
+R1	Enable Arg1:T3 Arg2:T2	
+R2	Super Arg1:T2 Arg2:T1	
+R3	Super Arg1:T3 Arg2:T1	
+T4	Trigger 193 199	budded
+T5	Trigger 225 230	moves
+T6	Trigger 350 357	contact
+T7	Trigger 377 386	rearrange
+T8	Trigger 453 457	fuse
+T9	Trigger 492 497	spill
+T10	Trigger 551 558	becomes
+R4	Enable Arg1:T4 Arg2:T5	
+R5	Enable Arg1:T5 Arg2:T6	
+R6	Cause Arg1:T6 Arg2:T7	
+R7	Cause Arg1:T7 Arg2:T8	
+R8	Cause Arg1:T8 Arg2:T9	
+R9	Cause Arg1:T8 Arg2:T10	
+R10	Super Arg1:T4 Arg2:T3	
+R11	Super Arg1:T5 Arg2:T3	
+R14	Super Arg1:T6 Arg2:T3	
+R15	Super Arg1:T7 Arg2:T3	
+T11	Entity 30 38	the cell
+R16	Agent Arg1:T2 Arg2:T11	
+T12	Entity 48 76	certain biological molecules
+R17	Theme Arg1:T2 Arg2:T12	
+T13	Entity 94 102	vesicles
+R18	Theme Arg1:T3 Arg2:T13	
+T14	Entity 108 127	the plasma membrane
+R19	Theme Arg1:T3 Arg2:T14	
+T15	Entity 164 183	A transport vesicle
+R20	Theme Arg1:T4 Arg2:T15	
+T16	Entity 205 224	the Golgi apparatus
+R21	Source Arg1:T4 Arg2:T16	
+T17	Entity 237 269	microtubules of the cytoskeleton
+T18	Entity 273 292	the plasma membrane
+R22	Theme Arg1:T5 Arg2:T15	
+R23	Loc Arg1:T5 Arg2:T17	
+R24	Dest Arg1:T5 Arg2:T18	
+T19	Entity 299 319	the vesicle membrane
+R25	Theme Arg1:T6 Arg2:T19	
+T20	Entity 324 339	plasma membrane
+R26	Theme Arg1:T6 Arg2:T20	
+T21	Entity 359 376	specific proteins
+R27	Agent Arg1:T7 Arg2:T21	
+T22	Entity 387 426	the lipid molecules of the two bilayers
+R28	Theme Arg1:T7 Arg2:T22	
+T23	Entity 435 452	the two membranes
+R29	Theme Arg1:T8 Arg2:T23	
+T24	Entity 459 486	The contents of the vesicle
+R30	Theme Arg1:T9 Arg2:T24	
+T25	Entity 501 524	the outside of the cell
+R31	Dest Arg1:T9 Arg2:T25	
+T26	Entity 530 550	the vesicle membrane
+T27	Entity 559 586	part of the plasma membrane
+R32	Theme Arg1:T10 Arg2:T26	
+R33	Result Arg1:T10 Arg2:T27	
+#1	AnnotatorNotes R3	"fusion" can't be same as "exocytosis" because both "secrete" and "fusion" are part of exocytosis
+*	Same T8 T3
+*	Same T9 T2
+#2	AnnotatorNotes T9	Is spill the same as secrete, or is it part of secrete?
+#3	AnnotatorNotes R9	should be cause or same?

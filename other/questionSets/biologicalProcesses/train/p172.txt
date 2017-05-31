@@ -1,0 +1,1 @@
+&#x278B; Both the plasmid and the hummingbird DNA are cut with the same restriction enzyme, and then &#x278C; the fragments are mixed together, allowing base pairing between their complementary sticky ends. We then add DNA ligase, which covalently bonds the sugar-phosphate backbones of the fragments whose sticky ends have base-paired.

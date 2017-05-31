@@ -1,0 +1,18 @@
+T1	Trigger 127 132	grown
+T3	Trigger 202 223	genetic manipulations
+T4	Trigger 295 303	generate
+R3	Enable Arg1:T3 Arg2:T4	
+T6	Entity 106 126	a single tissue cell
+T7	Entity 136 143	culture
+T2	Entity 161 175	an adult plant
+R2	Theme Arg1:T1 Arg2:T6	
+R4	Loc Arg1:T1 Arg2:T7	
+R5	Result Arg1:T1 Arg2:T2	
+T8	Entity 244 268	an ordinary somatic cell
+T9	Entity 273 281	the cell
+T10	Entity 304 331	an organism with new traits
+R6	Theme Arg1:T3 Arg2:T8	
+*	Coref T8 T9 T6
+R7	Theme Arg1:T4 Arg2:T9	
+R8	Result Arg1:T4 Arg2:T10	
+R1	Enable Arg1:T1 Arg2:T4	

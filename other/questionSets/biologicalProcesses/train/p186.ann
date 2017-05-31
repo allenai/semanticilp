@@ -1,0 +1,47 @@
+T1	Trigger 177 183	change
+T2	Trigger 262 269	cutting
+R1	Prevent Arg1:T1 Arg2:T2	
+T3	Trigger 520 528	contains
+T4	Trigger 537 546	digestion
+T5	Trigger 681 685	give
+T6	Trigger 593 600	produce
+R2	Enable Arg1:T3 Arg2:T6	
+R3	Enable Arg1:T4 Arg2:T6	
+R4	Enable Arg1:T6 Arg2:T5	
+T7	Trigger 45 52	compare
+T8	Trigger 0 29	Restriction fragment analysis
+R5	Enable Arg1:T8 Arg2:T7	
+T9	Entity 53 80	two different DNA molecules
+R6	Theme Arg1:T7 Arg2:T9	
+T10	Entity 192 222	one base pair of that sequence
+R7	Theme Arg1:T1 Arg2:T10	
+T11	Entity 236 256	a restriction enzyme
+T12	Entity 270 275	there
+R8	Agent Arg1:T2 Arg2:T11	
+R9	Theme Arg1:T2 Arg2:T12	
+*	Coref T10 T12
+T13	Entity 437 477	restriction fragment length polymorphism
+T14	Entity 479 483	RFLP
+*	Coref T13 T14 T16
+T15	Entity 509 519	one allele
+T16	Entity 529 535	a RFLP
+R10	Agent Arg1:T3 Arg2:T15	
+R11	Theme Arg1:T3 Arg2:T16	
+T17	Entity 552 562	the enzyme
+R13	Theme Arg1:T4 Arg2:T15	
+T18	Entity 601 661	a different mixture of fragments for each of the two alleles
+R14	Theme Arg1:T6 Arg2:T18	
+T19	Entity 663 675	Each mixture
+R15	Agent Arg1:T5 Arg2:T19	
+T20	Entity 686 729	its own band pattern in gel electrophoresis
+R16	Theme Arg1:T5 Arg2:T20	
+R17	Cause Arg1:T1 Arg2:T3	
+R18	Super Arg1:T1 Arg2:T8	
+R19	Super Arg1:T4 Arg2:T8	
+R20	Super Arg1:T6 Arg2:T8	
+R21	Super Arg1:T5 Arg2:T8	
+T21	Trigger 568 578	recognizes
+T22	Entity 579 587	the site
+R22	Theme Arg1:T21 Arg2:T22	
+R23	Agent Arg1:T21 Arg2:T17	
+R12	Super Arg1:T21 Arg2:T8	

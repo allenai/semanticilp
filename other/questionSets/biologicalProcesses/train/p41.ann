@@ -1,0 +1,42 @@
+T1	Trigger 105 116	transcribed
+T2	Trigger 24 29	leave
+T3	Trigger 65 78	transposition
+T4	Trigger 161 167	insert
+T5	Trigger 215 224	converted
+T6	Trigger 488 497	insertion
+R1	Enable Arg1:T1 Arg2:T2	
+R2	Enable Arg1:T1 Arg2:T5	
+R3	Enable Arg1:T5 Arg2:T6	
+*	Same T6 T4
+R4	Super Arg1:T2 Arg2:T3	
+R5	Super Arg1:T1 Arg2:T3	
+R6	Super Arg1:T4 Arg2:T3	
+R7	Super Arg1:T5 Arg2:T3	
+T7	Entity 0 16	Retrotransposons
+T8	Entity 30 36	a copy
+T9	Entity 40 57	the original site
+T10	Entity 86 90	they
+*	Coref T10 T7
+T11	Entity 122 141	an RNA intermediate
+T12	Entity 171 183	another site
+T13	Entity 185 205	the RNA intermediate
+T14	Entity 233 236	DNA
+T15	Entity 240 261	reverse transcriptase
+T16	Entity 263 303	an enzyme encoded by the retrotransposon
+*	Coref T15 T16
+T17	Entity 454 477	Another cellular enzyme
+T18	Entity 501 528	the reverse-transcribed DNA
+T19	Entity 532 542	a new site
+R8	Agent Arg1:T2 Arg2:T7	
+R9	Theme Arg1:T2 Arg2:T8	
+R10	Loc Arg1:T2 Arg2:T9	
+R11	Theme Arg1:T1 Arg2:T10	
+R12	Result Arg1:T1 Arg2:T11	
+R13	Theme Arg1:T4 Arg2:T13	
+R14	Dest Arg1:T4 Arg2:T12	
+R15	Result Arg1:T5 Arg2:T14	
+R16	Agent Arg1:T5 Arg2:T15	
+R17	Agent Arg1:T6 Arg2:T17	
+R18	Theme Arg1:T6 Arg2:T18	
+R19	Dest Arg1:T6 Arg2:T19	
+*	Coref T11 T13

@@ -1,0 +1,19 @@
+T1	Entity 12 57	the clones in our hummingbird genomic library
+T2	Trigger 68 74	stored
+T3	Entity 78 95	a multiwell plate
+R1	Loc Arg1:T2 Arg2:T3	
+R2	Theme Arg1:T2 Arg2:T1	
+T4	Trigger 122 130	transfer
+T5	Entity 131 142	a few cells
+T6	Entity 148 157	each well
+T7	Entity 161 225	a defined location on a membrane made of nylon or nitrocellulose
+R3	Theme Arg1:T4 Arg2:T5	
+R4	Source Arg1:T4 Arg2:T6	
+R5	Dest Arg1:T4 Arg2:T7	
+T8	Trigger 234 240	screen
+T9	Entity 241 265	a large number of clones
+T10	Entity 301 335	DNA complementary to our DNA probe
+R6	Theme Arg1:T8 Arg2:T9	
+R7	Result Arg1:T8 Arg2:T10	
+R8	Enable Arg1:T4 Arg2:T8	
+R9	Enable Arg1:T2 Arg2:T4	

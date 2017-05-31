@@ -1,0 +1,18 @@
+T1	Trigger 36 41	sinks
+T3	Trigger 81 88	deepens
+T4	Trigger 93 100	pinches
+T6	Entity 0 35	A small area of the plasma membrane
+T7	Entity 57 65	a pocket
+R1	Theme Arg1:T1 Arg2:T6	
+T8	Entity 42 48	inward
+R2	Dest Arg1:T1 Arg2:T8	
+T10	Entity 90 92	it
+R8	Theme Arg1:T4 Arg2:T10	
+R9	Enable Arg1:T3 Arg2:T4	
+T11	Entity 113 173	a vesicle containing material that had been outside the cell
+R10	Result Arg1:T4 Arg2:T11	
+R3	Result Arg1:T1 Arg2:T7	
+R4	Enable Arg1:T1 Arg2:T3	
+T2	Entity 70 80	the pocket
+R5	Theme Arg1:T3 Arg2:T2	
+*	Coref T2 T7 T10

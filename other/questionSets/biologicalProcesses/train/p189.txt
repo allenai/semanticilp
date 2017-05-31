@@ -1,0 +1,1 @@
+Having cloned a given gene, researchers can make labeled nucleic acid probes that will hybridize with mRNAs transcribed from the gene. The probes can provide information about when or where in the organism the gene is transcribed. Transcription levels are commonly used as a measure of gene expression.

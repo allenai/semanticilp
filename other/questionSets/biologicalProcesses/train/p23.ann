@@ -1,0 +1,26 @@
+T1	Entity 10 17	current
+T2	Entity 33 50	a DNA-binding dye
+T3	Trigger 73 78	added
+R1	Theme Arg1:T3 Arg2:T2	
+T4	Trigger 21 27	turned
+R2	Theme Arg1:T4 Arg2:T1	
+R3	Enable Arg1:T4 Arg2:T3	
+T5	Entity 80 88	This dye
+T6	Trigger 89 99	fluoresces
+T7	Entity 100 104	pink
+T8	Entity 108 125	ultraviolet light
+R4	Agent Arg1:T6 Arg2:T5	
+R5	Theme Arg1:T6 Arg2:T7	
+R6	Other Arg1:T6 Arg2:T8	
+T9	Trigger 127 136	revealing
+T10	Entity 137 156	the separated bands
+T11	Entity 166 168	it
+T12	Trigger 169 174	binds
+R7	Theme Arg1:T12 Arg2:T11	
+R8	Theme Arg1:T9 Arg2:T10	
+R9	Theme Arg1:T12 Arg2:T10	
+R10	Enable Arg1:T12 Arg2:T9	
+R11	Enable Arg1:T3 Arg2:T9	
+R12	Enable Arg1:T6 Arg2:T9	
+T13	Entity 52 68	ethidium bromide
+*	Coref T2 T13 T5 T11

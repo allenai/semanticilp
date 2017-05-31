@@ -1,0 +1,1 @@
+During DNA replication, DNA polymerases proofread each nucleotide against its template as soon as it is added to the growing strand. Upon finding an incorrectly paired nucleotide, the polymerase removes the nucleotide and then resumes synthesis.

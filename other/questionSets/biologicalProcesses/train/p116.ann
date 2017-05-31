@@ -1,0 +1,29 @@
+T1	Trigger 4 11	binding
+T2	Trigger 150 177	signal transduction pathway
+T3	Trigger 206 214	response
+R1	Super Arg1:T1 Arg2:T2	
+R2	Enable Arg1:T2 Arg2:T3	
+T4	Trigger 285 294	activates
+R3	Cause Arg1:T1 Arg2:T4	
+T5	Trigger 319 328	activates
+R4	Cause Arg1:T4 Arg2:T5	
+T6	Trigger 425 434	activated
+R5	Cause Arg1:T5 Arg2:T6	
+T7	Entity 15 44	a specific signaling molecule
+T8	Entity 48 81	a receptor in the plasma membrane
+R6	Agent Arg1:T1 Arg2:T7	
+R7	Theme Arg1:T1 Arg2:T8	
+T9	Entity 222 230	the cell
+R8	Loc Arg1:T3 Arg2:T9	
+T10	Entity 255 284	the signal-activated receptor
+R9	Agent Arg1:T4 Arg2:T10	
+T11	Entity 295 311	another molecule
+R10	Theme Arg1:T4 Arg2:T11	
+R11	Agent Arg1:T5 Arg2:T11	
+T12	Entity 329 349	yet another molecule
+R12	Theme Arg1:T5 Arg2:T12	
+T13	Entity 368 421	the protein that produces the final cellular response
+R13	Theme Arg1:T6 Arg2:T13	
+R14	Super Arg1:T4 Arg2:T2	
+R15	Super Arg1:T5 Arg2:T2	
+R16	Super Arg1:T6 Arg2:T2	

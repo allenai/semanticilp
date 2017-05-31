@@ -1,0 +1,47 @@
+T1	Trigger 18 27	reactions
+T2	Trigger 46 50	held
+T3	Trigger 83 100	weak interactions
+T4	Trigger 110 124	hydrogen bonds
+T5	Trigger 129 140	ionic bonds
+R1	Enable Arg1:T3 Arg2:T2	
+R2	Super Arg1:T4 Arg2:T3	
+R3	Super Arg1:T5 Arg2:T3	
+T6	Trigger 208 216	catalyze
+T7	Trigger 221 231	conversion
+R4	Cause Arg1:T6 Arg2:T7	
+T8	Trigger 273 280	departs
+R5	Cause Arg1:T7 Arg2:T8	
+T10	Trigger 330 334	take
+R8	Cause Arg1:T2 Arg2:T6	
+R9	Super Arg1:T2 Arg2:T1	
+R10	Super Arg1:T3 Arg2:T1	
+R11	Super Arg1:T6 Arg2:T1	
+R12	Super Arg1:T7 Arg2:T1	
+R13	Super Arg1:T8 Arg2:T1	
+R15	Super Arg1:T10 Arg2:T1	
+T11	Entity 29 42	the substrate
+T12	Entity 54 69	the active site
+T13	Entity 142 207	R groups of a few of the amino acids that make up the active site
+T14	Entity 235 244	substrate
+T15	Entity 248 255	product
+T16	Entity 261 272	the product
+T17	Entity 286 301	the active site
+T18	Entity 303 313	The enzyme
+T19	Entity 367 382	its active site
+T20	Entity 335 361	another substrate molecule
+*	Coref T11 T14
+*	Coref T12 T17 T19
+*	Coref T15 T16
+R16	Theme Arg1:T2 Arg2:T11	
+R17	Loc Arg1:T2 Arg2:T12	
+R18	Agent Arg1:T6 Arg2:T13	
+R19	Theme Arg1:T7 Arg2:T14	
+R20	Result Arg1:T7 Arg2:T15	
+R21	Theme Arg1:T8 Arg2:T16	
+R22	Source Arg1:T8 Arg2:T17	
+R24	Theme Arg1:T10 Arg2:T20	
+R25	Dest Arg1:T10 Arg2:T19	
+T21	Entity 8 17	enzymatic
+R26	Theme Arg1:T1 Arg2:T21	
+R27	Agent Arg1:T10 Arg2:T18	
+R6	Cause Arg1:T8 Arg2:T10	

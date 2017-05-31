@@ -1,0 +1,55 @@
+T1	Trigger 92 101	extracted
+T2	Trigger 238 242	make
+T3	Trigger 495 501	primer
+T4	Trigger 543 564	enzymatic degradation
+T5	Trigger 630 641	synthesized
+T6	Entity 71 91	fully processed mRNA
+R1	Theme Arg1:T1 Arg2:T6	
+T7	Entity 107 140	cells where the gene is expressed
+R2	Source Arg1:T1 Arg2:T7	
+T8	Entity 156 188	The enzyme reverse transcriptase
+T9	Trigger 190 198	obtained
+T10	Entity 204 216	retroviruses
+R3	Theme Arg1:T9 Arg2:T8	
+R4	Source Arg1:T9 Arg2:T10	
+R5	Enable Arg1:T9 Arg2:T2	
+R6	Enable Arg1:T1 Arg2:T2	
+T11	Entity 226 234	in vitro
+R7	Loc Arg1:T2 Arg2:T11	
+T12	Entity 243 305	a single-stranded DNA reverse transcript of each mRNA molecule
+R8	Result Arg1:T2 Arg2:T12	
+T13	Entity 436 489	a short strand of thymine deoxyribonucleotides (dT's)
+R9	Enable Arg1:T3 Arg2:T2	
+R10	Theme Arg1:T3 Arg2:T13	
+T15	Trigger 396 407	poly-A tail
+R12	Enable Arg1:T2 Arg2:T5	
+T16	Entity 578 625	a second DNA strand, complementary to the first
+T17	Entity 645 659	DNA polymerase
+R13	Theme Arg1:T5 Arg2:T16	
+R14	Agent Arg1:T5 Arg2:T17	
+T18	Entity 675 694	double-stranded DNA
+R15	Result Arg1:T5 Arg2:T18	
+T19	Entity 705 722	complementary DNA
+T20	Entity 724 728	cDNA
+*	Coref T18 T19 T20
+T21	Entity 568 576	the mRNA
+R16	Theme Arg1:T4 Arg2:T21	
+R17	Enable Arg1:T4 Arg2:T5	
+*	Coref T6 T21
+T22	Trigger 21 25	make
+T23	Entity 5 16	researchers
+T24	Entity 26 53	another kind of DNA library
+R18	Agent Arg1:T22 Arg2:T23	
+R19	Result Arg1:T22 Arg2:T24	
+R20	Super Arg1:T1 Arg2:T22	
+R21	Super Arg1:T2 Arg2:T22	
+R22	Super Arg1:T9 Arg2:T22	
+R23	Super Arg1:T3 Arg2:T22	
+R24	Super Arg1:T5 Arg2:T22	
+R25	Super Arg1:T4 Arg2:T22	
+T14	Entity 319 341	the 3' end of the mRNA
+R11	Theme Arg1:T15 Arg2:T14	
+R26	Enable Arg1:T15 Arg2:T3	
+T25	Entity 506 531	the reverse transcriptase
+R27	Agent Arg1:T3 Arg2:T25	
+*	Coref T25 T8

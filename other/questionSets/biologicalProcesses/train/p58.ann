@@ -1,0 +1,16 @@
+T1	Trigger 64 71	cut out
+T2	Trigger 73 80	excised
+T3	Trigger 149 155	filled
+*	Same T1 T2
+R1	Enable Arg1:T2 Arg2:T3	
+T4	Entity 15 60	a segment of the strand containing the damage
+T5	Entity 85 105	a DNA-cutting enzyme
+T6	Entity 107 117	a nuclease
+*	Coref T5 T6
+T7	Entity 123 140	the resulting gap
+T8	Entity 164 175	nucleotides
+R2	Theme Arg1:T1 Arg2:T4	
+R3	Agent Arg1:T1 Arg2:T5	
+R4	Result Arg1:T1 Arg2:T7	
+R5	Theme Arg1:T3 Arg2:T7	
+R6	Agent Arg1:T3 Arg2:T8	

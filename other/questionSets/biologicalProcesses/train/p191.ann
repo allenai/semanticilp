@@ -1,0 +1,44 @@
+T1	Trigger 112 121	isolation
+T2	Trigger 216 221	added
+T3	Trigger 277 294	PCR amplification
+T4	Trigger 358 361	run
+T5	Trigger 423 428	bands
+T6	Trigger 57 63	RT-PCR
+T7	Trigger 230 234	make
+R1	Enable Arg1:T1 Arg2:T7	
+R2	Enable Arg1:T2 Arg2:T7	
+R3	Enable Arg1:T7 Arg2:T3	
+R5	Cause Arg1:T4 Arg2:T5	
+T8	Trigger 0 8	Analysis
+R6	Super Arg1:T6 Arg2:T8	
+R7	Super Arg1:T1 Arg2:T6	
+R8	Super Arg1:T2 Arg2:T6	
+R9	Super Arg1:T3 Arg2:T6	
+T9	Entity 12 51	hummingbird beta-globin gene expression
+R10	Theme Arg1:T8 Arg2:T9	
+T10	Entity 125 130	mRNAs
+R11	Theme Arg1:T1 Arg2:T10	
+T11	Entity 136 189	different developmental stages of hummingbird embryos
+R12	Source Arg1:T1 Arg2:T11	
+T12	Entity 191 212	Reverse transcriptase
+R13	Theme Arg1:T2 Arg2:T12	
+T14	Entity 301 334	primers from the beta-globin gene
+R16	Agent Arg1:T3 Arg2:T14	
+T15	Entity 341 353	the products
+R17	Theme Arg1:T4 Arg2:T15	
+T16	Entity 365 370	a gel
+R18	Loc Arg1:T4 Arg2:T16	
+T17	Entity 372 402	copies of the amplified region
+T18	Entity 437 491	samples that originally contained the beta-globin mRNA
+R19	Theme Arg1:T5 Arg2:T17	
+R20	Source Arg1:T5 Arg2:T18	
+R21	Super Arg1:T7 Arg2:T6	
+R14	Super Arg1:T4 Arg2:T8	
+R15	Super Arg1:T5 Arg2:T8	
+T13	Entity 235 239	cDNA
+R22	Result Arg1:T7 Arg2:T13	
+T19	Entity 264 272	template
+*	Coref T13 T19
+R24	Theme Arg1:T3 Arg2:T19	
+R4	Enable Arg1:T6 Arg2:T4	
+#1	AnnotatorNotes R6	enable or super?

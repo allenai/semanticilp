@@ -1,0 +1,28 @@
+T1	Trigger 50 54	acts
+T2	Trigger 95 103	activate
+T3	Trigger 219 228	activated
+T4	Trigger 301 308	release
+T5	Trigger 273 277	uses
+T6	Entity 232 265	the enzyme glycogen phosphorylase
+R1	Agent Arg1:T5 Arg2:T6	
+T7	Entity 278 297	inorganic phosphate
+R2	Theme Arg1:T5 Arg2:T7	
+T8	Entity 309 325	glucose monomers
+T9	Entity 331 339	glycogen
+T10	Entity 26 49	the hormone epinephrine
+T11	Entity 63 91	a G protein-coupled receptor
+T12	Entity 104 175	a succession of relay molecules, including cAMP and two protein kinases
+T13	Entity 201 218	The final protein
+R3	Agent Arg1:T1 Arg2:T10	
+R4	Theme Arg1:T1 Arg2:T11	
+R5	Cause Arg1:T1 Arg2:T2	
+R6	Cause Arg1:T2 Arg2:T3	
+R7	Enable Arg1:T5 Arg2:T4	
+R8	Super Arg1:T5 Arg2:T3	
+R9	Super Arg1:T4 Arg2:T3	
+R10	Theme Arg1:T2 Arg2:T12	
+R11	Theme Arg1:T3 Arg2:T13	
+*	Coref T13 T6
+R12	Theme Arg1:T4 Arg2:T8	
+R13	Agent Arg1:T4 Arg2:T7	
+R14	Source Arg1:T4 Arg2:T9	

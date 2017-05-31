@@ -1,0 +1,67 @@
+T1	Trigger 5 28	oxygenic photosynthesis
+T2	Entity 44 55	the free O2
+T3	Trigger 77 86	dissolved
+T4	Entity 90 111	the surrounding water
+T5	Trigger 121 128	reached
+T6	Entity 129 156	a high enough concentration
+T7	Trigger 160 165	react
+T8	Entity 171 185	dissolved iron
+R1	Result Arg1:T1 Arg2:T2	
+R2	Theme Arg1:T3 Arg2:T2	
+R3	Loc Arg1:T3 Arg2:T4	
+R4	Enable Arg1:T3 Arg2:T5	
+R5	Enable Arg1:T1 Arg2:T3	
+T9	Entity 118 120	it
+R6	Theme Arg1:T7 Arg2:T8	
+R7	Theme Arg1:T5 Arg2:T9	
+R8	Theme Arg1:T5 Arg2:T6	
+*	Coref T9 T2
+R9	Enable Arg1:T5 Arg2:T7	
+R10	Agent Arg1:T7 Arg2:T9	
+T10	Entity 210 218	the iron
+T11	Trigger 222 233	precipitate
+T12	Entity 237 247	iron oxide
+R11	Cause Arg1:T7 Arg2:T11	
+R12	Theme Arg1:T11 Arg2:T10	
+R13	Result Arg1:T11 Arg2:T12	
+T13	Trigger 255 266	accumulated
+T14	Entity 270 279	sediments
+R14	Theme Arg1:T13 Arg2:T12	
+R15	Result Arg1:T13 Arg2:T14	
+R16	Enable Arg1:T11 Arg2:T13	
+T15	Entity 281 296	These sediments
+T16	Trigger 302 312	compressed
+T17	Entity 318 340	banded iron formations
+T18	Entity 342 382	red layers of rock containing iron oxide
+T20	Entity 392 418	a source of iron ore today
+*	Coref T18 T20 T17
+R17	Result Arg1:T16 Arg2:T17	
+R18	Theme Arg1:T16 Arg2:T15	
+*	Coref T15 T14
+R19	Enable Arg1:T13 Arg2:T16	
+T19	Trigger 455 467	precipitated
+T21	Entity 425 450	all of the dissolved iron
+R20	Theme Arg1:T19 Arg2:T21	
+T22	Entity 469 482	additional O2
+T23	Trigger 483 492	dissolved
+T24	Entity 496 505	the water
+T25	Entity 512 530	the seas and lakes
+T26	Trigger 538 547	saturated
+T27	Entity 553 555	O2
+R21	Loc Arg1:T26 Arg2:T25	
+R22	Theme Arg1:T26 Arg2:T27	
+R23	Theme Arg1:T23 Arg2:T22	
+R24	Loc Arg1:T23 Arg2:T24	
+*	Same T11 T19
+R25	Enable Arg1:T19 Arg2:T23	
+R26	Enable Arg1:T23 Arg2:T26	
+T28	Trigger 603 606	gas
+T29	Entity 615 624	the water
+T30	Trigger 629 634	enter
+T31	Entity 635 649	the atmosphere
+R27	Dest Arg1:T30 Arg2:T31	
+R28	Source Arg1:T28 Arg2:T29	
+T32	Entity 578 584	the O2
+R29	Theme Arg1:T28 Arg2:T32	
+R30	Enable Arg1:T26 Arg2:T28	
+R31	Cause Arg1:T28 Arg2:T30	

@@ -1,0 +1,58 @@
+T1	Trigger 22 39	citric acid cycle
+T2	Entity 381 411	The acetyl group of acetyl CoA
+T3	Trigger 431 440	combining
+T4	Entity 446 471	the compound oxaloacetate
+T5	Entity 481 488	citrate
+R1	Theme Arg1:T3 Arg2:T4	
+R2	Theme Arg1:T3 Arg2:T2	
+R3	Result Arg1:T3 Arg2:T5	
+T6	Entity 500 507	Citrate
+T7	Entity 511 542	the ionized form of citric acid
+*	Coref T7 T6 T8
+T8	Entity 610 617	citrate
+T9	Trigger 596 605	decompose
+R4	Theme Arg1:T9 Arg2:T8	
+T10	Entity 626 638	oxaloacetate
+R5	Result Arg1:T9 Arg2:T10	
+R6	Enable Arg1:T3 Arg2:T9	
+T11	Trigger 651 663	regeneration
+T12	Entity 667 679	oxaloacetate
+*	Same T9 T11
+R7	Theme Arg1:T11 Arg2:T12	
+T13	Trigger 843 850	reduced
+T14	Entity 832 838	3 NAD+
+T15	Entity 854 858	NADH
+R8	Theme Arg1:T13 Arg2:T14	
+R9	Result Arg1:T13 Arg2:T15	
+T16	Trigger 905 916	transferred
+T17	Entity 891 900	electrons
+T18	Entity 937 940	FAD
+R10	Theme Arg1:T16 Arg2:T17	
+R11	Result Arg1:T16 Arg2:T18	
+T19	Trigger 948 955	accepts
+T20	Entity 956 967	2 electrons
+T21	Entity 972 981	2 protons
+R12	Enable Arg1:T16 Arg2:T19	
+R13	Agent Arg1:T19 Arg2:T18	
+R14	Theme Arg1:T19 Arg2:T20	
+R15	Theme Arg1:T19 Arg2:T21	
+T22	Entity 992 997	FADH2
+R16	Result Arg1:T19 Arg2:T22	
+T23	Trigger 1087 1118	substrate-level phosphorylation
+T24	Entity 1046 1068	guanosine triphosphate
+T25	Entity 1070 1073	GTP
+*	Coref T25 T24
+R17	Result Arg1:T23 Arg2:T25	
+T26	Entity 1028 1034	step 5
+R18	Agent Arg1:T23 Arg2:T26	
+R19	Super Arg1:T3 Arg2:T1	
+R20	Super Arg1:T9 Arg2:T1	
+R21	Super Arg1:T11 Arg2:T1	
+R22	Super Arg1:T13 Arg2:T28	
+R23	Super Arg1:T16 Arg2:T28	
+R24	Super Arg1:T19 Arg2:T28	
+R25	Super Arg1:T23 Arg2:T28	
+T27	Entity 729 754	the energy-rich molecules
+T28	Trigger 771 788	citric acid cycle
+R26	Result Arg1:T28 Arg2:T27	
+*	Same T1 T28

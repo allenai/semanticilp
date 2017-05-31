@@ -1,0 +1,45 @@
+T1	Trigger 0 19	Sickle-cell disease
+T2	Trigger 37 49	substitution
+R1	Super Arg1:T2 Arg2:T1	
+T3	Entity 53 72	a single amino acid
+T4	Entity 76 117	the hemoglobin protein of red blood cells
+R2	Theme Arg1:T2 Arg2:T3	
+R3	Loc Arg1:T2 Arg2:T4	
+T5	Trigger 365 374	aggregate
+T6	Trigger 395 401	deform
+T7	Trigger 264 267	low
+T8	Trigger 473 478	clump
+T9	Trigger 483 487	clog
+R4	Cause Arg1:T2 Arg2:T5	
+R5	Cause Arg1:T7 Arg2:T5	
+R6	Cause Arg1:T5 Arg2:T6	
+R7	Enable Arg1:T6 Arg2:T8	
+R8	Enable Arg1:T8 Arg2:T9	
+T10	Entity 208 260	the oxygen content of an affected individual's blood
+R9	Theme Arg1:T7 Arg2:T10	
+T12	Entity 328 364	the sickle-cell hemoglobin molecules
+T13	Entity 380 389	long rods
+T14	Entity 402 415	the red cells
+T15	Entity 421 435	a sickle shape
+R11	Theme Arg1:T5 Arg2:T12	
+R12	Result Arg1:T5 Arg2:T13	
+R13	Agent Arg1:T6 Arg2:T13	
+R14	Theme Arg1:T6 Arg2:T14	
+R15	Result Arg1:T6 Arg2:T15	
+T16	Entity 455 468	Sickled cells
+T17	Entity 488 507	small blood vessels
+R16	Theme Arg1:T8 Arg2:T16	
+R17	Agent Arg1:T9 Arg2:T16	
+R18	Theme Arg1:T9 Arg2:T17	
+T11	Entity 572 589	physical weakness
+T19	Entity 591 595	pain
+T20	Entity 597 609	organ damage
+T21	Entity 615 629	even paralysis
+R10	Result Arg1:T9 Arg2:T11	
+R20	Result Arg1:T9 Arg2:T19	
+R21	Result Arg1:T9 Arg2:T20	
+R22	Result Arg1:T9 Arg2:T21	
+R19	Super Arg1:T5 Arg2:T1	
+R23	Super Arg1:T6 Arg2:T1	
+R24	Super Arg1:T8 Arg2:T1	
+R25	Super Arg1:T9 Arg2:T1	

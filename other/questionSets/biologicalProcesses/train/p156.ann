@@ -1,0 +1,32 @@
+T1	Trigger 50 57	contact
+T2	Trigger 129 135	strong
+T3	Trigger 145 154	gene flow
+R1	Enable Arg1:T1 Arg2:T3	
+R2	Enable Arg1:T2 Arg2:T3	
+T4	Trigger 192 198	weaken
+R3	Enable Arg1:T3 Arg2:T4	
+T5	Trigger 245 270	become increasingly alike
+R4	Enable Arg1:T4 Arg2:T5	
+T6	Trigger 306 314	reverses
+T7	Trigger 366 370	fuse
+R5	Enable Arg1:T6 Arg2:T7	
+R6	Cause Arg1:T5 Arg2:T6	
+T8	Entity 38 49	two species
+R7	Theme Arg1:T1 Arg2:T8	
+T9	Entity 58 69	one another
+R8	Theme Arg1:T1 Arg2:T9	
+T10	Entity 73 86	a hybrid zone
+R9	Loc Arg1:T1 Arg2:T10	
+T11	Entity 92 120	the barriers to reproduction
+R10	Theme Arg1:T2 Arg2:T11	
+T12	Entity 170 191	reproductive barriers
+*	Coref T11 T12
+R11	Theme Arg1:T4 Arg2:T12	
+T13	Entity 211 244	the gene pools of the two species
+R12	Theme Arg1:T5 Arg2:T13	
+T14	Entity 283 305	the speciation process
+R13	Theme Arg1:T6 Arg2:T14	
+T15	Entity 335 362	the two hybridizing species
+R14	Theme Arg1:T7 Arg2:T15	
+T16	Entity 376 392	a single species
+R15	Result Arg1:T7 Arg2:T16	

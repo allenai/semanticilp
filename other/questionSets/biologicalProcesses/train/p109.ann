@@ -1,0 +1,58 @@
+T1	Trigger 16 25	telophase
+T2	Trigger 69 73	move
+T3	Trigger 131 139	coalesce
+T4	Entity 27 35	vesicles
+T5	Entity 96 118	the middle of the cell
+R1	Theme Arg1:T2 Arg2:T4	
+R2	Dest Arg1:T2 Arg2:T5	
+R3	Theme Arg1:T3 Arg2:T4	
+T6	Entity 151 163	a cell plate
+R4	Result Arg1:T3 Arg2:T6	
+R5	Enable Arg1:T2 Arg2:T3	
+R6	Super Arg1:T2 Arg2:T1	
+T7	Trigger 225 232	collect
+T8	Entity 181 200	Cell wall materials
+T9	Entity 236 250	the cell plate
+R7	Theme Arg1:T7 Arg2:T8	
+R8	Loc Arg1:T7 Arg2:T9	
+T10	Trigger 279 287	enlarges
+T11	Trigger 319 324	fuses
+T12	Entity 264 278	The cell plate
+T13	Entity 298 318	surrounding membrane
+R9	Theme Arg1:T10 Arg2:T12	
+T14	Entity 330 349	the plasma membrane
+R10	Theme Arg1:T11 Arg2:T13	
+R11	Theme Arg1:T11 Arg2:T14	
+R12	Enable Arg1:T10 Arg2:T11	
+T15	Entity 383 401	Two daughter cells
+R14	Result Arg1:T11 Arg2:T15	
+T16	Trigger 520 526	formed
+T17	Entity 456 471	a new cell wall
+T18	Entity 485 515	the contents of the cell plate
+R15	Agent Arg1:T16 Arg2:T18	
+R16	Theme Arg1:T16 Arg2:T17	
+T20	Trigger 257 262	grows
+R18	Theme Arg1:T20 Arg2:T9	
+R19	Enable Arg1:T3 Arg2:T20	
+R20	Cause Arg1:T20 Arg2:T7	
+T22	Entity 356 381	the perimeter of the cell
+R22	Loc Arg1:T11 Arg2:T22	
+T23	Entity 527 553	between the daughter cells
+R23	Loc Arg1:T16 Arg2:T23	
+R24	Enable Arg1:T10 Arg2:T16	
+T19	Trigger 36 43	derived
+R13	Enable Arg1:T19 Arg2:T2	
+R17	Theme Arg1:T19 Arg2:T4	
+T21	Entity 49 68	the Golgi apparatus
+R25	Source Arg1:T19 Arg2:T21	
+T24	Trigger 201 208	carried
+R26	Enable Arg1:T24 Arg2:T7	
+R27	Theme Arg1:T24 Arg2:T8	
+T25	Entity 212 224	the vesicles
+R28	Agent Arg1:T24 Arg2:T25	
+*	Coref T4 T25
+*	Same T20 T10
+R21	Super Arg1:T20 Arg2:T1	
+R29	Super Arg1:T11 Arg2:T1	
+R30	Super Arg1:T16 Arg2:T1	
+R31	Super Arg1:T3 Arg2:T1	

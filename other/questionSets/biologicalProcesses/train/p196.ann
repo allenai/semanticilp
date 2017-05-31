@@ -1,0 +1,33 @@
+T1	Entity 225 278	differentiated cells taken from the root (the carrot)
+T2	Trigger 283 292	incubated
+T3	Entity 296 310	culture medium
+T4	Trigger 317 321	grow
+T5	Entity 327 346	normal adult plants
+T6	Trigger 365 374	identical
+T7	Entity 378 394	the parent plant
+R1	Theme Arg1:T6 Arg2:T7	
+R2	Theme Arg1:T6 Arg2:T5	
+R3	Result Arg1:T4 Arg2:T5	
+R4	Enable Arg1:T4 Arg2:T6	
+R5	Theme Arg1:T4 Arg2:T1	
+R6	Loc Arg1:T2 Arg2:T3	
+R7	Enable Arg1:T2 Arg2:T4	
+R8	Theme Arg1:T2 Arg2:T1	
+T8	Trigger 422 437	differentiation
+T9	TriggerNot 480 487	changes
+T10	Entity 491 498	the DNA
+R9	Enable Arg1:T9 Arg2:T8	
+R10	Theme Arg1:T9 Arg2:T10	
+R11	Enable Arg1:T8 Arg2:T6	
+T11	Entity 503 509	plants
+T12	Entity 521 533	mature cells
+T13	Trigger 538 553	dedifferentiate
+T14	Entity 576 622	all the specialized cell types of the organism
+T15	Trigger 563 572	give rise
+R12	Enable Arg1:T13 Arg2:T15	
+R13	Result Arg1:T15 Arg2:T14	
+R14	Agent Arg1:T15 Arg2:T12	
+R15	Agent Arg1:T13 Arg2:T12	
+R16	Loc Arg1:T13 Arg2:T11	
+R17	Loc Arg1:T15 Arg2:T11	
+*	Same T8 T13

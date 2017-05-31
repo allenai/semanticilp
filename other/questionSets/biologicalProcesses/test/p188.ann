@@ -1,0 +1,24 @@
+T1	Trigger 157 168	immobilized
+T2	Trigger 187 192	added
+T3	Trigger 214 224	sequencing
+T4	Trigger 228 237	synthesis
+R1	Super Arg1:T4 Arg2:T3	
+T5	Entity 241 263	a complementary strand
+R2	Theme Arg1:T4 Arg2:T5	
+T6	Trigger 339 347	identify
+T7	Trigger 397 410	determination
+R3	Enable Arg1:T6 Arg2:T7	
+R4	Enable Arg1:T4 Arg2:T7	
+R5	Super Arg1:T7 Arg2:T3	
+T8	Entity 414 426	the sequence
+R6	Enable Arg1:T1 Arg2:T3	
+R7	Enable Arg1:T2 Arg2:T3	
+T9	Entity 129 153	a single template strand
+T10	Entity 174 182	reagents
+R8	Theme Arg1:T2 Arg2:T10	
+R9	Theme Arg1:T1 Arg2:T9	
+T11	Entity 316 335	electronic monitors
+T12	Entity 357 377	the four nucleotides
+R10	Theme Arg1:T7 Arg2:T8	
+R11	Agent Arg1:T6 Arg2:T11	
+R12	Theme Arg1:T6 Arg2:T12	

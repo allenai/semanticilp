@@ -1,0 +1,29 @@
+T2	Entity 5 12	cyclins
+T3	Entity 54 67	Cdk molecules
+T4	Trigger 95 109	phosphorylates
+T5	Trigger 144 151	mitosis
+T6	Entity 83 94	MPF complex
+R4	Agent Arg1:T4 Arg2:T6	
+T7	Entity 112 131	variety of proteins
+R5	Theme Arg1:T4 Arg2:T7	
+R7	Enable Arg1:T4 Arg2:T5	
+T8	Trigger 181 187	kinase
+T9	Entity 153 156	MPF
+R8	Theme Arg1:T8 Arg2:T9	
+T11	Trigger 206 216	activating
+T12	Entity 217 230	other kinases
+R10	Agent Arg1:T11 Arg2:T9	
+R11	Theme Arg1:T11 Arg2:T12	
+*	Coref T6 T9
+T1	Trigger 18 28	accumulate
+T13	Trigger 36 38	G2
+T14	Trigger 39 48	associate
+R1	Super Arg1:T1 Arg2:T13	
+R2	Theme Arg1:T1 Arg2:T2	
+R3	Enable Arg1:T1 Arg2:T14	
+R6	Theme Arg1:T14 Arg2:T2	
+R12	Theme Arg1:T14 Arg2:T3	
+R13	Result Arg1:T14 Arg2:T6	
+R14	Enable Arg1:T14 Arg2:T4	
+R15	Enable-or Arg1:T8 Arg2:T4	
+R16	Enable-or Arg1:T11 Arg2:T4	

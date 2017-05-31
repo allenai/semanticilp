@@ -1,0 +1,44 @@
+T1	Trigger 107 113	copied
+T2	Trigger 166 175	processed
+R1	Enable Arg1:T1 Arg2:T2	
+T3	Trigger 202 211	associate
+R2	Enable Arg1:T2 Arg2:T3	
+T4	Trigger 314 323	targeting
+T5	Trigger 446 453	recruit
+T6	Trigger 467 473	modify
+R5	Enable Arg1:T4 Arg2:T5	
+R6	Enable Arg1:T5 Arg2:T6	
+T8	Entity 24 41	an RNA transcript
+R7	Theme Arg1:T1 Arg2:T8	
+T10	Entity 119 138	double-stranded RNA
+R9	Result Arg1:T1 Arg2:T10	
+T11	Entity 142 156	a yeast enzyme
+R10	Agent Arg1:T1 Arg2:T11	
+R11	Theme Arg1:T2 Arg2:T10	
+T12	Entity 181 187	siRNAs
+R12	Result Arg1:T2 Arg2:T12	
+T13	Entity 189 201	These siRNAs
+R13	Theme Arg1:T3 Arg2:T13	
+T14	Entity 217 238	a complex of proteins
+R14	Theme Arg1:T3 Arg2:T14	
+R16	Agent Arg1:T4 Arg2:T13	
+T15	Entity 324 335	the complex
+R17	Theme Arg1:T4 Arg2:T15	
+T16	Entity 344 408	RNA transcripts being made from the centromeric sequences of DNA
+R18	Dest Arg1:T4 Arg2:T16	
+T17	Entity 422 445	proteins in the complex
+R19	Agent Arg1:T5 Arg2:T17	
+T18	Entity 454 461	enzymes
+R20	Theme Arg1:T5 Arg2:T18	
+R21	Agent Arg1:T6 Arg2:T18	
+T19	Entity 474 487	the chromatin
+R22	Theme Arg1:T6 Arg2:T19	
+T20	Entity 505 565	the highly condensed heterochromatin found at the centromere
+R23	Result Arg1:T6 Arg2:T20	
+R3	Cause Arg1:T3 Arg2:T4	
+*	Coref T12 T13
+T7	Trigger 42 50	produced
+R4	Enable Arg1:T7 Arg2:T1	
+T9	Entity 56 103	DNA in the centromeric region of the chromosome
+R8	Source Arg1:T7 Arg2:T9	
+R15	Result Arg1:T7 Arg2:T8	

@@ -1,0 +1,16 @@
+T1	Trigger 25 36	transcribed
+T2	Entity 0 20	The rearranged genes
+T3	Entity 42 57	the transcripts
+T4	Trigger 76 87	translation
+R1	Enable Arg1:T1 Arg2:T4	
+R2	Theme Arg1:T4 Arg2:T3	
+R3	Result Arg1:T1 Arg2:T3	
+R4	Theme Arg1:T1 Arg2:T2	
+T5	Entity 112 127	the light chain
+T6	Entity 132 143	heavy chain
+T7	Trigger 144 152	assemble
+T8	Entity 171 190	an antigen receptor
+R5	Theme Arg1:T7 Arg2:T6	
+R6	Theme Arg1:T7 Arg2:T5	
+R7	Result Arg1:T7 Arg2:T8	
+R8	Enable Arg1:T4 Arg2:T7	

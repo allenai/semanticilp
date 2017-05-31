@@ -1,0 +1,45 @@
+T1	Trigger 17 24	took up
+T2	Trigger 66 75	reproduce
+T3	Trigger 80 84	form
+T4	Trigger 163 172	hydrolyze
+T5	Trigger 180 187	forming
+T6	Trigger 141 145	blue
+T7	Trigger 257 266	disrupted
+T8	Trigger 302 311	hydrolyze
+R1	Prevent Arg1:T7 Arg2:T8	
+T9	Trigger 276 281	white
+R3	Cause Arg1:T4 Arg2:T5	
+R4	Cause Arg1:T5 Arg2:T6	
+R5	Enable Arg1:T1 Arg2:T2	
+R6	Cause Arg1:T2 Arg2:T3	
+R7	Enable-or Arg1:T3 Arg2:T6	
+T10	Entity 0 11	Only a cell
+R8	Agent Arg1:T1 Arg2:T10	
+T11	Entity 25 59	a plasmid, which has the ampR gene
+R9	Theme Arg1:T1 Arg2:T11	
+R10	Theme Arg1:T2 Arg2:T10	
+R11	Agent Arg1:T3 Arg2:T10	
+T12	Entity 85 93	a colony
+R12	Result Arg1:T3 Arg2:T12	
+T13	Entity 95 132	Colonies with nonrecombinant plasmids
+R13	Theme Arg1:T6 Arg2:T13	
+R14	Agent Arg1:T4 Arg2:T13	
+T14	Entity 173 178	X-gal
+R15	Theme Arg1:T4 Arg2:T14	
+T15	Entity 188 202	a blue product
+R16	Result Arg1:T5 Arg2:T15	
+R17	Agent Arg1:T5 Arg2:T13	
+T16	Entity 204 238	Colonies with recombinant plasmids
+T17	Entity 249 253	lacZ
+R18	Theme Arg1:T7 Arg2:T17	
+T18	Entity 312 317	X-gal
+R19	Theme Arg1:T8 Arg2:T18	
+R20	Agent Arg1:T8 Arg2:T16	
+R21	Theme Arg1:T9 Arg2:T16	
+R22	Enable-or Arg1:T3 Arg2:T9	
+R23	Loc Arg1:T7 Arg2:T16	
+T19	Entity 290 294	they
+*	Coref T19 T16
+R24	Agent Arg1:T8 Arg2:T19	
+R25	Agent Arg1:T5 Arg2:T13	
+R26	Cause Arg1:T8 Arg2:T9	

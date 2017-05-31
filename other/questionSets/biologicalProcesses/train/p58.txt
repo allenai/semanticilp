@@ -1,0 +1,1 @@
+In many cases, a segment of the strand containing the damage is cut out (excised) by a DNA-cutting enzyme: a nuclease: and the resulting gap is then filled in with nucleotides, using the undamaged strand as a template. The enzymes involved in filling the gap are a DNA polymerase and DNA ligase. One such DNA repair system is called nucleotide excision repair (Figure 16.19).

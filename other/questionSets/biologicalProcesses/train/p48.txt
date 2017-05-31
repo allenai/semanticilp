@@ -1,0 +1,1 @@
+The RNA molecule whose sequence is best suited to the surrounding environment and has the greatest ability to replicate itself will leave the most descendant molecules. Occasionally, a copying error will result in a molecule that folds into a shape that is even more stable or more adept at self-replication than the ancestral sequence.

@@ -1,0 +1,1 @@
+In this method, we carry out gel electrophoresis on samples of mRNA from hummingbird embryos at different stages of development, transfer the samples to a nitrocellulose membrane, and then allow the mRNAs on the membrane to hybridize with a labeled probe recognizing beta-globin mRNA.

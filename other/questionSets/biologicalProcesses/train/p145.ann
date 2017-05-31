@@ -1,0 +1,46 @@
+T1	Trigger 186 200	founder effect
+T2	Trigger 30 38	isolated
+T3	Trigger 88 97	establish
+T5	Trigger 286 291	blown
+T6	Trigger 440 450	transports
+T7	Trigger 320 333	Genetic drift
+R1	Enable Arg1:T2 Arg2:T3	
+R3	Super Arg1:T2 Arg2:T1	
+R4	Super Arg1:T3 Arg2:T1	
+R7	Enable Arg1:T6 Arg2:T17	
+R8	Enable Arg1:T7 Arg2:T1	
+T8	Entity 5 22	a few individuals
+T9	Entity 44 63	a larger population
+R9	Theme Arg1:T2 Arg2:T8	
+R10	Source Arg1:T2 Arg2:T9	
+T10	Entity 65 83	this smaller group
+R11	Agent Arg1:T3 Arg2:T10	
+*	Coref T10 T8
+T11	Entity 98 165	a new population whose gene pool differs from the source population
+R2	Result Arg1:T3 Arg2:T11	
+T4	Entity 252 281	a few members of a population
+T12	Entity 295 302	a storm
+T13	Entity 306 318	a new island
+R5	Theme Arg1:T5 Arg2:T4	
+R12	Agent Arg1:T5 Arg2:T12	
+R13	Dest Arg1:T5 Arg2:T13	
+T14	Entity 413 422	the storm
+T15	Entity 451 531	some individuals (and their alleles), but not others, from the source population
+R14	Agent Arg1:T6 Arg2:T14	
+T17	Trigger 358 363	alter
+*	Same T7 T17
+T18	Entity 344 357	chance events
+T19	Entity 364 382	allele frequencies
+R17	Agent Arg1:T17 Arg2:T18	
+R18	Theme Arg1:T17 Arg2:T19	
+T23	Trigger 206 220	founder effect
+*	Same T1 T23 T21
+R6	Super Arg1:T5 Arg2:T23	
+T20	Trigger 589 603	high frequency
+T21	Trigger 537 551	founder effect
+R19	Enable Arg1:T21 Arg2:T20	
+T22	Entity 607 667	certain inherited disorders among isolated human populations
+R20	Theme Arg1:T20 Arg2:T22	
+#1	AnnotatorNotes T5	Example of founder effect
+*	Same T5 T6
+R15	Theme Arg1:T6 Arg2:T15	

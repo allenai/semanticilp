@@ -1,0 +1,6 @@
+T2	TriggerNot 77 86	gene flow
+T3	Trigger 41 61	sympatric speciation
+R2	Enable Arg1:T2 Arg2:T3	
+T4	Entity 99 125	the isolated subpopulation
+R3	Source Arg1:T2 Arg2:T4	
+R4	Dest Arg1:T2 Arg2:T4	

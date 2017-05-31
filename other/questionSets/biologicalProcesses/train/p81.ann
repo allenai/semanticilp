@@ -1,0 +1,119 @@
+T1	Trigger 202 206	open
+T2	Trigger 242 247	close
+T3	Trigger 314 321	Closing
+T4	Trigger 365 373	conserve
+T5	Trigger 411 419	entering
+T6	Trigger 473 477	open
+T7	Trigger 492 499	take up
+T8	Trigger 508 519	incorporate
+T9	Trigger 595 623	crassulacean acid metabolism
+T10	Trigger 628 631	CAM
+*	Same T10 T9 T11 T49
+T11	Trigger 561 565	mode
+T12	Trigger 762 767	store
+T13	Trigger 791 795	make
+T15	Trigger 895 910	light reactions
+T16	Trigger 965 973	released
+T17	Trigger 1029 1041	incorporated
+R1	Enable Arg1:T1 Arg2:T2	
+*	Same T2 T3
+R2	Enable Arg1:T3 Arg2:T4	
+R3	Prevent Arg1:T3 Arg2:T5	
+*	Same T6 T1
+R4	Enable Arg1:T6 Arg2:T7	
+R5	Cause Arg1:T7 Arg2:T8	
+R6	Enable Arg1:T13 Arg2:T12	
+R7	Enable Arg1:T12 Arg2:T16	
+R8	Enable Arg1:T15 Arg2:T16	
+R9	Enable Arg1:T16 Arg2:T17	
+R10	Super Arg1:T1 Arg2:T10	
+R11	Super Arg1:T2 Arg2:T10	
+R12	Super Arg1:T4 Arg2:T10	
+R14	Super Arg1:T7 Arg2:T10	
+R15	Super Arg1:T8 Arg2:T10	
+R16	Super Arg1:T12 Arg2:T10	
+R17	Super Arg1:T13 Arg2:T10	
+R18	Super Arg1:T15 Arg2:T10	
+R19	Super Arg1:T16 Arg2:T10	
+T14	Entity 189 201	These plants
+T18	Entity 207 220	their stomata
+T19	Entity 228 237	the night
+T20	Entity 260 267	the day
+T21	Entity 322 329	stomata
+T22	Entity 337 344	the day
+T23	Entity 351 364	desert plants
+T24	Entity 374 379	water
+T25	Entity 402 405	CO2
+T26	Entity 420 430	the leaves
+T27	Entity 439 448	the night
+T28	Entity 455 468	their stomata
+T29	Entity 479 491	these plants
+T30	Entity 500 503	CO2
+T31	Entity 520 522	it
+T32	Entity 528 554	a variety of organic acids
+*	Coref T31 T30 T25 T43
+*	Coref T20 T22 T39
+*	Coref T19 T27
+*	Coref T18 T21 T28 T33
+R21	Agent Arg1:T1 Arg2:T14	
+R22	Theme Arg1:T1 Arg2:T18	
+R23	Other Arg1:T1 Arg2:T19	
+R24	Agent Arg1:T2 Arg2:T14	
+T33	Entity 248 252	them
+R25	Theme Arg1:T2 Arg2:T33	
+R26	Other Arg1:T2 Arg2:T20	
+R27	Theme Arg1:T3 Arg2:T21	
+R28	Other Arg1:T3 Arg2:T22	
+R29	Agent Arg1:T4 Arg2:T23	
+R30	Theme Arg1:T4 Arg2:T24	
+R31	Theme Arg1:T5 Arg2:T25	
+R32	Dest Arg1:T5 Arg2:T26	
+R33	Theme Arg1:T6 Arg2:T28	
+R34	Other Arg1:T6 Arg2:T27	
+R35	Agent Arg1:T7 Arg2:T29	
+R36	Theme Arg1:T7 Arg2:T30	
+R37	Agent Arg1:T8 Arg2:T29	
+R38	Theme Arg1:T8 Arg2:T31	
+R39	Result Arg1:T8 Arg2:T32	
+T34	Entity 728 761	The mesophyll cells of CAM plants
+T35	Entity 768 785	the organic acids
+T36	Entity 786 790	they
+T37	Entity 803 812	the night
+T38	Entity 816 830	their vacuoles
+T39	Entity 877 884	the day
+T41	Entity 922 925	ATP
+T42	Entity 930 935	NADPH
+T43	Entity 958 961	CO2
+T44	Entity 979 1018	the organic acids made the night before
+T46	Entity 1047 1052	sugar
+T47	Entity 1056 1072	the chloroplasts
+*	Coref T34 T36
+*	Coref T35 T32 T44
+R40	Other Arg1:T15 Arg2:T39	
+R42	Result Arg1:T15 Arg2:T41	
+R43	Result Arg1:T15 Arg2:T42	
+R44	Theme Arg1:T16 Arg2:T43	
+R45	Source Arg1:T16 Arg2:T44	
+R47	Result Arg1:T17 Arg2:T46	
+R48	Theme Arg1:T17 Arg2:T43	
+R49	Loc Arg1:T17 Arg2:T47	
+*	Same T8 T13
+T40	Trigger 944 956	Calvin cycle
+R13	Enable Arg1:T15 Arg2:T40	
+T48	Entity 569 584	carbon fixation
+R41	Theme Arg1:T11 Arg2:T48	
+T49	Trigger 24 34	adaptation
+T50	Entity 38 53	arid conditions
+R20	Theme Arg1:T49 Arg2:T50	
+T51	Entity 140 187	representatives of several other plant families
+T52	Entity 124 134	pineapples
+T53	Entity 108 122	numerous cacti
+T54	Entity 69 106	many succulent (water-storing) plants
+R50	Agent Arg1:T49 Arg2:T54	
+*	Coref T54 T53 T52 T51 T29 T14 T23
+R51	Agent Arg1:T12 Arg2:T34	
+R52	Theme Arg1:T12 Arg2:T35	
+R53	Agent Arg1:T13 Arg2:T36	
+R54	Result Arg1:T13 Arg2:T35	
+R55	Other Arg1:T13 Arg2:T37	
+R56	Loc Arg1:T12 Arg2:T38	

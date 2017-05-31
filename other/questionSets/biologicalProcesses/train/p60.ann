@@ -1,0 +1,58 @@
+T1	Trigger 40 45	binds
+T2	Trigger 279 288	detecting
+T3	Trigger 327 334	engulfs
+T4	Trigger 341 349	trapping
+T5	Trigger 386 391	fuses
+T6	Trigger 438 449	destruction
+T7	Trigger 492 500	produced
+T8	Trigger 517 523	poison
+T9	Trigger 599 606	degrade
+R1	Enable Arg1:T1 Arg2:T2	
+R2	Enable Arg1:T2 Arg2:T3	
+R3	Cause Arg1:T3 Arg2:T4	
+R4	Enable Arg1:T4 Arg2:T5	
+R5	Enable-or Arg1:T5 Arg2:T8	
+R6	Enable Arg1:T7 Arg2:T8	
+R7	Cause Arg1:T8 Arg2:T6	
+R8	Enable-or Arg1:T5 Arg2:T9	
+R9	Cause Arg1:T9 Arg2:T6	
+T10	Entity 0 33	Each mammalian Toll-like receptor
+T11	Entity 35 38	TLR
+*	Coref T10 T11
+R10	Theme Arg1:T1 Arg2:T11	
+T12	Entity 49 108	fragments of molecules characteristic of a set of pathogens
+R11	Theme Arg1:T1 Arg2:T12	
+T13	Entity 289 307	invading pathogens
+T14	Entity 309 326	a phagocytic cell
+R12	Theme Arg1:T2 Arg2:T13	
+R13	Agent Arg1:T2 Arg2:T14	
+T15	Entity 335 339	them
+R14	Agent Arg1:T3 Arg2:T14	
+R15	Agent Arg1:T4 Arg2:T14	
+*	Coref T13 T15 T16 T20
+R16	Theme Arg1:T3 Arg2:T15	
+T16	Entity 350 354	them
+T17	Entity 358 367	a vacuole
+R17	Loc Arg1:T4 Arg2:T17	
+R18	Theme Arg1:T4 Arg2:T16	
+T18	Entity 369 380	The vacuole
+R19	Theme Arg1:T5 Arg2:T18	
+T19	Entity 397 407	a lysosome
+R20	Theme Arg1:T5 Arg2:T19	
+T20	Entity 453 465	the invaders
+R21	Theme Arg1:T6 Arg2:T20	
+T21	Entity 486 491	gases
+R22	Theme Arg1:T7 Arg2:T21	
+T22	Entity 504 516	the lysosome
+R23	Loc Arg1:T7 Arg2:T22	
+*	Coref T19 T22
+T23	Entity 524 546	the engulfed pathogens
+R24	Theme Arg1:T8 Arg2:T23	
+R25	Agent Arg1:T8 Arg2:T21	
+T24	Entity 556 564	lysozyme
+T25	Entity 569 598	other enzymes in the lysosome
+R26	Agent Arg1:T9 Arg2:T24	
+R27	Agent Arg1:T9 Arg2:T25	
+T26	Entity 607 638	the components of the pathogens
+R28	Theme Arg1:T9 Arg2:T26	
+*	Coref T18 T17

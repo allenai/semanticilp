@@ -1,0 +1,46 @@
+T1	Entity 0 17	A photon of light
+T2	Trigger 18 25	strikes
+T3	Entity 26 83	a pigment molecule in a light-harvesting complex of PS II
+T4	Trigger 85 93	boosting
+T5	Entity 94 114	one of its electrons
+T6	Entity 118 139	a higher energy level
+R1	Theme Arg1:T4 Arg2:T5	
+R2	Dest Arg1:T4 Arg2:T6	
+R3	Enable Arg1:T2 Arg2:T4	
+R4	Theme Arg1:T2 Arg2:T3	
+R5	Agent Arg1:T2 Arg2:T1	
+R6	Agent Arg1:T4 Arg2:T1	
+T7	Entity 144 157	this electron
+T8	Trigger 158 163	falls
+T9	Entity 172 188	its ground state
+T10	Entity 190 230	an electron in a nearby pigment molecule
+T11	Trigger 249 255	raised
+T12	Entity 259 275	an excited state
+*	Coref T5 T7
+R7	Enable Arg1:T4 Arg2:T8	
+R8	Theme Arg1:T8 Arg2:T7	
+R9	Dest Arg1:T8 Arg2:T9	
+R10	Theme Arg1:T11 Arg2:T10	
+R11	Dest Arg1:T11 Arg2:T12	
+R12	Enable Arg1:T8 Arg2:T11	
+T13	Entity 305 315	the energy
+T14	Trigger 322 329	relayed
+T15	Entity 333 356	other pigment molecules
+T16	Trigger 366 373	reaches
+T17	Entity 363 365	it
+T18	Entity 374 451	the P680 pair of chlorophyll a molecules in the PS II reaction-center complex
+R13	Dest Arg1:T16 Arg2:T18	
+R14	Theme Arg1:T16 Arg2:T17	
+R15	Dest Arg1:T14 Arg2:T15	
+R16	Theme Arg1:T14 Arg2:T13	
+*	Coref T13 T17 T23
+R17	Enable Arg1:T14 Arg2:T16	
+T19	Trigger 456 463	excites
+T20	Entity 464 504	an electron in this pair of chlorophylls
+T22	Entity 508 529	a higher energy state
+R21	Theme Arg1:T19 Arg2:T20	
+R22	Dest Arg1:T19 Arg2:T22	
+T23	Entity 453 455	It
+R23	Agent Arg1:T19 Arg2:T23	
+R24	Enable Arg1:T16 Arg2:T19	
+R18	Enable Arg1:T11 Arg2:T14	

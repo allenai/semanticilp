@@ -1,0 +1,24 @@
+T1	Trigger 44 57	crossing over
+T2	Trigger 79 87	cohesion
+T3	Entity 62 78	sister chromatid
+T4	Entity 94 102	the arms
+T5	Trigger 118 127	formation
+R2	Loc Arg1:T2 Arg2:T4	
+R3	Theme Arg1:T2 Arg2:T3	
+R1	Enable Arg1:T2 Arg2:T5	
+R4	Enable Arg1:T1 Arg2:T5	
+T6	Entity 142 151	Chiasmata
+T7	Trigger 152 156	hold
+T8	Entity 157 165	homologs
+R5	Agent Arg1:T7 Arg2:T6	
+R6	Theme Arg1:T7 Arg2:T8	
+T9	Entity 178 189	the spindle
+T10	Trigger 190 195	forms
+R7	Theme Arg1:T10 Arg2:T9	
+T11	Trigger 210 226	meiotic division
+R8	Super Arg1:T10 Arg2:T11	
+R9	Enable Arg1:T10 Arg2:T7	
+R10	Result Arg1:T5 Arg2:T12	
+R11	Enable Arg1:T5 Arg2:T7	
+T12	Entity 133 140	chiasma
+*	Coref T12 T6

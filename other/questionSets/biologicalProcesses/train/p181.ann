@@ -1,0 +1,48 @@
+T1	Trigger 321 330	recognize
+T2	Trigger 359 366	express
+T3	Trigger 253 261	inserted
+T4	Trigger 99 116	expression vector
+T5	Trigger 140 148	contains
+T6	Trigger 388 394	linked
+R1	Super Arg1:T5 Arg2:T4	
+R2	Super Arg1:T3 Arg2:T4	
+R4	Enable Arg1:T1 Arg2:T2	
+R5	Enable Arg1:T6 Arg2:T2	
+T7	Trigger 447 456	synthesis
+T8	Trigger 3 11	overcome
+R7	Enable Arg1:T4 Arg2:T8	
+R6	Enable Arg1:T8 Arg2:T7	
+T9	Entity 12 68	differences in promoters and other DNA control sequences
+R8	Theme Arg1:T8 Arg2:T9	
+T10	Entity 118 134	a cloning vector
+R9	Agent Arg1:T5 Arg2:T10	
+T11	Entity 149 183	a highly active bacterial promoter
+R10	Theme Arg1:T5 Arg2:T11	
+T12	Entity 201 219	a restriction site
+T13	Entity 226 245	the eukaryotic gene
+T14	Entity 265 290	the correct reading frame
+R12	Theme Arg1:T3 Arg2:T13	
+R13	Loc Arg1:T3 Arg2:T14	
+T15	Entity 292 315	The bacterial host cell
+R14	Agent Arg1:T1 Arg2:T15	
+T16	Entity 331 343	the promoter
+R15	Theme Arg1:T1 Arg2:T16	
+*	Coref T16 T11 T18
+R16	Agent Arg1:T2 Arg2:T15	
+T17	Entity 367 383	the foreign gene
+R17	Theme Arg1:T2 Arg2:T17	
+T18	Entity 398 411	that promoter
+R18	Theme Arg1:T6 Arg2:T17	
+R19	Theme Arg1:T6 Arg2:T18	
+*	Coref T17 T13
+T19	Entity 460 484	many eukaryotic proteins
+T20	Entity 488 503	bacterial cells
+R20	Theme Arg1:T7 Arg2:T19	
+R21	Loc Arg1:T7 Arg2:T20	
+R11	Loc Arg1:T3 Arg2:T12	
+R3	Enable Arg1:T5 Arg2:T6	
+R22	Enable Arg1:T3 Arg2:T6	
+T21	Entity 70 80	scientists
+R23	Agent Arg1:T8 Arg2:T21	
+T22	Trigger 418 436	expression vectors
+*	Same T22 T4

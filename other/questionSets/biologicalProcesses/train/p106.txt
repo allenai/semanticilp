@@ -1,0 +1,1 @@
+When cyclins that accumulate during G2 associate with Cdk molecules, the resulting MPF complex phosphorylates a variety of proteins, initiating mitosis. MPF acts both directly as a kinase and indirectly by activating other kinases.

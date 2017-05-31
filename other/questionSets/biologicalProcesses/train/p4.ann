@@ -1,0 +1,46 @@
+T1	Trigger 0 13	Crossing over
+T2	Trigger 35 45	prophase I
+T3	Entity 49 71	homologous chromosomes
+T4	Trigger 72 76	pair
+T5	Entity 85 104	along their lengths
+R1	Loc Arg1:T4 Arg2:T5	
+R2	Agent Arg1:T4 Arg2:T3	
+R3	Theme Arg1:T1 Arg2:T3	
+R4	Enable Arg1:T4 Arg2:T1	
+R5	Super Arg1:T1 Arg2:T2	
+R6	Super Arg1:T4 Arg2:T2	
+T6	Entity 106 130	Each gene on one homolog
+T7	Trigger 134 141	aligned
+T8	Entity 157 200	the corresponding gene on the other homolog
+R7	Theme Arg1:T7 Arg2:T6	
+R8	Theme Arg1:T7 Arg2:T8	
+R9	Super Arg1:T7 Arg2:T2	
+T9	Entity 231 266	the DNA of two nonsister chromatids
+T10	Entity 268 328	one maternal and one paternal chromatid of a homologous pair
+T11	Trigger 333 339	broken
+*	Coref T10 T9
+T12	Trigger 214 223	crossover
+*	Same T12 T1 T21
+R10	Super Arg1:T11 Arg2:T12	
+T13	Entity 343 360	specific proteins
+T14	Entity 364 394	precisely corresponding points
+R11	Agent Arg1:T11 Arg2:T13	
+R12	Theme Arg1:T11 Arg2:T10	
+R13	Loc Arg1:T11 Arg2:T14	
+T15	Entity 400 443	the two segments beyond the crossover point
+T16	Trigger 453 459	joined
+T17	Entity 463 482	the other chromatid
+R14	Enable Arg1:T11 Arg2:T16	
+R15	Super Arg1:T16 Arg2:T12	
+R16	Theme Arg1:T16 Arg2:T15	
+R17	Theme Arg1:T16 Arg2:T17	
+T18	Entity 490 510	a paternal chromatid
+T19	Trigger 514 520	joined
+T20	Entity 524 580	a piece of maternal chromatid beyond the crossover point
+R18	Theme Arg1:T19 Arg2:T18	
+R19	Theme Arg1:T19 Arg2:T20	
+*	Same T16 T19
+R20	Super Arg1:T19 Arg2:T12	
+T21	Trigger 611 624	crossing over
+T22	Entity 634 700	chromosomes with new combinations of maternal and paternal alleles
+R21	Result Arg1:T21 Arg2:T22	

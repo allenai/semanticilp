@@ -1,0 +1,24 @@
+T1	Trigger 386 395	selection
+T2	Trigger 421 427	passed
+T3	Trigger 156 163	exhibit
+T4	Trigger 276 283	produce
+R1	Enable Arg1:T3 Arg2:T4	
+T5	Trigger 47 64	natural selection
+R2	Enable Arg1:T1 Arg2:T2	
+R3	Enable Arg1:T4 Arg2:T2	
+*	Same T5 T1
+R4	Super Arg1:T3 Arg2:T5	
+R5	Super Arg1:T4 Arg2:T5	
+R6	Super Arg1:T2 Arg2:T5	
+T6	Entity 128 155	Individuals in a population
+T8	Entity 164 200	variations in their heritable traits
+T9	Entity 206 267	those with traits that are better suited to their environment
+T10	Entity 284 349	more offspring than those with traits that are not as well suited
+T11	Entity 407 414	alleles
+T12	Entity 431 514	the next generation in proportions that differ from those in the present generation
+R7	Agent Arg1:T4 Arg2:T9	
+R8	Result Arg1:T4 Arg2:T10	
+R9	Agent Arg1:T3 Arg2:T6	
+R10	Theme Arg1:T3 Arg2:T8	
+R11	Theme Arg1:T2 Arg2:T11	
+R12	Dest Arg1:T2 Arg2:T12	

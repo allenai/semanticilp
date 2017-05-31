@@ -1,0 +1,34 @@
+T1	Trigger 71 82	interrupted
+T2	Trigger 9 19	speciation
+R1	Enable Arg1:T1 Arg2:T2	
+T3	Trigger 95 103	changing
+T4	Trigger 178 188	transports
+R2	Enable-or Arg1:T3 Arg2:T1	
+R3	Enable-or Arg1:T4 Arg2:T1	
+T5	Trigger 259 270	interrupted
+T6	Trigger 293 300	diverge
+*	Same T1 T5
+R4	Enable Arg1:T5 Arg2:T6	
+T7	Trigger 348 371	reproductively isolated
+R5	Enable Arg1:T6 Arg2:T7	
+T8	Entity 38 47	gene flow
+T9	Entity 48 67	between populations
+T10	Entity 104 128	environmental conditions
+T11	Entity 165 172	a storm
+R6	Agent Arg1:T4 Arg2:T11	
+T12	Entity 189 206	a few individuals
+T13	Entity 210 226	an isolated area
+R7	Theme Arg1:T4 Arg2:T12	
+R8	Dest Arg1:T4 Arg2:T13	
+T14	Entity 246 255	gene flow
+R9	Theme Arg1:T5 Arg2:T14	
+*	Coref T14 T8
+T15	Entity 272 287	the populations
+T16	Entity 336 340	they
+*	Coref T16 T15
+R10	Theme Arg1:T1 Arg2:T8	
+R11	Source Arg1:T1 Arg2:T9	
+R12	Dest Arg1:T1 Arg2:T9	
+R13	Theme Arg1:T3 Arg2:T10	
+R14	Theme Arg1:T6 Arg2:T15	
+R15	Theme Arg1:T7 Arg2:T16	

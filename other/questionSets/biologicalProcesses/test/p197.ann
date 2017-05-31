@@ -1,0 +1,51 @@
+T1	Trigger 61 70	destroyed
+T2	Entity 71 111	the nuclei of frog (Xenopus laevis) eggs
+T3	Trigger 115 123	exposing
+T4	Entity 124 132	the eggs
+T5	Entity 136 153	ultraviolet light
+R1	Theme Arg1:T1 Arg2:T2	
+R2	Theme Arg1:T3 Arg2:T4	
+R3	Theme Arg1:T3 Arg2:T5	
+R4	Cause Arg1:T3 Arg2:T1	
+T6	Trigger 165 177	transplanted
+T7	Entity 178 224	nuclei from cells of frog embryos and tadpoles
+T8	Entity 230 249	the enucleated eggs
+R5	Result Arg1:T1 Arg2:T8	
+R6	Theme Arg1:T6 Arg2:T7	
+R7	Dest Arg1:T6 Arg2:T8	
+R8	Enable Arg1:T1 Arg2:T6	
+T9	Trigger 387 396	developed
+T10	Entity 360 386	most of the recipient eggs
+T11	Entity 402 410	tadpoles
+R9	Theme Arg1:T9 Arg2:T10	
+R10	Result Arg1:T9 Arg2:T11	
+T12	Trigger 342 358	undifferentiated
+T13	Entity 315 326	whose cells
+T14	Entity 298 313	an early embryo
+R11	Theme Arg1:T12 Arg2:T13	
+R12	Enable Arg1:T12 Arg2:T9	
+R13	Enable-or Arg1:T6 Arg2:T9	
+T15	Entity 442 496	the fully differentiated intestinal cells of a tadpole
+T16	Entity 498 523	fewer than 2% of the eggs
+T17	Trigger 524 533	developed
+T18	Entity 539 554	normal tadpoles
+T19	Entity 560 579	most of the embryos
+T20	Trigger 588 598	developing
+T21	Entity 602 622	a much earlier stage
+R14	Result Arg1:T17 Arg2:T18	
+T22	Trigger 432 436	came
+T23	Trigger 288 292	came
+T24	Entity 264 287	the transplanted nuclei
+R15	Theme Arg1:T23 Arg2:T24	
+R16	Source Arg1:T23 Arg2:T14	
+R17	Cause Arg1:T23 Arg2:T12	
+T25	Entity 421 431	the nuclei
+R18	Theme Arg1:T22 Arg2:T25	
+R19	Source Arg1:T22 Arg2:T15	
+R20	Theme Arg1:T17 Arg2:T16	
+R21	Enable Arg1:T22 Arg2:T17	
+R22	Prevent Arg1:T22 Arg2:T20	
+R23	Enable-or Arg1:T6 Arg2:T17	
+R24	Prevent-or Arg1:T6 Arg2:T20	
+R25	Theme Arg1:T20 Arg2:T19	
+R26	Result Arg1:T20 Arg2:T21	

@@ -1,0 +1,30 @@
+T1	Trigger 36 42	cleave
+T2	Trigger 200 204	have
+T3	Trigger 287 291	form
+T4	Trigger 474 483	permanent
+R1	Cause Arg1:T1 Arg2:T2	
+R2	Enable Arg1:T2 Arg2:T3	
+R3	Enable Arg1:T3 Arg2:T4	
+T5	Entity 0 35	The most useful restriction enzymes
+T6	Entity 43 72	the sugar-phosphate backbones
+T7	Entity 76 95	the two DNA strands
+T8	Entity 148 199	The resulting double-stranded restriction fragments
+T9	Entity 205 237	at least one single-stranded end
+T10	Entity 246 258	a sticky end
+T11	Entity 260 282	These short extensions
+T12	Entity 292 318	hydrogen-bonded base pairs
+T13	Entity 324 401	complementary sticky ends on any other DNA molecules cut with the same enzyme
+R4	Agent Arg1:T3 Arg2:T11	
+R5	Theme Arg1:T3 Arg2:T13	
+R6	Result Arg1:T3 Arg2:T12	
+T14	Entity 487 508	the enzyme DNA ligase
+T15	Entity 403 419	The associations
+*	Coref T12 T15
+R7	Theme Arg1:T4 Arg2:T15	
+R8	Agent Arg1:T4 Arg2:T14	
+R9	Agent Arg1:T1 Arg2:T5	
+R10	Theme Arg1:T1 Arg2:T6	
+R11	Loc Arg1:T1 Arg2:T7	
+R12	Agent Arg1:T2 Arg2:T8	
+R13	Theme Arg1:T2 Arg2:T9	
+*	Coref T9 T10

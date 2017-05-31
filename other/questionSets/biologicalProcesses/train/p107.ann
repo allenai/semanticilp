@@ -1,0 +1,50 @@
+T1	Trigger 27 40	cell division
+T2	Entity 59 94	the DNA of the bacterial chromosome
+T4	Trigger 105 114	replicate
+T5	Entity 160 185	the origin of replication
+T6	Entity 197 208	two origins
+R2	Theme Arg1:T4 Arg2:T2	
+R3	Loc Arg1:T4 Arg2:T5	
+R4	Result Arg1:T4 Arg2:T6	
+R5	Super Arg1:T4 Arg2:T1	
+T7	Trigger 241 250	replicate
+T8	Entity 213 227	the chromosome
+T9	Entity 252 262	one origin
+T10	Trigger 263 268	moves
+R6	Theme Arg1:T10 Arg2:T9	
+R8	Theme Arg1:T7 Arg2:T8	
+R9	Enable Arg1:T7 Arg2:T10	
+*	Same T4 T7 T12 T17
+*	Coref T2 T8 T14
+T12	Trigger 353 364	replicating
+T13	Trigger 375 384	elongates
+T14	Entity 335 349	the chromosome
+T15	Entity 366 374	the cell
+R10	Theme Arg1:T12 Arg2:T14	
+R11	Theme Arg1:T13 Arg2:T15	
+T18	Entity 423 432	bacterium
+T19	Entity 445 473	about twice its initial size
+T20	Trigger 495 502	pinches
+T21	Trigger 511 519	dividing
+T22	Entity 475 494	its plasma membrane
+R16	Theme Arg1:T20 Arg2:T22	
+T23	Entity 520 543	the parent E. coli cell
+T24	Entity 549 567	two daughter cells
+R18	Theme Arg1:T21 Arg2:T23	
+R19	Result Arg1:T21 Arg2:T24	
+R20	Cause Arg1:T20 Arg2:T21	
+R22	Enable Arg1:T10 Arg2:T13	
+T16	Trigger 437 444	reached
+R13	Theme Arg1:T16 Arg2:T18	
+R14	Result Arg1:T16 Arg2:T19	
+R15	Enable Arg1:T13 Arg2:T16	
+R17	Enable Arg1:T16 Arg2:T20	
+T3	Entity 3 10	E. coli
+R1	Theme Arg1:T1 Arg2:T3	
+T11	Entity 284 312	the opposite end of the cell
+R7	Dest Arg1:T10 Arg2:T11	
+T17	Trigger 391 402	replication
+*	Same T21 T1
+T25	Entity 118 152	a specific place on the chromosome
+*	Coref T25 T5
+*	Coref T23 T18

@@ -1,0 +1,61 @@
+T1	Entity 4 36	transmission electron microscope
+T2	Entity 38 41	TEM
+T3	Trigger 54 59	study
+T4	Trigger 118 122	aims
+T5	Trigger 278 285	stained
+T6	Trigger 320 326	attach
+T7	Trigger 364 373	enhancing
+R2	Enable Arg1:T5 Arg2:T6	
+R3	Cause Arg1:T6 Arg2:T7	
+T8	Trigger 486 495	scattered
+T9	Trigger 537 548	transmitted
+R4	Cause Arg1:T8 Arg2:T9	
+T10	Trigger 560 568	displays
+T11	Trigger 679 683	bend
+T12	Trigger 723 731	focusing
+R5	Enable Arg1:T11 Arg2:T12	
+R6	Enable Arg1:T7 Arg2:T8	
+R7	Enable Arg1:T9 Arg2:T10	
+R8	Enable Arg1:T10 Arg2:T12	
+T13	Entity 114 117	TEM
+R9	Enable Arg1:T4 Arg2:T8	
+T14	Entity 60 91	the internal structure of cells
+R19	Theme Arg1:T3 Arg2:T14	
+T15	Entity 123 139	an electron beam
+R20	Theme Arg1:T4 Arg2:T15	
+T16	Entity 148 183	a very thin section of the specimen
+R21	Dest Arg1:T4 Arg2:T16	
+T17	Entity 256 268	The specimen
+R22	Theme Arg1:T5 Arg2:T17	
+T18	Entity 291 312	atoms of heavy metals
+R23	Agent Arg1:T5 Arg2:T18	
+R24	Agent Arg1:T6 Arg2:T18	
+T19	Entity 330 357	certain cellular structures
+R25	Theme Arg1:T6 Arg2:T19	
+T20	Entity 374 420	the electron density of some parts of the cell
+R26	Agent Arg1:T7 Arg2:T18	
+R27	Theme Arg1:T7 Arg2:T20	
+T21	Entity 439 481	The electrons passing through the specimen
+R28	Theme Arg1:T8 Arg2:T21	
+T22	Entity 504 522	the denser regions
+R29	Loc Arg1:T8 Arg2:T22	
+T23	Entity 527 532	fewer
+R30	Theme Arg1:T9 Arg2:T23	
+T24	Entity 550 559	The image
+R31	Agent Arg1:T10 Arg2:T24	
+T25	Entity 569 605	the pattern of transmitted electrons
+R32	Theme Arg1:T10 Arg2:T25	
+T26	Entity 651 665	electromagnets
+R33	Agent Arg1:T11 Arg2:T26	
+T27	Entity 684 710	the paths of the electrons
+R34	Theme Arg1:T11 Arg2:T27	
+T28	Entity 732 741	the image
+R35	Theme Arg1:T12 Arg2:T28	
+R36	Agent Arg1:T12 Arg2:T26	
+T29	Entity 747 768	a monitor for viewing
+R37	Dest Arg1:T12 Arg2:T29	
+*	Coref T24 T28
+*	Coref T1 T2
+R1	Theme Arg1:T3 Arg2:T2	
+R38	Enable Arg1:T12 Arg2:T3	
+R10	Agent Arg1:T4 Arg2:T13	

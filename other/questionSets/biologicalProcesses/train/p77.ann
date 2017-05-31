@@ -1,0 +1,44 @@
+T1	Trigger 29 39	glycolysis
+T2	Trigger 72 89	energy investment
+T3	Trigger 94 107	energy payoff
+R1	Super Arg1:T2 Arg2:T1	
+R2	Super Arg1:T3 Arg2:T1	
+T4	Trigger 120 137	energy investment
+*	Same T2 T4 T6
+T5	Trigger 163 169	spends
+R3	Super Arg1:T5 Arg2:T4	
+T6	Trigger 180 190	investment
+T8	Trigger 226 239	energy payoff
+T9	Trigger 271 302	substrate-level phosphorylation
+T10	Trigger 315 322	reduced
+T11	Trigger 362 371	oxidation
+T12	Trigger 344 352	released
+R5	Enable Arg1:T9 Arg2:T8	
+R6	Cause Arg1:T11 Arg2:T12	
+R7	Enable Arg1:T12 Arg2:T10	
+R8	Enable Arg1:T10 Arg2:T8	
+*	Same T3 T8
+T13	Trigger 410 420	glycolysis
+*	Same T1 T13
+T14	Entity 388 404	net energy yield
+T15	Entity 447 464	2 ATP plus 2 NADH
+R9	Result Arg1:T13 Arg2:T14	
+*	Coref T14 T15
+T16	Entity 145 153	the cell
+R11	Agent Arg1:T5 Arg2:T16	
+T17	Entity 170 173	ATP
+R12	Theme Arg1:T5 Arg2:T17	
+T18	Entity 252 255	ATP
+R13	Result Arg1:T9 Arg2:T18	
+T19	Entity 307 311	NAD+
+R14	Theme Arg1:T10 Arg2:T19	
+T20	Entity 326 330	NADH
+R15	Result Arg1:T10 Arg2:T20	
+T21	Entity 334 343	electrons
+R16	Theme Arg1:T12 Arg2:T21	
+T22	Entity 375 382	glucose
+R17	Theme Arg1:T11 Arg2:T22	
+T23	Entity 426 442	glucose molecule
+R18	Theme Arg1:T13 Arg2:T23	
+R19	Agent Arg1:T10 Arg2:T21	
+R4	Enable Arg1:T6 Arg2:T8	

@@ -1,0 +1,14 @@
+T1	Trigger 119 130	recognizing
+T2	Trigger 189 196	cutting
+R1	Cause Arg1:T1 Arg2:T2	
+T5	Entity 77 100	Each restriction enzyme
+T6	Entity 131 162	a particular short DNA sequence
+T7	Entity 167 183	restriction site
+*	Coref T6 T7
+R3	Agent Arg1:T1 Arg2:T5	
+R4	Theme Arg1:T1 Arg2:T6	
+T8	Entity 197 213	both DNA strands
+R5	Agent Arg1:T2 Arg2:T5	
+R6	Theme Arg1:T2 Arg2:T8	
+T9	Entity 217 260	precise points within this restriction site
+R7	Loc Arg1:T2 Arg2:T9	

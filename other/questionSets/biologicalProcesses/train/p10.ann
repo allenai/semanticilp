@@ -1,0 +1,44 @@
+T1	Trigger 103 116	crossing over
+T2	Trigger 72 77	trade
+T3	Entity 16 38	homologous chromosomes
+T4	Entity 78 99	some of their alleles
+R1	Agent Arg1:T2 Arg2:T3	
+R2	Theme Arg1:T2 Arg2:T4	
+T5	Trigger 7 14	meiosis
+R4	Super Arg1:T1 Arg2:T5	
+T6	Trigger 183 194	distributed
+T7	Entity 151 173	the alleles they carry
+T8	Entity 118 146	These homologous chromosomes
+T9	Entity 210 217	gametes
+R6	Theme Arg1:T6 Arg2:T8	
+R7	Theme Arg1:T6 Arg2:T7	
+R9	Dest Arg1:T6 Arg2:T9	
+T11	Trigger 269 274	exist
+T12	Entity 233 268	myriad possible mating combinations
+R10	Theme Arg1:T11 Arg2:T12	
+T13	Entity 278 290	a population
+R11	Loc Arg1:T11 Arg2:T13	
+T14	Trigger 306 321	brings together
+T15	Entity 322 383	gametes that are likely to have different genetic backgrounds
+R12	Theme Arg1:T14 Arg2:T15	
+R13	Enable Arg1:T11 Arg2:T10	
+T16	Trigger 555 572	genetic variation
+T17	Trigger 584 593	evolution
+T18	Trigger 464 474	rearranges
+T19	Entity 444 463	sexual reproduction
+T20	Entity 475 491	existing alleles
+T21	Entity 497 531	fresh combinations each generation
+R5	Agent Arg1:T18 Arg2:T19	
+R14	Theme Arg1:T18 Arg2:T20	
+R15	Result Arg1:T18 Arg2:T21	
+R17	Enable Arg1:T6 Arg2:T18	
+R18	Enable Arg1:T14 Arg2:T18	
+R19	Cause Arg1:T18 Arg2:T16	
+R20	Enable Arg1:T16 Arg2:T17	
+R3	Enable Arg1:T1 Arg2:T2	
+R16	Enable Arg1:T2 Arg2:T18	
+*	Coref T3 T8
+R8	Super Arg1:T6 Arg2:T5	
+R21	Super Arg1:T2 Arg2:T5	
+T10	Trigger 292 305	fertilization
+R22	Cause Arg1:T10 Arg2:T14	

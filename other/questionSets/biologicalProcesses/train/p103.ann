@@ -1,0 +1,66 @@
+T1	Trigger 9 16	changes
+T2	Entity 20 36	the cell surface
+R1	Theme Arg1:T1 Arg2:T2	
+T3	Trigger 59 75	lose attachments
+T6	Entity 43 55	cancer cells
+R2	Theme Arg1:T3 Arg2:T6	
+R4	Enable Arg1:T1 Arg2:T3	
+T5	Trigger 144 150	spread
+T7	Entity 156 170	nearby tissues
+R5	Dest Arg1:T5 Arg2:T7	
+R6	Enable Arg1:T3 Arg2:T5	
+T8	Trigger 194 201	secrete
+T9	Entity 172 184	Cancer cells
+R8	Agent Arg1:T8 Arg2:T9	
+T10	Entity 202 221	signaling molecules
+R9	Theme Arg1:T8 Arg2:T10	
+T11	Trigger 250 254	grow
+T12	Entity 233 246	blood vessels
+T13	Entity 262 271	the tumor
+R10	Theme Arg1:T11 Arg2:T12	
+R11	Dest Arg1:T11 Arg2:T13	
+R13	Enable Arg1:T8 Arg2:T11	
+T14	Trigger 295 303	separate
+T15	Entity 273 290	A few tumor cells
+R14	Theme Arg1:T14 Arg2:T15	
+T16	Entity 309 327	the original tumor
+R15	Source Arg1:T14 Arg2:T16	
+T17	Trigger 329 334	enter
+T18	Entity 335 348	blood vessels
+R16	Theme Arg1:T17 Arg2:T15	
+R17	Dest Arg1:T17 Arg2:T18	
+T20	Trigger 372 378	travel
+R19	Enable Arg1:T14 Arg2:T17	
+T21	Entity 382 405	other parts of the body
+R20	Dest Arg1:T20 Arg2:T21	
+R21	Theme Arg1:T20 Arg2:T15	
+R22	Enable Arg1:T17 Arg2:T20	
+T22	Trigger 423 434	proliferate
+T23	Trigger 439 443	form
+T24	Entity 444 455	a new tumor
+R24	Result Arg1:T23 Arg2:T24	
+R26	Enable Arg1:T22 Arg2:T23	
+R27	Enable Arg1:T20 Arg2:T22	
+T25	Trigger 541 551	metastasis
+T26	Trigger 462 468	spread
+T27	Entity 472 484	cancer cells
+R28	Theme Arg1:T26 Arg2:T27	
+T28	Entity 488 530	locations distant from their original site
+R29	Dest Arg1:T26 Arg2:T28	
+R32	Super Arg1:T14 Arg2:T25	
+*	Same T26 T25
+*	Coref T6 T9 T4
+R18	Super Arg1:T17 Arg2:T25	
+R30	Super Arg1:T20 Arg2:T25	
+R33	Super Arg1:T22 Arg2:T25	
+R34	Super Arg1:T23 Arg2:T25	
+R12	Enable Arg1:T5 Arg2:T14	
+T19	Entity 353 366	lymph vessels
+R31	Dest Arg1:T17 Arg2:T19	
+T4	Entity 136 140	them
+R3	Theme Arg1:T5 Arg2:T4	
+R7	Enable Arg1:T11 Arg2:T17	
+T29	Entity 414 418	they
+R23	Theme Arg1:T22 Arg2:T29	
+R25	Theme Arg1:T23 Arg2:T29	
+*	Coref T15 T29

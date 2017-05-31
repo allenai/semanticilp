@@ -1,0 +1,12 @@
+T2	Trigger 234 244	engineered
+T3	Trigger 248 255	secrete
+T5	Trigger 313 322	purifying
+R1	Enable Arg1:T2 Arg2:T3	
+R2	Enable Arg1:T3 Arg2:T5	
+T1	Entity 175 221	The host cells used in such expression systems
+T4	Entity 256 265	a protein
+T7	Entity 323 325	it
+*	Coref T7 T4
+R3	Theme Arg1:T2 Arg2:T1	
+R4	Theme Arg1:T3 Arg2:T4	
+R5	Theme Arg1:T5 Arg2:T7	

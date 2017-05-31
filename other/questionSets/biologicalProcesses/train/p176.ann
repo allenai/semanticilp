@@ -1,0 +1,29 @@
+T1	Trigger 170 178	contains
+T2	Entity 205 225	double-stranded cDNA
+R1	Result Arg1:T1 Arg2:T2	
+T3	Entity 234 274	the complete coding sequence of the gene
+T4	Entity 161 169	the mRNA
+R2	Agent Arg1:T1 Arg2:T4	
+T5	Entity 184 189	exons
+R3	Theme Arg1:T1 Arg2:T5	
+T6	Trigger 226 233	carries
+R4	Cause Arg1:T1 Arg2:T6	
+R5	Agent Arg1:T6 Arg2:T2	
+R6	Theme Arg1:T6 Arg2:T3	
+T7	Trigger 122 130	template
+R7	Enable Arg1:T7 Arg2:T6	
+T8	Entity 88 91	DNA
+T9	Entity 97 105	in vitro
+T10	Entity 112 116	mRNA
+T11	Entity 135 151	the first strand
+R8	Agent Arg1:T7 Arg2:T10	
+R9	Loc Arg1:T7 Arg2:T9	
+R10	Theme Arg1:T7 Arg2:T8	
+R11	Result Arg1:T7 Arg2:T11	
+T12	Trigger 365 372	reflect
+T13	Entity 329 358	the final collection of cDNAs
+*	Coref T4 T10
+T14	Entity 373 416	all the mRNAs that were present in the cell
+R13	Agent Arg1:T12 Arg2:T13	
+R14	Theme Arg1:T12 Arg2:T14	
+R12	Enable Arg1:T7 Arg2:T12	

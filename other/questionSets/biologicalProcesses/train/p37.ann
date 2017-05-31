@@ -1,0 +1,31 @@
+T1	Trigger 3 7	mark
+T2	Entity 8 28	a particular protein
+T3	Trigger 33 44	destruction
+T4	Trigger 64 72	attaches
+T5	Entity 46 54	the cell
+T6	Entity 73 101	molecules of a small protein
+T7	Entity 109 118	ubiquitin
+T8	Entity 122 133	the protein
+R1	Agent Arg1:T4 Arg2:T5	
+R2	Theme Arg1:T4 Arg2:T6	
+R3	Theme Arg1:T4 Arg2:T8	
+*	Coref T6 T7
+*	Same T4 T1
+R4	Theme Arg1:T1 Arg2:T2	
+R5	Theme Arg1:T3 Arg2:T2	
+T9	Entity 135 158	Giant protein complexes
+T10	Entity 166 177	proteasomes
+T11	Trigger 183 192	recognize
+T12	Entity 193 222	the ubiquitin-tagged proteins
+T13	Trigger 227 234	degrade
+T14	Entity 235 239	them
+R7	Theme Arg1:T13 Arg2:T14	
+*	Coref T14 T12
+R8	Theme Arg1:T11 Arg2:T12	
+R9	Result Arg1:T4 Arg2:T12	
+*	Coref T10 T9
+R10	Agent Arg1:T11 Arg2:T10	
+R11	Agent Arg1:T13 Arg2:T10	
+R12	Enable Arg1:T1 Arg2:T11	
+R13	Enable Arg1:T11 Arg2:T13	
+R14	Cause Arg1:T13 Arg2:T3	

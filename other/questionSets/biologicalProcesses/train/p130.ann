@@ -1,0 +1,47 @@
+T1	Trigger 372 382	developing
+T2	Trigger 478 488	resistance
+T3	Trigger 549 554	using
+T4	Trigger 657 665	appeared
+T5	Trigger 66 70	used
+T6	Trigger 246 255	resistant
+T7	Trigger 327 334	destroy
+R1	Enable Arg1:T7 Arg2:T6	
+R2	Enable Arg1:T5 Arg2:T6	
+R3	Cause Arg1:T6 Arg2:T1	
+R4	Enable Arg1:T1 Arg2:T2	
+R5	Cause Arg1:T2 Arg2:T3	
+R6	Enable Arg1:T3 Arg2:T4	
+T8	Entity 31 41	penicillin
+R7	Theme Arg1:T5 Arg2:T8	
+T9	Entity 176 232	more than 20% of the S. aureus strains seen in hospitals
+T10	Entity 259 269	penicillin
+R8	Agent Arg1:T6 Arg2:T9	
+R9	Theme Arg1:T6 Arg2:T10	
+*	Coref T10 T8 T15
+T11	Trigger 286 289	had
+T12	Entity 271 285	These bacteria
+*	Coref T9 T12
+R10	Agent Arg1:T11 Arg2:T12	
+T13	Entity 290 299	an enzyme
+T14	Entity 301 314	penicillinase
+*	Coref T13 T14
+R11	Theme Arg1:T11 Arg2:T13	
+R12	Enable Arg1:T11 Arg2:T7	
+R13	Agent Arg1:T7 Arg2:T14	
+T15	Entity 335 345	penicillin
+R14	Theme Arg1:T7 Arg2:T15	
+T16	Entity 347 358	Researchers
+T17	Entity 383 435	antibiotics that were not destroyed by penicillinase
+T18	Entity 441 467	some S. aureus populations
+R15	Agent Arg1:T2 Arg2:T18	
+T19	Entity 489 505	to each new drug
+R16	Theme Arg1:T2 Arg2:T19	
+R17	Agent Arg1:T1 Arg2:T16	
+R18	Result Arg1:T1 Arg2:T17	
+*	Coref T19 T17
+T20	Entity 535 542	doctors
+T21	Entity 555 590	the powerful antibiotic methicillin
+T22	Entity 614 656	methicillin-resistant strains of S. aureus
+R19	Agent Arg1:T3 Arg2:T20	
+R20	Theme Arg1:T3 Arg2:T21	
+R21	Theme Arg1:T4 Arg2:T22	

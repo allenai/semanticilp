@@ -1,0 +1,31 @@
+T1	Trigger 0 9	Apoptosis
+T2	Trigger 23 44	programmed cell death
+T3	Trigger 74 82	disposed
+T4	Trigger 117 123	damage
+R1	Prevent Arg1:T3 Arg2:T4	
+T8	Trigger 421 429	released
+T9	Trigger 459 469	activation
+T10	Trigger 517 526	apoptosis
+R2	Enable Arg1:T8 Arg2:T9	
+R3	Enable Arg1:T9 Arg2:T10	
+R4	Super Arg1:T3 Arg2:T2	
+T11	Entity 54 69	cell components
+T12	Entity 124 144	to neighboring cells
+R11	Theme Arg1:T3 Arg2:T11	
+R12	Theme Arg1:T4 Arg2:T12	
+T15	Entity 351 398	A protein (Ced-9) in the mitochondrial membrane
+T17	Entity 433 447	a death signal
+T18	Entity 449 451	it
+R15	Agent Arg1:T8 Arg2:T17	
+R16	Agent Arg1:T9 Arg2:T18	
+T19	Entity 473 481	caspases
+T20	Entity 483 501	the main proteases
+T21	Entity 532 541	nucleases
+*	Coref T19 T20
+R17	Theme Arg1:T9 Arg2:T19	
+R18	Theme Arg1:T9 Arg2:T21	
+*	Same T2 T1 T10
+R5	Theme Arg1:T8 Arg2:T15	
+R7	Agent Arg1:T10 Arg2:T20	
+R8	Super Arg1:T4 Arg2:T2	
+*	Coref T15 T18

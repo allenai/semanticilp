@@ -1,0 +1,37 @@
+T1	Trigger 73 80	isolate
+T2	Trigger 154 160	making
+T3	Trigger 140 149	templates
+T4	Trigger 188 209	reverse transcription
+T5	Trigger 227 253	nucleic acid hybridization
+T6	Trigger 257 264	compare
+T7	Trigger 370 378	identify
+T8	Entity 81 115	the mRNAs made in particular cells
+R1	Theme Arg1:T1 Arg2:T8	
+R2	Enable Arg1:T1 Arg2:T3	
+R3	Enable Arg1:T3 Arg2:T4	
+R4	Enable Arg1:T4 Arg2:T2	
+R5	Enable Arg1:T2 Arg2:T6	
+R6	Enable Arg1:T5 Arg2:T6	
+R7	Enable Arg1:T6 Arg2:T7	
+T9	Entity 121 136	these molecules
+R8	Theme Arg1:T3 Arg2:T9	
+*	Coref T9 T8
+T10	Entity 161 184	the corresponding cDNAs
+R9	Theme Arg1:T2 Arg2:T10	
+R10	Agent Arg1:T2 Arg2:T9	
+T11	Entity 265 282	this set of cDNAs
+*	Coref T11 T10
+R11	Theme Arg1:T6 Arg2:T11	
+T12	Entity 288 356	a collection of DNA fragments representing all or part of the genome
+R12	Theme Arg1:T6 Arg2:T12	
+T13	Entity 379 481	the subset of genes in the genome that are being expressed at a given time or under certain conditions
+R13	Theme Arg1:T7 Arg2:T13	
+T14	Trigger 27 66	global (genome-wide) expression studies
+R14	Super Arg1:T1 Arg2:T14	
+R15	Super Arg1:T3 Arg2:T14	
+R16	Super Arg1:T2 Arg2:T14	
+R17	Super Arg1:T4 Arg2:T14	
+R18	Super Arg1:T5 Arg2:T14	
+R19	Super Arg1:T6 Arg2:T14	
+R20	Super Arg1:T7 Arg2:T14	
+R21	Enable Arg1:T2 Arg2:T5	

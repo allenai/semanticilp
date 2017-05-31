@@ -1,0 +1,22 @@
+T1	Trigger 66 75	transform
+T2	Trigger 123 130	cleanup
+T3	Trigger 225 233	transfer
+T4	Trigger 339 344	treat
+R1	Enable Arg1:T1 Arg2:T2	
+T5	Entity 109 122	environmental
+R2	Theme Arg1:T2 Arg2:T5	
+T6	Entity 40 62	certain microorganisms
+R3	Agent Arg1:T1 Arg2:T6	
+T7	Entity 76 85	chemicals
+R4	Theme Arg1:T1 Arg2:T7	
+R5	Enable Arg1:T1 Arg2:T3	
+T8	Entity 206 216	scientists
+R6	Agent Arg1:T3 Arg2:T8	
+T9	Entity 234 285	the genes for their valuable metabolic capabilities
+R7	Theme Arg1:T3 Arg2:T9	
+T10	Entity 291 311	other microorganisms
+R8	Dest Arg1:T3 Arg2:T10	
+T11	Entity 345 367	environmental problems
+R9	Agent Arg1:T4 Arg2:T10	
+R10	Theme Arg1:T4 Arg2:T11	
+*	Same T4 T2

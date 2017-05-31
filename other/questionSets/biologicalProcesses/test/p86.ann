@@ -1,0 +1,88 @@
+T1	Trigger 107 112	split
+T2	Trigger 219 227	absorbed
+T3	Trigger 4 19	light reactions
+T4	Trigger 57 64	convert
+T5	Trigger 37 51	photosynthesis
+R1	Super Arg1:T4 Arg2:T3	
+R2	Super Arg1:T3 Arg2:T5	
+T6	Trigger 252 260	transfer
+T7	Trigger 409 415	stored
+T8	Trigger 635 650	light reactions
+T9	Trigger 670 676	reduce
+T10	Trigger 695 701	adding
+T11	Trigger 744 759	light reactions
+T13	Trigger 785 797	chemiosmosis
+T14	Trigger 811 819	addition
+T15	Trigger 866 886	photophosphorylation
+T17	Trigger 920 929	converted
+R3	Enable Arg1:T1 Arg2:T6	
+R4	Enable Arg1:T2 Arg2:T6	
+R5	Enable Arg1:T6 Arg2:T7	
+R6	Enable Arg1:T10 Arg2:T9	
+R7	Enable Arg1:T13 Arg2:T14	
+R8	Super Arg1:T13 Arg2:T15	
+R9	Super Arg1:T15 Arg2:T11	
+R10	Enable Arg1:T3 Arg2:T17	
+R11	Super Arg1:T10 Arg2:T8	
+R12	Super Arg1:T9 Arg2:T8	
+R13	Super Arg1:T1 Arg2:T3	
+R14	Super Arg1:T6 Arg2:T3	
+R15	Super Arg1:T7 Arg2:T3	
+*	Same T3 T8 T11
+T12	Entity 65 77	solar energy
+T18	Entity 81 96	chemical energy
+T19	Entity 98 103	Water
+T20	Entity 136 145	electrons
+T21	Entity 150 157	protons
+T22	Entity 159 172	hydrogen ions
+T23	Entity 174 176	H+
+*	Coref T21 T22 T23
+T24	Entity 193 195	O2
+T25	Entity 213 218	Light
+T26	Entity 231 242	chlorophyll
+T27	Entity 268 277	electrons
+T28	Entity 282 295	hydrogen ions
+T29	Entity 301 306	water
+T30	Entity 310 321	an acceptor
+T31	Entity 329 334	NADP+
+T32	Entity 336 379	nicotinamide adenine dinucleotide phosphate
+*	Coref T30 T31 T32
+T33	Entity 388 392	they
+T34	Entity 655 666	solar power
+T35	Entity 677 682	NADP+
+T36	Entity 686 691	NADPH
+T37	Entity 702 721	a pair of electrons
+T38	Entity 736 738	H+
+T39	Entity 774 777	ATP
+T40	Entity 823 840	a phosphate group
+T41	Entity 844 847	ADP
+T42	Entity 894 906	light energy
+T43	Entity 933 1138	chemical energy in the form of two compounds: NADPH, a source of electrons as "reducing power" that can be passed along to an electron acceptor, reducing it, and ATP, the versatile energy currency of cells
+R16	Theme Arg1:T4 Arg2:T12	
+R17	Result Arg1:T4 Arg2:T18	
+R18	Theme Arg1:T1 Arg2:T19	
+R19	Result Arg1:T1 Arg2:T20	
+R20	Result Arg1:T1 Arg2:T21	
+R21	Result Arg1:T1 Arg2:T24	
+R22	Theme Arg1:T2 Arg2:T25	
+R23	Agent Arg1:T2 Arg2:T26	
+R24	Theme Arg1:T6 Arg2:T27	
+R25	Theme Arg1:T6 Arg2:T28	
+*	Coref T27 T20
+*	Coref T29 T19
+R26	Source Arg1:T6 Arg2:T29	
+R27	Dest Arg1:T6 Arg2:T30	
+R28	Theme Arg1:T7 Arg2:T33	
+*	Coref T34 T12
+R29	Theme Arg1:T8 Arg2:T34	
+R30	Theme Arg1:T9 Arg2:T35	
+R31	Result Arg1:T9 Arg2:T36	
+R32	Agent Arg1:T9 Arg2:T34	
+R33	Theme Arg1:T10 Arg2:T37	
+R34	Theme Arg1:T10 Arg2:T38	
+R35	Result Arg1:T11 Arg2:T39	
+R36	Theme Arg1:T14 Arg2:T40	
+R37	Dest Arg1:T14 Arg2:T41	
+R38	Result Arg1:T14 Arg2:T39	
+R39	Theme Arg1:T17 Arg2:T42	
+R40	Result Arg1:T17 Arg2:T43	

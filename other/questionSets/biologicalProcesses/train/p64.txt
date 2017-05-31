@@ -1,0 +1,1 @@
+In response to a specific antigen and to immune cell signals (not shown), one B cell divides and forms a clone of cells. The remaining B cells, which have antigen receptors specific for other antigens, do not respond. The clone of cells formed by the selected B cell gives rise to memory B cells and antibody-secreting plasma cells.

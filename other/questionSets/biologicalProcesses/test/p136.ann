@@ -1,0 +1,27 @@
+T1	Trigger 26 39	transposition
+T2	Trigger 64 69	moves
+T3	Trigger 280 286	detach
+T4	Trigger 352 368	brought together
+R1	Enable Arg1:T2 Arg2:T4	
+R3	Super Arg1:T2 Arg2:T1	
+R4	Super Arg1:T4 Arg2:T1	
+T5	Entity 41 63	a transposable element
+T6	Entity 75 99	one site in a cell's DNA
+T7	Entity 103 126	a different target site
+T8	Entity 258 262	they
+T9	Entity 292 306	the cell's DNA
+T10	Entity 317 329	the original
+T11	Entity 334 347	new DNA sites
+T12	Entity 372 379	enzymes
+T13	Entity 384 416	other proteins that bend the DNA
+R5	Agent Arg1:T4 Arg2:T12	
+R6	Agent Arg1:T4 Arg2:T13	
+R7	Theme Arg1:T4 Arg2:T10	
+R8	Theme Arg1:T4 Arg2:T11	
+R9	Theme Arg1:T2 Arg2:T5	
+R10	Source Arg1:T2 Arg2:T6	
+R11	Dest Arg1:T2 Arg2:T7	
+*	Coref T5 T8
+R12	Theme Arg1:T3 Arg2:T8	
+R13	Source Arg1:T3 Arg2:T9	
+R2	Prevent Arg1:T1 Arg2:T3	

@@ -1,0 +1,65 @@
+T1	Trigger 51 70	gel electrophoresis
+T2	Trigger 98 102	made
+T3	Trigger 190 198	separate
+T4	Trigger 342 347	carry
+T5	Trigger 401 407	travel
+T6	Trigger 463 467	move
+T7	Trigger 499 506	impedes
+T8	Trigger 556 566	separating
+T9	Trigger 609 618	separates
+R1	Enable Arg1:T2 Arg2:T3	
+R2	Enable Arg1:T4 Arg2:T5	
+*	Same T5 T6
+R4	Cause Arg1:T7 Arg2:T8	
+R5	Cause Arg1:T8 Arg2:T9	
+R3	Cause Arg1:T2 Arg2:T7	
+R7	Cause Arg1:T6 Arg2:T8	
+*	Same T3 T8
+R8	Super Arg1:T2 Arg2:T1	
+R9	Super Arg1:T3 Arg2:T1	
+R10	Super Arg1:T5 Arg2:T1	
+R11	Super Arg1:T7 Arg2:T1	
+R12	Super Arg1:T9 Arg2:T1	
+T11	Trigger 20 28	studying
+T12	Entity 29 42	DNA molecules
+R14	Theme Arg1:T11 Arg2:T12	
+R15	Enable Arg1:T1 Arg2:T11	
+T13	Entity 92 97	a gel
+R16	Result Arg1:T2 Arg2:T13	
+T14	Entity 106 115	a polymer
+T15	Entity 125 151	the polysaccharide agarose
+*	Coref T14 T15
+R17	Agent Arg1:T2 Arg2:T14	
+T16	Entity 153 160	The gel
+R18	Agent Arg1:T3 Arg2:T16	
+T17	Entity 199 295	nucleic acids or proteins on the basis of size, electrical charge, and other physical properties
+R19	Theme Arg1:T3 Arg2:T17	
+T18	Entity 319 341	nucleic acid molecules
+*	Coref T13 T16
+R20	Agent Arg1:T4 Arg2:T18	
+T19	Entity 348 364	negative charges
+R21	Theme Arg1:T4 Arg2:T19	
+T20	Entity 368 390	their phosphate groups
+R22	Loc Arg1:T4 Arg2:T20	
+T21	Entity 392 396	they
+*	Coref T18 T21
+R23	Theme Arg1:T5 Arg2:T21	
+T22	Entity 415 453	the positive pole in an electric field
+R24	Dest Arg1:T5 Arg2:T22	
+T23	Entity 469 498	the thicket of agarose fibers
+R25	Agent Arg1:T7 Arg2:T23	
+T24	Entity 507 523	longer molecules
+R26	Theme Arg1:T7 Arg2:T24	
+R27	Agent Arg1:T8 Arg2:T23	
+T25	Entity 567 571	them
+*	Coref T24 T25
+R28	Theme Arg1:T8 Arg2:T25	
+T26	Trigger 589 608	gel electrophoresis
+*	Same T1 T26
+T27	Entity 619 652	a mixture of linear DNA molecules
+R29	Theme Arg1:T9 Arg2:T27	
+T28	Entity 658 663	bands
+R30	Result Arg1:T9 Arg2:T28	
+T30	Entity 689 739	many thousands of DNA molecules of the same length
+R33	Agent Arg1:T8 Arg2:T23	
+*	Coref T28 T30

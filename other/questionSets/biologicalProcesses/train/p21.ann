@@ -1,0 +1,20 @@
+T1	Trigger 12 22	identified
+T2	Trigger 85 89	grow
+T3	Trigger 168 175	isolate
+T4	Entity 6 11	we've
+R1	Enable Arg1:T1 Arg2:T2	
+R2	Enable Arg1:T2 Arg2:T3	
+T5	Entity 23 76	the location of a clone carrying the beta-globin gene
+T6	Entity 78 80	we
+T8	Entity 139 151	a large tank
+T9	Entity 176 199	many copies of the gene
+*	Coref T4 T6
+R3	Agent Arg1:T1 Arg2:T4	
+R4	Theme Arg1:T1 Arg2:T5	
+R5	Agent Arg1:T2 Arg2:T6	
+R7	Loc Arg1:T2 Arg2:T8	
+R8	Theme Arg1:T3 Arg2:T9	
+T7	Entity 90 100	some cells
+T10	Entity 106 135	that colony in liquid culture
+R6	Theme Arg1:T2 Arg2:T7	
+R9	Source Arg1:T2 Arg2:T10	

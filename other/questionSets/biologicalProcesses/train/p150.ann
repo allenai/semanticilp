@@ -1,0 +1,26 @@
+T1	Trigger 63 78	greater fitness
+T2	Trigger 127 149	heterozygote advantage
+T3	Trigger 23 35	heterozygous
+R1	Enable Arg1:T3 Arg2:T1	
+R2	Super Arg1:T3 Arg2:T2	
+R3	Super Arg1:T3 Arg2:T2	
+T4	Trigger 167 184	natural selection
+T5	Trigger 194 202	maintain
+R4	Enable Arg1:T4 Arg2:T5	
+R5	Enable Arg1:T2 Arg2:T5	
+T6	Entity 3 14	individuals
+R6	Theme Arg1:T3 Arg2:T6	
+T7	Entity 39 57	a particular locus
+R7	Loc Arg1:T3 Arg2:T7	
+R8	Theme Arg1:T1 Arg2:T6	
+T8	Entity 114 118	they
+R9	Theme Arg1:T2 Arg2:T8	
+*	Coref T8 T6
+T9	Entity 203 222	two or more alleles
+R10	Theme Arg1:T5 Arg2:T9	
+T10	Entity 226 236	that locus
+R11	Loc Arg1:T5 Arg2:T10	
+*	Coref T7 T10
+T11	Entity 79 112	than do both kinds of homozygotes
+R12	Other Arg1:T1 Arg2:T11	
+#1	AnnotatorNotes T11	This is important but is there a way to annotate it?

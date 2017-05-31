@@ -1,0 +1,1 @@
+Cells are homogenized in a blender to break them up. The resulting mixture (homogenate) is centrifuged. The supernatant (liquid) is poured into another tube and centrifuged at a higher speed for a longer time. This process is repeated several times. This "differential centrifugation" results in a series of pellets, each containing different cell components.
