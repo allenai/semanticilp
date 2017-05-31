@@ -1,0 +1,53 @@
+<annotation>
+  <id>88</id>
+  <text>
+    Now let's look at the citric acid cycle in more detail. The cycle has eight steps, each catalyzed by a specific enzyme. You can see in Figure 9.12 that for each turn of the citric acid cycle, two carbons (red) enter in the relatively reduced form of an acetyl group (step 1), and two different carbons (blue) leave in the completely oxidized form of CO2 molecules (steps 3 and 4). The acetyl group of acetyl CoA joins the cycle by combining with the compound oxaloacetate, forming citrate (step 1). (Citrate is the ionized form of citric acid, for which the cycle is named.) The next seven steps decompose the citrate back to oxaloacetate. It is this regeneration of oxaloacetate that makes this process a cycle. Now let's tally the energy-rich molecules produced by the citric acid cycle. For each acetyl group entering the cycle, 3 NAD+ are reduced to NADH (steps 3, 4, and 8). In step 6, electrons are transferred not to NAD+, but to FAD, which accepts 2 electrons and 2 protons to become FADH2. In many animal tissue cells, step 5 produces a guanosine triphosphate (GTP) molecule by substrate-level phosphorylation, as shown in Figure 9.12. GTP is a molecule similar to ATP in its structure and cellular function. This GTP may be used to make an ATP molecule (as shown) or directly power work in the cell. In the cells of plants, bacteria, and some animal tissues, step 5 forms an ATP molecule directly by substrate-level phosphorylation. The output from step 5 represents the only ATP generated directly by the citric acid cycle.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>88:450941340</qid>
+      <q>What is a product of the citric acid cycle?</q>
+      <a0>FAD</a0>
+      <a1>ATP</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>88:183342587</qid>
+      <q>What would happen without NAD+?</q>
+      <a0>NADH would not be produced</a0>
+      <a1>FAD would not be produced</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>88:1200166234</qid>
+      <q>The product of step 1 is citrate</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>88:978973084</qid>
+      <q>How is GTP produced?</q>
+      <a0>Substrate-level phosphorylation</a0>
+      <a1>Electrons are transferred to FAD</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>88:1484520441</qid>
+      <q>Electrons are transferred to FAD</q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

@@ -1,0 +1,28 @@
+<annotation>
+  <id>148</id>
+  <text>
+    Finally, gene flow has become an increasingly important agent of evolutionary change in human populations. Humans today move much more freely about the world than in the past. As a result, mating is more common between members of populations that previously had very little contact, leading to an exchange of alleles and fewer genetic differences between those populations.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>148:1800864494</qid>
+      <q>Gene flow causes what?</q>
+      <a0>Humans today move much more freely about the world</a0>
+      <a1>fewer differences between populations</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>148:16722881</qid>
+      <q>
+        What happens because mating is more common between members of populations that previously had very little contact?
+      </q>
+      <a0>humans today move much more freely</a0>
+      <a1>fewer genetic differences between those populations</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

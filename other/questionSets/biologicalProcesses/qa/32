@@ -1,0 +1,44 @@
+<annotation>
+  <id>32</id>
+  <text>
+    Enzymes modify the two ends of a eukaryotic pre-mRNA molecule. The modified ends may promote the export of mRNA from the nucleus, and they help protect the mRNA from degradation. When the mRNA reaches the cytoplasm, the modified ends, in conjunction with certain cytoplasmic proteins, facilitate ribosome attachment.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>32:527273834</qid>
+      <q>What is the direct action of enzymes?</q>
+      <a0>export mRNA from the nucleus</a0>
+      <a1>modify the two ends of a eukaryotic pre-mRNA molecule</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>32:209602701</qid>
+      <q>What would happen without cytoplasmic proteins?</q>
+      <a0>ribosome attachment would not be facilitated</a0>
+      <a1>mRNA would not reach the cytoplasm</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>32:1170643369</qid>
+      <q>What do modified ends not do?</q>
+      <a0>facilitate certain cytoplasmic proteins</a0>
+      <a1>facilitate ribosome attachment</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>32:134244746</qid>
+      <q>Modified ends help protect the mRNA from degradation</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

@@ -1,0 +1,28 @@
+<annotation>
+  <id>48</id>
+  <text>
+    The RNA molecule whose sequence is best suited to the surrounding environment and has the greatest ability to replicate itself will leave the most descendant molecules. Occasionally, a copying error will result in a molecule that folds into a shape that is even more stable or more adept at self-replication than the ancestral sequence.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>48:1947520508</qid>
+      <q>Copying errors can result in leaving the most descendant molecules</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>48:1130702024</qid>
+      <q>What do copying errors produce?</q>
+      <a0>the ancestral sequence</a0>
+      <a1>
+        a molecule that folds into a shape that is even more stable or more adept at self-replication
+      </a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

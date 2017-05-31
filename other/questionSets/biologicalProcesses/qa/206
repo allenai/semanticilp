@@ -1,0 +1,19 @@
+<annotation>
+  <id>206</id>
+  <text>
+    Today, forensic scientists use an even more sensitive method that takes advantage of variations in length of genetic markers called short tandem repeats (STRs). These are tandemly repeated units of two- to five-base sequences in specific regions of the genome. The number of repeats present in these regions is highly variable from person to person (polymorphic), and for one individual, the two alleles of an STR may even differ from each other. For example, one individual may have the sequence ACAT repeated 30 times at one genome locus and 15 times at the same locus on the other homolog, whereas another individual may have 18 repeats at this locus on each homolog. (These two genotypes can be expressed by the two repeat numbers: 30,15 and 18,18. ) PCR is used to amplify particular STRs, using sets of primers that are labeled with different-colored fluorescent tags; the length of the region, and thus the number of repeats, can then be determined by electrophoresis.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>206:1195077212</qid>
+      <q>
+        What happens because sets of primers are labeled with different-colored fluorescent tags?
+      </q>
+      <a0>the number of repeats is determined</a0>
+      <a1>PCR is used to amplify particular STRs</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

@@ -1,0 +1,52 @@
+<annotation>
+  <id>5</id>
+  <text>
+    These chloride transport channels are defective or absent in the plasma membranes of children who inherit two recessive alleles for cystic fibrosis. The result is an abnormally high concentration of extracellular chloride, which causes the mucus that coats certain cells to become thicker and stickier than normal. The mucus builds up in the pancreas, lungs, digestive tract, and other organs, leading to multiple (pleiotropic) effects, including poor absorption of nutrients from the intestines, chronic bronchitis, and recurrent bacterial infections.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>5:813242360</qid>
+      <q>What causes an abnormally high concentration of extracellular chloride?</q>
+      <a0>Defective or absent chloride transport channels</a0>
+      <a1>
+        mucus that coats certain cells becomes thicker and stickier than normal
+      </a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>5:1464381395</qid>
+      <q>
+        What would happen if the concentration of extracellular chloride did not become abnormally high?
+      </q>
+      <a0>Chronic bronchitis would not occur</a0>
+      <a1>children would not inherit two recessive alleles</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>5:1492053317</qid>
+      <q>Which entity directly causes poor absorption of nutrients?</q>
+      <a0>Mucus</a0>
+      <a1>the pancreas</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>5:1104976078</qid>
+      <q>What is the correct order of events?</q>
+      <a0>
+        Chloride channels are defective or absent, then children inherit two recessive alleles of cystic fibrosis, then mucus builds up
+      </a0>
+      <a1>
+        Children inherit two recessive alleles of cystic fibrosis, then chloride channels are defective or absent, then mucus builds up
+      </a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

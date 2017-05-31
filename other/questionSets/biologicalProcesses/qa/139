@@ -1,0 +1,44 @@
+<annotation>
+  <id>139</id>
+  <text>
+    An accident in meiosis can result in one or more extra sets of chromosomes, a condition known as polyploidy. Although such accidents would most often be lethal, in rare cases they could facilitate the evolution of genes. In a polyploid organism, one set of genes can provide essential functions for the organism. The genes in the one or more extra sets can diverge by accumulating mutations; these variations may persist if the organism carrying them survives and reproduces. In this way, genes with novel functions can evolve. As long as one copy of an essential gene is expressed, the divergence of another copy can lead to its encoded protein acting in a novel way, thereby changing the organism's phenotype. The outcome of this accumulation of mutations may be the branching off of a new species, as happens often in flowering plants (see Chapter 24).
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>139:1825973799</qid>
+      <q>What causes one or more extra sets of chromosomes?</q>
+      <a0>polyploidy</a0>
+      <a1>an accident in meiosis</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>139:1437823400</qid>
+      <q>Polyploidy can do what?</q>
+      <a0>facilitate the evolution of genes</a0>
+      <a1>an accident in meiosis</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>139:256618857</qid>
+      <q>What is required for the divergence of another copy?</q>
+      <a0>changing the organism's phenotype</a0>
+      <a1>one copy of an essential gene is expressed</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>139:1532654581</qid>
+      <q>Which of the following facilitates the evolution of genes?</q>
+      <a0>An accident in meiosis</a0>
+      <a1>the branching off of a new species</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

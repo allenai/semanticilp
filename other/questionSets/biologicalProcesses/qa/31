@@ -1,0 +1,35 @@
+<annotation>
+  <id>31</id>
+  <text>
+    In eukaryotes, RNA polymerase II transcribes a sequence on the DNA called the polyadenylation signal sequence, which codes for a polyadenylation signal (AAUAAA) in the pre-mRNA. Then, at a point about 10-35 nucleotides downstream from the AAUAAA signal, proteins associated with the growing RNA transcript cut it free from the polymerase, releasing the pre-mRNA. The pre-mRNA then undergoes processing, the topic of the next section
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>31:519007441</qid>
+      <q>What is the role of RNA polymerase II?</q>
+      <a0>Polyadenylation</a0>
+      <a1>transcribing</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>31:94424786</qid>
+      <q>What would happen if the growing RNA transcript was not cut free?</q>
+      <a0>pre-mRNA would not be released</a0>
+      <a1>RNA polymerase II would not transcribe a sequence on the DNA</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>31:1679331027</qid>
+      <q>What happens after the pre-mRNA is released?</q>
+      <a0>The pre-mRNA undergoes processing</a0>
+      <a1>proteins associated with the growing RNA transcript cut it free</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

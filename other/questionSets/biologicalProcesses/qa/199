@@ -1,0 +1,37 @@
+<annotation>
+  <id>199</id>
+  <text>
+    Many early animal embryos contain stem cells capable of giving rise to differentiated embryonic cells of any type. Stem cells can be isolated from early embryos at a stage called the blastula stage or its human equivalent, the blastocyst stage (Figure 20.21). In culture, these embryonic stem (ES) cells reproduce indefinitely; and depending on culture conditions, they can be made to differentiate into a wide variety of specialized cells, including even eggs and sperm.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>199:1354445717</qid>
+      <q>What do ES cells produce?</q>
+      <a0>culture conditions</a0>
+      <a1>a wide variety of specialized cells</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>199:826663322</qid>
+      <q>Stem cells produce early embryos</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>199:332099035</qid>
+      <q>
+        What can be eventually produced from stem cells isolated from early embryos?
+      </q>
+      <a0>a wide variety of specialized cells</a0>
+      <a1>the blastula</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

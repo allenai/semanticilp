@@ -1,0 +1,35 @@
+<annotation>
+  <id>169</id>
+  <text>
+    The most useful restriction enzymes cleave the sugar-phosphate backbones in the two DNA strands in a staggered manner, as indicated in Figure 20.3. The resulting double-stranded restriction fragments have at least one single-stranded end, called a sticky end. These short extensions can form hydrogen-bonded base pairs with complementary sticky ends on any other DNA molecules cut with the same enzyme. The associations formed in this way are only temporary but can be made permanent by the enzyme DNA ligase.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>169:655418344</qid>
+      <q>DNA ligase does what?</q>
+      <a0>makes associations permanent</a0>
+      <a1>cleaves the sugar-phosphate backbones in the two DNA strands</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>169:702786839</qid>
+      <q>What would happen without sticky ends?</q>
+      <a0>cleaving the sugar-phosphate backbones in DNA would not occur</a0>
+      <a1>hydrogen-bonded base pairs would not be formed</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>169:678671666</qid>
+      <q>Sticky ends form associations with DNA ligase</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

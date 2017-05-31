@@ -1,0 +1,46 @@
+<annotation>
+  <id>3</id>
+  <text>
+    As shown in Figure 13.8, the combination of crossing over and sister chromatid cohesion along the arms results in the formation of a chiasma. Chiasmata hold homologs together as the spindle forms for the first meiotic division.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>3:1039755875</qid>
+      <q>What would happen without sister chromatid cohesion?</q>
+      <a0>Crossing over would not occur</a0>
+      <a1>Chiasmata would not form</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>3:267067010</qid>
+      <q>What event should occur before the formation of a chiasma?</q>
+      <a0>meiotic division</a0>
+      <a1>Crossing over</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>3:1506957547</qid>
+      <q>Which events may simultaneously occur?</q>
+      <a0>Formation of chiasmata and meiotic division</a0>
+      <a1>Crossing over and sister chromatid cohesion</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>3:88180858</qid>
+      <q>
+        What is the direct result of crossing over and sister chromatid cohesion?
+      </q>
+      <a0>Spindle formation</a0>
+      <a1>Chiasma formation</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

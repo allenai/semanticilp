@@ -1,0 +1,37 @@
+<annotation>
+  <id>20</id>
+  <text>
+    Analysis of hummingbird beta-globin gene expression with RT-PCR begins similarly to Northern blotting, with the isolation of mRNAs from different developmental stages of hummingbird embryos. Reverse transcriptase is added next to make cDNA, which then serves as a template for PCR amplification using primers from the beta-globin gene.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>20:1488757156</qid>
+      <q>
+        With what process does analysis of hummingbird beta-globin gene expression with RT-PCR begin?
+      </q>
+      <a0>Northern blotting</a0>
+      <a1>Isolation of mRNAs</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>20:1386464928</qid>
+      <q>What would happen without reverse transcriptase?</q>
+      <a0>Primers from the beta-globin gene would not be produced</a0>
+      <a1>cDNA would not be made</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>20:2028907370</qid>
+      <q>Reverse transcriptase serves as a template for PCR amplification</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

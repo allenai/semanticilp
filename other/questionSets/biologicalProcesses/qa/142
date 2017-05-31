@@ -1,0 +1,45 @@
+<annotation>
+  <id>142</id>
+  <text>
+    In some cases, small changes in regulatory sequences of particular genes cause changes in gene expression patterns that can lead to major changes in body form. For example, the differing patterns of expression of the Hox genes along the body axis in insects and crustaceans can explain the variation in number of leg-bearing segments among these segmented animals (Figure 21.19).
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>142:183488456</qid>
+      <q>What is the correct order of events?</q>
+      <a0>
+        Major changes in body form, then differing patterns of expression in Hox genes, then variation in number of leg-bearing segments
+      </a0>
+      <a1>
+        small changes in regulatory sequences, then changes in gene expression, then major changes in body form
+      </a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>142:1261132851</qid>
+      <q>
+        What would happen without differing patterns of expression of the Hox genes?
+      </q>
+      <a0>
+        there would be no variation in number of leg-bearing segments in insects and crustaceans
+      </a0>
+      <a1>small changes in regulatory sequences would not occur</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>142:701185933</qid>
+      <q>
+        Small changes in regulatory sequences explain the variation in number of leg-bearing segments among insects and crustaceans.
+      </q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

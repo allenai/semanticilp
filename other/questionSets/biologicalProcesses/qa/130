@@ -1,0 +1,26 @@
+<annotation>
+  <id>130</id>
+  <text>
+    The story begins in 1943, when penicillin became the first widely used antibiotic. Since then, penicillin and other antibiotics have saved millions of lives. However, by 1945, more than 20% of the S. aureus strains seen in hospitals were already resistant to penicillin. These bacteria had an enzyme, penicillinase, that could destroy penicillin. Researchers responded by developing antibiotics that were not destroyed by penicillinase, but some S. aureus populations developed resistance to each new drug within a few years. In 1959, doctors began using the powerful antibiotic methicillin, but within two years, methicillin-resistant strains of S. aureus appeared.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>130:1813959960</qid>
+      <q>What entity destroys penicillin?</q>
+      <a0>penicillinase</a0>
+      <a1>Hospitals</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>130:1250904989</qid>
+      <q>Each new drug was what?</q>
+      <a0>Developed by researchers</a0>
+      <a1>destroyed by penicillinase</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

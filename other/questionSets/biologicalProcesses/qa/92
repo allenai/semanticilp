@@ -1,0 +1,35 @@
+<annotation>
+  <id>92</id>
+  <text>
+    The cisternal maturation model proposes that the Golgi cisternae themselves &quot;mature,&quot; moving from the cis to the trans face while carrying some proteins along. In addition, some vesicles recycle enzymes that had been carried forward in moving cisternae, transporting them &quot;backward&quot; to a less mature region where their functions are needed.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>92:1820142834</qid>
+      <q>Vesicles transport enzymes &quot;backward&quot;</q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>92:2145456727</qid>
+      <q>In which direction do cisternae move?</q>
+      <a0>forward</a0>
+      <a1>&quot;backward&quot;</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>92:1695726646</qid>
+      <q>Golgi cisternae move to the trans face</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

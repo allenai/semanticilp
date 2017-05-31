@@ -1,0 +1,19 @@
+<annotation>
+  <id>47</id>
+  <text>
+    Though rarer than allopatric speciation, sympatric speciation can occur when gene flow to and from the isolated subpopulation is blocked.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>47:49739901</qid>
+      <q>
+        Allopatric speciation occurs when gene flow to and from the isolated population is blocked
+      </q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

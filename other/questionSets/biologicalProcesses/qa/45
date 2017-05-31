@@ -1,0 +1,30 @@
+<annotation>
+  <id>45</id>
+  <text>
+    In allopatric speciation (from the Greek allos, other, and patra, homeland), gene flow is interrupted when a population is divided into geographically isolated subpopulations.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>45:298880230</qid>
+      <q>
+        Gene flow interruption causes populations to be divided into geographically isolated subpopulations
+      </q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>45:1401449997</qid>
+      <q>
+        What would happen if a population is not divided into geographically isolated subpopulations?
+      </q>
+      <a0>Allopatric speciation would not occur</a0>
+      <a1>gene flow would not occur</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

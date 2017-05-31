@@ -1,0 +1,46 @@
+<annotation>
+  <id>103</id>
+  <text>
+    Abnormal changes on the cell surface cause cancer cells to lose attachments to neighboring cells and the extracellular matrix, allowing them to spread into nearby tissues. Cancer cells may also secrete signaling molecules that cause blood vessels to grow toward the tumor. A few tumor cells may separate from the original tumor, enter blood vessels and lymph vessels, and travel to other parts of the body. There, they may proliferate and form a new tumor. This spread of cancer cells to locations distant from their original site is called metastasis (see Figure 12.20).
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>103:2046347313</qid>
+      <q>What can happen after cancer cells enter the blood vessels?</q>
+      <a0>The cancer cells can proliferate and form a new tumor</a0>
+      <a1>The cancer cells secrete signaling molecules</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>103:1185979027</qid>
+      <q>
+        What would necessarily not happen if cancer cells could not secrete signaling molecules?
+      </q>
+      <a0>Blood vessels will not grow toward the tumor</a0>
+      <a1>The cancer cells will not enter the blood vessels</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>103:2106237211</qid>
+      <q>How do cancer cells necessarily spread to distant tissues?</q>
+      <a0>By entering blood vessels and lymph vessels</a0>
+      <a1>By secreting signaling molecules</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>103:1652222507</qid>
+      <q>New tumors are necessarily caused by the growth of blood vessels</q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

@@ -1,0 +1,48 @@
+<annotation>
+  <id>9</id>
+  <text>
+    Methicillin works by deactivating a protein that bacteria use to synthesize their cell walls. However, S. aureus populations exhibited variations in how strongly their members were affected by the drug. In particular, some individuals were able to synthesize their cell walls using a different protein that was not affected by methicillin. These individuals survived the methicillin treatments and reproduced at higher rates than did other individuals. Over time, these resistant individuals became increasingly common, leading to the spread of MRSA.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>9:352008069</qid>
+      <q>Methicillin works directly by deactivating cell walls</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>9:1195004541</qid>
+      <q>Methicillin allows individuals to reproduce at higher rates</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>9:493950699</qid>
+      <q>What would happen without Methicillin?</q>
+      <a0>Resistant individuals would not be produced</a0>
+      <a1>bacteria would not synthesize cell walls</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>9:1025089259</qid>
+      <q>What is the correct order of events?</q>
+      <a0>
+        Methicillin deactivates a protein, then some individuals use a different protein, then MRSA spreads
+      </a0>
+      <a1>
+        Methicillin deactivates a protein, then MRSA spreads, then some individuals use a different protein.
+      </a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

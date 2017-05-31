@@ -1,0 +1,37 @@
+<annotation>
+  <id>172</id>
+  <text>
+    &amp;#x278B; Both the plasmid and the hummingbird DNA are cut with the same restriction enzyme, and then &amp;#x278C; the fragments are mixed together, allowing base pairing between their complementary sticky ends. We then add DNA ligase, which covalently bonds the sugar-phosphate backbones of the fragments whose sticky ends have base-paired.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>172:570334286</qid>
+      <q>What cuts the plasmid?</q>
+      <a0>a restriction enzyme</a0>
+      <a1>the hummingbird DNA</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>172:1221271105</qid>
+      <q>What does DNA ligase do?</q>
+      <a0>allows base pairing between complementary sticky ends</a0>
+      <a1>covalently bonds the sugar-phosphate backbones of the fragments</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>172:1657813435</qid>
+      <q>What would happen without sticky ends?</q>
+      <a0>
+        DNA ligase would covalently bond the sugar-phosphate backbones of the fragments
+      </a0>
+      <a1>the hummingbird DNA would not be cut</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

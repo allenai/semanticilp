@@ -1,0 +1,44 @@
+<annotation>
+  <id>95</id>
+  <text>
+    Reception. Reception is the target cell's detection of a signaling molecule coming from outside the cell. A chemical signal is &quot;detected&quot; when the signaling molecule binds to a receptor protein located at the cell's surface or inside the cell. Transduction. The binding of the signaling molecule changes the receptor protein in some way, initiating the process of transduction. The transduction stage converts the signal to a form that can bring about a specific cellular response. In Sutherland's system, the binding of epinephrine to a receptor protein in a liver cell's plasma membrane leads to activation of glycogen phosphorylase. Transduction sometimes occurs in a single step but more often requires a sequence of changes in a series of different molecules: a signal transduction pathway. The molecules in the pathway are often called relay molecules. Response. In the third stage of cell signaling, the transduced signal finally triggers a specific cellular response. The response may be almost any imaginable cellular activity: such as catalysis by an enzyme (for example, glycogen phosphorylase), rearrangement of the cytoskeleton, or activation of specific genes in the nucleus. The cell-signaling process helps ensure that crucial activities like these occur in the right cells, at the right time, and in proper coordination with the activities of other cells of the organism. We'll now explore the mechanisms of cell signaling in more detail, including a discussion of fine-tuning and termination of the process.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>95:668030926</qid>
+      <q>What is required for reception?</q>
+      <a0>glycogen phosphorylase</a0>
+      <a1>a receptor</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>95:2092400565</qid>
+      <q>What is required for transduction?</q>
+      <a0>reception</a0>
+      <a1>response</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>95:784648974</qid>
+      <q>Epinephrine acts as what?</q>
+      <a0>A signaling molecule</a0>
+      <a1>a receptor</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>95:1655361249</qid>
+      <q>What do relay molecules do?</q>
+      <a0>signal transduction</a0>
+      <a1>almost any imaginable cellular activity</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

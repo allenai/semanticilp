@@ -1,0 +1,35 @@
+<annotation>
+  <id>209</id>
+  <text>
+    Genes conferring useful traits, such as pest resistance, herbicide resistance, delayed ripening, and increased nutritional value, can be transferred from one plant variety or species to another using the Ti plasmid as a vector. Technique Results Transformed cells carrying the transgene of interest can regenerate complete plants that exhibit the new trait conferred by the transgene. Genetic engineering is rapidly replacing traditional plant-breeding programs, especially for useful traits, such as herbicide or pest resistance, determined by one or a few genes. Crops engineered with a bacterial gene making the plants resistant to herbicides can grow while weeds are destroyed, and genetically engineered crops that can resist destructive insects reduce the need for chemical insecticides.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>209:109511920</qid>
+      <q>What is required for complete plants to exhibit the new trait?</q>
+      <a0>delayed ripening</a0>
+      <a1>a vector</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>209:195905862</qid>
+      <q>What is destroyed?</q>
+      <a0>weeds</a0>
+      <a1>genetically engineered crops</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>209:771877199</qid>
+      <q>What can genetically engineered crops resist?</q>
+      <a0>chemical insecticides</a0>
+      <a1>destructive insects</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

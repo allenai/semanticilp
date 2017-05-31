@@ -1,0 +1,44 @@
+<annotation>
+  <id>157</id>
+  <text>
+    Instead, speciation begins only after gene flow between populations is interrupted, perhaps by changing environmental conditions or by unpredictable events, such as a storm that transports a few individuals to an isolated area. Furthermore, once gene flow is interrupted, the populations must diverge genetically to such an extent that they become reproductively isolated: all before other events cause gene flow to resume, possibly reversing the speciation process (see Figure 24.16).
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>157:1694034001</qid>
+      <q>What is required for populations to become reproductively isolated?</q>
+      <a0>a storm</a0>
+      <a1>gene flow is interrupted</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>157:2082049851</qid>
+      <q>What would happen if gene flow is not interrupted?</q>
+      <a0>reversing the speciation process would not occur</a0>
+      <a1>populations would not become reproductively isolated</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>157:1070727694</qid>
+      <q>What is the final result of speciation?</q>
+      <a0>gene flow resumes</a0>
+      <a1>populations become reproductively isolated</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>157:2118086373</qid>
+      <q>A storm causes gene flow to resume</q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

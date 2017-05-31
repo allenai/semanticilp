@@ -1,0 +1,43 @@
+<annotation>
+  <id>57</id>
+  <text>
+    During DNA replication, DNA polymerases proofread each nucleotide against its template as soon as it is added to the growing strand. Upon finding an incorrectly paired nucleotide, the polymerase removes the nucleotide and then resumes synthesis.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>57:532208842</qid>
+      <q>
+        What would happen if the polymerase did not find an incorrectly paired nucleotide?
+      </q>
+      <a0>
+        DNA polymerase would not proofread each nucleotide against its template
+      </a0>
+      <a1>The polymerase would not remove the nucleotide</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>57:34268136</qid>
+      <q>Nucleotides are added to the growing strand</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>57:295506028</qid>
+      <q>Which events can occur at the same time?</q>
+      <a0>
+        The polymerase finds an incorrectly paired nucleotide and removes the nucleotide
+      </a0>
+      <a1>
+        DNA replication and DNA polymerase proofreads each nucleotide against its template
+      </a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

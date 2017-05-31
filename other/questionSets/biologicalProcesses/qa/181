@@ -1,0 +1,37 @@
+<annotation>
+  <id>181</id>
+  <text>
+    To overcome differences in promoters and other DNA control sequences, scientists usually employ an expression vector, a cloning vector that contains a highly active bacterial promoter just upstream of a restriction site where the eukaryotic gene can be inserted in the correct reading frame. The bacterial host cell will recognize the promoter and proceed to express the foreign gene now linked to that promoter. Such expression vectors allow the synthesis of many eukaryotic proteins in bacterial cells.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>181:1464905829</qid>
+      <q>Which event occurs first?</q>
+      <a0>the bacterial host will express the foreign gene</a0>
+      <a1>the eukaryotic gene is inserted in the correct reading frame</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>181:1053849176</qid>
+      <q>The promoter expresses the foreign gene</q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>181:2083002483</qid>
+      <q>
+        What is eventually synthesized because the bacterial host cell will recognize the promoter?
+      </q>
+      <a0>An expression vector</a0>
+      <a1>Many eukaryotic proteins</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

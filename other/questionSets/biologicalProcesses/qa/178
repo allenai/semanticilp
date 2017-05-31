@@ -1,0 +1,17 @@
+<annotation>
+  <id>178</id>
+  <text>
+    Recall that the clones in our hummingbird genomic library have been stored in a multiwell plate (see Figure 20.5c). If we transfer a few cells from each well to a defined location on a membrane made of nylon or nitrocellulose, we can screen a large number of clones simultaneously for the presence of DNA complementary to our DNA probe (Figure 20.7).
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>178:541620370</qid>
+      <q>What is transferred to a defined location on a membrane?</q>
+      <a0>a few cells from each well</a0>
+      <a1>our hummingbird genomic library</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

@@ -1,0 +1,39 @@
+<annotation>
+  <id>13</id>
+  <text>
+    For example, suppose that near our original hypothetical wildflower population there is another population consisting primarily of white-flowered individuals (CWCW). Insects carrying pollen from these plants may fly to and pollinate plants in our original population. The introduced CW alleles would modify our original population's allele frequencies in the next generation. Because alleles are exchanged between populations, gene flow tends to reduce the genetic differences between populations. In fact, if it is extensive enough, gene flow can result in two populations combining into a single population with a common gene pool.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>13:638912937</qid>
+      <q>What is the result of gene flow?</q>
+      <a0>reduced genetic differences between populations</a0>
+      <a1>Insects carry pollen</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>13:186719256</qid>
+      <q>What is the correct order of events?</q>
+      <a0>
+        Alleles are exchanged between populations, then gene flow reduces genetic differences between populations, then two populations combine into a single population
+      </a0>
+      <a1>
+        Alleles are exchanged between populations, then two populations combine into a single population, then gene flow reduces genetic differences between populations
+      </a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>13:908367101</qid>
+      <q>Extensive gene flow can result in a common gene pool.</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

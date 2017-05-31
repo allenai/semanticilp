@@ -1,0 +1,35 @@
+<annotation>
+  <id>176</id>
+  <text>
+    Figure 20.6 Making complementary DNA (cDNA) from eukaryotic genes. Complementary DNA is DNA made in vitro using mRNA as a template for the first strand. Because the mRNA contains only exons, the resulting double-stranded cDNA carries the complete coding sequence of the gene but no introns. Although only one mRNA is shown here, the final collection of cDNAs would reflect all the mRNAs that were present in the cell.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>176:667818208</qid>
+      <q>mRNA is made in vitro</q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>176:1148158658</qid>
+      <q>cDNA carries what?</q>
+      <a0>the complete coding sequence of the gene</a0>
+      <a1>introns</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>176:1532164597</qid>
+      <q>Why does the cDNA carry the complete coding sequence but no introns?</q>
+      <a0>The DNA is made in vitro</a0>
+      <a1>The mRNA contains only exons</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

@@ -1,0 +1,44 @@
+<annotation>
+  <id>113</id>
+  <text>
+    In this signaling system, the hormone epinephrine acts through a G protein-coupled receptor to activate a succession of relay molecules, including cAMP and two protein kinases (see also Figure 11.12). The final protein activated is the enzyme glycogen phosphorylase, which uses inorganic phosphate to release glucose monomers from glycogen in the form of glucose 1-phosphate molecules.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>113:1252886094</qid>
+      <q>What would happen without cAMP?</q>
+      <a0>Epinephrine would not act on the receptor</a0>
+      <a1>Glycogen phosphorylase would not be activated</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>113:1294970467</qid>
+      <q>What is the final product of the signaling pathway?</q>
+      <a0>Glycogen</a0>
+      <a1>Glucose monomers</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>113:2082161351</qid>
+      <q>What would happen without inorganic phosphate?</q>
+      <a0>the receptor would not activate the relay molecules</a0>
+      <a1>Glucose 1-phosphate molecules will not be released</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>113:1822061659</qid>
+      <q>What would happen without glycogen?</q>
+      <a0>Glucose monomers would not be released</a0>
+      <a1>Glycogen phosphorylase would not be activated</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

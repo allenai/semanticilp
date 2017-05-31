@@ -1,0 +1,17 @@
+<annotation>
+  <id>170</id>
+  <text>
+    Bacterial plasmids are widely used as cloning vectors for several reasons: They can be readily obtained from commercial suppliers, manipulated to form recombinant plasmids by insertion of foreign DNA in vitro, and then introduced into bacterial cells. Moreover, recombinant bacterial plasmids (and the foreign DNA they carry) multiply rapidly owing to the high reproductive rate of their host cells.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>170:10275428</qid>
+      <q>Recombinant bacterial plasmids carry foreign DNA</q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

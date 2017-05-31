@@ -1,0 +1,50 @@
+<annotation>
+  <id>59</id>
+  <text>
+    Transcription occurs in the nucleus, and mRNA is then transported to the cytoplasm, where translation occurs. But before eukaryotic RNA transcripts from protein-coding genes can leave the nucleus, they are modified in various ways to produce the final, functional mRNA. The transcription of a protein-coding eukaryotic gene results in pre-mRNA, and further processing yields the finished mRNA.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>59:1361048909</qid>
+      <q>Which event occurs in the nucleus?</q>
+      <a0>production of the final, functional RNA</a0>
+      <a1>translation</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>59:816618625</qid>
+      <q>What is the correct order of events?</q>
+      <a0>
+        Transcription occurs in the nucleus, then mRNA is transported to the cytoplasm, then further processing yields the finished mRNA
+      </a0>
+      <a1>
+        Transcription occurs in the nucleus, then further processing yields the finished mRNA, then translation occurs.
+      </a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>59:920988674</qid>
+      <q>What would happen without further processing of mRNA?</q>
+      <a0>Translation would not occur</a0>
+      <a1>Transcription would not occur</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>59:1710166788</qid>
+      <q>
+        Translation is required for RNA transcripts to be modified in various ways
+      </q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

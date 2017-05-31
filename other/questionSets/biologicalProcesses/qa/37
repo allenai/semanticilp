@@ -1,0 +1,26 @@
+<annotation>
+  <id>37</id>
+  <text>
+    To mark a particular protein for destruction, the cell commonly attaches molecules of a small protein called ubiquitin to the protein. Giant protein complexes called proteasomes then recognize the ubiquitin-tagged proteins and degrade them (Figure 18.14).
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>37:390426618</qid>
+      <q>Small proteins are attached to ubiquitin</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>37:1328605858</qid>
+      <q>What would happen without ubiquitin?</q>
+      <a0>proteins would not be marked for destruction</a0>
+      <a1>proteasomes would not be degraded</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

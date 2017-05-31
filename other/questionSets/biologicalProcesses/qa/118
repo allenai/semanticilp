@@ -1,0 +1,44 @@
+<annotation>
+  <id>118</id>
+  <text>
+    Apoptosis is a type of programmed cell death in which cell components are disposed of in an orderly fashion, without damage to neighboring cells. Studies of the soil worm Caenorhabditis elegans showed that apoptosis occurs at defined times during embryonic development and clarified molecular details of the signaling pathway involved in the process. A protein (Ced-9) in the mitochondrial membrane acts as a brake; when released by a death signal, it allows activation of caspases, the main proteases that carry out apoptosis, and nucleases.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>118:2143148857</qid>
+      <q>Apoptosis damages neighboring cells</q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>118:2137715151</qid>
+      <q>Without Ced-9, excessive apoptosis would occur</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>118:1418672829</qid>
+      <q>On what does Ced-9 act?</q>
+      <a0>Nucleases and caspases</a0>
+      <a1>the mitochondrial membrane</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>118:1655726470</qid>
+      <q>Which is not a direct agent of apoptosis?</q>
+      <a0>Ced-9</a0>
+      <a1>Nucleases</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

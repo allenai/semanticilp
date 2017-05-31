@@ -1,0 +1,35 @@
+<annotation>
+  <id>195</id>
+  <text>
+    Once a region is found that has a SNP shared by affected but not unaffected people, researchers focus on that region and sequence it. In the vast majority of cases, the SNP itself does not contribute to the disease, and most SNPs are in noncoding regions. Instead, if the SNP and a disease-causing allele are close enough, scientists can take advantage of the fact that crossing over between the marker and the gene is very unlikely during gamete formation. Therefore, the marker and gene will almost always be inherited together, even though the marker is not part of the gene (Figure 20.16).
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>195:1357727713</qid>
+      <q>Researchers focus on a region shared by what?</q>
+      <a0>affected people</a0>
+      <a1>unaffected people</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>195:735491138</qid>
+      <q>In the vast majority of cases, the SNP contributes to the disease</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>195:2030030142</qid>
+      <q>What prevents crossing over between the marker and the gene?</q>
+      <a0>the SNP and a disease-causing allele are close enough</a0>
+      <a1>gamete formation</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

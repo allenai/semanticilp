@@ -1,0 +1,37 @@
+<annotation>
+  <id>63</id>
+  <text>
+    The rearranged genes are transcribed, and the transcripts are processed for translation. Following translation, the light chain and heavy chain assemble together, forming an antigen receptor (see Figure 43.13). Each pair of randomly rearranged heavy and light chains results in a different antigen-binding site.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>63:1793782644</qid>
+      <q>What is processed for translation?</q>
+      <a0>The transcripts</a0>
+      <a1>The rearranged genes</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>63:1342023997</qid>
+      <q>What would happen without translation?</q>
+      <a0>an antigen receptor would not be formed</a0>
+      <a1>The rearranged genes would not be transcribed</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>63:480475861</qid>
+      <q>
+        What is formed when the light chain and the heavy chain assemble together?
+      </q>
+      <a0>An antigen receptor</a0>
+      <a1>rearranged genes</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

@@ -1,0 +1,35 @@
+<annotation>
+  <id>137</id>
+  <text>
+    The first type are transposons, which move within a genome by means of a DNA intermediate. Transposons can move by a &quot;cut-and-paste&quot; mechanism, which removes the element from the original site, or by a &quot;copy-and-paste&quot; mechanism, which leaves a copy behind (Figure 21.9). Both mechanisms require an enzyme called transposase, which is generally encoded by the transposon.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>137:199784919</qid>
+      <q>A &quot;cut-and-paste&quot; mechanism does what?</q>
+      <a0>leaves a copy behind</a0>
+      <a1>removes the element from the original site</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>137:740047132</qid>
+      <q>A &quot;copy-and-paste&quot; mechanism does what?</q>
+      <a0>removes the element from the original site</a0>
+      <a1>leaves a copy behind</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>137:203669661</qid>
+      <q>The &quot;cut-and-paste&quot; mechanism requires transposase</q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

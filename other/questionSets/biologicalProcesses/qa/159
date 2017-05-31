@@ -1,0 +1,46 @@
+<annotation>
+  <id>159</id>
+  <text>
+    They hypothesize that chemical and physical processes on early Earth, aided by the emerging force of natural selection, could have produced very simple cells through a sequence of four main stages: The abiotic (nonliving) synthesis of small organic molecules, such as amino acids and nitrogenous bases The joining of these small molecules into macromolecules, such as proteins and nucleic acids The packaging of these molecules into protocells, droplets with membranes that maintained an internal chemistry different from that of their surroundings The origin of self-replicating molecules that eventually made inheritance possible
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>159:1966177170</qid>
+      <q>Which event occurred first?</q>
+      <a0>production of very simple cells</a0>
+      <a1>synthesis of small organic molecules</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>159:1155012850</qid>
+      <q>protocells do what?</q>
+      <a0>
+        maintain an internal chemistry different from that of their surroundings
+      </a0>
+      <a1>abiotic synthesis of small organic molecules</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>159:2050408870</qid>
+      <q>What is required for inheritance?</q>
+      <a0>their surroundings</a0>
+      <a1>self-replicating molecules</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>159:1228429911</qid>
+      <q>Which of the following happened first?</q>
+      <a0>very simple cells were produced</a0>
+      <a1>The joining of small molecules into macromolecules</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

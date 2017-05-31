@@ -1,0 +1,44 @@
+<annotation>
+  <id>77</id>
+  <text>
+    As summarized in Figure 9.8, glycolysis can be divided into two phases: energy investment and energy payoff. During the energy investment phase, the cell actually spends ATP. This investment is repaid with interest during the energy payoff phase, when ATP is produced by substrate-level phosphorylation and NAD+ is reduced to NADH by electrons released from the oxidation of glucose. The net energy yield from glycolysis, per glucose molecule, is 2 ATP plus 2 NADH. The ten steps of the glycolytic pathway are shown in Figure 9.9.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>77:292745684</qid>
+      <q>What would happen without the oxidation of glucose?</q>
+      <a0>NAD+ would not be reduced to NADH</a0>
+      <a1>ATP would not be produced</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>77:778691262</qid>
+      <q>Which event is part of the energy investment phase?</q>
+      <a0>the cell actually spends ATP</a0>
+      <a1>the energy payoff phase</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>77:940304046</qid>
+      <q>Substrate-level phosphorylation is necessary to produce NADH</q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>77:1015281778</qid>
+      <q>Which of the following happens first?</q>
+      <a0>Energy payoff</a0>
+      <a1>Energy investment</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

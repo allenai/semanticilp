@@ -1,0 +1,39 @@
+<annotation>
+  <id>76</id>
+  <text>
+    In most enzymatic reactions, the substrate is held in the active site by so-called weak interactions, such as hydrogen bonds and ionic bonds. R groups of a few of the amino acids that make up the active site catalyze the conversion of substrate to product, and the product departs from the active site. The enzyme is then free to take another substrate molecule into its active site.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>76:1456231712</qid>
+      <q>What catalyzes the conversion of substrate to product?</q>
+      <a0>Ionic bonds</a0>
+      <a1>R groups</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>76:1823273627</qid>
+      <q>Which event occurs first?</q>
+      <a0>
+        the substrate is held in the active site by hydrogen bonds and ionic bonds
+      </a0>
+      <a1>conversion of substrate to product</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>76:206306385</qid>
+      <q>what would happen if the product did not depart from the active site?</q>
+      <a0>
+        The enzyme would not be free to take another substrate molecule into its active site
+      </a0>
+      <a1>R groups would not catalyze the conversion of substrate to product</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

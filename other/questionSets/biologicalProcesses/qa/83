@@ -1,0 +1,35 @@
+<annotation>
+  <id>83</id>
+  <text>
+    In animal cells, cytokinesis occurs by a process known as cleavage. The first sign of cleavage is the appearance of a cleavage furrow, a shallow groove in the cell surface near the old metaphase plate (Figure 12.10a). On the cytoplasmic side of the furrow is a contractile ring of actin microfilaments associated with molecules of the protein myosin. The actin microfilaments interact with the myosin molecules, causing the ring to contract. The contraction of the dividing cell's ring of microfilaments is like the pulling of a drawstring. The cleavage furrow deepens until the parent cell is pinched in two, producing two completely separated cells, each with its own nucleus and share of cytosol, organelles, and other subcellular structures.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>83:1573630722</qid>
+      <q>What is necessary for the appearance of a cleavage furrow?</q>
+      <a0>actin microfilaments</a0>
+      <a1>the old metaphase plate</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>83:1660207704</qid>
+      <q>Which entity is part of the contractile ring?</q>
+      <a0>the furrow</a0>
+      <a1>actin microfilaments</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>83:1774699256</qid>
+      <q>What is produced by the cleavage furrow deepening?</q>
+      <a0>Other subcellular structures</a0>
+      <a1>two completely separated cells</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

@@ -1,0 +1,28 @@
+<annotation>
+  <id>133</id>
+  <text>
+    These technological advances have also facilitated an approach called metagenomics (from the Greek meta, beyond), in which DNA from a group of species (a metagenome) is collected from an environmental sample and sequenced. Again, computer software accomplishes the task of sorting out the partial sequences and assembling them into specific genomes.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>133:1902396622</qid>
+      <q>Computer software does what?</q>
+      <a0>
+        sorts out the partial sequences and assembles them into specific genomes
+      </a0>
+      <a1>collects and environmental sample</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>133:1122526642</qid>
+      <q>Metagenomics uses computer software</q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

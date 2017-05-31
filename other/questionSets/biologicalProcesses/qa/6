@@ -1,0 +1,46 @@
+<annotation>
+  <id>6</id>
+  <text>
+    Sickle-cell disease is caused by the substitution of a single amino acid in the hemoglobin protein of red blood cells; in homozygous individuals, all hemoglobin is of the sickle-cell (abnormal) variety. When the oxygen content of an affected individual's blood is low (at high altitudes or under physical stress, for instance), the sickle-cell hemoglobin molecules aggregate into long rods that deform the red cells into a sickle shape (see Figure 5.21). Sickled cells may clump and clog small blood vessels, often leading to other symptoms throughout the body, including physical weakness, pain, organ damage, and even paralysis.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>6:64064520</qid>
+      <q>What would happen without the substitution of a single amino acid?</q>
+      <a0>Hemoglobin protein would not be produced</a0>
+      <a1>Sickle-cell disease would not occur</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>6:1582757689</qid>
+      <q>Which entity is responsible for sickle-cell disease?</q>
+      <a0>Hemoglobin</a0>
+      <a1>small blood vessels</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>6:439769876</qid>
+      <q>
+        What would happen if hemoglobin molecules did not aggregate into long rods?
+      </q>
+      <a0>red cells do not deform into a sickle shape</a0>
+      <a1>Oxygen content of an individual's blood does not become low.</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>6:731774560</qid>
+      <q>Homozygous individuals can have paralysis</q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

@@ -1,0 +1,35 @@
+<annotation>
+  <id>71</id>
+  <text>
+    Cells are homogenized in a blender to break them up. The resulting mixture (homogenate) is centrifuged. The supernatant (liquid) is poured into another tube and centrifuged at a higher speed for a longer time. This process is repeated several times. This &quot;differential centrifugation&quot; results in a series of pellets, each containing different cell components.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>71:1376968933</qid>
+      <q>What two events can occur at the same time?</q>
+      <a0>Cells are homogenized and cells break up</a0>
+      <a1>Cells are homogenized and centrifuged</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>71:125935764</qid>
+      <q>What would happen if the process is not repeated several times?</q>
+      <a0>the cells would not be homogenized</a0>
+      <a1>a series of pellets would not be produced</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>71:949574384</qid>
+      <q>What does differential centrifugation result in?</q>
+      <a0>The supernatant</a0>
+      <a1>A series of pellets</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

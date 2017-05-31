@@ -1,0 +1,35 @@
+<annotation>
+  <id>196</id>
+  <text>
+    The successful cloning of whole plants from single differentiated cells was accomplished during the 1950s by F. C. Steward and his students at Cornell University, who worked with carrot plants (Figure 20.17). They found that differentiated cells taken from the root (the carrot) and incubated in culture medium could grow into normal adult plants, each genetically identical to the parent plant. These results showed that differentiation does not necessarily involve irreversible changes in the DNA. In plants, at least, mature cells can dedifferentiate and then give rise to all the specialized cell types of the organism.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>196:370405457</qid>
+      <q>What was successfully cloned?</q>
+      <a0>F.C. Steward</a0>
+      <a1>carrot plants</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>196:402966579</qid>
+      <q>What was incubated in culture medium?</q>
+      <a0>differentiated cells</a0>
+      <a1>students at Cornell University</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>196:1989423778</qid>
+      <q>What is the result of successful cloning?</q>
+      <a0>irreversible changes in the DNA</a0>
+      <a1>the cells grow into normal adult cells</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

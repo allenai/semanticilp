@@ -1,0 +1,46 @@
+<annotation>
+  <id>65</id>
+  <text>
+    The antigen receptors on the surface of the helper T cell bind to the antigen fragment and to the class II MHC molecule displaying that fragment on the antigen-presenting cell. At the same time, an accessory protein on the helper T cell surface binds to the class II MHC molecule, helping keep the cells joined. As the two cells interact, signals in the form of cytokines are exchanged in both directions.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>65:1108165939</qid>
+      <q>What binds to the antigen fragment and to the class II MHC molecule?</q>
+      <a0>The surface of the helper T cell</a0>
+      <a1>The antigen receptors</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>65:769086251</qid>
+      <q>
+        The accessory protein binds to the antigen fragment and to the class II MHC molecule
+      </q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>65:1773038151</qid>
+      <q>What two entities exchange signals in the form of cytokines?</q>
+      <a0>an accessory protein and the helper T cell</a0>
+      <a1>The helper T cell and the antigen-presenting cell</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>65:586465331</qid>
+      <q>What would happen without the accessory molecule?</q>
+      <a0>The MHC molecule would not display the fragment</a0>
+      <a1>helping keep the cells joined would not occur</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

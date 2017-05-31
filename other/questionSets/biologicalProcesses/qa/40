@@ -1,0 +1,37 @@
+<annotation>
+  <id>40</id>
+  <text>
+    The red blood cells of people with sickle-cell disease become distorted in shape, or sickled, under low-oxygen conditions (see Figure 5.21), as occurs in the capillaries. These sickled cells can clump together and block the flow of blood in the capillaries, resulting in serious damage to organs such as the kidney, heart, and brain.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>40:1542855258</qid>
+      <q>What causes red blood cells to become distorted in shape?</q>
+      <a0>flow of blood in the capillaries</a0>
+      <a1>low-oxygen conditions</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>40:848891510</qid>
+      <q>
+        Distorted red blood cells clump together and block the flow of blood in the capillaries, resulting in serious damage to organs
+      </q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>40:1654462750</qid>
+      <q>What is caused by sickled cells clumping together?</q>
+      <a0>serious damage to organs</a0>
+      <a1>low oxygen conditions</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

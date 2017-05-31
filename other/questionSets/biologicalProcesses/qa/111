@@ -1,0 +1,26 @@
+<annotation>
+  <id>111</id>
+  <text>
+    During interphase in animal cells, the single centrosome duplicates, forming two centrosomes, which remain together near the nucleus. The two centrosomes move apart during prophase and prometaphase of mitosis as spindle microtubules grow out from them. By the end of prometaphase, the two centrosomes, one at each pole of the spindle, are at opposite ends of the cell.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>111:785566863</qid>
+      <q>What happens during prophase?</q>
+      <a0>Two centrosomes move apart</a0>
+      <a1>Single centrosome duplicates</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>111:674542686</qid>
+      <q>What would happen if spindle microtubules did not grow?</q>
+      <a0>The two centrosomes would not move apart</a0>
+      <a1>The single centrosome would not duplicate</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

@@ -1,0 +1,35 @@
+<annotation>
+  <id>41</id>
+  <text>
+    Retrotransposons always leave a copy at the original site during transposition, since they are initially transcribed into an RNA intermediate (Figure 21.10). To insert at another site, the RNA intermediate is first converted back to DNA by reverse transcriptase, an enzyme encoded by the retrotransposon. (Reverse transcriptase is also encoded by retroviruses, as you learned in Chapter 19. In fact, retroviruses may have evolved from retrotransposons.) Another cellular enzyme catalyzes insertion of the reverse-transcribed DNA at a new site.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>41:384689775</qid>
+      <q>The retrotransposon encodes reverse transcriptase</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>41:1666661298</qid>
+      <q>What would happen without the RNA intermediate?</q>
+      <a0>the retrotransposon could not insert at another site</a0>
+      <a1>retroviruses would not encode reverse transcriptase</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>41:1633847688</qid>
+      <q>What does reverse transcriptase do?</q>
+      <a0>converts the RNA intermediate back to DNA</a0>
+      <a1>encodes retroviruses</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

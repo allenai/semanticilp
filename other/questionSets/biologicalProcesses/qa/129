@@ -1,0 +1,41 @@
+<annotation>
+  <id>129</id>
+  <text>
+    Darwin reasoned that if artificial selection can bring about dramatic change in a relatively short period of time, then natural selection should be capable of substantial modification of species over many hundreds of generations. Even if the advantages of some heritable traits over others are slight, the advantageous variations will gradually accumulate in the population, and less favorable variations will diminish. Over time, this process will increase the frequency of individuals with favorable adaptations and hence refine the match between organisms and their environment (see Figure 1.20).
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>129:364398228</qid>
+      <q>Advantageous variations and less favorable variations will diminish</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>129:1150294745</qid>
+      <q>What would happen without natural selection?</q>
+      <a0>
+        Artificial selection would not bring about dramatic change in a relatively short period of time
+      </a0>
+      <a1>
+        substantial modifications of species over many hundreds of generations would not occur
+      </a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>129:1365967883</qid>
+      <q>
+        Which of the following is caused by the increased frequency of individuals with favorable adaptations?
+      </q>
+      <a0>artificial selection</a0>
+      <a1>refined match between organisms and their environment</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

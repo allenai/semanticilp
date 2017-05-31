@@ -1,0 +1,35 @@
+<annotation>
+  <id>177</id>
+  <text>
+    Such researchers can make another kind of DNA library by starting with fully processed mRNA extracted from cells where the gene is expressed (Figure 20.6). The enzyme reverse transcriptase (obtained from retroviruses) is used in vitro to make a single-stranded DNA reverse transcript of each mRNA molecule. Recall that the 3' end of the mRNA has a stretch of adenine (A) ribonucleotides called a poly-A tail. This feature allows use of a short strand of thymine deoxyribonucleotides (dT's) as a primer for the reverse transcriptase. Following enzymatic degradation of the mRNA, a second DNA strand, complementary to the first, is synthesized by DNA polymerase. The resulting double-stranded DNA is called complementary DNA (cDNA).
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>177:910431527</qid>
+      <q>What would happen without reverse transcriptase?</q>
+      <a0>mRNA would not be produced</a0>
+      <a1>single-stranded DNA would not be produced</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>177:559055620</qid>
+      <q>Which event occurs first?</q>
+      <a0>cDNA is produced</a0>
+      <a1>enzymatic degradation of mRNA</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>177:577114117</qid>
+      <q>What is eventually produced by the enzymatic degradation of the mRNA?</q>
+      <a0>DNA polymerase</a0>
+      <a1>cDNA</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

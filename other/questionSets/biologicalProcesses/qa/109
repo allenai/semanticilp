@@ -1,0 +1,44 @@
+<annotation>
+  <id>109</id>
+  <text>
+    Instead, during telophase, vesicles derived from the Golgi apparatus move along microtubules to the middle of the cell, where they coalesce, producing a cell plate (Figure 12.10b). Cell wall materials carried in the vesicles collect in the cell plate as it grows. The cell plate enlarges until its surrounding membrane fuses with the plasma membrane along the perimeter of the cell. Two daughter cells result, each with its own plasma membrane. Meanwhile, a new cell wall arising from the contents of the cell plate has formed between the daughter cells.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>109:44821667</qid>
+      <q>What would happen without vesicles from the Golgi apparatus?</q>
+      <a0>Microtubules would not be produced</a0>
+      <a1>A cell plate would not be produced</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>109:2064864349</qid>
+      <q>The new cell wall forms the cell plate</q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>109:981675377</qid>
+      <q>What would happen without microtubules?</q>
+      <a0>The new cell wall would not be formed</a0>
+      <a1>The vesicles from the Golgi apparatus would not be formed</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>109:583758785</qid>
+      <q>Cell wall materials produce the cell plate</q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

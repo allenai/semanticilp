@@ -1,0 +1,28 @@
+<annotation>
+  <id>208</id>
+  <text>
+    In one striking way, plants are easier to genetically engineer than most animals. For many plant species, a single tissue cell grown in culture can give rise to an adult plant (see Figure 20.17). Thus, genetic manipulations can be performed on an ordinary somatic cell and the cell then used to generate an organism with new traits.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>208:1933463634</qid>
+      <q>What is used for genetic manipulations?</q>
+      <a0>an ordinary somatic cell</a0>
+      <a1>an adult plant</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>208:637812591</qid>
+      <q>
+        Genetic manipulations on an ordinary somatic cell generate an organism because a single tissue cell can give rise to an adult plant
+      </q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

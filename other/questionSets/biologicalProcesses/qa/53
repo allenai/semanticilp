@@ -1,0 +1,30 @@
+<annotation>
+  <id>53</id>
+  <text>
+    In E. coli, a pilus of the donor cell attaches to the recipient (Figure 27.12). The pilus then retracts, pulling the two cells together, much like a grappling hook. The next step is thought to be the formation of a temporary &quot;mating bridge&quot; between the two cells, through which the donor may transfer DNA to the recipient.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>53:817313481</qid>
+      <q>What would happen without the &quot;mating bridge&quot;?</q>
+      <a0>the donor will not transfer DNA to the recipient</a0>
+      <a1>the pilus will not retract</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>53:909925202</qid>
+      <q>what is the correct order of events?</q>
+      <a0>
+        a pilus of a donor cell attaches to the recipient, then the donor may transfer DNA to the recipient, then the pilus retracts
+      </a0>
+      <a1>
+        a pilus of a donor cell attaches to the recipient, then the pilus retracts, then the donor may transfer DNA to the recipient
+      </a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

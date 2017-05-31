@@ -1,0 +1,35 @@
+<annotation>
+  <id>26</id>
+  <text>
+    For example, a transgene for a human blood protein such as antithrombin can be inserted into the genome of a goat in such a way that the transgene's product is secreted in the animal's milk (Figure 20.24). The protein is then purified from the milk (which is easier than purification from a cell culture).
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>26:1318185908</qid>
+      <q>Antithrombin can be purified the animal's milk</q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>26:949475073</qid>
+      <q>Which of the following produces antithrombin?</q>
+      <a0>The genome of a goat</a0>
+      <a1>the transgene</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>26:129158400</qid>
+      <q>What would happen without the transgene?</q>
+      <a0>the protein could not be purified from the milk</a0>
+      <a1>the protein could not be purified from a cell culture</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

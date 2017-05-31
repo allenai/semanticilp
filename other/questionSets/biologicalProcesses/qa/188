@@ -1,0 +1,35 @@
+<annotation>
+  <id>188</id>
+  <text>
+    In the last ten years, next-generation sequencing techniques have been developed that do not rely on chain termination. Instead, a single template strand is immobilized, and reagents are added that allow so-called sequencing by synthesis of a complementary strand, one nucleotide at a time. A chemical trick enables electronic monitors to identify which of the four nucleotides is added, allowing determination of the sequence.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>188:1143557741</qid>
+      <q>next-generation sequencing techniques require what?</q>
+      <a0>chain termination</a0>
+      <a1>a single template strand</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>188:951291692</qid>
+      <q>Which pair of events can occur at the same time?</q>
+      <a0>a single template strand is immobilized and sequencing by synthesis</a0>
+      <a1>a template strand is immobilized and determination of the sequence</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>188:918424461</qid>
+      <q>What is enabled by the immobilization of a single template strand?</q>
+      <a0>determination of the sequence</a0>
+      <a1>chain termination</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

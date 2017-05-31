@@ -1,0 +1,28 @@
+<annotation>
+  <id>204</id>
+  <text>
+    Determining the sequence and structure of proteins crucial for tumor cell survival has led to the identification of small molecules that combat certain cancers by blocking the function of these proteins.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>204:1817109906</qid>
+      <q>
+        What would happen without determining the sequence and structure of proteins?
+      </q>
+      <a0>these proteins would not be produced</a0>
+      <a1>small molecules would not be identified</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>204:1354823460</qid>
+      <q>What blocks the function of these proteins?</q>
+      <a0>certain cancers</a0>
+      <a1>small molecules</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

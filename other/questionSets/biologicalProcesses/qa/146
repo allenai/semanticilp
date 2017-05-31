@@ -1,0 +1,17 @@
+<annotation>
+  <id>146</id>
+  <text>
+    Millions of greater prairie chickens (Tympanuchus cupido) once lived on the prairies of Illinois. As these prairies were converted to farmland and other uses during the 19th and 20th centuries, the number of greater prairie chickens plummeted (Figure 23.11a). By 1993, only two Illinois populations remained, which together harbored fewer than 50 birds. The few surviving birds had low levels of genetic variation, and less than 50% of their eggs hatched, compared with much higher hatching rates of the larger populations in Kansas and Nebraska (Figure 23.11b). These data suggest that genetic drift during the bottleneck may have led to a loss of genetic variation and an increase in the frequency of harmful alleles.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>146:1411404912</qid>
+      <q>What is the result of genetic drift?</q>
+      <a0>less than 50% of the eggs hatched</a0>
+      <a1>the bottleneck</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

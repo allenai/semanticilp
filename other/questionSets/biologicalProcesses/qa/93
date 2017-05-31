@@ -1,0 +1,35 @@
+<annotation>
+  <id>93</id>
+  <text>
+    Amoebas and many other protists eat by engulfing smaller organisms or food particles, a process called phagocytosis (from the Greek phagein, to eat, and kytos, vessel, referring here to the cell). The food vacuole formed in this way then fuses with a lysosome, whose enzymes digest the food (Figure 6.13a, bottom). Digestion products, including simple sugars, amino acids, and other monomers, pass into the cytosol and become nutrients for the cell.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>93:1971672108</qid>
+      <q>Phagocytosis produces what?</q>
+      <a0>the food vacuole</a0>
+      <a1>food particles</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>93:82934816</qid>
+      <q>What becomes nutrients for the cell?</q>
+      <a0>digestion products</a0>
+      <a1>enzymes</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>93:228634761</qid>
+      <q>The food vacuole digests food</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

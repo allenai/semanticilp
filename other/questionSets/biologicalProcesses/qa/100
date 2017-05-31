@@ -1,0 +1,44 @@
+<annotation>
+  <id>100</id>
+  <text>
+    During cellular respiration, energy is released from sugar when electrons associated with hydrogen are transported by carriers to oxygen, forming water as a by-product (see p. 164). The electrons lose potential energy as they &quot;fall&quot; down the electron transport chain toward electronegative oxygen, and the mitochondrion harnesses that energy to synthesize ATP (see Figure 9.15). Photosynthesis reverses the direction of electron flow. Water is split, and electrons are transferred along with hydrogen ions from the water to carbon dioxide, reducing it to sugar.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>100:1243747223</qid>
+      <q>what is transported to oxygen?</q>
+      <a0>carriers</a0>
+      <a1>electrons</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>100:35157416</qid>
+      <q>Photosynthesis produces what?</q>
+      <a0>water</a0>
+      <a1>Sugar</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>100:1383848909</qid>
+      <q>cellular respiration produces what?</q>
+      <a0>ATP</a0>
+      <a1>sugar</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>100:1873756602</qid>
+      <q>During cellular respiration, water is split</q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

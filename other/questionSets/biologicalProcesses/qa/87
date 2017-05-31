@@ -1,0 +1,35 @@
+<annotation>
+  <id>87</id>
+  <text>
+    In alcohol fermentation (Figure 9.17a), pyruvate is converted to ethanol (ethyl alcohol) in two steps. The first step releases carbon dioxide from the pyruvate, which is converted to the two-carbon compound acetaldehyde. In the second step, acetaldehyde is reduced by NADH to ethanol. This regenerates the supply of NAD+ needed for the continuation of glycolysis. Many bacteria carry out alcohol fermentation under anaerobic conditions.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>87:1823273627</qid>
+      <q>Which event occurs first?</q>
+      <a0>carbon dioxide is released from the pyruvate</a0>
+      <a1>ethanol is produced</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>87:1097860333</qid>
+      <q>What regenerates the supply of NAD+?</q>
+      <a0>The second step</a0>
+      <a1>The first step</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>87:998674879</qid>
+      <q>Bacteria is produced by alcohol fermentation</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

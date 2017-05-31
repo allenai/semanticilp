@@ -1,0 +1,37 @@
+<annotation>
+  <id>158</id>
+  <text>
+    However, as speciation occurs again and again, such differences can accumulate and become more pronounced, eventually leading to the formation of new groups of organisms that differ greatly from their ancestors (as in the origin of whales from land-dwelling mammals; see Figure 22.20). Furthermore, as one group of organisms increases in size by producing many new species, another group of organisms may shrink, losing species to extinction. The cumulative effects of many such speciation and extinction events have helped shape the sweeping evolutionary changes that are documented in the fossil record.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>158:873095445</qid>
+      <q>
+        What is required for differences to accumulate and become more pronounced?
+      </q>
+      <a0>the origin of whales from land-dwelling mammals</a0>
+      <a1>speciation occurs again and again</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>158:397148272</qid>
+      <q>How does a group of organisms shrink?</q>
+      <a0>producing many new species</a0>
+      <a1>losing species to extinction</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>158:1570426814</qid>
+      <q>How does a group of organisms increase in size?</q>
+      <a0>producing many new species</a0>
+      <a1>another group of organisms may shrink</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

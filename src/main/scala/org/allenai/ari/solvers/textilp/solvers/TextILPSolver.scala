@@ -1934,7 +1934,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       }
 
       // PA alignments: alignment between verb-srl argument in paragraph and answer option
-      val ansPVerbAlignments = for{
+      val ansPVerbAlignments = for {
         verbC <- pVerbArguments
         (ansIdx, ansVar) <- activeAnswerOptions
         score = alignmentFunction.scoreCellCell(verbC.getSurfaceForm, q.answers(ansIdx).answerText)

@@ -1,0 +1,26 @@
+<annotation>
+  <id>12</id>
+  <text>
+    These data suggest that genetic drift during the bottleneck may have led to a loss of genetic variation and an increase in the frequency of harmful alleles.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>12:1262706103</qid>
+      <q>What causes a loss of genetic variation?</q>
+      <a0>genetic drift</a0>
+      <a1>harmful alleles</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>12:2107395116</qid>
+      <q>What would happen without genetic drift?</q>
+      <a0>no loss of genetic variation</a0>
+      <a1>an increase in the frequency of harmful alleles</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

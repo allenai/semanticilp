@@ -1,0 +1,35 @@
+<annotation>
+  <id>28</id>
+  <text>
+    The genetic instructions for a polypeptide chain are written in the DNA as a series of nonoverlapping, three-nucleotide words. The series of words in a gene is transcribed into a complementary series of nonoverlapping, three-nucleotide words in mRNA, which is then translated into a chain of amino acids (Figure 17.4).
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>28:2128524745</qid>
+      <q>What would happen if genes were not transcribed?</q>
+      <a0>Chains of amino acids would not be produced</a0>
+      <a1>genetic instructions would not be written in DNA.</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>28:2114240821</qid>
+      <q>The series of words in a gene is transcribed into what?</q>
+      <a0>mRNA</a0>
+      <a1>DNA</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>28:990928340</qid>
+      <q>Three-nucleotide words in mRNA are translated into what?</q>
+      <a0>the series of words in a gene</a0>
+      <a1>a chain of amino acids</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

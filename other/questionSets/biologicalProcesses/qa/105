@@ -1,0 +1,44 @@
+<annotation>
+  <id>105</id>
+  <text>
+    During anaphase, MPF helps switch itself off by initiating a process that leads to the destruction of its own cyclin. The noncyclin part of MPF, the Cdk, persists in the cell, inactive until it becomes part of MPF again by associating with new cyclin molecules synthesized during the S and G2 phases of the next round of the cycle.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>105:1464879210</qid>
+      <q>How does Cdk become active?</q>
+      <a0>Associating with cyclin</a0>
+      <a1>Associating with MPF</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>105:1957721936</qid>
+      <q>What is cyclin produced in S phase used for?</q>
+      <a0>G2 phase</a0>
+      <a1>Anaphase</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>105:354551557</qid>
+      <q>Cdk associates with MPF to become cyclin.</q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>105:1068482647</qid>
+      <q>What would happen without cyclin?</q>
+      <a0>Cdk would not be synthesized</a0>
+      <a1>MPF would always be switched off</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

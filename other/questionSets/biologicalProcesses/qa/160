@@ -1,0 +1,39 @@
+<annotation>
+  <id>160</id>
+  <text>
+    A vesicle with self-replicating, catalytic RNA would differ from its many neighbors that did not carry RNA or that carried RNA without such capabilities. If that vesicle could grow, split, and pass its RNA molecules to its daughters, the daughters would be protocells that had some of the properties of their parent. Although the first such protocells must have carried only limited amounts of genetic information, specifying only a few properties, their inherited characteristics could have been acted on by natural selection. The most successful of the early protocells would have increased in number because they could exploit their resources effectively and pass their abilities on to subsequent generations.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>160:215962976</qid>
+      <q>
+        What is required for a vesicle to grow, split and pass its RNA molecules to its daughters?
+      </q>
+      <a0>many neighbors that did not carry RNA</a0>
+      <a1>self-replicating, catalytic RNA</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>160:178463376</qid>
+      <q>On what does natural selection act on?</q>
+      <a0>resources</a0>
+      <a1>inherited characteristics</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>160:1967053293</qid>
+      <q>
+        What happened because protocells could pass their abilities to subsequent generations?
+      </q>
+      <a0>The protocells carried only limited amounts of genetic information</a0>
+      <a1>The most successful of the protocells increased in number</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

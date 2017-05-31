@@ -1,0 +1,35 @@
+<annotation>
+  <id>165</id>
+  <text>
+    However, larger forms of life, such as fungi, plants, and animals, did not begin to colonize land until about 500 million years ago. This gradual evolutionary venture out of aquatic environments was associated with adaptations that made it possible to reproduce on land and that helped prevent dehydration. For example, many land plants today have a vascular system for transporting materials internally and a waterproof coating of wax on their leaves that slows the loss of water to the air. Early signs of these adaptations were present 420 million years ago, at which time small plants (about 10 cm high) existed that had a vascular system but lacked true roots or leaves. By about 50 million years later, plants had diversified greatly and included reeds and treelike plants with true roots and leaves.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>165:1576098987</qid>
+      <q>What helped prevent dehydration?</q>
+      <a0>adaptations</a0>
+      <a1>reproducing on land</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>165:667173893</qid>
+      <q>A vascular system does what?</q>
+      <a0>slows the loss of water to the air</a0>
+      <a1>transports materials internally</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>165:1430284905</qid>
+      <q>a waterproof coating of wax does what?</q>
+      <a0>Transports materials internally</a0>
+      <a1>slows the loss of water to the air</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

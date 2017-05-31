@@ -1,0 +1,37 @@
+<annotation>
+  <id>46</id>
+  <text>
+    Once geographic separation has occurred, the separated gene pools may diverge. Different mutations arise, and natural selection and genetic drift may alter allele frequencies in different ways in the separated populations. Reproductive isolation may then arise as a by-product of selection or drift having caused the populations to diverge genetically.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>46:740272509</qid>
+      <q>Which of the following events can occur at the same time?</q>
+      <a0>
+        different mutations arise and natural selection and genetic drift alter allele frequencies
+      </a0>
+      <a1>geographic separation and gene pools diverge</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>46:367665407</qid>
+      <q>What can separated gene pools produce?</q>
+      <a0>geographic separation</a0>
+      <a1>reproductive isolation</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>46:1682692013</qid>
+      <q>Geographic separation may cause reproductive isolation</q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

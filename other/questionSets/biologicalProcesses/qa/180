@@ -1,0 +1,28 @@
+<annotation>
+  <id>180</id>
+  <text>
+    By using probes with different nucleotide sequences in different experiments, researchers can screen the collection of bacterial clones for different genes. After we've identified the location of a clone carrying the beta-globin gene, we can grow some cells from that colony in liquid culture in a large tank and then easily isolate many copies of the gene for our studies. We can also use the cloned gene as a probe to identify similar or identical genes in DNA from other sources, such as other species of birds.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>180:473851259</qid>
+      <q>What is the result of liquid culture?</q>
+      <a0>identifying the location of a clone</a0>
+      <a1>growing cells</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>180:2008730074</qid>
+      <q>
+        What will happen if we do not identify the location of a clone carrying the beta-globulin gene?
+      </q>
+      <a0>We cannot isolate many copies of the gene</a0>
+      <a1>We cannot use probes with different nucleotide sequences</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

@@ -1,0 +1,37 @@
+<annotation>
+  <id>151</id>
+  <text>
+    Because biological species are defined in terms of reproductive compatibility, the formation of a new species hinges on reproductive isolation: the existence of biological factors (barriers) that impede members of two species from interbreeding and producing viable, fertile offspring. Such barriers block gene flow between the species and limit the formation of hybrids, offspring that result from an interspecific mating. Although a single barrier may not prevent all gene flow, a combination of several barriers can effectively isolate a species' gene pool.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>151:834725386</qid>
+      <q>what is required for the formation of a new species?</q>
+      <a0>reproductive isolation</a0>
+      <a1>reproductive compatibility</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>151:1485242698</qid>
+      <q>
+        producing viable, fertile offspring requires the formation of a new species
+      </q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>151:484788703</qid>
+      <q>What most effectively prevents all gene flow?</q>
+      <a0>a combination of several barriers</a0>
+      <a1>a single barrier</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

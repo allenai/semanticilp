@@ -1,0 +1,39 @@
+<annotation>
+  <id>154</id>
+  <text>
+    In allopatric speciation, a new species forms in geographic isolation from its parent population. Geographic isolation severely restricts gene flow. As a result, other reproductive barriers from the ancestral species may arise as a by-product of genetic changes that occur within the isolated population. Many different processes can produce such genetic changes, including natural selection under different environmental conditions, genetic drift, and sexual selection. Once formed, intrinsic reproductive barriers that arise in allopatric populations can prevent interbreeding with the parent population even if the populations come back into contact.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>154:2018580300</qid>
+      <q>What is required for allopatric speciation?</q>
+      <a0>genetic drift</a0>
+      <a1>geographic isolation</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>154:1832261016</qid>
+      <q>
+        Reproductive barriers are required for interbreeding with the parent population
+      </q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>154:1764227507</qid>
+      <q>
+        What can natural selection under different environmental conditions cause?
+      </q>
+      <a0>interbreeding</a0>
+      <a1>Genetic drift</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

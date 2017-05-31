@@ -1,0 +1,26 @@
+<annotation>
+  <id>114</id>
+  <text>
+    The initial signaling molecule, a local regulator called a growth factor, triggers a phosphorylation cascade, as in Figure 11.10. (The ATP molecules and phosphate groups are not shown.) Once phosphorylated, the last kinase in the sequence enters the nucleus and there activates a gene-regulating protein, a transcription factor. This protein stimulates transcription of a specific gene (or genes). The resulting mRNA then directs the synthesis of a particular protein in the cytoplasm.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>114:397857256</qid>
+      <q>What is the result of gene transcription?</q>
+      <a0>Activation of gene-regulating proteins</a0>
+      <a1>mRNA</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>114:985158864</qid>
+      <q>What would happen if kinases could not enter the nucleus?</q>
+      <a0>Gene-regulating proteins would not be activated</a0>
+      <a1>Growth factor would not trigger a phosphorylation cascade</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

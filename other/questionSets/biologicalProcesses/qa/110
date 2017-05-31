@@ -1,0 +1,55 @@
+<annotation>
+  <id>110</id>
+  <text>
+    Nonkinetochore microtubules from opposite poles overlap each other extensively during metaphase (see Figure 12.8). During anaphase, the region of overlap is reduced as motor proteins attached to the microtubules walk them away from one another, using energy from ATP. As the microtubules push apart from each other, their spindle poles are pushed apart, elongating the cell. At the same time, the microtubules lengthen somewhat by the addition of tubulin subunits to their overlapping ends. As a result, the microtubules continue to overlap.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>110:1708890151</qid>
+      <q>What would happen without ATP?</q>
+      <a0>Motor proteins would not walk away from one another</a0>
+      <a1>Nonkinetochore microtubules would not overlap</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>110:199105038</qid>
+      <q>What would happen without motor proteins?</q>
+      <a0>The cell would not elongate</a0>
+      <a1>Microtubules would not overlap</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>110:1300884788</qid>
+      <q>
+        What allows microtubules to continue to overlap even though they are pushed apart?
+      </q>
+      <a0>microtubules lengthen</a0>
+      <a1>Motor proteins walk away from one another</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>110:2121323463</qid>
+      <q>What would happen without addition of tubulin subunits?</q>
+      <a0>Motor proteins would not use energy from ATP</a0>
+      <a1>Microtubules would not continue to overlap</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>110:441704224</qid>
+      <q>What directly pushes spindle poles apart?</q>
+      <a0>Addition of tubulin subunits</a0>
+      <a1>Microtubules pushing apart from each other</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

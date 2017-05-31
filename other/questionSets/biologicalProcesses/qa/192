@@ -1,0 +1,35 @@
+<annotation>
+  <id>192</id>
+  <text>
+    The basic strategy in such global (genome-wide) expression studies is to isolate the mRNAs made in particular cells, use these molecules as templates for making the corresponding cDNAs by reverse transcription, and then employ nucleic acid hybridization to compare this set of cDNAs with a collection of DNA fragments representing all or part of the genome. The results identify the subset of genes in the genome that are being expressed at a given time or under certain conditions.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>192:803454805</qid>
+      <q>How are cDNAs made?</q>
+      <a0>reverse transcription</a0>
+      <a1>nucleic acid hybridization</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>192:117123625</qid>
+      <q>cDNAs are required for global expression studies</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>192:751989981</qid>
+      <q>What does nucleic acid hybridization lead to?</q>
+      <a0>collection of DNA fragments</a0>
+      <a1>identification of the subset of genes in the genome</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

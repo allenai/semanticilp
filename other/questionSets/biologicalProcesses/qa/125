@@ -1,0 +1,26 @@
+<annotation>
+  <id>125</id>
+  <text>
+    NADH and FADH2 transfer electrons to the electron transport chain. Electrons move down the chain, losing energy in several energy-releasing steps. Finally, electrons are passed to O2, reducing it to H2O.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>125:1853231221</qid>
+      <q>What reduces O2?</q>
+      <a0>H2O</a0>
+      <a1>electrons</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>125:279267687</qid>
+      <q>NADH and FADH2 lose energy in several energy-releasing steps</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

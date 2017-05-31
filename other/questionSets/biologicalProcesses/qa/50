@@ -1,0 +1,46 @@
+<annotation>
+  <id>50</id>
+  <text>
+    When oxygenic photosynthesis first evolved, the free O2 it produced probably dissolved in the surrounding water until it reached a high enough concentration to react with dissolved iron. This would have caused the iron to precipitate as iron oxide, which accumulated as sediments. These sediments were compressed into banded iron formations, red layers of rock containing iron oxide that are a source of iron ore today. Once all of the dissolved iron had precipitated, additional O2 dissolved in the water until the seas and lakes became saturated with O2. After this occurred, the O2 finally began to &quot;gas out&quot; of the water and enter the atmosphere.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>50:1633852648</qid>
+      <q>What did free O2 do?</q>
+      <a0>reacted with dissolved iron</a0>
+      <a1>first evolved</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>50:1914324420</qid>
+      <q>What did oxygenic photosynthesis do?</q>
+      <a0>dissolved in the surrounding water</a0>
+      <a1>produced free O2</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>50:1160747531</qid>
+      <q>What would happen without free O2?</q>
+      <a0>oxygenic photosynthesis would not have evloved</a0>
+      <a1>iron oxide would not have accumulated as sediments</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>50:1205836126</qid>
+      <q>What would happen if iron did not precipitate as iron oxide?</q>
+      <a0>sediments would not be compressed into banded iron formations</a0>
+      <a1>
+        O2 would not finally begin to &quot;gas out&quot; of the water and enter the atmosphere.
+      </a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

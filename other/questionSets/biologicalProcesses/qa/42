@@ -1,0 +1,50 @@
+<annotation>
+  <id>42</id>
+  <text>
+    These rRNA molecules are transcribed from a single transcription unit that is repeated tandemly hundreds to thousands of times in one or several clusters in the genome of a multicellular eukaryote. The many copies of this rRNA transcription unit help cells to quickly make the millions of ribosomes needed for active protein synthesis. The primary transcript is cleaved to yield the three rRNA molecules, which combine with proteins and one other kind of rRNA (5S rRNA) to form ribosomal subunits.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>42:34442715</qid>
+      <q>What would happen if the primary transcript was not cleaved?</q>
+      <a0>ribosomal subunits would not be formed</a0>
+      <a1>
+        rRNA molecules would not be transcribed from a single transcription unit
+      </a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>42:1229828332</qid>
+      <q>What would happen without millions of ribosomes?</q>
+      <a0>active protein synthesis would not occur</a0>
+      <a1>the primary transcript would not be cleaved</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>42:1702032504</qid>
+      <q>what is the correct order of events?</q>
+      <a0>
+        rRNA molecules are transcribed, then the primary transcript is cleaved, then ribosomal subunits are formed
+      </a0>
+      <a1>
+        rRNA molecules are transcribed, then active protein synthesis occurs, then the primary transcript is cleaved
+      </a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>42:261373584</qid>
+      <q>What is eventually produced when the primary transcript is cleaved?</q>
+      <a0>active proteins</a0>
+      <a1>ribosomal subunits</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

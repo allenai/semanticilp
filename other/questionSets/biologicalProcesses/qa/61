@@ -1,0 +1,61 @@
+<annotation>
+  <id>61</id>
+  <text>
+    Histamine released at sites of damage triggers nearby blood vessels to dilate and become more permeable. Activated macrophages and neutrophils discharge cytokines, signaling molecules that enhance an immune response. These cytokines promote blood flow to the site of injury or infection. The increase in local blood supply causes the redness and increased skin temperature typical of the inflammatory response. Blood-engorged capillaries leak fluid into neighboring tissues, causing swelling. During inflammation, cycles of signaling and response transform the site. Activated complement proteins promote further release of histamine, attracting more phagocytic cells that enter injured tissues (see Figure 43.8) and carry out additional phagocytosis. At the same time, enhanced blood flow to the site helps deliver antimicrobial peptides. The result is an accumulation of pus, a fluid rich in white blood cells, dead pathogens, and cell debris from damaged tissue.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>61:79603706</qid>
+      <q>What is the correct order of events?</q>
+      <a0>
+        Damage causes release of histamine, which triggers nearby blood vessels to dilate.
+      </a0>
+      <a1>Histamine causes damage, which triggers nearby blood vessels to dilate</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>61:1877835952</qid>
+      <q>Which events can happen at the same time?</q>
+      <a0>
+        enhanced blood flow to the site helps deliver antimicrobial peptides and histamine is released
+      </a0>
+      <a1>
+        enhanced blood flow to the site helps deliver antimicrobial peptides and phagocytosis
+      </a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>61:424440847</qid>
+      <q>
+        What would happen if capillaries did not leak fluid into neighboring tissues?
+      </q>
+      <a0>Swelling would not occur</a0>
+      <a1>Neutrophils would not discharge cytokines</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>61:1031648397</qid>
+      <q>Sites of damage result in an inflammatory response</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>61:1616187813</qid>
+      <q>What would happen without activated complement?</q>
+      <a0>Additional phagocytosis would not occur</a0>
+      <a1>histamine release would not occur</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

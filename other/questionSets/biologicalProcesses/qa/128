@@ -1,0 +1,32 @@
+<annotation>
+  <id>128</id>
+  <text>
+    All species can produce more offspring than their environment can support (Figure 22.11), and many of these offspring fail to survive and reproduce. Inference #1: Individuals whose inherited traits give them a higher probability of surviving and reproducing in a given environment tend to leave more offspring than other individuals. Inference #2: This unequal ability of individuals to survive and reproduce will lead to the accumulation of favorable traits in the population over generations.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>128:139055496</qid>
+      <q>
+        What would happen if individuals did not have an unequal ability to survive and reproduce?
+      </q>
+      <a0>Accumulation of favorable traits would not occur</a0>
+      <a1>
+        All species would not produce more offspring than their environment can support
+      </a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>128:1105243673</qid>
+      <q>
+        What does the unequal ability of individuals to survive and reproduce cause?
+      </q>
+      <a0>Species produce more offspring than their environment can support.</a0>
+      <a1>Accumulation of favorable traits</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

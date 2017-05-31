@@ -1,0 +1,44 @@
+<annotation>
+  <id>34</id>
+  <text>
+    The ribosome holds the tRNA and mRNA in close proximity and positions the new amino acid for addition to the carboxyl end of the growing polypeptide. It then catalyzes the formation of the peptide bond. As the polypeptide becomes longer, it passes through an exit tunnel in the ribosome's large subunit. When the polypeptide is complete, it is released through the exit tunnel.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>34:1789020327</qid>
+      <q>What does the ribosome do?</q>
+      <a0>catalyzes the formation of a peptide bond.</a0>
+      <a1>passes through an exit tunnel</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>34:622204530</qid>
+      <q>What does the polypeptide do?</q>
+      <a0>passes through an exit tunnel</a0>
+      <a1>catalyzes the formation of a peptide bond.</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>34:2026670507</qid>
+      <q>tRNA and mRNA are added to the carboxyl end of the growing polypeptide</q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>34:1554499891</qid>
+      <q>What would happen without the exit tunnel?</q>
+      <a0>The polypeptide would not be released</a0>
+      <a1>The ribosome would not hold tRNA and mRNA in close proximity</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

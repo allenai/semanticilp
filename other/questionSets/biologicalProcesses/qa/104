@@ -1,0 +1,52 @@
+<annotation>
+  <id>104</id>
+  <text>
+    The binding of PDGF molecules to these receptors (which are receptor tyrosine kinases; see Chapter 11) triggers a signal transduction pathway that allows the cells to pass the G1 checkpoint and divide. PDGF stimulates fibroblast division not only in the artificial conditions of cell culture, but also in an animal's body. When an injury occurs, platelets release PDGF in the vicinity. The resulting proliferation of fibroblasts helps heal the wound.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>104:2105346224</qid>
+      <q>What is the correct order of events?</q>
+      <a0>
+        Injury causes fibroblasts to proliferate, which causes platelets to release PGDF
+      </a0>
+      <a1>
+        Injury causes platelets to release PGDF, wich causes fibroblasts to proliferate
+      </a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>104:1809796510</qid>
+      <q>What is the correct order of events?</q>
+      <a0>
+        Cells divide, then PDGF binds to receptor tyrosine kinases, then wound healing
+      </a0>
+      <a1>
+        PDGF binds to receptor tyrosine kinases, then cells divide, then wound healing
+      </a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>104:834619381</qid>
+      <q>What would happen without receptor tyrosine kinases?</q>
+      <a0>PDGF would not be released</a0>
+      <a1>Fibroblasts would not proliferate</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>104:1117004918</qid>
+      <q>What is the immediate effect of PDGF binding receptor tyrosine kinase?</q>
+      <a0>Triggers a signal transduction pathway</a0>
+      <a1>Fibroblasts proliferate</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

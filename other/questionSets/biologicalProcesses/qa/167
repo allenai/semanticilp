@@ -1,0 +1,37 @@
+<annotation>
+  <id>167</id>
+  <text>
+    The restriction enzyme in this example (called EcoRI) recognizes a specific six-base-pair sequence, the restriction site, and makes staggered cuts in the sugar-phosphate backbones within this sequence, producing fragments with sticky ends. Any fragments with complementary sticky ends can base-pair, including the two original fragments. If the fragments come from different DNA molecules, the ligated product is recombinant DNA.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>167:1772156519</qid>
+      <q>EcoRI does what?</q>
+      <a0>makes staggered cuts</a0>
+      <a1>comes from different DNA molecules</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>167:1841186380</qid>
+      <q>
+        The restriction enzyme in this example produces fragments with sticky ends
+      </q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>167:1478742028</qid>
+      <q>What would happen without sticky ends?</q>
+      <a0>fragments could not base-pair</a0>
+      <a1>EcoRI would not recognize a specific sequence</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

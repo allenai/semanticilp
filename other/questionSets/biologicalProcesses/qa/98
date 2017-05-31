@@ -1,0 +1,26 @@
+<annotation>
+  <id>98</id>
+  <text>
+    The behavior of testosterone is representative of steroid hormones. In males, the hormone is secreted by cells of the testes. It then travels through the blood and enters cells all over the body. However, only cells that contain receptor molecules for testosterone respond. In these cells, the hormone binds to the receptor protein, activating it (Figure 11.9). With the hormone attached, the active form of the receptor protein then enters the nucleus and turns on specific genes that control male sex characteristics.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>98:1157030465</qid>
+      <q>What produces testosterone?</q>
+      <a0>cells of the testes</a0>
+      <a1>steroid hormones</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>98:1010335218</qid>
+      <q>What travels through the blood?</q>
+      <a0>The testes</a0>
+      <a1>testosterone</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

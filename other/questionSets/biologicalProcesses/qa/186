@@ -1,0 +1,37 @@
+<annotation>
+  <id>186</id>
+  <text>
+    Restriction fragment analysis can be used to compare two different DNA molecules: for example, two alleles of a gene: if the nucleotide difference affects a restriction site. A change in even one base pair of that sequence will prevent a restriction enzyme from cutting there. Variations in DNA sequence among a population are called polymorphisms (from the Greek for many forms), and this particular type of sequence change is called a restriction fragment length polymorphism (RFLP, pronounced Rif-lip). If one allele contains a RFLP, digestion with the enzyme that recognizes the site will produce a different mixture of fragments for each of the two alleles. Each mixture will give its own band pattern in gel electrophoresis.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>186:1866957628</qid>
+      <q>What is required for restriction fragment analysis?</q>
+      <a0>RFLP</a0>
+      <a1>one base pair</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>186:728133344</qid>
+      <q>What would happen without an RFLP?</q>
+      <a0>Restriction fragment analysis could not occur</a0>
+      <a1>Variations in DNA sequence would not occur</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>186:1703365765</qid>
+      <q>
+        Digestion with the enzyme that recognizes the site will produce different RFLPs.
+      </q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

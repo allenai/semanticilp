@@ -1,0 +1,35 @@
+<annotation>
+  <id>56</id>
+  <text>
+    We imagine that prior to duplication the hydrogen bonds are broken, and the two chains unwind and separate. Each chain then acts as a template for the formation onto itself of a new companion chain, so that eventually we shall have two pairs of chains, where we only had one before. Moreover, the sequence of the pairs of bases will have been duplicated exactly.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>56:1664772766</qid>
+      <q>The companion chain acts as a template</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>56:1669861317</qid>
+      <q>What would happen if the two chains did not unwind and separate?</q>
+      <a0>Hydrogen bonds would not be broken</a0>
+      <a1>duplication would not occur</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>56:295506028</qid>
+      <q>Which events can occur at the same time?</q>
+      <a0>duplication and the hydrogen bonds are broken</a0>
+      <a1>the two chains unwind and separate</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

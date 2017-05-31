@@ -1,0 +1,44 @@
+<annotation>
+  <id>66</id>
+  <text>
+    H+ ions flowing down their gradient enter a half channel in a stator, which is anchored in the membrane. H+ ions enter binding sites within a rotor, changing the shape of each subunit so that the rotor spins within the membrane. Each H+ ion makes one complete turn before leaving the rotor and passing through a second half channel in the stator into the mitochondrial matrix. Spinning of the rotor causes an internal rod to spin as well. This rod extends like a stalk into the knob below it, which is held stationary by part of the stator. Turning of the rod activates catalytic sites in the knob that can produce ATP from ADP and P_i.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>66:169366338</qid>
+      <q>H+ ions do what?</q>
+      <a0>enter the half channel in the stator</a0>
+      <a1>Anchor in the membrane</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>66:1310934901</qid>
+      <q>The rotor does what?</q>
+      <a0>enters binding sites</a0>
+      <a1>spins</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>66:1416339147</qid>
+      <q>What would happen without the rotor?</q>
+      <a0>H+ ions would not flow down their gradient</a0>
+      <a1>The internal rod wouuld not spin</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>66:2014857236</qid>
+      <q>What is produced when the catalytic site is activated?</q>
+      <a0>ADP and P_i</a0>
+      <a1>ATP</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

@@ -1,0 +1,35 @@
+<annotation>
+  <id>38</id>
+  <text>
+    The miRNAs are made from longer RNA precursors that fold back on themselves, forming one or more short double-stranded hairpin structures, each held together by hydrogen bonds (Figure 18.15). After each hairpin is cut away from the precursor, it is trimmed by an enzyme (fittingly called Dicer) into a short double-stranded fragment of about 22 nucleotide pairs. One of the two strands is degraded, while the other strand, which is the miRNA, forms a complex with one or more proteins;
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>38:610805680</qid>
+      <q>What entity forms a complex with one or more proteins?</q>
+      <a0>miRNA</a0>
+      <a1>Dicer</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>38:1173364125</qid>
+      <q>What would happen without Dicer?</q>
+      <a0>each hairpin would not be trimmed</a0>
+      <a1>The hairpin would not be cut away from the precursor</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>38:2077662206</qid>
+      <q>miRNAs are short double-stranded fragments</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

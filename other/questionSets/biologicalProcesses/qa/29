@@ -1,0 +1,57 @@
+<annotation>
+  <id>29</id>
+  <text>
+    Messenger RNA, the carrier of information from DNA to the cell's protein-synthesizing machinery, is transcribed from the template strand of a gene. An enzyme called an RNA polymerase pries the two strands of DNA apart and joins together RNA nucleotides complementary to the DNA template strand, thus elongating the RNA polynucleotide (Figure 17.7).
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>29:322728191</qid>
+      <q>What does messenger RNA do?</q>
+      <a0>carries information from DNA</a0>
+      <a1>synthesizes protein</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>29:901560971</qid>
+      <q>
+        Which of the following is transcribed from the template strand of a gene?
+      </q>
+      <a0>Messenger RNA</a0>
+      <a1>the cell's protein-synthesizing machinery</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>29:803500893</qid>
+      <q>
+        What would happen if RNA polymeraste did not join together RNA nucleotides?
+      </q>
+      <a0>the RNA polynucleotide would not be elongated</a0>
+      <a1>RNA polymerase would not pry the two strands of DNA apart</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>29:1649506683</qid>
+      <q>The cell's protein-synthesizing machinery is required to produce RNA</q>
+      <a0>True</a0>
+      <a1>False</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>29:2094217024</qid>
+      <q>Which of the following is required to elongate the RNA polynucleotide?</q>
+      <a0>the cell's protein-synthesizing machinery</a0>
+      <a1>DNA</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

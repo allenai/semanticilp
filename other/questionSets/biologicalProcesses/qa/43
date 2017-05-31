@@ -1,0 +1,37 @@
+<annotation>
+  <id>43</id>
+  <text>
+    Also, slippage can occur during DNA replication, such that the template shifts with respect to the new complementary strand, and a part of the template strand is either skipped by the replication machinery or used twice as a template. As a result, a segment of DNA is deleted or duplicated.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>43:1055276797</qid>
+      <q>What happens during slippage?</q>
+      <a0>a segment of DNA is deleted or duplicated</a0>
+      <a1>the template shifts with respect to the new complementary strand</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>43:1193119772</qid>
+      <q>What would happen without slippage?</q>
+      <a0>DNA replication would not occur</a0>
+      <a1>
+        a part of the template strand would not be skipped by the replication machinery or used twice as a template
+      </a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>43:1668842156</qid>
+      <q>Which of the following can occur at the same time?</q>
+      <a0>a part of the template strand is skipped and used twice as a template</a0>
+      <a1>Slippage and DNA replication</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

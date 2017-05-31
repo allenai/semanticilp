@@ -1,0 +1,28 @@
+<annotation>
+  <id>189</id>
+  <text>
+    Having cloned a given gene, researchers can make labeled nucleic acid probes that will hybridize with mRNAs transcribed from the gene. The probes can provide information about when or where in the organism the gene is transcribed. Transcription levels are commonly used as a measure of gene expression.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>189:2134176997</qid>
+      <q>What is required to make labeled nucleic acid probes?</q>
+      <a0>having cloned a given gene</a0>
+      <a1>mRNAs</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>189:168701894</qid>
+      <q>
+        What is enabled using the information of about when and where the gene is transcribed?
+      </q>
+      <a0>The probes</a0>
+      <a1>a measure of gene expression</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

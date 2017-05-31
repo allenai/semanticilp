@@ -1,0 +1,44 @@
+<annotation>
+  <id>96</id>
+  <text>
+    Cells of mating type a secrete a signaling molecule called a factor, which can bind to specific receptor proteins on nearby cells. At the same time, cells secrete factor, which binds to receptors on a cells. Without actually entering the cells, the two mating factors cause the cells to grow toward each other and also bring about other cellular changes. The result is the fusion, or mating, of two cells of opposite type. The new a/ cell contains all the genes of both original cells, a combination of genetic resources that provides advantages to the cell's descendants, which arise by subsequent cell divisions.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>96:1180665049</qid>
+      <q>fusion results in what?</q>
+      <a0>the new a/ cell</a0>
+      <a1>two cells of the opposite type</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>96:806079453</qid>
+      <q>What would happen without fusion?</q>
+      <a0>the new a/ cell would not be produced</a0>
+      <a1>factors would not be secreted</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>96:328605033</qid>
+      <q>fusion results in a combination of genetic resources</q>
+      <a0>False</a0>
+      <a1>True</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>96:1177648416</qid>
+      <q>What would happen if factors did not bind to receptors?</q>
+      <a0>Cells would not secrete factor</a0>
+      <a1>cells would not grow toward each other</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>

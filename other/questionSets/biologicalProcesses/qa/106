@@ -1,0 +1,53 @@
+<annotation>
+  <id>106</id>
+  <text>
+    When cyclins that accumulate during G2 associate with Cdk molecules, the resulting MPF complex phosphorylates a variety of proteins, initiating mitosis. MPF acts both directly as a kinase and indirectly by activating other kinases.
+  </text>
+  <questions>
+    <question>
+      <annotator></annotator>
+      <qid>106:237070529</qid>
+      <q>What do accumulating cyclins initiate?</q>
+      <a0>G2</a0>
+      <a1>Mitosis</a1>
+      <correct>1</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>106:1974492624</qid>
+      <q>What does Cdk do?</q>
+      <a0>Associates with cyclins to make MPF</a0>
+      <a1>phosphorylates proteins</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>106:1767318032</qid>
+      <q>What does MPF do?</q>
+      <a0>Phosphorylates proteins</a0>
+      <a1>Associates with Cdk</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>106:174478103</qid>
+      <q>Which of the following directly initiates mitosis?</q>
+      <a0>Phosphorylation of proteins</a0>
+      <a1>Activation of kinases</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+    <question>
+      <annotator></annotator>
+      <qid>106:130685065</qid>
+      <q>How does MPF initiate mitosis?</q>
+      <a0>Phosphorylating proteins</a0>
+      <a1>Associating with cyclins</a1>
+      <correct>0</correct>
+      <comments></comments>
+    </question>
+  </questions>
+</annotation>
