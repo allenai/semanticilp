@@ -1733,16 +1733,14 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
         /*verbSRLEdges1.map(_._3) ++*/ pVerbQVerbAlignments1.map(_._3)
       }
 
-      if (true) {
-        pVerbPredicates.foreach{ p =>
-          // constraint:
-          // for each predicate in the paragraph, it should not be active, unless it has at least one verb connected to it from question
-          // 2 * pVar  <= \sum edges
-          val edges = getConnectedEdgesToParagraphVerbPredicate(p)
-          val pVar = activeParagraphVerbSRLConstituents(p)
-          val weights = edges.map(_ => -1.0)
-          ilpSolver.addConsBasicLinear(s"", pVar +: edges, 1.0 +: weights, None, Some(0.0))
-        }
+      pVerbPredicates.foreach{ p =>
+        // constraint:
+        // for each predicate in the paragraph, it should not be active, unless it has at least one verb connected to it from question
+        // 2 * pVar  <= \sum edges
+        val edges = getConnectedEdgesToParagraphVerbPredicate(p)
+        val pVar = activeParagraphVerbSRLConstituents(p)
+        val weights = edges.map(_ => -1.0)
+        ilpSolver.addConsBasicLinear(s"", pVar +: edges, 1.0 +: weights, None, Some(0.0))
       }
     }
 
@@ -1757,35 +1755,27 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       val pVerbArguments = pVerbConstituents diff pVerbPredicates
       val pPrepArguments = pPrepConstituents diff pPrepPredicates
 
-      println("pPrepPredicates: " + pPrepPredicates)
-      println("pPrepArguments: " + pPrepArguments)
-
       val pPrepPredicateToArgumentMap = pPrepPredicates.map(c => c -> c.getOutgoingRelations.asScala.map(_.getTarget)).toMap
       val pVerbPredicateToArgumentMap = pVerbPredicates.map(c => c -> c.getOutgoingRelations.asScala.map(_.getTarget)).toMap
       val qVerbPredicateToArgumentMap = qVerbPredicates.map(c => c -> c.getOutgoingRelations.asScala.map(_.getTarget)).toMap
 
-      println("pPrepPredicateToArgumentMap: " + pPrepPredicateToArgumentMap)
-
       // active paragraph prep-srl constituents
       val activeParagraphPrepSRLConstituents = pPrepConstituents.zipWithIndex.map{ case(c, idx) =>
-        // TODO: tune this weight
-        c -> ilpSolver.createBinaryVar(s"", 0.01)
+        c -> ilpSolver.createBinaryVar(s"", 0.01) //TODO: tune this weight
       }.toMap
 
       // active question verb-srl constituents
       val activeQuestionVerbSRLConstituents = qVerbConstituents.zipWithIndex.map{ case(c, idx) =>
-        // TODO: tune this weight
-        c -> ilpSolver.createBinaryVar(s"activeQuestionVerbCons=$idx", 0.01)
+        c -> ilpSolver.createBinaryVar(s"activeQuestionVerbCons=$idx", 0.01) //TODO: tune this weight
       }.toMap
 
       // active paragraph verb-srl constituents
       val activeParagraphVerbSRLConstituents = pVerbConstituents.zipWithIndex.map{ case(c, idx) =>
-        // TODO: tune this weight
-        c -> ilpSolver.createBinaryVar(s"activeParagraphVerbCons=$idx", 0.01)
+        c -> ilpSolver.createBinaryVar(s"activeParagraphVerbCons=$idx", 0.01) //TODO: tune this weight
       }.toMap
 
       // constraint: have some constituents used from the question
-      ilpSolver.addConsAtLeastK(s"", activeQuestionVerbSRLConstituents.values.toSeq, 2.0)
+      ilpSolver.addConsAtLeastK(s"", qVerbArguments.map(activeQuestionVerbSRLConstituents), 1.0)
 
       // PP alignments: alignment between paragraph prep-srl argument and paragraph verb-srl argument
       val pPrepVerbAlignments = for {
@@ -1817,13 +1807,10 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       }
 
       // constraint: no loop allowed: loop of a verb-srl arg connected to two prep-srl args of the same frame
-      println("pPrepVerbAlignments: " + pPrepVerbAlignments.size)
       pPrepVerbAlignments.groupBy{ case (verbC, prepC, _) =>
         (prepC.getIncomingRelations.asScala.head.getSource, verbC)
       }.foreach { case (_, seq) =>
         val (verbCCons, prepCons, vars) = seq.unzip3
-        println("unique vebrCons: " + verbCCons.distinct)
-        println("prepCons: " + prepCons)
         require(verbCCons.distinct.size == 1)
         ilpSolver.addConsBasicLinear(s"", vars, vars.map(_ => 1.0), None, Some(1.0))
       }
@@ -1927,7 +1914,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
         arguments.map{ arg =>
           val argumentVar = activeParagraphVerbSRLConstituents(arg)
           // if both edges are active, visualize an edge
-          val x = ilpSolver.createBinaryVar("", 0.01)
+          val x = ilpSolver.createBinaryVar("", 0.2)
           ilpSolver.addConsBasicLinear(s"", Seq(x, predVar), Seq(1.0, -1.0), None, Some(0.0))
           ilpSolver.addConsBasicLinear(s"", Seq(x, argumentVar), Seq(1.0, -1.0), None, Some(0.0))
           (pred, arg, x)
@@ -1938,13 +1925,13 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       interParagraphAlignments = pPrepVerbAlignments.toBuffer ++ pPrepArgumentAlignments.toBuffer ++ verbSRLEdges.toBuffer
 
       // constraint: the predicate can be active only if at least one of the its connected arguments are active
-      /*pVerbPredicates.foreach { predicate =>
+      pVerbPredicates.foreach { predicate =>
         val predicateVar = activeParagraphVerbSRLConstituents(predicate)
         val arguments = pVerbPredicateToArgumentMap(predicate)
         val argumentsVars = arguments.map(activeParagraphVerbSRLConstituents)
         val weights = arguments.map(_ => 1.0)
         ilpSolver.addConsBasicLinear(s"", argumentsVars :+ predicateVar, weights :+ -1.0, Some(0.0), None)
-      }*/
+      }
 
       // PA alignments: alignment between verb-srl argument in paragraph and answer option
       val ansPVerbAlignments = for {
