@@ -1745,8 +1745,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     }
 
     if(reasoningTypes.contains(VerbSRLandPrepSRL)) {
-      val qVerbConstituents = if (qTA.hasView(ViewNames.SRL_VERB)) qTA.getView(ViewNames.SRL_VERB).getConstituents.asScala else Seq.empty
-      val pVerbConstituents = if (pTA.hasView(ViewNames.SRL_VERB)) pTA.getView(ViewNames.SRL_VERB).getConstituents.asScala else Seq.empty
+      val qVerbConstituents = if (qTA.hasView(TextILPSolver.pathLSTMViewName)) qTA.getView(TextILPSolver.pathLSTMViewName).getConstituents.asScala else Seq.empty
+      val pVerbConstituents = if (pTA.hasView(TextILPSolver.pathLSTMViewName)) pTA.getView(TextILPSolver.pathLSTMViewName).getConstituents.asScala else Seq.empty
       val pPrepConstituents = if (pTA.hasView(ViewNames.SRL_PREP)) pTA.getView(ViewNames.SRL_PREP).getConstituents.asScala else Seq.empty
       val pPrepPredicates = if (pTA.hasView(ViewNames.SRL_PREP)) pTA.getView(ViewNames.SRL_PREP).asInstanceOf[PredicateArgumentView].getPredicates.asScala else Seq.empty
       val qVerbPredicates = qVerbConstituents.filter(_.getLabel=="Predicate")
@@ -1769,13 +1769,40 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
         c -> ilpSolver.createBinaryVar(s"activeQuestionVerbCons=$idx", 0.01) //TODO: tune this weight
       }.toMap
 
+      // active verb-srl frames in the question
+      val activeQuestionVerbSRLFrames = qVerbPredicates.zipWithIndex.map{ case(c, idx) =>
+        c -> ilpSolver.createBinaryVar(s"", 0.05) //TODO: tune this weight
+      }.toMap
+
       // active paragraph verb-srl constituents
       val activeParagraphVerbSRLConstituents = pVerbConstituents.zipWithIndex.map{ case(c, idx) =>
         c -> ilpSolver.createBinaryVar(s"activeParagraphVerbCons=$idx", 0.01) //TODO: tune this weight
       }.toMap
 
-      // constraint: have some constituents used from the question
-      ilpSolver.addConsAtLeastK(s"", qVerbArguments.map(activeQuestionVerbSRLConstituents), 1.0)
+
+      // constraint: if any of the constituents in the frame are active, the frame should be active
+      qVerbPredicates.foreach { c =>
+        val args = qVerbPredicateToArgumentMap(c)
+        val vars = (c +: args).map(activeQuestionVerbSRLConstituents)
+        val weights = vars.map(_ => -1.0)
+        val activeFrameVar = activeQuestionVerbSRLFrames(c)
+        ilpSolver.addConsBasicLinear(s"", activeFrameVar +: vars, 1.0 +: weights, None, Some(0.0))
+      }
+
+      // constraint: use at most two active frames in the question
+      ilpSolver.addConsAtMostK(s"", activeQuestionVerbSRLFrames.unzip._2.toList, 2.0)
+
+      val qVerbArgumentVars = qVerbArguments.map(activeQuestionVerbSRLConstituents)
+      // constraint: use at least 1 verb-srl argument of the question
+      ilpSolver.addConsAtLeastK(s"", qVerbArgumentVars, 1.0)
+
+      // constraint: use at most 3 verb-srl argument of the question
+      ilpSolver.addConsAtMostK(s"", qVerbArgumentVars, 3.0)
+
+      // constraint: use at most 1 verb-srl arguments of each frame
+      qVerbPredicateToArgumentMap.foreach{ case (_, args) =>
+        ilpSolver.addConsAtMostK(s"", args.map(activeQuestionVerbSRLConstituents), 1.0)
+      }
 
       // PP alignments: alignment between paragraph prep-srl argument and paragraph verb-srl argument
       val pPrepVerbAlignments = for {
@@ -1869,6 +1896,12 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
           ilpSolver.addConsBasicLinear(s"", Seq(x, pSrlVerbVar), Seq(1.0, -1.0), None, Some(0.0))
           (qVerbC, pVerbC, x)
         }
+      }
+
+      // each verb-srl argument in the question can have eat most 1 outgoing edges
+      pVerbQVerbAlignments.groupBy(_._1).foreach{ case (_, seq) =>
+        val edges = seq.unzip3._3
+        ilpSolver.addConsAtMostK("", edges, 1)
       }
 
       // QP alignments: predicate-predicate

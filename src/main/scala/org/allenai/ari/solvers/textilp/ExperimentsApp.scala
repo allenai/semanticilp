@@ -372,6 +372,14 @@ object ExperimentsApp {
   }
 
   def evaluateTextSolverOnProcessBank(list: List[Paragraph], textSolver: TextSolver) = {
+    import java.io._
+    // use false if you don't it to write things on disk
+    val outputFileOpt = if(true) {
+      Some(new PrintWriter(new File("output.tsv")))
+    } else {
+      None
+    }
+
     val qAndpPairs = list.flatMap { p => p.questions.map(q => (q, p)) }
     val (resultLists, stats, nonEmptyList) = qAndpPairs.map {
       case (q, p) =>
@@ -393,6 +401,7 @@ object ExperimentsApp {
           val correctLabel = q.answers(correctIndex).answerText
           val score = SolverUtils.assignCredit(selected, correctIndex, candidates.length)
           println("correctIndex: " + correctIndex)
+          if(outputFileOpt.isDefined) outputFileOpt.get.write(q.questionText + "\t" + score + "\t" + selected)
           println("selected: " + selected + " score: " + score + " explanation: " + explanation)
           if (score < 0.5 && selected.nonEmpty) println(" >>>>>>> Selected and Incorrect :" + score + s"  ${q.questionText}")
           if (score < 0.5) println(" >>>>>>> Incorrect :" + score)
@@ -412,6 +421,7 @@ object ExperimentsApp {
     println("avgCoverage: " + avgCoverage)
     println("total size: " + resultLists.length)
     println("total answered: " + nonEmptyScores.length)
+    if(outputFileOpt.isDefined) outputFileOpt.get.close
   }
 
   def testTheDatastes() = {
