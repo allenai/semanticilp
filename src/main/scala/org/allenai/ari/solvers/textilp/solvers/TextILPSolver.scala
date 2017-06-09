@@ -321,7 +321,6 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     //lazy val pSummary = SolverUtils.ParagraphSummarization.getSubparagraph(p, q)
     //    val ilpSolver = new IllinoisInference(new OJalgoHook)
     //    val ilpSolver = new IllinoisInference(new GurobiHook)
-
     lazy val resultVerbSRLPlusCommaSRL = {
       val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
       createILPModel(q, p, ilpSolver, aligner, Set(VerbSRLandCommaSRL), useSummary = true)
@@ -347,6 +346,10 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       createILPModel(q, p, ilpSolver, aligner, Set(SRLV1), useSummary = true)
     }
 
+//    Seq(resultSRLV1, resultSRLV2).reduceLeft[Int]{ case (a: Int, b: Int) =>
+//      println(a + " -> " + b)
+//      1
+//    }
 
 /*
    if(resultSRLV1._1.isEmpty) {
@@ -405,8 +408,12 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     //srlV1ILPWithSummary
 
     //srlV1ILP
-//    resultILP
-    resultVerbSRLPlusPrepSRL
+    //resultILP
+    //resultVerbSRLPlusPrepSRL
+//    srlV1ILP
+//    resultSRLV2
+//    resultCause
+    resultILP
   }
 
   // what (does|do|can) .* do
@@ -659,6 +666,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     val fillInBlankTA = if (fillInBlank == "") {
       q.qTAOpt.get
     } else {
+      println("fillInBlank: " + fillInBlank)
       annotationUtils.pipelineServerClient.annotate(fillInBlank)
     }
     val results = q.answers.map { ans =>
@@ -1745,8 +1753,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     }
 
     if(reasoningTypes.contains(VerbSRLandPrepSRL)) {
-      val qVerbConstituents = if (qTA.hasView(TextILPSolver.pathLSTMViewName)) qTA.getView(TextILPSolver.pathLSTMViewName).getConstituents.asScala else Seq.empty
-      val pVerbConstituents = if (pTA.hasView(TextILPSolver.pathLSTMViewName)) pTA.getView(TextILPSolver.pathLSTMViewName).getConstituents.asScala else Seq.empty
+      val qVerbConstituents = if (qTA.hasView(ViewNames.SRL_VERB)) qTA.getView(ViewNames.SRL_VERB).getConstituents.asScala else Seq.empty
+      val pVerbConstituents = if (pTA.hasView(ViewNames.SRL_VERB)) pTA.getView(ViewNames.SRL_VERB).getConstituents.asScala else Seq.empty
       val pPrepConstituents = if (pTA.hasView(ViewNames.SRL_PREP)) pTA.getView(ViewNames.SRL_PREP).getConstituents.asScala else Seq.empty
       val pPrepPredicates = if (pTA.hasView(ViewNames.SRL_PREP)) pTA.getView(ViewNames.SRL_PREP).asInstanceOf[PredicateArgumentView].getPredicates.asScala else Seq.empty
       val qVerbPredicates = qVerbConstituents.filter(_.getLabel=="Predicate")
@@ -2013,6 +2021,10 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
           val weights = vars.map(_ => -1.0)
           ilpSolver.addConsBasicLinear(s"", pVerbArgVar +: vars, 2.0 +: weights, None, Some(0.0))
         }
+        else {
+          // if nothing is connected to it, then it should be inactive
+          ilpSolver.addConsBasicLinear(s"", Seq(pVerbArgVar), Seq(1.0), None, Some(0.0))
+        }
       }
 
       // constraint: no dangling arguments: i.e. any verb-srl argument in the paragraph, should be connected to at least
@@ -2026,6 +2038,23 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
         if (connected.nonEmpty) {
           val weights = connected.map(_ => -1.0)
           ilpSolver.addConsBasicLinear(s"", argVar +: connected, 1.0 +: weights, None, Some(0.0))
+        }
+        else {
+          // if nothing is connected to it, then it should be inactive
+          ilpSolver.addConsBasicLinear(s"", Seq(argVar), Seq(1.0), None, Some(0.0))
+        }
+      }
+
+      // constraint: verb-srl predicates, if active, have to be connected to at least two things
+      def getEdgesConnectedToVerbSRLPredicates(c: Constituent): Seq[V] = {
+        verbSRLEdges.filter(_._1 == c).map(_._3) ++ pVerbQVerbPredicateAlignments.filter(_._2 == c).map(_._3)
+      }
+      pVerbPredicates.zipWithIndex.foreach { case (arg, idx) =>
+        val argVar = activeParagraphVerbSRLConstituents(arg)
+        val connected = getEdgesConnectedToVerbSRLPredicates(arg)
+        if (connected.size >= 2) {
+          val weights = connected.map(_ => -1.0)
+          ilpSolver.addConsBasicLinear(s"", argVar +: connected, 2.0 +: weights, None, Some(0.0))
         }
         else {
           // if nothing is connected to it, then it should be inactive

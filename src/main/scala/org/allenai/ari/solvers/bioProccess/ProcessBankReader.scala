@@ -109,8 +109,8 @@ object ProcessBankReader {
   val whatDoesItDoPattern = "what (does|do|can) .* do\\?".r
 
   def normalizeText(str: String): String = {
-    println("input: " + str)
-    val out = str.trim.replaceAll("\\(Figure \\d{1,2}[\\,\\.]{1}\\d{1,2}\\)", "").
+    println("input with paranthesis: " + str)
+/*    val out = str.trim.replaceAll("\\(Figure \\d{1,2}[\\,\\.]{1}\\d{1,2}\\)", "").
       replaceAll("\\(see Figure \\d{1,2}[\\,\\.]{1}\\d{1,2}\\)", "").
       replaceAll("\\(Figure \\d{1,2}[\\,\\.]{1}\\d{1,2}[^ ]\\)", "").
       replaceAll("\\(Figure \\d{1,2}[\\,\\.]{1}\\d{1,2}[^ ], bottom\\)", "").
@@ -119,8 +119,9 @@ object ProcessBankReader {
       replaceAll("Figure \\d{1,2}[\\,\\.]{1}\\d{1,2}", "").
       replaceAll("in the example shown in Figure \\d{1,2}[\\,\\.]{1}\\d{1,2}\\)", "").
       replaceAll("see Chapter \\d{1,2}", "").
-      replaceAll("\\(see p. \\d{1,3}\\)", "")
-    println("output: " + out)
+      replaceAll("\\(see p. \\d{1,3}\\)", "")*/
+    val out = str.trim.replaceAll("\\((.+?)\\)", "")
+    println("output after dropping the paranthesis: " + out)
     out
   }
 

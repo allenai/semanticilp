@@ -375,7 +375,7 @@ object ExperimentsApp {
     import java.io._
     // use false if you don't it to write things on disk
     val outputFileOpt = if(true) {
-      Some(new PrintWriter(new File("output.tsv")))
+      Some(new PrintWriter(new File("verb-prep-new.tsv")))
     } else {
       None
     }
@@ -401,7 +401,7 @@ object ExperimentsApp {
           val correctLabel = q.answers(correctIndex).answerText
           val score = SolverUtils.assignCredit(selected, correctIndex, candidates.length)
           println("correctIndex: " + correctIndex)
-          if(outputFileOpt.isDefined) outputFileOpt.get.write(q.questionText + "\t" + score + "\t" + selected)
+          if(outputFileOpt.isDefined) outputFileOpt.get.write(q.questionText + "\t" + score + "\t" + selected + "\n")
           println("selected: " + selected + " score: " + score + " explanation: " + explanation)
           if (score < 0.5 && selected.nonEmpty) println(" >>>>>>> Selected and Incorrect :" + score + s"  ${q.questionText}")
           if (score < 0.5) println(" >>>>>>> Incorrect :" + score)
