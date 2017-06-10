@@ -409,11 +409,11 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
 
     //srlV1ILP
     //resultILP
-    //resultVerbSRLPlusPrepSRL
+    resultVerbSRLPlusPrepSRL
 //    srlV1ILP
 //    resultSRLV2
 //    resultCause
-    resultILP
+    //resultILP
   }
 
   // what (does|do|can) .* do
@@ -1753,8 +1753,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     }
 
     if(reasoningTypes.contains(VerbSRLandPrepSRL)) {
-      val qVerbConstituents = if (qTA.hasView(ViewNames.SRL_VERB)) qTA.getView(ViewNames.SRL_VERB).getConstituents.asScala else Seq.empty
-      val pVerbConstituents = if (pTA.hasView(ViewNames.SRL_VERB)) pTA.getView(ViewNames.SRL_VERB).getConstituents.asScala else Seq.empty
+      val qVerbConstituents = if (qTA.hasView(TextILPSolver.pathLSTMViewName)) qTA.getView(TextILPSolver.pathLSTMViewName).getConstituents.asScala else Seq.empty
+      val pVerbConstituents = if (pTA.hasView(TextILPSolver.pathLSTMViewName)) pTA.getView(TextILPSolver.pathLSTMViewName).getConstituents.asScala else Seq.empty
       val pPrepConstituents = if (pTA.hasView(ViewNames.SRL_PREP)) pTA.getView(ViewNames.SRL_PREP).getConstituents.asScala else Seq.empty
       val pPrepPredicates = if (pTA.hasView(ViewNames.SRL_PREP)) pTA.getView(ViewNames.SRL_PREP).asInstanceOf[PredicateArgumentView].getPredicates.asScala else Seq.empty
       val qVerbPredicates = qVerbConstituents.filter(_.getLabel=="Predicate")
