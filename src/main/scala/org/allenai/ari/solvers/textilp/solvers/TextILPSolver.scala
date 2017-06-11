@@ -401,7 +401,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
 */
 
     //resultILP
-    //resultVerbSRLPlusCoref
+    resultVerbSRLPlusCoref
 //    resultVerbSRLPlusCommaSRL
 //    srlV1ILP
 
@@ -409,7 +409,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
 
     //srlV1ILP
     //resultILP
-    resultVerbSRLPlusPrepSRL
+    //resultVerbSRLPlusPrepSRL
 //    srlV1ILP
 //    resultSRLV2
 //    resultCause
@@ -2128,7 +2128,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       ilpSolver.addConsAtMostOne(s"", activeCorefChains.values.toSeq) //TODO: tune this
 
       // constraint: have some constituents used from the question
-      ilpSolver.addConsAtLeastK(s"", activeQuestionVerbSRLConstituents.values.toSeq, 1.0)
+      ilpSolver.addConsAtLeastK(s"", activeQuestionVerbSRLConstituents.values.toSeq, 2.0)
 
       // constraint: have at most k active srl-verb predicates in the paragraph
       val predicateVariables = pVerbPredicates.map(activeParagraphVerbSRLConstituents)
