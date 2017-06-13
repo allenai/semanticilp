@@ -5,12 +5,12 @@ import java.net.URL
 
 import edu.illinois.cs.cogcomp.McTest.MCTestBaseline
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
-import edu.illinois.cs.cogcomp.core.utilities.{ DummyTextAnnotationGenerator, SerializationHelper }
+import edu.illinois.cs.cogcomp.core.utilities.{DummyTextAnnotationGenerator, SerializationHelper}
 import edu.illinois.cs.cogcomp.core.utilities.configuration.ResourceManager
 import org.allenai.ari.solvers.bioProccess.ProcessBankReader
 import org.allenai.ari.solvers.squad._
 import org.allenai.ari.solvers.textilp.solvers._
-import play.api.libs.json.Json
+import play.api.libs.json.{JsArray, JsObject, Json}
 import org.allenai.ari.solvers.squad.SquadClassifierUtils._
 import org.allenai.ari.solvers.textilp.alignment.AlignmentFunction
 import org.allenai.ari.solvers.textilp.utils.WikiUtils.WikiDataProperties
@@ -19,14 +19,14 @@ import org.rogach.scallop._
 
 import scala.collection.JavaConverters._
 import ProcessBankReader._
-import edu.cmu.meteor.scorer.{ MeteorConfiguration, MeteorScorer }
-import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{ Constituent, TextAnnotation }
+import edu.cmu.meteor.scorer.{MeteorConfiguration, MeteorScorer}
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, TextAnnotation}
 import edu.illinois.cs.cogcomp.edison.annotators.ClauseViewGenerator
 import org.simmetrics.metrics.StringMetrics
-import org.allenai.ari.controller.questionparser.{ FillInTheBlankGenerator, QuestionParse }
+import org.allenai.ari.controller.questionparser.{FillInTheBlankGenerator, QuestionParse}
 import org.allenai.ari.solvers.textilp.ResultJson._
 import org.allenai.ari.solvers.textilp.utils.SimilarityUtils.Levenshtein
-import org.apache.lucene.search.similarities.{ MultiSimilarity, Similarity }
+import org.apache.lucene.search.similarities.{MultiSimilarity, Similarity}
 import org.simmetrics.StringMetric
 //import com.quantifind.charts.Highcharts._
 
@@ -2056,7 +2056,6 @@ object ExperimentsApp {
 
       case 91 =>
         // this gives you the paragraph sentences
-
         val paragraphs = processReader.trainingInstances.filterNotTemporals.filterNotTrueFalse
         val qAndpPairs = paragraphs.flatMap { p => p.questions.map(q => (q, p)) }
         qAndpPairs.foreach {
@@ -2069,6 +2068,37 @@ object ExperimentsApp {
             println(sentences.mkString("\n"))
         }
 
+      case 92 =>
+        import java.io._
+        import SquadJsonPattern._
+        // save bioProcess data
+        val paragraphs = processReader.testInstances
+        val json = Json.toJson(paragraphs).toString
+        val pw = new PrintWriter(new File("processBank-test.json"))
+        pw.write(json)
+        pw.close()
+
+      case 93 =>
+        // read the json predictions of the system and evlauate
+        processAnswers("processBank-test-output.json", processReader.testInstances)
+        processAnswers("processBank-train-output.json", processReader.trainingInstances)
+        def processAnswers(ansFile: String, questionSet: List[Paragraph]) = {
+          println("ansFile: " + ansFile)
+          val lines = Source.fromFile(ansFile).getLines.toList.mkString
+          val json = Json.parse(lines)
+          val answerMap = json.as[JsObject].fields.map{ case (a, b) => a.toString -> b.toString }.toMap
+          val scores: Seq[Double] = questionSet.zipWithIndex.flatMap{ case (p, pIdx) =>
+            p.questions.zipWithIndex.map{ case (q, qIdx) =>
+              val id: String = s"$pIdx-$qIdx"
+              val ans: String = answerMap(id)
+              val selectedIdx = q.answers.zipWithIndex.map{ case (a, idx) =>
+                idx -> TextILPSolver.offlineAligner.scoreCellCell(a.answerText, ans)
+              }.maxBy(_._2)._1
+              SolverUtils.assignCredit(Seq(selectedIdx), q.correctIdxOpt.get, 2)
+            }
+          }
+          println("average score: " + scores.sum.toDouble / scores.length + "  - size: " + scores.length)
+       }
     }
   }
 }

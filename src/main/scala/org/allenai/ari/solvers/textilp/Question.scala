@@ -149,3 +149,42 @@ object ResultJson {
   //  }
 }
 
+
+/**
+  * Writing the results in the format that squad (hence BiDaF expcts)
+  */
+object SquadJsonPattern {
+
+  import play.api.libs.json._
+
+  implicit val listOfparagraphWrite = new Writes[List[Paragraph]] {
+    def writes(p: List[Paragraph]) = {
+      Json.obj(
+        "data" -> p.zipWithIndex.map { case( pp, pIdx) =>
+          val firstWord = pp.context.split(" ").head
+            Json.obj(
+            "title" -> "bestTitleEva",
+            "paragraphs" ->
+              Json.arr(
+                Json.obj(
+                  "context" -> pp.context,
+                  "qas" -> pp.questions.zipWithIndex.map { case (q, qIdx) =>
+                    Json.obj(
+                      "question" -> q.questionText,
+                      "answers" ->
+                        Json.arr(
+                          Json.obj("text" -> firstWord, "answer_start" -> 0)
+                        ),
+                      "id" -> s"$pIdx-$qIdx"
+                    )
+                  }
+                )
+              )
+          )
+        }
+      )
+  }
+  }
+}
+
+

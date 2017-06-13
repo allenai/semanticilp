@@ -2127,7 +2127,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       }.toMap
 
       // constraint: have at most 1 coref chain
-      ilpSolver.addConsAtMostOne(s"", activeCorefChains.values.toSeq) //TODO: tune this
+      ilpSolver.addConsAtMostK(s"", activeCorefChains.values.toSeq, 2) //TODO: tune this
 
       // constrain: have at least one coref constituents
       ilpSolver.addConsAtLeastOne(s"", activeParagraphCorefConstituents.values.toSeq) //TODO: tune this
