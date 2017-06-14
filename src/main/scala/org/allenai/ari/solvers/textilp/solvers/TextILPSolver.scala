@@ -2083,7 +2083,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     }
 
     if(reasoningTypes.contains(VerbSRLandCoref)) {
-      val qVerbConstituents = if (qTA.hasView(TextILPSolver.pathLSTMViewName)) qTA.getView(TextILPSolver.pathLSTMViewName).getConstituents.asScala else Seq.empty
+      val qVerbViewOpt = if (qTA.hasView(TextILPSolver.pathLSTMViewName)) Some(qTA.getView(TextILPSolver.pathLSTMViewName)) else None
+      val qVerbConstituents = if(qVerbViewOpt.isDefined) qVerbViewOpt.get.getConstituents.asScala else Seq.empty
       val pVerbConstituents = if (pTA.hasView(TextILPSolver.pathLSTMViewName)) pTA.getView(TextILPSolver.pathLSTMViewName).getConstituents.asScala else Seq.empty
       val qVerbPredicates = qVerbConstituents.filter(_.getLabel=="Predicate")
       val pVerbPredicates = pVerbConstituents.filter(_.getLabel=="Predicate")
@@ -2125,6 +2126,33 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
         ilpSolver.addConsBasicLinear(s"", x +: consVars, 1.0 +: consVars.map(_ => -1.0), None, Some(0.0))
         key -> x
       }.toMap
+
+      // find index of "if" and then find the first NP after that.
+      val selectedCons = if(qVerbViewOpt.isDefined && qTA.text.contains(" if ")) {
+        val patternOpt = qTA.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala.sliding(2).find{ list =>
+          val c1 = list(0)
+          val c2 = list(1)
+          c1.getSurfaceForm == "if" && (c2.getLabel == "NP" || c2.getLabel == "VP")
+        }
+        if(patternOpt.isDefined) {
+          val c1 = patternOpt.get(1)
+          qVerbViewOpt.get.getConstituentsOverlappingCharSpan(c1.getStartCharOffset, c1.getEndCharOffset).asScala.toSeq
+        }
+        else {
+          Seq.empty
+        }
+      }
+      else {
+        Seq.empty
+      }
+
+      println("Selected: " + selectedCons)
+
+      // if at least one cons is selected, at least k of these should
+      if(selectedCons.nonEmpty) {
+        val selectedVars = selectedCons.map(activeQuestionVerbSRLConstituents)
+        ilpSolver.addConsAtLeastOne(s"", selectedVars) //TODO: tune this
+      }
 
       // constraint: have at most 1 coref chain
       ilpSolver.addConsAtMostK(s"", activeCorefChains.values.toSeq, 2) //TODO: tune this
