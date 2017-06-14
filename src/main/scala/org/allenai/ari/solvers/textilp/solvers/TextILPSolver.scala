@@ -2127,6 +2127,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
         key -> x
       }.toMap
 
+      /*
       // find index of "if" and then find the first NP after that.
       val selectedCons = if(qVerbViewOpt.isDefined && qTA.text.contains(" if ")) {
         val patternOpt = qTA.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala.sliding(2).find{ list =>
@@ -2136,7 +2137,10 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
         }
         if(patternOpt.isDefined) {
           val c1 = patternOpt.get(1)
-          qVerbViewOpt.get.getConstituentsOverlappingCharSpan(c1.getStartCharOffset, c1.getEndCharOffset).asScala.toSeq
+          val c0 = patternOpt.get(0)
+          qVerbViewOpt.get.
+            getConstituentsOverlappingCharSpan(c1.getStartCharOffset, c1.getEndCharOffset).asScala.
+            filter{ _.getStartSpan >= c0.getEndSpan }
         }
         else {
           Seq.empty
@@ -2153,6 +2157,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
         val selectedVars = selectedCons.map(activeQuestionVerbSRLConstituents)
         ilpSolver.addConsAtLeastOne(s"", selectedVars) //TODO: tune this
       }
+      */
 
       // constraint: have at most 1 coref chain
       ilpSolver.addConsAtMostK(s"", activeCorefChains.values.toSeq, 2) //TODO: tune this
@@ -2161,7 +2166,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       ilpSolver.addConsAtLeastOne(s"", activeParagraphCorefConstituents.values.toSeq) //TODO: tune this
 
       // constraint: have some constituents used from the question
-      ilpSolver.addConsAtLeastK(s"", activeQuestionVerbSRLConstituents.values.toSeq, 1.0)
+      ilpSolver.addConsAtLeastK(s"", activeQuestionVerbSRLConstituents.values.toSeq, 2.0)
 
       // constraint: have at most k active srl-verb predicates in the paragraph
       val predicateVariables = pVerbPredicates.map(activeParagraphVerbSRLConstituents)
