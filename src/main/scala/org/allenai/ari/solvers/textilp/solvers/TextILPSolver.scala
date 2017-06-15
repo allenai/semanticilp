@@ -347,10 +347,10 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       createILPModel(q, p, ilpSolver, aligner, Set(SRLV1), useSummary = true)
     }
 
-//    Seq(resultSRLV1, resultSRLV2).reduceLeft[Int]{ case (a: Int, b: Int) =>
-//      println(a + " -> " + b)
-//      1
-//    }
+    Seq(resultSRLV1, resultSRLV2).collectFirst{ case (a: Int, previousResult: EntityRelationResult) =>
+      println(a + " -> " + b)
+      1
+    }
 
 /*
    if(resultSRLV1._1.isEmpty) {
@@ -402,7 +402,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
 */
 
     //resultILP
-    resultVerbSRLPlusCoref
+    //resultVerbSRLPlusCoref
 //    resultVerbSRLPlusCommaSRL
 //    srlV1ILP
 
@@ -415,6 +415,12 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
 //    resultSRLV2
 //    resultCause
       //resultILP
+
+
+    // CommaSRL+VerbSRL	SRLV2 	SimpleMatching	Coref+VerbSRL	SRLV1ILP	VerbSRL+PrepSRL	SRLV1 	Cause 	What does it do
+    val resultOpt = Seq(resultWhatDoesItdo, resultCause, resultSRLV1, resultVerbSRLPlusPrepSRL, srlV1ILP,
+      resultVerbSRLPlusCoref, resultILP, resultSRLV2, resultVerbSRLPlusCommaSRL).find(_._1.nonEmpty)
+    if(resultOpt.isDefined) resultOpt.get else (Seq.empty, EntityRelationResult())
   }
 
   // what (does|do|can) .* do
@@ -531,7 +537,6 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
           TextILPSolver.getAvgScore(qCons, Seq(c))
         }.zipWithIndex.maxBy(_._1)._2
       }
-
       val pCons = p.contextTAOpt.get.getView(ViewNames.SHALLOW_PARSE).asScala.toList
       val qCons = q.qTAOpt.get.getView(ViewNames.SHALLOW_PARSE).asScala.toList
       val qIdx = getClosestIndex(qCons, pCons)
@@ -2774,7 +2779,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     }
 
     // active answer option token
-    /*val activeAnsweOptionToken = if(!isTrueFalseQuestion) {
+    /*
+    val activeAnsweOptionToken = if(!isTrueFalseQuestion) {
       for {
         ansIdx <- aTokens.indices
         ansTokIdx <- aTokens(ansIdx).indices
@@ -2784,7 +2790,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     else {
       List.empty
     }
-*/
+    */
 
     if (verbose) println("created the ilp model. Now solving it  . . . ")
 
