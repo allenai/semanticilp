@@ -23,6 +23,7 @@ import scala.collection.mutable.ArrayBuffer
 
 trait ReasoningType{}
 case object SimpleMatching extends ReasoningType
+case object SimpleMatchingWithCoref extends ReasoningType
 case object SRLV1 extends ReasoningType
 case object SRLV2 extends ReasoningType
 case object SRLV3 extends ReasoningType
@@ -413,7 +414,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
 //    srlV1ILP
 //    resultSRLV2
 //    resultCause
-    //resultILP
+      //resultILP
   }
 
   // what (does|do|can) .* do
@@ -929,7 +930,6 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     }
 
     if(reasoningTypes.contains(SimpleMatching)) {
-
       // create questionToken-paragraphToken alignment edges
       val questionTokenParagraphTokenAlignments = for {
         qCons <- qTokens
@@ -963,6 +963,368 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       paragraphAnswerAlignments = paragraphTokenAnswerAlignments.toBuffer
 
       println("paragraphAnswerAlignments: " + paragraphAnswerAlignments.length)
+
+      def getAnswerOptionVariablesConnectedToParagraph(c: Constituent): Seq[(Int, Int, V)] = {
+        paragraphTokenAnswerAlignments.filter { case (cTmp, ansIdxTmp, tokenIdxTmp, _) => cTmp == c }.map(tuple => (tuple._2, tuple._3, tuple._4))
+      }
+
+      def getVariablesConnectedToParagraphToken(c: Constituent): Seq[V] = {
+        questionTokenParagraphTokenAlignments.filter { case (_, cTmp, _) => cTmp == c }.map(_._3) ++
+          paragraphTokenAnswerAlignments.filter { case (cTmp, _, _, _) => cTmp == c }.map(_._4)
+      }
+
+      def getVariablesConnectedToParagraphSentence(sentenceId: Int): Seq[V] = {
+        pTokens.filter(_.getSentenceId == sentenceId).flatMap(getVariablesConnectedToParagraphToken)
+      }
+
+      def getVariablesConnectedToQuestionToken(qCons: Constituent): Seq[V] = {
+        questionTokenParagraphTokenAlignments.filter { case (cTmp, _, _) => cTmp == qCons }.map(_._3)
+      }
+
+      // active paragraph constituent
+      val activeParagraphConstituents = pTokens.map { t =>
+        t -> ilpSolver.createBinaryVar("", params.activeParagraphConstituentsWeight)
+      }.toMap
+      // the paragraph token is active if anything connected to it is active
+      activeParagraphConstituents.foreach {
+        case (ans, x) =>
+          val connectedVariables = getVariablesConnectedToParagraphToken(ans)
+          val allVars = connectedVariables :+ x
+          val coeffs = Seq.fill(connectedVariables.length)(-1.0) :+ 1.0
+          ilpSolver.addConsBasicLinear("activeOptionVar", allVars, coeffs, None, Some(0.0))
+          connectedVariables.foreach { connectedVar =>
+            val vars = Seq(connectedVar, x)
+            val coeffs = Seq(1.0, -1.0)
+            ilpSolver.addConsBasicLinear("activeParagraphConsVar", vars, coeffs, None, Some(0.0))
+          }
+      }
+
+      // active sentences for the paragraph
+      val activeSentences = for {
+        s <- 0 until pTA.getNumberOfSentences
+        // alignment is preferred for lesser sentences; hence: negative activeSentenceDiscount
+        x = ilpSolver.createBinaryVar("activeSentence:" + s, params.activeSentencesDiscount)
+      } yield (s, x)
+      // the paragraph constituent variable is active if anything connected to it is active
+      activeSentences.foreach {
+        case (ans, x) =>
+          val connectedVariables = getVariablesConnectedToParagraphSentence(ans)
+          val allVars = connectedVariables :+ x
+          val coeffs = Seq.fill(connectedVariables.length)(-1.0) :+ 1.0
+          ilpSolver.addConsBasicLinear("activeOptionVar", allVars, coeffs, None, Some(0.0))
+          connectedVariables.foreach { connectedVar =>
+            val vars = Seq(connectedVar, x)
+            val coeffs = Seq(1.0, -1.0)
+            ilpSolver.addConsBasicLinear("activeParagraphConsVar", vars, coeffs, None, Some(0.0))
+          }
+      }
+
+      // active questions cons
+      val activeQuestionConstituents = for {
+        t <- qTokens
+        weight = if (SolverUtils.scienceTermsMap.contains(t.getSurfaceForm.toLowerCase)) {
+          params.activeQuestionTermWeight + params.scieneTermBoost
+        } else {
+          params.activeQuestionTermWeight
+        }
+        x = ilpSolver.createBinaryVar("activeQuestionCons", weight)
+      } yield (t, x)
+      // the question token is active if anything connected to it is active
+      activeQuestionConstituents.foreach {
+        case (c, x) =>
+          val connectedVariables = getVariablesConnectedToQuestionToken(c)
+          val allVars = connectedVariables :+ x
+          val coeffs = Seq.fill(connectedVariables.length)(-1.0) :+ 1.0
+          ilpSolver.addConsBasicLinear("activeQuestionIneq1", allVars, coeffs, None, Some(0.0))
+          connectedVariables.foreach { connectedVar =>
+            val vars = Seq(connectedVar, x)
+            val coeffs = Seq(1.0, -1.0)
+            ilpSolver.addConsBasicLinear("activeQuestionIneq2", vars, coeffs, None, Some(0.0))
+          }
+      }
+
+      // weight for answers being close to each other
+      /*val weight = -1.0
+      aTokens.indices.map{ answerOptionIdx =>
+        // for each answer option create one of these weights
+        //val x = ilpSolver.createIntegerVar("answerTokenDistanceWeights", 0, 100, 1.0)
+        aTokens.foreach{ toks =>
+          val x = ilpSolver.createIntegerVar("answerTokenDistanceWeights", 0, 100, 1.0)
+        }
+        val len = aTokens(answerOptionIdx).length - 1
+        for{
+          i <- 0 until len - 1
+          j <- i + 1 until len
+        } {
+          val x = ilpSolver.createIntegerVar(s"Answer:$answerOptionIdx-iAndjAnswerOption$i-$j", 0, 100, weight)
+          // add constraint
+
+        }
+
+        (answerOptionIdx, x)
+      }*/
+
+      // extra weight for alignment of paragraph constituents
+      // create edges between constituents which have an edge in the dependency parse
+      // this edge can be active only if the base nodes are active
+      def twoAnswerConsAreConnectedViaDependencyParse(ansIdx: Int, tokIdx1: Int, tokIdx2: Int): Boolean = {
+        //      println(s"ansIdx: $ansIdx, tokIdx1: $tokIdx1, tokIdx2: $tokIdx2")
+        val cons1 = getAnswerOptionCons(ansIdx, tokIdx1)
+        val cons2 = getAnswerOptionCons(ansIdx, tokIdx2)
+        //      println(s"cons1: $cons1 / cons2: $cons2")
+        val ansDepView = q.answers(ansIdx).aTAOpt.get.getView(ViewNames.DEPENDENCY_STANFORD)
+        val cons1InDep = ansDepView.getConstituentsCovering(cons1).asScala.headOption
+        val cons2InDep = ansDepView.getConstituentsCovering(cons2).asScala.headOption
+        //      println(s"cons1InDep: $cons1InDep / cons2InDep: $cons2InDep")
+        if (cons1InDep.isDefined && cons2InDep.isDefined) {
+          val relations = ansDepView.getRelations.asScala
+          //        println("relations:" + relations)
+          relations.exists { r =>
+            (r.getSource == cons1InDep.get && r.getTarget == cons2InDep.get) ||
+              (r.getSource == cons2InDep.get && r.getTarget == cons1InDep.get)
+          }
+        }
+        else {
+          false
+        }
+      }
+
+      if (p.contextTAOpt.get.hasView(ViewNames.DEPENDENCY_STANFORD)) {
+        val depView = p.contextTAOpt.get.getView(ViewNames.DEPENDENCY_STANFORD)
+        val depRelations = depView.getRelations.asScala
+        interParagraphAlignments = depRelations.zipWithIndex.map { case (r, idx) =>
+          val startConsOpt = getParagraphConsCovering(r.getSource)
+          val targetConsOpt = getParagraphConsCovering(r.getTarget)
+          if (startConsOpt.isDefined && targetConsOpt.isDefined && startConsOpt.get != targetConsOpt.get) {
+            val x = ilpSolver.createBinaryVar(s"Relation:$idx", params.firstOrderDependencyEdgeAlignments)
+
+            // this relation variable is active, only if its two sides are active
+            val startVar = activeParagraphConstituents(startConsOpt.get)
+            val targetVar = activeParagraphConstituents(targetConsOpt.get)
+            ilpSolver.addConsBasicLinear("dependencyVariableActiveOnlyIfSourceConsIsActive",
+              Seq(x, startVar), Seq(1.0, -1.0), None, Some(0.0))
+            ilpSolver.addConsBasicLinear("dependencyVariableActiveOnlyIfSourceConsIsActive",
+              Seq(x, targetVar), Seq(1.0, -1.0), None, Some(0.0))
+
+            val ansList1 = getAnswerOptionVariablesConnectedToParagraph(startConsOpt.get)
+            val ansList2 = getAnswerOptionVariablesConnectedToParagraph(targetConsOpt.get)
+
+            val variablesPairsInAnswerOptionsWithDependencyRelation = for {
+              a <- ansList1
+              b <- ansList2
+              if a._1 == b._1 // same answer
+              if a._2 != b._2 // different tok
+              if twoAnswerConsAreConnectedViaDependencyParse(a._1, a._2, b._2) // they are connected via dep parse
+            }
+              yield {
+                val weight = 0.0
+                // TODO: tune this
+                val activePair = ilpSolver.createBinaryVar(s"activeAnsweOptionPairs", weight)
+                ilpSolver.addConsBasicLinear("NoActivePairIfNonAreActive", Seq(a._3, b._3, activePair), Seq(-1.0, -1.0, 1.0), None, Some(0.0))
+                ilpSolver.addConsBasicLinear("NoActivePairIfNonAreActive", Seq(activePair, a._3), Seq(-1.0, 1.0), None, Some(0.0))
+                ilpSolver.addConsBasicLinear("NoActivePairIfNonAreActive", Seq(activePair, b._3), Seq(-1.0, 1.0), None, Some(0.0))
+                activePair
+              }
+
+            // if the paragraph relation pair is active, at least one answer response pair should be active
+            // in other words
+            ilpSolver.addConsBasicLinear("atLeastOnePairShouldBeActive",
+              variablesPairsInAnswerOptionsWithDependencyRelation :+ x,
+              Array.fill(variablesPairsInAnswerOptionsWithDependencyRelation.length) {
+                -1.0
+              } :+ 1.0, None, Some(0.0))
+
+            Some(startConsOpt.get, targetConsOpt.get, x)
+          }
+          else {
+            None
+          }
+        }.collect { case a if a.isDefined => a.get }
+      }
+      else {
+        println("Paragraph does not contain parse-view . . . ")
+      }
+
+      // for each of the answer options create one variable, turning on when the number of the alignments to that answer
+      // option is more than k
+      /*    (1 to 3).foreach{ k: Int =>
+          activeAnswerOptions.foreach { case (ansIdx, _) =>
+          val penalty = k match {
+            case 1  => params.moreThan1AlignmentAnsPenalty
+            case 2  => params.moreThan2AlignmentAnsPenalty
+            case 3  => params.moreThan3AlignmentAnsPenalty
+          }
+            val moreThanKAlignnetbToAnswerOption = ilpSolver.createBinaryVar(s"moreThan${k}AlignmentAnsPenalty", penalty)
+
+            // this gets activated, if the answer option has at least two active alignments
+            val connectedVariables = getVariablesConnectedToOption(ansIdx).toList
+            val len = connectedVariables.length
+            ilpSolver.addConsBasicLinear("",
+              moreThanKAlignnetbToAnswerOption +: connectedVariables, (-len + k.toDouble) +: Array.fill(len) {1.0}, None, Some(k))
+          }
+        }*/
+
+
+      /*    // for each of the question terms create one variable, turning on when the number of the alignments to the
+        // constituent is more than k
+        for{ k: Double <- 1.0 to 3.0 } {
+          qTokens.foreach { c =>
+            val penalty = k match {
+              case 1.0  => params.moreThan1AlignmentToQuestionTermPenalty
+              case 2.0  => params.moreThan2AlignmentToQuestionTermPenalty
+              case 3.0  => params.moreThan3AlignmentToQuestionTermPenalty
+            }
+            val moreThanKAlignnetbToQuestionCons = ilpSolver.createBinaryVar(
+              s"moreThan${k}AlignmentToQuestionConsPenalty", penalty
+            )
+
+            // this gets activated, if the answer option has at least two active alignments
+            val connectedVariables = getVariablesConnectedToQuestionToken(c).toList
+            val len = connectedVariables.length
+            ilpSolver.addConsBasicLinear("",
+              moreThanKAlignnetbToQuestionCons +: connectedVariables, (-len + k) +: Array.fill(len) {
+                1.0
+              }, None, Some(k))
+          }
+        }*/
+
+      // there is an upper-bound on the max number of active tokens in each sentence
+      activeSentences.foreach { case (ans, x) =>
+        val connectedVariables = getVariablesConnectedToParagraphSentence(ans)
+        ilpSolver.addConsBasicLinear("activeParagraphConsVar",
+          connectedVariables, Array.fill(connectedVariables.length) {
+            1.0
+          },
+          None, Some(params.maxNumberOfWordsAlignedPerSentence))
+      }
+
+      // among the words that are repeated in the paragraph, at most k of them can be active
+      // first find the duplicate elements
+      val duplicates = pTokens.groupBy(_.getSurfaceForm).filter { case (x, ys) => ys.lengthCompare(1) > 0 }
+      duplicates.foreach { case (_, duplicateCons) =>
+        val variables = duplicateCons.map(activeParagraphConstituents)
+        ilpSolver.addConsBasicLinear("", variables, Array.fill(variables.length) {
+          1.0
+        },
+          None, Some(params.maxAlignmentToRepeatedWordsInParagraph))
+      }
+
+      // have at most k active sentence
+      val (_, sentenceVars) = activeSentences.unzip
+      val sentenceVarsCoeffs = Seq.fill(sentenceVars.length)(1.0)
+      ilpSolver.addConsBasicLinear("maxActiveParagraphConsVar", sentenceVars, sentenceVarsCoeffs,
+        Some(0.0), Some(params.maxActiveSentences))
+
+
+      // intra-sentence alignments
+      // any sentences (that are at most k-sentences apart; k = 2 for now) can be aligned together.
+      /*
+
+        val maxIntraSentenceDistance = 2
+        val intraSentenceAlignments = for{
+          beginSentence <- 0 until (pTA.getNumberOfSentences - maxIntraSentenceDistance)
+          offset <- 0 until maxIntraSentenceDistance
+          endSentence = beginSentence + offset
+          x = ilpSolver.createBinaryVar(s"interSentenceAlignment/$beginSentence/$endSentence", 0.0)
+        } yield (beginSentence, endSentence, x)
+        // co-reference
+    */
+
+
+      /*
+        require(params.coreferenceWeight>=0, "params.coreferenceWeight should be positive")
+        val corefCons = if (pTA.hasView(ViewNames.COREF)) pTA.getView(ViewNames.COREF).getConstituents.asScala else Seq.empty
+        corefCons.groupBy(_.getLabel).foreach{ case (_, cons) =>  // cons that have the same label are co-refered
+          cons.zipWithIndex.combinations(2).foreach{ consPair =>
+            val x = ilpSolver.createBinaryVar(s"coredEdgeVariable${consPair.head._2}-${consPair(1)._2}", params.coreferenceWeight)
+            val x1 = activeParagraphConstituents(consPair.head._1)
+            val x2 = activeParagraphConstituents(consPair(1)._1)
+            ilpSolver.addConsBasicLinear(s"coreEdgePairCons-${consPair.head._2}", Seq(x, x1), Seq(1.0, 1.0), None, Some(0.0))
+            ilpSolver.addConsBasicLinear(s"coreEdgePairCons-${consPair(1)._2}", Seq(x, x2), Seq(1.0, 1.0), None, Some(0.0))
+          }
+        }
+    */
+
+      // longer than 1 answer penalty
+      activeAnswerOptions.foreach { case (ansIdx, activeAnsVar) =>
+        val ansTokList = aTokens(ansIdx)
+        if (ansTokList.length > 1) {
+          val x = ilpSolver.createBinaryVar("longerThanOnePenalty", params.longerThan1TokenAnsPenalty)
+          ilpSolver.addConsBasicLinear("longerThanOnePenaltyActiveOnlyWhenOptionIsActive",
+            Seq(x, activeAnsVar), Seq(-1.0, 1.0), None, Some(0.0))
+        }
+        if (ansTokList.length > 2) {
+          val x = ilpSolver.createBinaryVar("longerThanTwoPenalty", params.longerThan2TokenAnsPenalty)
+          ilpSolver.addConsBasicLinear("longerThanOnePenaltyActiveOnlyWhenOptionIsActive",
+            Seq(x, activeAnsVar), Seq(-1.0, 1.0), None, Some(0.0))
+        }
+        if (ansTokList.length > 3) {
+          val x = ilpSolver.createBinaryVar("longerThanThreePenalty", params.longerThan3TokenAnsPenalty)
+          ilpSolver.addConsBasicLinear("longerThanThreePenaltyActiveOnlyWhenOptionIsActive",
+            Seq(x, activeAnsVar), Seq(-1.0, 1.0), None, Some(0.0))
+        }
+      }
+
+      // use at least k constituents in the question
+      val (_, questionVars) = activeQuestionConstituents.unzip
+      val questionVarsCoeffs = Seq.fill(questionVars.length)(1.0)
+      ilpSolver.addConsBasicLinear("activeQuestionConsVarNum", questionVars,
+        questionVarsCoeffs, Some(params.minQuestionTermsAligned), Some(params.maxQuestionTermsAligned))
+      ilpSolver.addConsBasicLinear("activeQuestionConsVarRatio", questionVars,
+        questionVarsCoeffs,
+        Some(params.minQuestionTermsAlignedRatio * questionVars.length),
+        Some(params.maxQuestionTermsAlignedRatio * questionVars.length))
+
+      // if anything comes after " without " it should be aligned definitely
+      // example: What would happen without annealing?
+      if (q.questionText.contains(" without ")) {
+        if (verbose) println(" >>> Adding constraint to use the term after `without`")
+        val withoutTok = qTokens.filter(_.getSurfaceForm == "without").head
+        if (verbose) println("withoutTok: " + withoutTok)
+        val after = qTokens.filter(c => c.getStartSpan > withoutTok.getStartSpan).minBy(_.getStartSpan)
+        if (verbose) println("after: " + after)
+        val afterVariableOpt = activeQuestionConstituents.collectFirst { case (c, v) if c == after => v }
+        if (verbose) println("afterVariableOpt = " + afterVariableOpt)
+        afterVariableOpt match {
+          case Some(afterVariable) =>
+            ilpSolver.addConsBasicLinear("termAfterWithoutMustBeAligned", Seq(afterVariable), Seq(1.0), Some(1.0), None)
+          case None => // do nothing
+        }
+      }
+    }
+
+    if(reasoningTypes.contains(SimpleMatchingWithCoref)) {
+      // create questionToken-paragraphToken alignment edges
+      val questionTokenParagraphTokenAlignments = for {
+        qCons <- qTokens
+        pCons <- pTokens
+        // TODO: make it QuestionCell score
+        //      score = alignmentFunction.scoreCellCell(qCons.getSurfaceForm, pCons.getSurfaceForm) + params.questionCellOffset
+        score = alignmentFunction.scoreCellQCons(pCons.getSurfaceForm, qCons.getSurfaceForm) + params.questionCellOffset
+        if score > params.minParagraphToQuestionAlignmentScore
+        x = ilpSolver.createBinaryVar("", score)
+      } yield (qCons, pCons, x)
+
+      questionParagraphAlignments = questionTokenParagraphTokenAlignments.toBuffer
+
+      // create paragraphToken-answerOption alignment edges
+      val paragraphTokenAnswerAlignments = if (!isTrueFalseQuestion) {
+        // create only multiple nodes at each answer option
+        for {
+          pCons <- pTokens
+          ansIdx <- aTokens.indices
+          ansConsIdx <- aTokens(ansIdx).indices
+          ansConsString = aTokens(ansIdx).apply(ansConsIdx)
+          // TODO: make it QuestionCell score
+          score = alignmentFunction.scoreCellCell(pCons.getSurfaceForm, ansConsString) + params.paragraphAnswerOffset
+          //        score = alignmentFunction.scoreCellQChoice(pCons.getSurfaceForm, ansConsString) + params.paragraphAnswerOffset
+          x = ilpSolver.createBinaryVar("", score)
+        } yield (pCons, ansIdx, ansConsIdx, x)
+      } else {
+        List.empty
+      }
+
+      paragraphAnswerAlignments = paragraphTokenAnswerAlignments.toBuffer
 
       def getAnswerOptionVariablesConnectedToParagraph(c: Constituent): Seq[(Int, Int, V)] = {
         paragraphTokenAnswerAlignments.filter { case (cTmp, ansIdxTmp, tokenIdxTmp, _) => cTmp == c }.map(tuple => (tuple._2, tuple._3, tuple._4))
