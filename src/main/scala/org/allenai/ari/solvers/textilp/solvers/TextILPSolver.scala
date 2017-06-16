@@ -347,11 +347,6 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       createILPModel(q, p, ilpSolver, aligner, Set(SRLV1), useSummary = true)
     }
 
-    Seq(resultSRLV1, resultSRLV2).collectFirst{ case (a: Int, previousResult: EntityRelationResult) =>
-      println(a + " -> " + b)
-      1
-    }
-
 /*
    if(resultSRLV1._1.isEmpty) {
       if(resultSRLV2._1.isEmpty) {
