@@ -1050,7 +1050,7 @@ object ExperimentsApp {
         //     println("filterWhatDoesItDo: ")
         //
         evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
-//        evaluateTextSolverOnProcessBank(processReader.testInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
+        evaluateTextSolverOnProcessBank(processReader.testInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
 
       // println("no-temporals/no true or false: ")
       //

@@ -565,8 +565,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
         val sentId = p.contextTAOpt.get.getSentenceId(tokId)
         (tok, sentId)
       }.groupBy(_._2)
-      println("paragraphTokensPerSentence: ")
-      println(paragraphTokensPerSentence)
+      //println("paragraphTokensPerSentence: ")
+      //println(paragraphTokensPerSentence)
       paragraphTokensPerSentence.map { case (sentId, toks) =>
         val paragraphWindow = toks.map(_._1).mkString(" ")
         val stats = TextILPSolver.meteroScorer.getMeteorStats(paragraphWindow, questionString)
@@ -611,40 +611,39 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       val qCons = q.qTAOpt.get.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala.map(_.getSurfaceForm)
       val pSRLView = p.contextTAOpt.get.getView(srlViewName)
       val pSRLCons = pSRLView.getConstituents.asScala
-      println("pSRLCons: " + pSRLCons.mkString("\n"))
-      println("--------")
+//      println("pSRLCons: " + pSRLCons.mkString("\n"))
+//      println("--------")
       val consGroupepd = pSRLCons.filter(c => c.getLabel != "Predicate" /*&& (c.getLabel == "A0" || c.getLabel == "A1")*/).flatMap { c =>
         c.getIncomingRelations.asScala.map(r => (c.getSurfaceForm, getPredicateFullLabel(r.getSource)))
       }.groupBy(_._2)
 
-      println("consGroupepd: " + consGroupepd.mkString("\n"))
+//      println("consGroupepd: " + consGroupepd.mkString("\n"))
 
       val bothAnswersCovered = q.answers.zipWithIndex.forall { case (ans, idx) =>
         pSRLCons.exists { c => alignmentFunction.scoreCellQChoice(ans.answerText, c.getSurfaceForm) > 0.25 }
       }
 
-
       val framesThatAlignWithQuestion = consGroupepd.filter { case (pred, list) =>
         val cons = list.unzip._1
-        println("---------------")
-        println("Predicate: " + pred)
-        println("Cons: " + cons)
+//        println("---------------")
+//        println("Predicate: " + pred)
+//        println("Cons: " + cons)
         qCons.zip(cons).foreach { case (qC, pC) =>
-          println(s"\t\t\talignmentFunction.scoreCellQCons(${qC}, $pC): " + alignmentFunction.scoreCellQCons(qC, pC))
+//          println(s"\t\t\talignmentFunction.scoreCellQCons(${qC}, $pC): " + alignmentFunction.scoreCellQCons(qC, pC))
         }
         qCons.zip(cons).exists { case (qC, pC) => alignmentFunction.scoreCellQCons(qC, pC) > 0.15 }
       }
 
       val scorePerAns = q.answers.zipWithIndex.map { case (ans, idx) =>
-        println("========================================")
-        println("Answer option: " + ans)
+//        println("========================================")
+//        println("Answer option: " + ans)
         (framesThatAlignWithQuestion.flatMap { case (pred, list) =>
           val cons = list.unzip._1
-          println("---------------")
-          println("Predicate: " + pred)
-          println("Cons: " + cons)
+//          println("---------------")
+//          println("Predicate: " + pred)
+//          println("Cons: " + cons)
           cons.foreach{c =>
-            println(s"\t\t\talignmentFunction.scoreCellQChoice(${ans.answerText}, $c): " + alignmentFunction.scoreCellQChoice(ans.answerText, c))
+//            println(s"\t\t\talignmentFunction.scoreCellQChoice(${ans.answerText}, $c): " + alignmentFunction.scoreCellQChoice(ans.answerText, c))
           }
           cons.map(c => alignmentFunction.scoreCellQChoice(ans.answerText, c))
         } ++ Seq(-1.0)).max
@@ -656,29 +655,29 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       Seq.empty
     }
 
-    println("Selected: " + uniqueSelected)
+//    println("Selected: " + uniqueSelected)
     uniqueSelected -> EntityRelationResult()
   }
 
   def SRLSolverV2(q: Question, p: Paragraph, srlViewName: String): (Seq[Int], EntityRelationResult) = {
-    println("q: " + q.questionText)
+//    println("q: " + q.questionText)
     val fillInBlank = q.qTAOpt.get.getView(annotationUtils.fillInBlankAnnotator.getViewName).getConstituents.get(0).getLabel
-    println("fillInBlank: " + fillInBlank)
+//    println("fillInBlank: " + fillInBlank)
     val fillInBlankTA = if (fillInBlank == "") {
       q.qTAOpt.get
     } else {
-      println("fillInBlank: " + fillInBlank)
+//      println("fillInBlank: " + fillInBlank)
       annotationUtils.pipelineServerClient.annotate(fillInBlank)
     }
     val results = q.answers.map { ans =>
-      println("/////////////////////////")
+//      println("/////////////////////////")
       require(ans.aTAOpt.get.hasView(ViewNames.SHALLOW_PARSE), s"Answer TA does not contain shallow parse view. fillInBlank: $fillInBlank - Views are: ${ans.aTAOpt.get.getAvailableViews}")
       require(fillInBlankTA.hasView(ViewNames.SHALLOW_PARSE), s"fillInBlankTA does not contain shallow parse view. Views are: ${fillInBlankTA.getAvailableViews}")
       val questionAndAnsOption = annotationUtils.blankQuestionAnswerOptionNormalizer(ans.aTAOpt.get, fillInBlankTA, annotationUtils)
-      println("questionAndAnsOption: " + questionAndAnsOption)
+//      println("questionAndAnsOption: " + questionAndAnsOption)
       val questionAndAnsOptionTA = annotationUtils.pipelineServerClient.annotate(questionAndAnsOption)
       if (questionAndAnsOptionTA.hasView(srlViewName) && p.contextTAOpt.get.hasView(srlViewName)) {
-        println("--------------")
+//        println("--------------")
         if (matchPredicatesAndArguments(questionAndAnsOptionTA, p.contextTAOpt.get, ans, keytermsWithWHOverlap = false,
           doOverlapWithQuestion = true, fillInBlank, srlViewName)) 1.0 else 0.0
       }
@@ -686,13 +685,13 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
         0.0
       }
     }
-    println("============")
+//    println("============")
     if (verbose) println("results: " + results)
     val selectedAnswers = if (results.sum == 1) {
       // i.e. only one of the answer options has overlap
       results.zipWithIndex.flatMap { case (v, idx) =>
         if (v == 1) {
-          println(s"SRL alignment: Choosing $idx as an answer. ")
+//          println(s"SRL alignment: Choosing $idx as an answer. ")
           Seq(idx)
         }
         else {
@@ -708,12 +707,12 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
   }
 
   def SRLSolverV1(q: Question, p: Paragraph, srlViewName: String): (Seq[Int], EntityRelationResult) = {
-    println("p view names: " + p.contextTAOpt.get.getAvailableViews)
-    println("q view names: " + q.qTAOpt.get.getAvailableViews)
+//    println("p view names: " + p.contextTAOpt.get.getAvailableViews)
+//    println("q view names: " + q.qTAOpt.get.getAvailableViews)
     val selectedAnswers = if (q.qTAOpt.get.hasView(srlViewName) && p.contextTAOpt.get.hasView(srlViewName)) {
       val results = q.answers.map { ans =>
-        println("----------------")
-        println("Ans: " + ans)
+//        println("----------------")
+//        println("Ans: " + ans)
         if (matchPredicatesAndArguments(q.qTAOpt.get, p.contextTAOpt.get, ans, keytermsWithWHOverlap = true,
           doOverlapWithQuestion = false, q.questionText, srlViewName)) 1.0 else 0.0
       }
@@ -722,7 +721,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
         // i.e. only one of the answer options has overlap
         results.zipWithIndex.flatMap { case (v, idx) =>
           if (v == 1) {
-            println(s"SRL alignment: Setting the answer $idx to be active")
+            //println(s"SRL alignment: Setting the answer $idx to be active")
             Seq(idx)
           }
           else {
@@ -770,8 +769,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       if(qTA.text.contains(ans.answerText.trim)) {
         val idxBegin = qTA.text.indexOf(ans.answerText)
         val idxEnd = idxBegin + ans.answerText.length - 1
-        println("idxBegin: " + idxBegin)
-        println("idxEnd: " + idxEnd)
+//        println("idxBegin: " + idxBegin)
+//        println("idxEnd: " + idxEnd)
         val out = qSRLCons.filter{ c =>
           (c.getEndCharOffset <= idxEnd && c.getEndCharOffset >= idxBegin) ||
             (c.getStartCharOffset <= idxEnd && c.getStartCharOffset >= idxBegin) ||
@@ -781,21 +780,21 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
 //            !ans.answerText.toLowerCase.contains(c.getIncomingRelations.get(0).getSource.getSurfaceForm.toLowerCase)
 //          }
         if(out.isEmpty) {
-          println("qSRLCons: " + qSRLCons)
+//          println("qSRLCons: " + qSRLCons)
         }
         out
       }
       else {
-        println(" >>>>>>>> Does not contain it. ")
-        println("qTA.text: " + qTA.text)
-        println("ans.answerText.trim: " + ans.answerText.trim)
+//        println(" >>>>>>>> Does not contain it. ")
+//        println("qTA.text: " + qTA.text)
+//        println("ans.answerText.trim: " + ans.answerText.trim)
         Seq.empty
       }
     }
 
     val questionWithoutKeyTermsTokens = originalQuestion.split(" ").toSet.diff(SolverUtils.stopwords)
 
-    println("questionWithoutKeyTermsTokens: " + questionWithoutKeyTermsTokens)
+//    println("questionWithoutKeyTermsTokens: " + questionWithoutKeyTermsTokens)
 
     if (verbose) {
       println(">>>>>> q: " + qTA)
@@ -807,30 +806,30 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       val qArgLabel = cons.getLabel
       if (verbose) println(">>>>>>> qArgLabel: " + qArgLabel)
       val qSource = cons.getIncomingRelations.get(0).getSource
-      println("qSource: " + qSource)
+//      println("qSource: " + qSource)
       if (verbose) println(">>>>>>>> " + qSource)
 
       val qSourceLabel = getPredicateFullLabel(qSource)
       if (verbose) println(">>>>>>>> " + qSourceLabel)
       val pParagraph = pSRLCons.filter(c => getPredicateFullLabel(c) == qSourceLabel)
-      println("pParagraph: " + pParagraph)
+//      println("pParagraph: " + pParagraph)
       val pArgCons = pParagraph.flatMap { pred =>
-        println("\t\tpred:  " + pred)
+//        println("\t\tpred:  " + pred)
         val overlapWithQuestion = questionWithoutKeyTermsTokens.intersect(getTokensInFrame(pred).toSet)
-        println("\t\t\tgetTokensInFrame(pred): " + getTokensInFrame(pred))
-        println("\t\t\toverlapWithQuestion: " + overlapWithQuestion)
-        println("\t\t\tdoOverlapWithQuestion: " + doOverlapWithQuestion)
+//        println("\t\t\tgetTokensInFrame(pred): " + getTokensInFrame(pred))
+//        println("\t\t\toverlapWithQuestion: " + overlapWithQuestion)
+//        println("\t\t\tdoOverlapWithQuestion: " + doOverlapWithQuestion)
         val answerOptionContainsThePredicate = ans.answerText.contains(qSource.getSurfaceForm.trim)
-        println("answerOptionContainsThePredicate: " + answerOptionContainsThePredicate)
-        println("qSource.getSurfaceForm: " + qSource.getSurfaceForm)
-        println("ans.answerText: " + ans.answerText)
+//        println("answerOptionContainsThePredicate: " + answerOptionContainsThePredicate)
+//        println("qSource.getSurfaceForm: " + qSource.getSurfaceForm)
+//        println("ans.answerText: " + ans.answerText)
         val containsOneOfQuestionTerms = if(answerOptionContainsThePredicate) overlapWithQuestion.nonEmpty else true
+//        if(containsOneOfQuestionTerms) {
+//          println("overlapWithQuestion: " + overlapWithQuestion)
+//        }
+//        println("containsOneOfQuestionTerms: " + containsOneOfQuestionTerms)
         if(containsOneOfQuestionTerms) {
-          println("overlapWithQuestion: " + overlapWithQuestion)
-        }
-        println("containsOneOfQuestionTerms: " + containsOneOfQuestionTerms)
-        if(containsOneOfQuestionTerms) {
-          println("pred.getOutgoingRelations.asScala.map(_.getTarget): " + pred.getOutgoingRelations.asScala.map(c => (c.getTarget.getSurfaceForm, c.getTarget.getLabel)))
+//          println("pred.getOutgoingRelations.asScala.map(_.getTarget): " + pred.getOutgoingRelations.asScala.map(c => (c.getTarget.getSurfaceForm, c.getTarget.getLabel)))
           pred.getOutgoingRelations.asScala.map(_.getTarget).filter(_.getLabel == qArgLabel)
         }
         else {
@@ -868,7 +867,9 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     //val p = if(reasoningTypes.contains(SimpleMatching)) SolverUtils.ParagraphSummarization.getSubparagraph(p1, q, Some(annotationUtils)) else p1
     //val p = SolverUtils.ParagraphSummarization.getSubparagraph(p1, q, Some(annotationUtils))
 
-    val p = p1 //if(useSummary) SolverUtils.ParagraphSummarization.getSubparagraph(p1, q, Some(annotationUtils)) else p1
+    //val p = p1 //if(useSummary) SolverUtils.ParagraphSummarization.getSubparagraph(p1, q, Some(annotationUtils)) else p1
+
+    val p = SolverUtils.ParagraphSummarization.getSubparagraph(p1, q, Some(annotationUtils))
 
     val modelCreationStart = System.currentTimeMillis()
 
@@ -961,8 +962,6 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       }
 
       paragraphAnswerAlignments = paragraphTokenAnswerAlignments.toBuffer
-
-      println("paragraphAnswerAlignments: " + paragraphAnswerAlignments.length)
 
       def getAnswerOptionVariablesConnectedToParagraph(c: Constituent): Seq[(Int, Int, V)] = {
         paragraphTokenAnswerAlignments.filter { case (cTmp, ansIdxTmp, tokenIdxTmp, _) => cTmp == c }.map(tuple => (tuple._2, tuple._3, tuple._4))
@@ -1068,17 +1067,13 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       // create edges between constituents which have an edge in the dependency parse
       // this edge can be active only if the base nodes are active
       def twoAnswerConsAreConnectedViaDependencyParse(ansIdx: Int, tokIdx1: Int, tokIdx2: Int): Boolean = {
-        //      println(s"ansIdx: $ansIdx, tokIdx1: $tokIdx1, tokIdx2: $tokIdx2")
         val cons1 = getAnswerOptionCons(ansIdx, tokIdx1)
         val cons2 = getAnswerOptionCons(ansIdx, tokIdx2)
-        //      println(s"cons1: $cons1 / cons2: $cons2")
         val ansDepView = q.answers(ansIdx).aTAOpt.get.getView(ViewNames.DEPENDENCY_STANFORD)
         val cons1InDep = ansDepView.getConstituentsCovering(cons1).asScala.headOption
         val cons2InDep = ansDepView.getConstituentsCovering(cons2).asScala.headOption
-        //      println(s"cons1InDep: $cons1InDep / cons2InDep: $cons2InDep")
         if (cons1InDep.isDefined && cons2InDep.isDefined) {
           val relations = ansDepView.getRelations.asScala
-          //        println("relations:" + relations)
           relations.exists { r =>
             (r.getSource == cons1InDep.get && r.getTarget == cons2InDep.get) ||
               (r.getSource == cons2InDep.get && r.getTarget == cons1InDep.get)
@@ -1430,17 +1425,13 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       // create edges between constituents which have an edge in the dependency parse
       // this edge can be active only if the base nodes are active
       def twoAnswerConsAreConnectedViaDependencyParse(ansIdx: Int, tokIdx1: Int, tokIdx2: Int): Boolean = {
-        //      println(s"ansIdx: $ansIdx, tokIdx1: $tokIdx1, tokIdx2: $tokIdx2")
         val cons1 = getAnswerOptionCons(ansIdx, tokIdx1)
         val cons2 = getAnswerOptionCons(ansIdx, tokIdx2)
-        //      println(s"cons1: $cons1 / cons2: $cons2")
         val ansDepView = q.answers(ansIdx).aTAOpt.get.getView(ViewNames.DEPENDENCY_STANFORD)
         val cons1InDep = ansDepView.getConstituentsCovering(cons1).asScala.headOption
         val cons2InDep = ansDepView.getConstituentsCovering(cons2).asScala.headOption
-        //      println(s"cons1InDep: $cons1InDep / cons2InDep: $cons2InDep")
         if (cons1InDep.isDefined && cons2InDep.isDefined) {
           val relations = ansDepView.getRelations.asScala
-          //        println("relations:" + relations)
           relations.exists { r =>
             (r.getSource == cons1InDep.get && r.getTarget == cons2InDep.get) ||
               (r.getSource == cons2InDep.get && r.getTarget == cons1InDep.get)
@@ -1813,22 +1804,10 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       val qVerbArguments = qVerbConstituents diff qVerbPredicates
       val pVerbArguments = pVerbConstituents diff pVerbPredicates
       val pCommaArguments = pCommaConstituents diff pCommaPredicates
-      println("pCommaPredicates " + pCommaPredicates)
-      println("pVerbPredicates " + pVerbPredicates)
       val pCommaPredicateToArgumentMap = pCommaConstituents.map(c => c -> c.getOutgoingRelations.asScala.map(_.getTarget)).toMap
       val pVerbPredicateToArgumentMap = pVerbConstituents.map(c => c -> c.getOutgoingRelations.asScala.map(_.getTarget)).toMap
       val qVerbPredicateToArgumentMap = qVerbConstituents.map(c => c -> c.getOutgoingRelations.asScala.map(_.getTarget)).toMap
 
-      println("pCommaPredicateToArgumentMap.size: " + pCommaPredicateToArgumentMap.size)
-      println("pVerbPredicateToArgumentMap.size: " + pVerbPredicateToArgumentMap.size)
-      println("qVerbPredicateToArgumentMap.size: " + qVerbPredicateToArgumentMap.size)
-      println("pCommaArguments.size: " + pCommaArguments.size)
-      println("pVerbArguments.size: " + pVerbArguments.size)
-      println("qVerbArguments.size: " + qVerbArguments.size)
-      println("pCommaPredicates.size: " + pCommaPredicates.size)
-      println("qVerbConstituents.size: " + qVerbConstituents.size)
-      println("pVerbConstituents.size: " + pVerbConstituents.size)
-      println("pCommaConstituents.size: " + pCommaConstituents.size)
 
       // constraint:
       // (1) if any of the constituents in the frame are active, frame should be active
@@ -1916,7 +1895,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
         if score >= 0.75 // TODO: tune this
       }
         yield {
-          println("\t\t\tPP alignments: verbC: " + verbC.getSurfaceForm + " / commaC: " + commaC.getSurfaceForm + " / score: " + score)
+          //println("\t\t\tPP alignments: verbC: " + verbC.getSurfaceForm + " / commaC: " + commaC.getSurfaceForm + " / score: " + score)
           val x = ilpSolver.createBinaryVar("", score)
           // constraint: if pairwise variable is active, the two end should be active too.
           val srlVerbVar = activeParagraphVerbSRLConstituents(verbC)
@@ -2810,7 +2789,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
 
     if (verbose) println("Done solving the model  . . . ")
 
-    println("paragraphAnswerAlignments: " + paragraphAnswerAlignments.length)
+    if (verbose) println("paragraphAnswerAlignments: " + paragraphAnswerAlignments.length)
 
     if (verbose) {
       activeAnswerOptions.foreach {
