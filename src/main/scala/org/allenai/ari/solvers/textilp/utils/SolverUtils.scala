@@ -509,14 +509,14 @@ object SolverUtils {
 
     def getSubparagraph(p: Paragraph, q: Question, annotationUtilsOpt: Option[AnnotationUtils] = None): Paragraph = {
       val sentences = p.contextTAOpt.get.getView(ViewNames.SENTENCE).getConstituents.asScala
-      println("sentences: " + sentences)
+      //println("sentences: " + sentences)
       val sortedSentences = sentences.map(s => s -> scoreTheSentence(q, s)).zipWithIndex.sortBy(-_._1._2)
       val maxScore = sortedSentences.head._1._2
       val selectedIdx = sortedSentences.filter(_._1._2 == maxScore).map(_._2)
       val maxIdx = sentences.length
       val allSelected = (selectedIdx ++ selectedIdx.map(_ + 1)).filter(_ < maxIdx).distinct
       val subParagraph = allSelected.map(sentences(_)).mkString(" ")
-      println("subParagraph: " + subParagraph)
+//      println("subParagraph: " + subParagraph)
       val taOpt = annotationUtilsOpt.map { annotationUtils =>
         val clientTa = annotationUtils.pipelineServerClient.annotate(subParagraph)
         annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
