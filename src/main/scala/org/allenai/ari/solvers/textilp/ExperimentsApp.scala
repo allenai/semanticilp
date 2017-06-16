@@ -389,7 +389,7 @@ object ExperimentsApp {
       zipWithIndex.map {
         case ((q, p), idx) =>
           //println("==================================================")
-          //        println("Processed " + idx + " out of " + qAndpPairs.size)
+          println("Processed " + idx + " out of " + qAndpPairs.size)
           //println("Paragraph: " + p)
           val candidates = q.answers.map(_.answerText)
           val correctIndex = q.correctIdxOpt.get
@@ -422,6 +422,61 @@ object ExperimentsApp {
     println("total size: " + resultLists.length)
     println("total answered: " + nonEmptyScores.length)
     if(outputFileOpt.isDefined) outputFileOpt.get.close
+  }
+
+  def evaluateTextSolverOnProcessBankWithDifferentReasonings(list: List[Paragraph], textILPSolver: TextILPSolver) = {
+    import java.io._
+
+    //val types = Seq(WhatDoesItDoRule, CauseRule, SRLV1Rule, VerbSRLandPrepSRL, SRLV1ILP, SimpleMatchingWithCoref, SimpleMatching)
+    val types = Seq(SimpleMatching)
+
+    val qAndpPairs = list.flatMap { p => p.questions.map(q => (q, p)) }
+    types.foreach { t =>
+      println("==================================================")
+      // use false if you don't it to write things on disk
+      val outputFileOpt = if (true) {
+        Some(new PrintWriter(new File(t.toString + "-output.tsv")))
+      } else {
+        None
+      }
+      val (resultLists, stats, nonEmptyList) = qAndpPairs.zipWithIndex.map {
+        case ((q, p), idx) =>
+          //println("==================================================")
+          println("Processed " + idx + " out of " + qAndpPairs.size)
+          //println("Paragraph: " + p)
+          val candidates = q.answers.map(_.answerText)
+          val correctIndex = q.correctIdxOpt.get
+          //println("question: " + q.questionText)
+          //println("candidates: " + candidates)
+          //          println("length of allCandidatesMinusCorrectOnes: " + allCandidatesMinusCorrectOnes.size)
+          //          println("candidates.length: " + candidates.length)
+          val (selected, explanation) = textILPSolver.solveWithReasoningType(q.questionText, candidates, p.context, t)
+          val correctLabel = q.answers(correctIndex).answerText
+          val score = SolverUtils.assignCredit(selected, correctIndex, candidates.length)
+          //println("correctIndex: " + correctIndex)
+          //if(outputFileOpt.isDefined) outputFileOpt.get.write(q.questionText + "\t" + score + "\t" + selected + "\n")
+          //println("selected: " + selected + " score: " + score + " explanation: " + explanation)
+          //          if (score < 0.5 && selected.nonEmpty) println(" >>>>>>> Selected and Incorrect :" + score + s"  ${q.questionText}")
+          //          if (score < 0.5) println(" >>>>>>> Incorrect :" + score)
+          //          if (score > 0.5) println(" >>>>>>> correct :" + score)
+          //          println(s"Processed $idx out of ${qAndpPairs.length}")
+          (score, explanation.statistics, if (selected.nonEmpty) 1.0 else 0.0) // -> (explanation.confidence -> correctLabel)
+      }.unzip3
+
+      val avgStats = stats.reduceRight[Stats] { case (a: Stats, b: Stats) => a.sumWith(b) }.divideBy(stats.length)
+      val avgCoverage = nonEmptyList.sum / nonEmptyList.length
+      val nonEmptyScores = resultLists.zip(nonEmptyList).filter(_._2 > 0).map(_._1)
+      val avgPrecision = nonEmptyScores.sum / nonEmptyScores.length
+      val avgAristoScore = resultLists.sum / resultLists.length
+      println("------------")
+      println("t: " + t.toString)
+      println("avgAristoScore: " + avgAristoScore)
+      println("avgPrecision: " + avgPrecision)
+      println("avgCoverage: " + avgCoverage)
+      println("total size: " + resultLists.length)
+      println("total answered: " + nonEmptyScores.length)
+      if (outputFileOpt.isDefined) outputFileOpt.get.close
+    }
   }
 
   def testTheDatastes() = {
@@ -1049,8 +1104,10 @@ object ExperimentsApp {
         //     evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterWhatDoesItDo, textILPSolver)
         //     println("filterWhatDoesItDo: ")
         //
-        evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
-        evaluateTextSolverOnProcessBank(processReader.testInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
+        //evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
+        //evaluateTextSolverOnProcessBank(processReader.testInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
+
+        evaluateTextSolverOnProcessBankWithDifferentReasonings(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
 
       // println("no-temporals/no true or false: ")
       //
