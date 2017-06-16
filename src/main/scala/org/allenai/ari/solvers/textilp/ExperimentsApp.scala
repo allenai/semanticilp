@@ -388,25 +388,25 @@ object ExperimentsApp {
     }.
       zipWithIndex.map {
         case ((q, p), idx) =>
-          println("==================================================")
+          //println("==================================================")
           //        println("Processed " + idx + " out of " + qAndpPairs.size)
           //println("Paragraph: " + p)
           val candidates = q.answers.map(_.answerText)
           val correctIndex = q.correctIdxOpt.get
-          println("question: " + q.questionText)
-          println("candidates: " + candidates)
+          //println("question: " + q.questionText)
+          //println("candidates: " + candidates)
           //          println("length of allCandidatesMinusCorrectOnes: " + allCandidatesMinusCorrectOnes.size)
           //          println("candidates.length: " + candidates.length)
           val (selected, explanation) = textSolver.solve(q.questionText, candidates, p.context)
           val correctLabel = q.answers(correctIndex).answerText
           val score = SolverUtils.assignCredit(selected, correctIndex, candidates.length)
-          println("correctIndex: " + correctIndex)
-          if(outputFileOpt.isDefined) outputFileOpt.get.write(q.questionText + "\t" + score + "\t" + selected + "\n")
-          println("selected: " + selected + " score: " + score + " explanation: " + explanation)
-          if (score < 0.5 && selected.nonEmpty) println(" >>>>>>> Selected and Incorrect :" + score + s"  ${q.questionText}")
-          if (score < 0.5) println(" >>>>>>> Incorrect :" + score)
-          if (score > 0.5) println(" >>>>>>> correct :" + score)
-          println(s"Processed $idx out of ${qAndpPairs.length}")
+          //println("correctIndex: " + correctIndex)
+          //if(outputFileOpt.isDefined) outputFileOpt.get.write(q.questionText + "\t" + score + "\t" + selected + "\n")
+          //println("selected: " + selected + " score: " + score + " explanation: " + explanation)
+//          if (score < 0.5 && selected.nonEmpty) println(" >>>>>>> Selected and Incorrect :" + score + s"  ${q.questionText}")
+//          if (score < 0.5) println(" >>>>>>> Incorrect :" + score)
+//          if (score > 0.5) println(" >>>>>>> correct :" + score)
+//          println(s"Processed $idx out of ${qAndpPairs.length}")
           (score, explanation.statistics, if (selected.nonEmpty) 1.0 else 0.0) // -> (explanation.confidence -> correctLabel)
       }.unzip3
 
