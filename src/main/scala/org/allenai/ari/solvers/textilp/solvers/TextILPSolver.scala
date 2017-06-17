@@ -300,8 +300,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
   }
 
   def solveWithReasoningType(question: String, options: Seq[String], snippet: String, reasoningType: ReasoningType): (Seq[Int], EntityRelationResult) = {
-    val (q: Question, p: Paragraph) = preprocessQuestionData(question, options, snippet)
-
+    val (q: Question, p1: Paragraph) = preprocessQuestionData(question, options, snippet)
+    val p = SolverUtils.ParagraphSummarization.getSubparagraph(p1, q)
     reasoningType match {
       case SRLV1Rule => SRLSolverV1WithAllViews(q, p)
       case SRLV2Rule => SRLSolverV1WithAllViews(q, p)

@@ -439,11 +439,11 @@ object ExperimentsApp {
       } else {
         None
       }
-      val (resultLists, stats, nonEmptyList) = qAndpPairs.map {
+      val (resultLists, stats, nonEmptyList) = qAndpPairs./*map {
         case (q, p) =>
           (q, SolverUtils.ParagraphSummarization.getSubparagraph(p, q))
             //(q, p)
-      }.zipWithIndex.map {
+      }.*/zipWithIndex.map {
         case ((q, p), idx) =>
           //println("==================================================")
           println("Processed " + idx + " out of " + qAndpPairs.size)
