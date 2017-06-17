@@ -375,7 +375,7 @@ object ExperimentsApp {
     import java.io._
     // use false if you don't it to write things on disk
     val outputFileOpt = if(true) {
-      Some(new PrintWriter(new File("verb-prep-new.tsv")))
+      Some(new PrintWriter(new File("output.tsv")))
     } else {
       None
     }
@@ -427,8 +427,8 @@ object ExperimentsApp {
   def evaluateTextSolverOnProcessBankWithDifferentReasonings(list: List[Paragraph], textILPSolver: TextILPSolver) = {
     import java.io._
 
-    //val types = Seq(WhatDoesItDoRule, CauseRule, SRLV1Rule, VerbSRLandPrepSRL, SRLV1ILP, SimpleMatchingWithCoref, SimpleMatching)
-    val types = Seq(SimpleMatching)
+    val types = Seq(WhatDoesItDoRule, CauseRule, SRLV1Rule, VerbSRLandPrepSRL, SRLV1ILP, SimpleMatchingWithCoref, SimpleMatching)
+    //val types = Seq(SimpleMatching)
 
     val qAndpPairs = list.flatMap { p => p.questions.map(q => (q, p)) }
     types.foreach { t =>
@@ -439,7 +439,11 @@ object ExperimentsApp {
       } else {
         None
       }
-      val (resultLists, stats, nonEmptyList) = qAndpPairs.zipWithIndex.map {
+      val (resultLists, stats, nonEmptyList) = qAndpPairs.map {
+        case (q, p) =>
+          (q, SolverUtils.ParagraphSummarization.getSubparagraph(p, q))
+            //(q, p)
+      }.zipWithIndex.map {
         case ((q, p), idx) =>
           //println("==================================================")
           println("Processed " + idx + " out of " + qAndpPairs.size)

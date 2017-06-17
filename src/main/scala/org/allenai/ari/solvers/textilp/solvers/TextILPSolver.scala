@@ -842,7 +842,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
 
     //val p = p1 //if(useSummary) SolverUtils.ParagraphSummarization.getSubparagraph(p1, q, Some(annotationUtils)) else p1
 
-    val p = SolverUtils.ParagraphSummarization.getSubparagraph(p1, q, Some(annotationUtils))
+    //val p = SolverUtils.ParagraphSummarization.getSubparagraph(p1, q, Some(annotationUtils))
+    val p = p1
 
     val modelCreationStart = System.currentTimeMillis()
 
