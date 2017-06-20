@@ -259,12 +259,15 @@ object ExperimentsApp {
     val start = System.currentTimeMillis()
     SolverUtils.printMemoryDetails()
     //    println("Starting the evaluation . . . ")
-    val (perQuestionScore, perQuestionResults, otherTimes) = dataset.map {
-      case (question, options, correct) =>
-        //      println("collecting knolwdge . . . ")
+    val max = dataset.length
+    val (perQuestionScore, perQuestionResults, otherTimes) = dataset.zipWithIndex.map {
+      case ((question, options, correct), idx) =>
+        println(s"Porcessing ${idx} out of ${max}")
+        //      println("collecting knowledge . . . ")
         //      val knowledgeSnippet = options.flatMap(focus => SolverUtils.extractParagraphGivenQuestionAndFocusWord(question, focus, 3)).mkString(" ")
         //      val knowledgeSnippet = options.flatMap(focus => SolverUtils.extractParagraphGivenQuestionAndFocusWord2(question, focus, 3)).mkString(" ")
         val knowledgeStart = System.currentTimeMillis()
+        //val knowledgeSnippet = SolverUtils.extractPatagraphGivenQuestionAndFocusSet3(question, options, knowledgeLength).mkString(" ")
         val knowledgeSnippet = if (textSolver.isInstanceOf[TextILPSolver]) {
           SolverUtils.extractPatagraphGivenQuestionAndFocusSet3(question, options, knowledgeLength).mkString(" ")
         } else {
@@ -274,6 +277,7 @@ object ExperimentsApp {
         //println("solving it . . . ")
         val (selected, results) = if (knowledgeSnippet.trim.nonEmpty) {
           textSolver.solve(question, options, knowledgeSnippet)
+          //options.indices -> EntityRelationResult()
         } else {
           println("Error: knowledge not found .  .  .")
           // choose all of them
@@ -307,8 +311,9 @@ object ExperimentsApp {
   }
 
   def cacheTheKnowledgeOnDisk(dataset: Seq[(String, Seq[String], String)]): Unit = {
-    dataset.foreach {
-      case (question, options, correct) =>
+    dataset.zipWithIndex.foreach {
+      case ((question, options, correct), idx) =>
+        println(s"done with ${idx} out of ${dataset.length}. ")
         options.foreach { f => SolverUtils.staticCacheLucene(question, f, 200) }
     }
   }
@@ -654,18 +659,19 @@ object ExperimentsApp {
         evaluateTextSolverOnRegents(SolverUtils.publicTrain, salienceSolver)
         evaluateTextSolverOnRegents(SolverUtils.publicTest, salienceSolver)
       case 11 =>
+        println("Starting 11: ")
         evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver)
         println("==== regents train  ")
         evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver)
         println("==== regents test  ")
       // evaluateTextSolverOnRegents(SolverUtils.regentsPerturbed, textILPSolver)
       //        println("==== regents perturbed  ")
-      //                evaluateTextSolverOnRegents(SolverUtils.publicTrain, textILPSolver)
-      //        println("==== public train ")
+        evaluateTextSolverOnRegents(SolverUtils.publicTrain, textILPSolver)
+        println("==== public train ")
       //        evaluateTextSolverOnRegents(SolverUtils.publicDev, textILPSolver)
       //        println("==== public dev ")
-      //evaluateTextSolverOnRegents(SolverUtils.publicTest, textILPSolver)
-      //println("==== public test ")
+        evaluateTextSolverOnRegents(SolverUtils.publicTest, textILPSolver)
+        println("==== public test ")
       //evaluateTextSolverOnRegents(SolverUtils.omnibusTrain, textILPSolver)
       //println("==== omnibus train ")
       //evaluateTextSolverOnRegents(SolverUtils.omnibusTest, textILPSolver)
@@ -1803,20 +1809,20 @@ object ExperimentsApp {
         println("Distinct constituents.size: " + pTA.getView("SRL_VERB_PATH_LSTM").getConstituents.asScala.distinct.size)
 
       case 77 =>
-        //        cacheTheKnowledgeOnDisk(SolverUtils.regentsTrain)
-        //        println("==== regents train  ")
-        //        cacheTheKnowledgeOnDisk(SolverUtils.regentsTest)
-        //        println("==== regents test  ")
-        cacheTheKnowledgeOnDisk(SolverUtils.regentsPerturbed)
-        println("==== regents perturbed  ")
+                cacheTheKnowledgeOnDisk(SolverUtils.regentsTrain)
+                println("==== regents train  ")
+                cacheTheKnowledgeOnDisk(SolverUtils.regentsTest)
+                println("==== regents test  ")
+//        cacheTheKnowledgeOnDisk(SolverUtils.regentsPerturbed)
+//        println("==== regents perturbed  ")
         cacheTheKnowledgeOnDisk(SolverUtils.publicTrain)
-        println("==== public train ")
+        println("==== public train " + SolverUtils.publicTrain.length)
         cacheTheKnowledgeOnDisk(SolverUtils.publicTest)
-        println("==== public test ")
-        cacheTheKnowledgeOnDisk(SolverUtils.omnibusTrain)
-        println("==== omnibus train ")
-        cacheTheKnowledgeOnDisk(SolverUtils.omnibusTest)
-        println("==== omnibus test ")
+        println("==== public test " + SolverUtils.publicTest.length)
+//        cacheTheKnowledgeOnDisk(SolverUtils.omnibusTrain)
+//        println("==== omnibus train ")
+//        cacheTheKnowledgeOnDisk(SolverUtils.omnibusTest)
+//        println("==== omnibus test ")
 
       case 78 =>
         //        evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver, printMistakes = false)

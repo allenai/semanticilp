@@ -255,13 +255,16 @@ object SolverUtils {
   lazy val small = loadQuestions("small.tsv")
 
   def loadQuestions(fileName: String): Seq[(String, Seq[String], String)] = {
-    Source.fromFile(new File("other/questionSets/" + fileName)).getLines().toList.map { line =>
+    println(s"loading questions from ${fileName}")
+    val out = Source.fromFile(new File("other/questionSets/" + fileName)).getLines().toList.map { line =>
       val split = line.split("\t")
       val question = split(0)
       val answer = split(1)
       val questionSplit = question.split("\\([A-Z]\\)")
       (questionSplit.head, questionSplit.tail.toSeq, answer)
     }
+    println("done reading the questions . . . ")
+    out
   }
 
   def assignCredit(predict: Seq[Int], gold: Int, maxOpts: Int): Double = {
@@ -387,17 +390,14 @@ object SolverUtils {
 
     def callLuceneServer: Seq[(String, Double)] = {
       //println("extracting the knowledge from remote server. . . ")
-      // danielk: commenting for now, since I wanna save some time
-      /*
-      val results = extract(question, focus, searchHitSize)
+/*      val results = extract(question, focus, searchHitSize)
       val cacheValue = JsArray(results.map { case (key, value) => JsArray(Seq(JsString(key), JsNumber(value))) })
 
       import java.io._
       val pw = new PrintWriter(f)
       pw.write(cacheValue.toString())
       pw.close()
-      results
-      */
+      results*/
       Seq.empty
     }
 

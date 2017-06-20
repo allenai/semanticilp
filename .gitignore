@@ -84,7 +84,6 @@ externalAnnotations.cache
 fillInBlankGenerator.cache
 meteor5resources/
 myresources/
-other/elasticStaticCache/
 other/evaluatev11.pyc
 other/squadTrain_wikifier.txt
 processBank-train.tsv
