@@ -368,8 +368,8 @@ class AnnotationUtils() {
     val constant = "||||"
     val qToks = blankQuestionTA.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala
     val ansToks = answerOptionTA.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala
-    println("qToks: " + qToks)
-    println("ansToks: " + ansToks)
+    //println("qToks: " + qToks)
+    //println("ansToks: " + ansToks)
     val blankIdxOpt = qToks.zipWithIndex.find(_._1.getSurfaceForm.trim == "BLANK_").map(_._2)
     if (blankIdxOpt.isDefined) {
       val blankIdx = blankIdxOpt.get

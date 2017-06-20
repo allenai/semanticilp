@@ -117,9 +117,7 @@ object TextILPSolver {
   lazy val offlineAligner = new AlignmentFunction("Entailment", 0.2,
     TextILPSolver.keywordTokenizer, useRedisCache = false, useContextInRedisCache = false)
 
-
   val sahandClient = new SahandClient("http://smeagol.cs.illinois.edu:8080/")
-
 
   val toBeVerbs = Set("am", "is", "are", "was", "were", "being", "been", "be", "were", "be")
 }
@@ -225,7 +223,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       SRLSolverV3(q, p, alignmentFunction, TextILPSolver.curatorSRLViewName)
     }
     catch {
-      case e: Exception => e.printStackTrace()
+      case e: Exception =>
+        e.printStackTrace()
         SRLSolverV3(q, p, alignmentFunction, TextILPSolver.pathLSTMViewName)
     }
 
@@ -298,9 +297,10 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
   }
 
   def solveWithReasoningType(question: String, options: Seq[String], snippet: String, reasoningType: ReasoningType): (Seq[Int], EntityRelationResult) = {
-    val (q1: Question, p1: Paragraph) = preprocessQuestionData(question, options, snippet)
-    val subSnippet = SolverUtils.ParagraphSummarization.getSubparagraphString(p1, q1)
-    val (q: Question, p: Paragraph) = preprocessQuestionData(question, options, subSnippet)
+    //val (q1: Question, p1: Paragraph) = preprocessQuestionData(question, options, snippet)
+    //val subSnippet = SolverUtils.ParagraphSummarization.getSubparagraphString(p1, q1)
+    //val (q: Question, p: Paragraph) = preprocessQuestionData(question, options, subSnippet)
+    val (q: Question, p: Paragraph) = preprocessQuestionData(question, options, snippet)
     reasoningType match {
       case SRLV1Rule => SRLSolverV1WithAllViews(q, p)
       case SRLV2Rule => SRLSolverV1WithAllViews(q, p)
@@ -364,7 +364,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
           //annotationUtils.annotateViewLwithRemoteServer(pTA)
           val clientTa = annotationUtils.pipelineServerClient.annotate(snippet)
           annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
-          annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
+          annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text,
+            TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
           Some(clientTa)
         } else {
           val ta = annotationUtils.pipelineService.createBasicTextAnnotation("", "", snippet)
