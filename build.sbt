@@ -93,7 +93,7 @@ lazy val root = (project in file(".")).
 //      "org.apache.lucene" % "lucene-core" % "6.4.1",
       "org.scalaz" %% "scalaz-core" % "7.2.8",
       "com.github.mpkorstanje" % "simmetrics-core" % "4.1.1",
-      "github.sahand" % "sahand-client_2.11" % "1.2.1",
+      "github.sahand" % "sahand-client_2.11" % "1.2.2",
 //      "com.quantifind" %% "wisp" % "0.0.4",
       "io.github.pityka" %% "nspl-awt" % "0.0.7"//,
 //      "io.github.pityka" %% "nspl-scalatags-js" % "0.0.7"
