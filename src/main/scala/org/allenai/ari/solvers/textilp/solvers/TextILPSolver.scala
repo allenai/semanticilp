@@ -278,20 +278,18 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       createILPModel(q, p, ilpSolver, aligner, Set(SRLV1ILP), useSummary = true)
     }
 
-    //resultILP
-    //resultVerbSRLPlusCoref
-//    resultVerbSRLPlusCommaSRL
-//    srlV1ILP
-
-    //srlV1ILPWithSummary
-
-    //srlV1ILP
-    //resultILP
-    //resultVerbSRLPlusPrepSRL
-//    srlV1ILP
-//    resultSRLV2
-//    resultCause
-      //resultILP
+    // resultILP
+    // resultVerbSRLPlusCoref
+    // resultVerbSRLPlusCommaSRL
+    // srlV1ILP
+    // srlV1ILPWithSummary
+    // srlV1ILP
+    // resultILP
+    // resultVerbSRLPlusPrepSRL
+    // srlV1ILP
+    // resultSRLV2
+    // resultCause
+    // resultILP
 
     // CommaSRL+VerbSRL	SRLV2 	SimpleMatching	Coref+VerbSRL	SRLV1ILP	VerbSRL+PrepSRL	SRLV1 	Cause 	What does it do
     val resultOpt = Seq(resultWhatDoesItdo, resultCause, resultSRLV1, resultVerbSRLPlusPrepSRL, srlV1ILP,

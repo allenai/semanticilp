@@ -427,8 +427,9 @@ object ExperimentsApp {
   def evaluateTextSolverOnProcessBankWithDifferentReasonings(list: List[Paragraph], textILPSolver: TextILPSolver) = {
     import java.io._
 
-    val types = Seq(WhatDoesItDoRule, CauseRule, SRLV1Rule, VerbSRLandPrepSRL, SRLV1ILP, SimpleMatchingWithCoref, SimpleMatching)
-    //val types = Seq(SimpleMatching)
+    // resultWhatDoesItdo, resultCause, resultSRLV1, resultVerbSRLPlusPrepSRL, srlV1ILP,
+    //val types = Seq(WhatDoesItDoRule, CauseRule, SRLV1Rule, VerbSRLandPrepSRL, SRLV1ILP, VerbSRLandCoref, SimpleMatching)
+    val types = Seq(VerbSRLandCoref)
 
     val qAndpPairs = list.flatMap { p => p.questions.map(q => (q, p)) }
     types.foreach { t =>
