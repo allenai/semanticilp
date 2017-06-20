@@ -1,0 +1,1 @@
+[["Special emphasis will be given to C/SiC design flexibility, material properties tunability, and the broad range of applicability, from ultra-lightweight mirrors to optical benches, rocket nozzles, engine parts, and a range of other industrial uses.",1.29599928855896],["This mirror material is a flexible plastic with an aluminized sandwich construction.",1.2765064239501953]]

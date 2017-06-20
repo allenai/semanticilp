@@ -1,0 +1,1 @@
+[["2 Students take the necessary measurements but are a little careless in their measurements of the volume of the water.",2.987022876739502],["Within minutes the ship took on a large volume of water.",2.4337923526763916],["Pour the water into a measuring cup, and record the volume of water it took to break through the leaf on the data collection chart.",2.2653956413269043]]

@@ -1,0 +1,1 @@
+[["BEARING The point of the compass on which any object appears.",1.8432337045669556],["Reciprocal Motion Bearings Reciprocal motion bearings provide a bearing surface on which an object slides back and forth.",1.673475742340088]]

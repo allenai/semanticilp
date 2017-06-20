@@ -1,0 +1,1 @@
+[["Whenever the weather changes I need to adjust the seismometer.",1.5577943325042725],["The television between the seismometer displays can be used to play the Weather Channel.",1.259547472000122]]

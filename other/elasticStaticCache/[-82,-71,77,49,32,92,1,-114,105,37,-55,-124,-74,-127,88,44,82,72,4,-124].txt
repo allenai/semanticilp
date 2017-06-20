@@ -1,0 +1,1 @@
+[["Acceleration is very evident and engine troubles can be heard when hit by an incoming rocket.",1.24635648727417],["He heard the sound of infinite acceleration in his ears.",1.2117743492126465],["Cryptographic acceleration provides a solution to the bottleneck caused when secure keys are used on Web servers.",1.1149516105651855]]

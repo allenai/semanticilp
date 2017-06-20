@@ -1,0 +1,1 @@
+[["An opener with a magnet to hold the lid while removing the opened can is preferable.",1.3474799394607544],["For example if the helium level goes below a certain point the magnet will be automatically turned off.",1.1327388286590576],["Lifting the cover, held in place by magnets, automatically powers up the Reader, while replacing the cover turns it off.",1.0958670377731323]]

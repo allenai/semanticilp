@@ -1,0 +1,1 @@
+[["The class was playing Duck, Duck, Goose.",2.3535103797912598],["The class was playing Duck, Duck, Goose.",2.3535103797912598],["eric_sleator : play duck duck goose with it.",2.3535103797912598]]

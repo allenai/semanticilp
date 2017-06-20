@@ -1,0 +1,1 @@
+[["Heat capacity is measured by injecting heat into the sample and measuring the temperature change using high-resolution thermometers developed at Stanford.",3.1954448223114014]]

@@ -1,0 +1,1 @@
+[["Stop watering if puddles form or runoff occurs.",1.73810875415802]]

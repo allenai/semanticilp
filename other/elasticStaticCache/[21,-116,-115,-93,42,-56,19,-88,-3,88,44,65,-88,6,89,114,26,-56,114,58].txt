@@ -1,0 +1,1 @@
+[["Students (in small groups) choose an appropriate spot to insert a thermometer(s) in the earth.",0.7804427146911621],["Use a thermometer to locate the best spot.",0.7406260371208191]]

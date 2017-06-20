@@ -1,0 +1,1 @@
+[["Hydrosphere The hydrosphere contains all the solid, liquid, and gaseous water of the planet.",1.3415082693099976],["The hydrosphere contains dissolved and suspended solids, dissolved gases and life forms.",1.1871871948242188]]

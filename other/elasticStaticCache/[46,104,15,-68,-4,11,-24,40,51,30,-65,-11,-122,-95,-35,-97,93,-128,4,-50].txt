@@ -1,0 +1,1 @@
+[["What are deltas , and why are they called that?",1.1558663845062256],["Compared to the in-the-money \ncall, the low delta on an out-of-the-money requires a large upward move in the stock for the call option to increase in value.",1.150033712387085]]

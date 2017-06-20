@@ -1,0 +1,1 @@
+[["Introduction It is the ability to organise an information system in terms of hierarchies, of classes consisting of objects that can inherit properties from (more than one) parent classes, that is the distinguishing characteristic of object-oriented programming.",1.6581923961639404]]

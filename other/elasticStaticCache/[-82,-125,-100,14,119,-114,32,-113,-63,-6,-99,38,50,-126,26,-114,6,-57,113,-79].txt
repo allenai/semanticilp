@@ -1,0 +1,1 @@
+[["Win32 programmers have a rougher go at it, because the Win32 process model differs greatly from UNIX.",2.192962408065796]]

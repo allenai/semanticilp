@@ -1,0 +1,1 @@
+[["The energy put into a system (battery, generator, etc.) goes to electrical devices (toasters, electric toothbrushes, radios, etc.) and is transformed into other forms (heat in a toaster, mechanical motion in a toothbrush, sound in a radio, etc.).",2.7917962074279785],["Can a toaster convert electrical energy into sound energy Certainly.",2.4316964149475098]]

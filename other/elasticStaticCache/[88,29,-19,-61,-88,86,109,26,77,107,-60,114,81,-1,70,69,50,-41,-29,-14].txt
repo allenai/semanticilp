@@ -1,0 +1,1 @@
+[["pollution migration through soil and rocks.",1.1480060815811157],["iii) passive [Prete90, Prete95, Prete97a] or process migration [Agarwal88] sharing, which occurs when a memory block, though belonging to a private area of a process, is replicated in more than one cache as a consequence of owner process migration.",1.084552526473999]]

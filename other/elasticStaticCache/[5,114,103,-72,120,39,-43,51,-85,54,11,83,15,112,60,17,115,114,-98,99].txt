@@ -1,0 +1,1 @@
+[["To cool hot liquids faster, use shallow pans.",0.671664834022522],["Is it true that cold water in a pan will boil faster than hot water in a pan?",0.5197818875312805],["Is it true that cold water in a pan will boil faster than hot water in a pan?",0.5197818875312805]]

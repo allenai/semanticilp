@@ -1,0 +1,1 @@
+[["As an example, he took an iron cube, measured its sides to be 3.19 cm , so that its volume is V = [3.19 cm] 3 = 32.5 cm 3 .",1.082590937614441]]

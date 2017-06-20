@@ -1,0 +1,1 @@
+[["he type of paper, including make and thickness, etc.;",0.7275134921073914],["T he thickness of the paper also makes an impression.",0.7275134921073914],["When working with different paper thicknesses and textures, it is important to select the proper adhesive.",0.7136166095733643]]

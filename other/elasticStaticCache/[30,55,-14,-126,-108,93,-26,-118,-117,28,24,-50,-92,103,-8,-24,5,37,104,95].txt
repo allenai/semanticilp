@@ -1,0 +1,1 @@
+[["Rulers don't measure temperature.",1.3546429872512817]]

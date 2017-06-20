@@ -1,0 +1,1 @@
+[["Electricity An electric guitar makes sounds when electricity runs through it.",2.3520660400390625],["In this case, sound is produced by electricity, for example a synthesizer or electric guitar .",1.7080661058425903]]

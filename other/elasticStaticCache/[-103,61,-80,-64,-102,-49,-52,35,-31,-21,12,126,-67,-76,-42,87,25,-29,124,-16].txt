@@ -1,0 +1,1 @@
+[["Relative positioning mechanism between Embouchure hole and Mouth (3-DOF) Lips made by elastic body (3-DOF) Lung (same volume as a human adult) Fingers (which can trill) Vibrating mechanism Tonguing mechanism This robot can perform by communicating with the sequencer to output MIDI data and the computer to control the robot.",1.3749144077301025]]

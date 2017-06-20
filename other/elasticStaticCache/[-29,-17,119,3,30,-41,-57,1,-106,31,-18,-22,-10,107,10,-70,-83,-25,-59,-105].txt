@@ -1,0 +1,1 @@
+[["Most autosomal inheritance is much like the information reviewed on the Genetics page and is ruled by simple dominant and recessive characteristics.",0.7773824334144592],["Since it is a recessive characteristic, most usually it is an unwanted one.",0.7639734745025635],["Explain which characteristic is dominant and which is recessive and why.",0.7627838253974915]]

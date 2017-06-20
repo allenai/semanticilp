@@ -1,0 +1,1 @@
+[["Let me illustrate this with a bicycle, because it is easier with a nonliving system.",2.2222177982330322],["Input: Which secondary objects are used in the compound object `Bicycle' ?",2.146238327026367]]

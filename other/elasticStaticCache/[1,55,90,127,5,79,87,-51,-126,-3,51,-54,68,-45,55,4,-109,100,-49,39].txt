@@ -1,0 +1,1 @@
+[["Process in which ions or solute are maintained in solution or their separation is impeded, or in which the gathering together of suspended solids (including colloids) is impeded.",1.165731430053711],["The region labeled \"formula_3\" is a solid solution, with formula_2 acting as the solute in a matrix of formula_1.",0.9438173770904541]]

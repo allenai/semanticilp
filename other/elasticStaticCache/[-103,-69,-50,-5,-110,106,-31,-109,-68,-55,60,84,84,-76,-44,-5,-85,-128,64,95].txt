@@ -1,0 +1,1 @@
+[["From my experience, surface temperatures in the 55 to 60 F (12.7 to 15.5 C) range generally signal it has started.",1.1668325662612915],["A short exposure of this label to temperatures above 45 F would be signaled by this label.",1.0158406496047974]]

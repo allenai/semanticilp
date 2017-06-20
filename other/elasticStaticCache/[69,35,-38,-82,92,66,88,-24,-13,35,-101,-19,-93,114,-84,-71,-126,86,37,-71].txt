@@ -1,0 +1,1 @@
+[["Students determine which coins would be used to make change for the word.",1.683593511581421],["COINS -",1.6761009693145752],["Coining -",1.6761009693145752],["Coin [ ?",1.6761009693145752],["coin, .",1.6761009693145752]]

@@ -1,0 +1,1 @@
+[["The animal uses the nutrients stored in the tail.",0.8463843464851379],["If this were the case the animal would be able to absorb water through its skin which is not physically possible in iguanas.",0.8332300186157227]]

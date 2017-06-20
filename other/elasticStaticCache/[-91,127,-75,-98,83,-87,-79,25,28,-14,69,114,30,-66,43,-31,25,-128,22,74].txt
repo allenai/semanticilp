@@ -1,0 +1,1 @@
+[["High volumes of water are available to most industrial sites.",2.2487971782684326],["Measurement of the water level requires a high degree of accuracy because this measurement reflects the total volume measurement.",2.2212913036346436]]

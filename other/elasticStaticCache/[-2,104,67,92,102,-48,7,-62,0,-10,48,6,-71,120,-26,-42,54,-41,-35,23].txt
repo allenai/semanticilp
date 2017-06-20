@@ -1,0 +1,1 @@
+[["For example, the heron s long legs help it wade in shallow water while searching for food, or the duck s webbed feet help it swim.",2.768237352371216],["So the search duck* retrieves the words duck, ducks, ducked, and ducking.",2.5268685817718506],["This will help me with my search on ducks and geese.",2.2449703216552734]]

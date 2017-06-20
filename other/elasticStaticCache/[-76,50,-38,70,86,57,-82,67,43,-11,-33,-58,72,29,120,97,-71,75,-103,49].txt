@@ -1,0 +1,1 @@
+[["For example: Question: Do birds fly?",1.6635977029800415],["For example: Question: Do birds fly?",1.6635977029800415],["For example: Question: Do birds fly?",1.6635977029800415],["Of course, with F42, we face the same question we face each year when we capture an adult bird in winter;",1.2761096954345703]]

@@ -1,0 +1,1 @@
+[["Q4208: The rainwater for a certain day was reported as 20 mm.",0.6312406659126282],["Q4208: The rainwater for a certain day was reported as 20 mm.",0.6312406659126282]]

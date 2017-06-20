@@ -1,0 +1,1 @@
+[["Four water storage tanks collect rainwater and condensation from air conditioning.",0.6011496782302856],["The powder in the pan may become damp from rain or condensation on the steel, which can appear after firing and cooling.",0.5454308986663818]]

@@ -1,0 +1,1 @@
+[["--> Use scales to measure weight in pounds, etc. Measure volume of liquids in pints, quarts, gallons, etc.",1.4505194425582886],["Liquid ounces are a measure of volume, and dry pounds are a measure of mass.",1.4317587614059448]]

@@ -1,0 +1,1 @@
+[["Thatch buildup does not allow the air and sunlight to get through to your grass.",1.6757960319519043],["By getting air it allows you to fully practice on grass.",1.4792840480804443],["There no longer was even any grass, and the air was getting thin.",1.4792840480804443]]

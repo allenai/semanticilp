@@ -1,0 +1,1 @@
+[["If the ball is floating on water alone, the top part of the ball is immersed in air, which has a much smaller density.",0.8604980707168579],["When we discover he has clay feet, we all leave him alone to his own failure.",0.822678804397583]]

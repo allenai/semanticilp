@@ -1,0 +1,1 @@
+[["Conserve energy in your home to reduce energy need from power plants.",1.8007732629776],["Conserve energy in your home to reduce energy needs from power plants.",1.8007732629776],["This energy needs to be transported in some fashion from the plant to our homes and offices.",1.600846290588379]]

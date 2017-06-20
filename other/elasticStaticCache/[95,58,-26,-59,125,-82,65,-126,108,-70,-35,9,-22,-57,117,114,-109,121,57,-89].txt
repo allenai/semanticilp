@@ -1,0 +1,1 @@
+[["Hector-class ship of the line",1.6196469068527222],["Hector-class ironclad",1.6196469068527222],["the rest of the class will count the number of swings.",1.3053786754608154]]
