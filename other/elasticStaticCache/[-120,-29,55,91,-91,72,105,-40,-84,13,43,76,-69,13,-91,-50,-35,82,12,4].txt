@@ -1,0 +1,1 @@
+[["yard is  imperial",0.6719980835914612],["A mile is  equal to 1,760 yards or 5,280 feet",0.40319889783859253],["A rod is  equal to 1 pole, a perch, ¼ chain, 5½ yards, 16½ feet, or exactly 5.0292 meters",0.2687992751598358]]
