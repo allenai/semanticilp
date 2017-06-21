@@ -1,0 +1,1 @@
+[["metal is usually found in nature as liquid, solid",0.2860668897628784],["A cherry has a core inside",0.1993647962808609],["magnesium metal reacts  with water effect magnesium metal form a hydroxide Good Good Good  3 0 0 1",0.1622241884469986]]
