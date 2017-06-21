@@ -1,0 +1,1 @@
+[["A hurricane has winds of 75 miles per hour",0.6822658777236938],["hurricanes have (  high winds  very ) & over 74 miles per hour & rain Hurricanes have very high winds over 74 miles per hour and rain",0.48243486881256104]]
