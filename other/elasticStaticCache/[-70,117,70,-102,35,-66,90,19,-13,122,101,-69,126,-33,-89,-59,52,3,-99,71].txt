@@ -1,0 +1,1 @@
+[["lizard animal n lizard_n1 lizard%1:05:00:: 101595649 relatively long-bodied reptile with usually two pairs of legs and a tapering tail",0.565077543258667],["reptile animal n reptile_n1 reptile%1:05:00:: 101582405 any cold-blooded vertebrate of the class Reptilia including tortoises turtles snakes lizards alligators crocodiles and extinct forms",0.3632274568080902]]

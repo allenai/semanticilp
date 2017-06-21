@@ -1,0 +1,1 @@
+[["The abstract description that plants depend on other plants is exemplified by the fact that shade-loving plants such as leafy greens and squash depend on taller vegetables such as corn to provide shade",0.1664847433567047],["eating green vegetables is good for health  WikiAnswers: Query=\"eating $Food\" (hand labelled) Chris Clark 4/21/2015",0.09547967463731766]]

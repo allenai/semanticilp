@@ -1,0 +1,1 @@
+[["cat animal n cat_n1 cat%1:05:00:: 102037721 feline mammal usually having thick soft fur and being unable to roar;",0.2964337468147278],["gerbil animal n gerbil_n1 gerbil%1:05:00:: 102257833 small Old World burrowing desert rodent with long soft pale fur and hind legs adapted for leaping",0.2540860176086426]]

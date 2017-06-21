@@ -1,0 +1,1 @@
+[["A cheek is  soft",0.18990391492843628],["A scar is  permanent",0.17875656485557556],["A right is  right",0.16817480325698853]]

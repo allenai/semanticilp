@@ -1,0 +1,1 @@
+[["One type of  weather is  rainy , such as, when rain is falling , we say the weather is rainy rainy",0.29319095611572266],["rainy quality adj rainy_s1 rainy%5:00:00:wet:01 302460795 (of weather) wet by periods of rain;",0.1480637639760971]]
