@@ -1,0 +1,1 @@
+[["thermometer tool n thermometer_n1 thermometer%1:06:00:: 104250792 measuring instrument for measuring temperature",0.2929929196834564]]

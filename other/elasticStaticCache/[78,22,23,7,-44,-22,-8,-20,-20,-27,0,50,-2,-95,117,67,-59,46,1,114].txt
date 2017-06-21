@@ -1,0 +1,1 @@
+[["A white rabbit in a muddy riverbank has high visibility which keeps it unprotected",1.8895056247711182],["A brown rabbit in a muddy riverbank has low visibility which keeps it protected",1.871551275253296]]

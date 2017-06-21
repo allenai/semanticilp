@@ -1,0 +1,1 @@
+[[",\"punct\":\" \"}},{\"word\":\"\",\"attributes\":{\"pos\":\"\",\"chunk\":\"\",\"lemma\":\"\",\"punct\":\"\"}}],\"corpus\":\"WebSentences\",\"fragment\":\"Have students use a thermometer to measure the temperature in a bucket of ice cold water .",0.11598703265190125]]

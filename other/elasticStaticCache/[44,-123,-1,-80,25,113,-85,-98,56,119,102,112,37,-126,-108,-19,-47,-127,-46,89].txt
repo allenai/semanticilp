@@ -1,0 +1,1 @@
+[["paper obj n paper_n1 paper%1:27:00:: 114123366 a material made of cellulose pulp derived mainly from wood or rags or certain grasses",0.7789759039878845],["pyramid shape v pyramid_v1 pyramid%2:40:00:: 202224725 enlarge one's holdings on an exchange on a continued rise by using paper profits as margin to buy additional amounts",0.16720914840698242]]

@@ -1,0 +1,1 @@
+[["the water evaporates effect the water leave Good Good NIL  2 0 0 1",0.27700838446617126],["mineral deposits in the water cause spots condition mineral deposits in the water leave the pans bad Good Good  2 1 0 0.67",0.24238234758377075],["water reacts  with minerals in soap cause it[soap] leave an insoluble film bad Good Good  2 1 0 0.67",0.22999852895736694]]

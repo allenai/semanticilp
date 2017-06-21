@@ -1,0 +1,1 @@
+[["the dog barked all night",0.63740473985672]]

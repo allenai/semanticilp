@@ -1,0 +1,1 @@
+[["static electricity attract objects cause an example of non-contact force Good Good unsure  2 0 1 0.67",0.8203259706497192],[",\"punct\":\" \"}},{\"word\":\"\",\"attributes\":{\"pos\":\"\",\"chunk\":\"\",\"lemma\":\"\",\"punct\":\"\"}}],\"corpus\":\"WaterlooFiltered-4\",\"fragment\":\"The earth is a good conductor of electricity .",0.2161635458469391]]

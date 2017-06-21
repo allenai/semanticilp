@@ -1,0 +1,1 @@
+[["rock mater n stone_n1 rock%1:17:01:: 108824564 a lump or mass of hard consolidated mineral matter;",0.4191517233848572],["marble obj n marble_n1 marble%1:27:00:: 114098163 a hard crystalline metamorphic rock that takes a high polish;",0.14042024314403534]]

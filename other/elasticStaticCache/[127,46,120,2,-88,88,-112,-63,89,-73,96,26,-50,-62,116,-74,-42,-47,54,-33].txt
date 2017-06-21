@@ -1,0 +1,1 @@
+[["the human body heats up  with exertion condition humans sweat Good unsure Good  2 0 1 0.67",0.18759112060070038],[",\"punct\":\" \"}},{\"word\":\"\",\"attributes\":{\"pos\":\"\",\"chunk\":\"\",\"lemma\":\"\",\"punct\":\"\"}}],\"corpus\":\"WaterlooFiltered-2\",\"fragment\":\"Human sweat has salt in it , and salt water is a good conductor of electricity .",0.14493200182914734]]

@@ -1,0 +1,1 @@
+[["some chemical reactions occur condition the cake bakes Good Good bad  2 1 0 0.67",1.3878670930862427],["baking a cake cause chemical changes Good Good bad  2 1 0 0.67",0.80974280834198],["When something is baked it undergoes a chemical change  http://chemistry.about.com/od/matter/a/10-Chemical-Change-Examples.htm Isaac Cowhey 8/5/2015",0.3048091232776642]]

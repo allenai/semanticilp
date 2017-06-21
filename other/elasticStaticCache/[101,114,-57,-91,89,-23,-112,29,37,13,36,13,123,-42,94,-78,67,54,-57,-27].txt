@@ -1,0 +1,1 @@
+[["The abstract description that prediction is that a student predicted that mixing two clear liquids would produce a green liquid",0.2660386562347412],["predict act v predict_v1 predict%2:32:00:: 200887706 make a prediction about;",0.1459127515554428]]

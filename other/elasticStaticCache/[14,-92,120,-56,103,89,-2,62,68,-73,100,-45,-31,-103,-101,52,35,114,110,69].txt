@@ -1,0 +1,1 @@
+[["height hyponym some traits & ( some traits inherit  ) Some traits that can be inherited are color of hair color of skin color of eyes and height",0.15856674313545227],["height hyponym some traits & ( some traits inherit  ) Some traits that can be inherited are color of hair color of skin color of eyes and height",0.15856674313545227]]

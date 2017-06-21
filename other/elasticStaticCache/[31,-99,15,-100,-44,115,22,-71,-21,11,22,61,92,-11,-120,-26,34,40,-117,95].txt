@@ -1,0 +1,1 @@
+[["a solid object apply force even condition a solid object maintain its[concept] shape Good Good Good  3 0 0 1",0.20614293217658997],["the shadow depends  only on the edge cause objects of different shapes produce identical shadow shapes also bad Good Good  2 1 0 0.67",0.18487446010112762]]

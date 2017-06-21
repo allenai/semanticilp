@@ -1,0 +1,1 @@
+[["cat animal n cat_n1 cat%1:05:00:: 102037721 feline mammal usually having thick soft fur and being unable to roar;",0.1690751314163208]]

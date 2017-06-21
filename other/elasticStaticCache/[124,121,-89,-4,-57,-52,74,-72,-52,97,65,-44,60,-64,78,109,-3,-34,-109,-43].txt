@@ -1,0 +1,1 @@
+[["cantaloupe food n cantaloup_n1 cantaloupe%1:20:00:: 111416909 a variety of muskmelon vine having fruit with a tan rind and orange flesh",0.11601808667182922],["cantaloupe plant n cantaloup_n1 cantaloupe%1:20:00:: 111416909 a variety of muskmelon vine having fruit with a tan rind and orange flesh",0.11601808667182922]]

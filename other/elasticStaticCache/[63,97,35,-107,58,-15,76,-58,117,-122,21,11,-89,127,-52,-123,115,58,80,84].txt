@@ -1,0 +1,1 @@
+[["wood can be found in wood furniture;",0.1562546044588089]]

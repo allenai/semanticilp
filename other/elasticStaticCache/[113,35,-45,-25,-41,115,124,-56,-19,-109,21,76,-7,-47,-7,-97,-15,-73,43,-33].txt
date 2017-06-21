@@ -1,0 +1,1 @@
+[["they needed rugs to cover the bare floors",0.23510481417179108],["rock is usually found in nature as solid",0.16006101667881012]]

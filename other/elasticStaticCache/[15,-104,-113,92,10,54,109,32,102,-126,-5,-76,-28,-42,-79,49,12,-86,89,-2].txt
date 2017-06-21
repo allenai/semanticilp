@@ -1,0 +1,1 @@
+[["indoor mold cause more health problems than outdoor mold Good unsure Good  2 0 1 0.67",0.2881821393966675],["the closed confined space cause indoor mold cause more health problems than outdoor mold Good Good unsure  2 0 1 0.67",0.25215938687324524],["a better type of car;",0.19608981907367706]]
