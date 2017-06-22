@@ -1,15 +1,15 @@
 package org.allenai.ari.solvers.textilp.utils
 
 import java.io.File
-import java.net.{ InetSocketAddress, URLEncoder }
+import java.net.{InetSocketAddress, URLEncoder}
 import java.util
 
 import edu.illinois.cs.cogcomp.McTest.MCTestBaseline
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
-import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{ Constituent, TextAnnotation }
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, TextAnnotation}
 import org.allenai.ari.solvers.textilp.alignment.KeywordTokenizer
 import org.allenai.ari.solvers.textilp.solvers.TextIlpParams
-import org.allenai.ari.solvers.textilp.{ Entity, EntityRelationResult, Paragraph, Question }
+import org.allenai.ari.solvers.textilp.{Entity, EntityRelationResult, Paragraph, Question}
 import org.allenai.common.cache.JsonQueryCache
 import org.apache.commons.codec.digest.DigestUtils
 import org.elasticsearch.action.search.SearchType
@@ -24,6 +24,7 @@ import redis.clients.jedis.Protocol
 import scala.collection.JavaConverters._
 import spray.json.DefaultJsonProtocol._
 
+import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.io.Source
 
 object SolverUtils {
@@ -135,13 +136,13 @@ object SolverUtils {
 
   lazy val esClient = {
     val settings = Settings.builder()
-      .put("cluster.name", Constants.clusterName)
+      .put("cluster.name", Constants.elasticBeingUsed.clusterName)
       .put("client.transport.sniff", false)
       .put("sniffOnConnectionFault", false)
       .build()
-    val host = Constants.hostIp
-    val address = new InetSocketTransportAddress(new InetSocketAddress(host, 9300))
-    println(s"Created Elastic Search Client in cluster ${Constants.clusterName}")
+    val host = Constants.elasticBeingUsed.hostIp
+    val address = new InetSocketTransportAddress(new InetSocketAddress(host, Constants.elasticBeingUsed.hostPort))
+    println(s"Created Elastic Search Client in cluster ${Constants.elasticBeingUsed.clusterName}")
     val clientBuilder = TransportClient.builder().settings(settings)
     clientBuilder.build().addTransportAddress(address)
   }
@@ -223,7 +224,7 @@ object SolverUtils {
     val questionWords = KeywordTokenizer.Default.stemmedKeywordTokenize(question)
     val focusWords = KeywordTokenizer.Default.stemmedKeywordTokenize(focus)
     val searchStr = s"$question $focus"
-    val response = esClient.prepareSearch(Constants.indexNames.keys.toSeq: _*)
+    val response = esClient.prepareSearch(Constants.elasticBeingUsed.indexName.keys.toSeq: _*)
       // NOTE: DFS_QUERY_THEN_FETCH guarantees that multi-index queries return accurate scoring
       // results, do not modify
       .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
@@ -246,7 +247,7 @@ object SolverUtils {
   lazy val omnibusTrain = loadQuestions("Omnibus-Gr04-NDMC-Train.tsv")
   lazy val omnibusTest = loadQuestions("Omnibus-Gr04-NDMC-Test.tsv")
   lazy val omnibusDev: Seq[(String, Seq[String], String)] = loadQuestions("Omnibus-Gr04-NDMC-Dev.tsv")
-  lazy val publicTrain = loadQuestions("Public-Feb2016-Elementary-NDMC-Train2.tsv")
+  lazy val publicTrain = loadQuestions("Public-Feb2016-Elementary-NDMC-Train.tsv")
   lazy val publicTest = loadQuestions("Public-Feb2016-Elementary-NDMC-Test.tsv")
   lazy val publicDev = loadQuestions("Public-Feb2016-Elementary-NDMC-Dev.tsv")
   lazy val regentsTrain = loadQuestions("Regents-Gr04-NDMC-Train.tsv")
@@ -380,17 +381,35 @@ object SolverUtils {
     }.toSeq.sortBy(-_._2)
   }
 
+  import scala.concurrent.duration._
+  implicit val xc = ExecutionContext.global
+
+  def runWithTimeout[T](timeMins: Long)(f: => T) : Option[T] = {
+    try {
+      Await.result(Future(f), timeMins minute).asInstanceOf[Option[T]]
+    }
+    catch {
+      case e: Exception =>
+        println("Process not done after " + timeMins + " minutes")
+        None
+    }
+  }
+
+  def runWithTimeout[T](timeMins: Long, default: T)(f: => T) : T = {
+    runWithTimeout(timeMins)(f).getOrElse(default)
+  }
+
   /** saves the result of query on disk as text file */
   val staticCache = "other/elasticStaticCache/"
   def staticCacheLucene(question: String, focus: String, searchHitSize: Int): Seq[(String, Double)] = {
-    val stringKey = "elasticWebParagraph:" + question + "-focus:" + focus + "-topK:" + searchHitSize + Constants.indexNames.keySet
+    val stringKey = "elasticWebParagraph:" + question + "-focus:" + focus + "-topK:" + searchHitSize + Constants.elasticBeingUsed.indexName.keySet
     val cacheKey = (util.Arrays.toString(DigestUtils.sha1(stringKey)) + ".txt").replaceAll("\\s", "")
     //println("CacheKey: " + cacheKey)
     val f = new File(staticCache + cacheKey)
 
     def callLuceneServer: Seq[(String, Double)] = {
       //println("extracting the knowledge from remote server. . . ")
-/*      val results = extract(question, focus, searchHitSize)
+      /*val results = extract(question, focus, searchHitSize)
       val cacheValue = JsArray(results.map { case (key, value) => JsArray(Seq(JsString(key), JsNumber(value))) })
 
       import java.io._

@@ -242,39 +242,39 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
   def solve(question: String, options: Seq[String], snippet: String): (Seq[Int], EntityRelationResult) = {
     val (q: Question, p: Paragraph) = preprocessQuestionData(question, options, snippet)
 
-    lazy val resultSRLV1 = SRLSolverV1WithAllViews(q, p)
-    lazy val resultSRLV2 = SRLSolverV2WithAllViews(q, p)
-    lazy val resultSRLV3 = SRLSolverV3WithAllViews(q, p, aligner)
-    lazy val resultMeteor = MeteorSolver(q, p, aligner)
-    lazy val resultWhatDoesItdo = WhatDoesItDoSolver(q, p)
+    lazy val resultSRLV1 = SRLSolverV1WithAllViews(q, p) -> "SRLSolverV1WithAllViews"
+    lazy val resultSRLV2 = SRLSolverV2WithAllViews(q, p) -> "SRLSolverV2WithAllViews"
+    lazy val resultSRLV3 = SRLSolverV3WithAllViews(q, p, aligner) -> "SRLSolverV3WithAllViews"
+    lazy val resultMeteor = MeteorSolver(q, p, aligner) -> "MeteorSolver"
+    lazy val resultWhatDoesItdo = WhatDoesItDoSolver(q, p) -> "WhatDoesItDoSolver"
     // SimilarityMetricSolver(q, p)
-    lazy val resultCause = CauseResultRules(q, p)
+    lazy val resultCause = CauseResultRules(q, p) -> "CauseResultRules"
     //lazy val pSummary = SolverUtils.ParagraphSummarization.getSubparagraph(p, q)
     //    val ilpSolver = new IllinoisInference(new OJalgoHook)
     //    val ilpSolver = new IllinoisInference(new GurobiHook)
     lazy val resultVerbSRLPlusCommaSRL = {
       val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
-      createILPModel(q, p, ilpSolver, aligner, Set(VerbSRLandCommaSRL), useSummary = true)
+      createILPModel(q, p, ilpSolver, aligner, Set(VerbSRLandCommaSRL), useSummary = true) -> "resultVerbSRLPlusCommaSRL"
     }
     lazy val resultILP = {
       val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
-      createILPModel(q, p, ilpSolver, aligner, Set(SimpleMatching), useSummary = true)
+      createILPModel(q, p, ilpSolver, aligner, Set(SimpleMatching), useSummary = true) -> "resultILP"
     }
     lazy val resultVerbSRLPlusCoref = {
       val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
-      createILPModel(q, p, ilpSolver, aligner, Set(VerbSRLandCoref), useSummary = true)
+      createILPModel(q, p, ilpSolver, aligner, Set(VerbSRLandCoref), useSummary = true) -> "resultVerbSRLPlusCoref"
     }
     lazy val resultVerbSRLPlusPrepSRL = {
       val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
-      createILPModel(q, p, ilpSolver, aligner, Set(VerbSRLandPrepSRL), useSummary = true)
+      createILPModel(q, p, ilpSolver, aligner, Set(VerbSRLandPrepSRL), useSummary = true) -> "resultVerbSRLPlusPrepSRL"
     }
     lazy val srlV1ILP = {
       val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
-      createILPModel(q, p, ilpSolver, aligner, Set(SRLV1ILP), useSummary = false)
+      createILPModel(q, p, ilpSolver, aligner, Set(SRLV1ILP), useSummary = false) -> "srlV1ILP"
     }
     lazy val srlV1ILPWithSummary = {
       val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
-      createILPModel(q, p, ilpSolver, aligner, Set(SRLV1ILP), useSummary = true)
+      createILPModel(q, p, ilpSolver, aligner, Set(SRLV1ILP), useSummary = true) -> "srlV1ILPWithSummary"
     }
 
     // resultILP
@@ -292,8 +292,11 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
 
     // CommaSRL+VerbSRL	SRLV2 	SimpleMatching	Coref+VerbSRL	SRLV1ILP	VerbSRL+PrepSRL	SRLV1 	Cause 	What does it do
     val resultOpt = Seq(resultWhatDoesItdo, resultCause, resultSRLV1, resultVerbSRLPlusPrepSRL, srlV1ILP,
-      resultVerbSRLPlusCoref, resultILP, resultSRLV2, resultVerbSRLPlusCommaSRL).find(_._1.nonEmpty)
-    if(resultOpt.isDefined) resultOpt.get else (Seq.empty, EntityRelationResult())
+      resultVerbSRLPlusCoref, resultILP, resultSRLV2, resultVerbSRLPlusCommaSRL).find{ result =>
+      println(" --> Method:  " + result._2)
+      result._1._1.nonEmpty
+    }
+    if(resultOpt.isDefined) resultOpt.get._1 else (Seq.empty, EntityRelationResult())
   }
 
   def solveWithReasoningType(question: String, options: Seq[String], snippet: String, reasoningType: ReasoningType): (Seq[Int], EntityRelationResult) = {
@@ -339,8 +342,10 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
         //annotationUtils.annotateViewLwithRemoteServer(ViewNames.SHALLOW_PARSE, qTA)
         //        annotationUtils.annotateViewLwithRemoteServer(qTA)
         val clientTa = annotationUtils.pipelineServerClient.annotate(question)
-        annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
-        annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
+        SolverUtils.runWithTimeout(5) {
+          annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
+        }
+        //annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
         clientTa.addView(annotationUtils.fillInBlankAnnotator)
         Some(clientTa)
       } else {
@@ -363,9 +368,10 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
           //          annotationUtils.annotateViewLwithRemoteServer(ViewNames.DEPENDENCY_STANFORD, pTA)
           //annotationUtils.annotateViewLwithRemoteServer(pTA)
           val clientTa = annotationUtils.pipelineServerClient.annotate(snippet)
-          annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
-          annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text,
-            TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
+          SolverUtils.runWithTimeout(10) {
+            annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
+          }
+          //annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
           Some(clientTa)
         } else {
           val ta = annotationUtils.pipelineService.createBasicTextAnnotation("", "", snippet)

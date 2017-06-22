@@ -256,35 +256,43 @@ object ExperimentsApp {
 
   def evaluateTextSolverOnRegents(dataset: Seq[(String, Seq[String], String)], textSolver: TextSolver,
     knowledgeLength: Int = 8, printMistakes: Boolean = false) = {
+    import java.io._
+    // use false if you don't it to write things on disk
+    val outputFileOpt = if(true) {
+      Some(new PrintWriter(new File(s"output-$textSolver-length${dataset.length}.tsv")))
+    } else {
+      None
+    }
     val start = System.currentTimeMillis()
     SolverUtils.printMemoryDetails()
     //    println("Starting the evaluation . . . ")
     val max = dataset.length
     val (perQuestionScore, perQuestionResults, otherTimes) = dataset.zipWithIndex.map {
       case ((question, options, correct), idx) =>
-        println(s"Porcessing ${idx} out of ${max}")
+        println(s"Processing ${idx} out of ${max}")
         //      println("collecting knowledge . . . ")
         //      val knowledgeSnippet = options.flatMap(focus => SolverUtils.extractParagraphGivenQuestionAndFocusWord(question, focus, 3)).mkString(" ")
         //      val knowledgeSnippet = options.flatMap(focus => SolverUtils.extractParagraphGivenQuestionAndFocusWord2(question, focus, 3)).mkString(" ")
         val knowledgeStart = System.currentTimeMillis()
         //val knowledgeSnippet = SolverUtils.extractPatagraphGivenQuestionAndFocusSet3(question, options, knowledgeLength).mkString(" ")
         val knowledgeSnippet = if (textSolver.isInstanceOf[TextILPSolver]) {
-          SolverUtils.extractPatagraphGivenQuestionAndFocusSet3(question, options, knowledgeLength).mkString(" ")
+          val rawSentences = SolverUtils.extractPatagraphGivenQuestionAndFocusSet3(question, options, knowledgeLength).mkString(" ")
+          annotationUtils.dropRedundantSentences(rawSentences)
         } else {
           ""
         }
+        println("knowledge: " + knowledgeSnippet)
         val knowledgeEnd = System.currentTimeMillis()
-        //println("solving it . . . ")
-        val (selected, results) = if (knowledgeSnippet.trim.nonEmpty) {
-          textSolver.solve(question, options, knowledgeSnippet)
-          //options.indices -> EntityRelationResult()
-        } else {
+        println("solving it . . . ")
+        val (selected, results) = textSolver.solve(question, options, knowledgeSnippet)
+        if (knowledgeSnippet.trim.isEmpty && textSolver.isInstanceOf[TextILPSolver]) {
           println("Error: knowledge not found .  .  .")
-          // choose all of them
-          options.indices -> EntityRelationResult()
+          //options.indices -> EntityRelationResult()
         }
+
         val solveEnd = System.currentTimeMillis()
         val score = SolverUtils.assignCredit(selected, correct.head - 'A', options.length)
+        if(outputFileOpt.isDefined) outputFileOpt.get.write(question + "\t" + score + "\t" + selected + "\n")
         if (printMistakes && score < 1.0) {
           println("Question: " + question + " / options: " + options + "   / selected: " + selected + " / score: " + score)
         }
@@ -308,6 +316,7 @@ object ExperimentsApp {
     println("Total time (mins): " + (end - start) / 60000.0)
     val avgResults = perQuestionResults.reduceRight[Stats] { case (a: Stats, b: Stats) => a.sumWith(b) }.divideBy(perQuestionResults.length)
     println(avgResults.toString)
+    if(outputFileOpt.isDefined) outputFileOpt.get.close
   }
 
   def cacheTheKnowledgeOnDisk(dataset: Seq[(String, Seq[String], String)]): Unit = {
@@ -406,7 +415,7 @@ object ExperimentsApp {
           val correctLabel = q.answers(correctIndex).answerText
           val score = SolverUtils.assignCredit(selected, correctIndex, candidates.length)
           //println("correctIndex: " + correctIndex)
-          //if(outputFileOpt.isDefined) outputFileOpt.get.write(q.questionText + "\t" + score + "\t" + selected + "\n")
+          if(outputFileOpt.isDefined) outputFileOpt.get.write(q.questionText + "\t" + score + "\t" + selected + "\n")
           //println("selected: " + selected + " score: " + score + " explanation: " + explanation)
 //          if (score < 0.5 && selected.nonEmpty) println(" >>>>>>> Selected and Incorrect :" + score + s"  ${q.questionText}")
 //          if (score < 0.5) println(" >>>>>>> Incorrect :" + score)
@@ -654,24 +663,25 @@ object ExperimentsApp {
       case 8 => testElasticSearchSnippetExtraction()
       case 9 => testTheDatastes()
       case 10 =>
-        evaluateTextSolverOnRegents(SolverUtils.publicTrain, luceneSolver)
-        evaluateTextSolverOnRegents(SolverUtils.publicTest, luceneSolver)
-        evaluateTextSolverOnRegents(SolverUtils.publicTrain, salienceSolver)
-        evaluateTextSolverOnRegents(SolverUtils.publicTest, salienceSolver)
+        //evaluateTextSolverOnRegents(SolverUtils.regentsTrain, luceneSolver)
+        //evaluateTextSolverOnRegents(SolverUtils.publicTrain, luceneSolver)
+        //evaluateTextSolverOnRegents(SolverUtils.publicTest, luceneSolver)
+        //evaluateTextSolverOnRegents(SolverUtils.publicTrain, salienceSolver)
+        //evaluateTextSolverOnRegents(SolverUtils.publicTest, salienceSolver)
       case 11 =>
         println("Starting 11: ")
         evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver)
         println("==== regents train  ")
-        evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver)
-        println("==== regents test  ")
+        //evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver)
+        //println("==== regents test  ")
       // evaluateTextSolverOnRegents(SolverUtils.regentsPerturbed, textILPSolver)
       //        println("==== regents perturbed  ")
         evaluateTextSolverOnRegents(SolverUtils.publicTrain, textILPSolver)
         println("==== public train ")
       //        evaluateTextSolverOnRegents(SolverUtils.publicDev, textILPSolver)
       //        println("==== public dev ")
-        evaluateTextSolverOnRegents(SolverUtils.publicTest, textILPSolver)
-        println("==== public test ")
+        //evaluateTextSolverOnRegents(SolverUtils.publicTest, textILPSolver)
+        //println("==== public test ")
       //evaluateTextSolverOnRegents(SolverUtils.omnibusTrain, textILPSolver)
       //println("==== omnibus train ")
       //evaluateTextSolverOnRegents(SolverUtils.omnibusTest, textILPSolver)

@@ -94,7 +94,7 @@ class AnnotationUtils() {
     val x = new ServerClientAnnotator()
     x.setUrl("http://austen.cs.illinois.edu", "5800")
     x.setViewsAll(viewsToAdd.toArray)
-    x.useCaching("remotePipelineCachingTextilp4.cache")
+    x.useCaching("remotePipelineCachingTextilp6.cache")
     x
   }
 
@@ -102,7 +102,7 @@ class AnnotationUtils() {
     val x = new ServerClientAnnotator()
     x.setUrl("http://sauron.cs.illinois.edu", "8080")
     x.setViewsAll(Array("SRL_VERB_PATH_LSTM", "STANFORD_COREF"))
-    x.useCaching("externalAnnotations.cache")
+    x.useCaching("externalAnnotations4.cache")
     x
   }
 
@@ -403,6 +403,14 @@ class AnnotationUtils() {
     val answerOptionTA = annotationUtils.annotateWithServerGivenViews(answerOption, Array(ViewNames.SHALLOW_PARSE))
     val blankQuestionTA = annotationUtils.annotateWithServerGivenViews(blankQuestion, Array(ViewNames.SHALLOW_PARSE))
     blankQuestionAnswerOptionNormalizer(answerOptionTA.get, blankQuestionTA.get, annotationUtils)
+  }
+
+  def dropRedundantSentences(str: String): String = {
+    val ta = pipelineServerClient.annotate(str)
+    ta.getView(ViewNames.SENTENCE).getConstituents.asScala.map{_.getSurfaceForm}.distinct.
+      map{c => println(c)
+      c
+    }mkString
   }
 
 }
