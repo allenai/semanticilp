@@ -100,7 +100,7 @@ class AnnotationUtils() {
 
   lazy val pipelineExternalAnnotatorsServerClient = {
     val x = new ServerClientAnnotator()
-    x.setUrl("http://sauron.cs.illinois.edu", "8080")
+    x.setUrl("http://bronte.cs.illinois.edu", "5800")
     x.setViewsAll(Array("SRL_VERB_PATH_LSTM", "STANFORD_COREF"))
     x.useCaching("externalAnnotations4.cache")
     x

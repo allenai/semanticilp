@@ -164,7 +164,12 @@ object SolverUtils {
       sortedSet.take(topK)
     } else {
       sortedSet
-    }).map { _._1 }
+    }).map{ case (str, _) =>
+        val strTrimmed = str.trim
+        val strNoDot = if(str.tail == ".") str.dropRight(1) else str
+        val strNoSpecialChat = str.replaceAll("\\+", " ")
+        strNoDot
+      }.distinct
   }
 
   def getLuceneHitFields(hit: SearchHit): Map[String, AnyRef] = {
