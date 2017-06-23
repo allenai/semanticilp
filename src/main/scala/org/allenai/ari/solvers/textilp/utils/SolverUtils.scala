@@ -180,7 +180,8 @@ object SolverUtils {
         }
         val strNoSpecialChat = noURlChars.replaceAll("(\\+|\\*|_)", " ")
         val noHTMLTags = StringEscapeUtils.unescapeHtml(strNoSpecialChat)
-        noHTMLTags
+        val noInvalidWhiteSpace = noHTMLTags.replaceAll("", " ")
+        noInvalidWhiteSpace
       }.distinct
   }
 

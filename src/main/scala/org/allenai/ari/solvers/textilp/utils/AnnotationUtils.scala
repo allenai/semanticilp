@@ -5,15 +5,15 @@ import java.util
 import java.util.Properties
 
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
-import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{ Constituent, TextAnnotation }
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation
 import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper
-import edu.illinois.cs.cogcomp.core.utilities.configuration.{ Configurator, ResourceManager }
-import edu.illinois.cs.cogcomp.curator.{ CuratorConfigurator, CuratorFactory }
-import edu.illinois.cs.cogcomp.pipeline.common.PipelineConfigurator
+import edu.illinois.cs.cogcomp.core.utilities.configuration.{Configurator, ResourceManager}
+import edu.illinois.cs.cogcomp.curator.{CuratorConfigurator, CuratorFactory}
+import edu.illinois.cs.cogcomp.pipeline.common.{PipelineConfigurator, Stanford331Configurator}
 import edu.illinois.cs.cogcomp.pipeline.common.PipelineConfigurator._
 import edu.illinois.cs.cogcomp.pipeline.main.PipelineFactory
-import org.allenai.ari.solvers.squad.{ CandidateGeneration, SQuADReader }
-import org.allenai.ari.solvers.textilp.{ Paragraph, Question, TopicGroup }
+import org.allenai.ari.solvers.squad.{CandidateGeneration, SQuADReader}
+import org.allenai.ari.solvers.textilp.{Paragraph, Question, TopicGroup}
 import org.allenai.common.cache.JsonQueryCache
 import redis.clients.jedis.JedisPool
 import spray.json.DefaultJsonProtocol._
@@ -64,7 +64,7 @@ class AnnotationUtils() {
     settings.setProperty("splitOnDash", Configurator.FALSE)
     settings.setProperty("stanfordMaxTimePerSentence", "1000000")
     viewsToDisableAll.foreach { key => settings.setProperty(key.value, Configurator.FALSE) }
-    settings.setProperty(PipelineConfigurator.STFRD_MAX_SENTENCE_LENGTH.key, "1000")
+    settings.setProperty(Stanford331Configurator.STFRD_MAX_SENTENCE_LENGTH.key, "1000")
     val rm = new ResourceManager(settings)
     //viewsToDisable.foreach { v => settings.setProperty(v.key, Configurator.FALSE) }
     val config = new PipelineConfigurator().getConfig(rm)
@@ -402,7 +402,7 @@ class AnnotationUtils() {
   }
 
   def dropRedundantSentences(str: String): String = {
-    val ta = pipelineServerClient.annotate(str)
+    val ta = pipelineService.createBasicTextAnnotation("", "", str)
     ta.getView(ViewNames.SENTENCE).getConstituents.asScala.map{_.getSurfaceForm}.distinct.
       map{c => println(c)
       c
