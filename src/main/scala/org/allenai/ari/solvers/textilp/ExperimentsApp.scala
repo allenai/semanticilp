@@ -335,6 +335,10 @@ object ExperimentsApp {
         annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
         annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
         clientTa.addView(annotationUtils.fillInBlankAnnotator)
+
+        val clientTa1 = annotationUtils.pipelineServerClient.annotate(knowledgeSnippet)
+        annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa1)
+        annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa1.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa1)
     }
  }
 
