@@ -1,11 +1,9 @@
 package org.allenai.ari.solvers.textilp.utils
 
 import java.io.File
-import java.net.URLEncoder
 import java.util
 import java.util.Properties
 
-import edu.illinois.cs.cogcomp.annotation.AnnotatorServiceConfigurator
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{ Constituent, TextAnnotation }
 import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper
@@ -14,12 +12,10 @@ import edu.illinois.cs.cogcomp.curator.{ CuratorConfigurator, CuratorFactory }
 import edu.illinois.cs.cogcomp.pipeline.common.PipelineConfigurator
 import edu.illinois.cs.cogcomp.pipeline.common.PipelineConfigurator._
 import edu.illinois.cs.cogcomp.pipeline.main.PipelineFactory
-import edu.illinois.cs.cogcomp.saulexamples.nlp.QuestionTypeClassification.QuestionTypeAnnotator
 import org.allenai.ari.solvers.squad.{ CandidateGeneration, SQuADReader }
 import org.allenai.ari.solvers.textilp.{ Paragraph, Question, TopicGroup }
 import org.allenai.common.cache.JsonQueryCache
-import play.api.libs.json.{ JsArray, JsNumber, Json }
-import redis.clients.jedis.{ JedisPool, Protocol }
+import redis.clients.jedis.JedisPool
 import spray.json.DefaultJsonProtocol._
 
 import scala.io.Source

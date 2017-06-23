@@ -1,7 +1,7 @@
 package org.allenai.ari.solvers.textilp.utils
 
 import java.io.File
-import java.net.{InetSocketAddress, URLEncoder}
+import java.net.{InetSocketAddress, URLDecoder, URLEncoder}
 import java.util
 
 import edu.illinois.cs.cogcomp.McTest.MCTestBaseline
@@ -12,6 +12,7 @@ import org.allenai.ari.solvers.textilp.solvers.TextIlpParams
 import org.allenai.ari.solvers.textilp.{Entity, EntityRelationResult, Paragraph, Question}
 import org.allenai.common.cache.JsonQueryCache
 import org.apache.commons.codec.digest.DigestUtils
+import org.apache.commons.lang.StringEscapeUtils
 import org.elasticsearch.action.search.SearchType
 import org.elasticsearch.client.transport.TransportClient
 import org.elasticsearch.common.settings.Settings
@@ -153,6 +154,7 @@ object SolverUtils {
 
   def extractPatagraphGivenQuestionAndFocusSet3(question: String, focusSet: Seq[String], topK: Int,
     staticCache: Boolean = true): Seq[String] = {
+    val charset = "UTF-8"
     val sortedSet = focusSet.flatMap { f =>
       if (staticCache) {
         staticCacheLucene(question, f, 200)
@@ -166,9 +168,19 @@ object SolverUtils {
       sortedSet
     }).map{ case (str, _) =>
         val strTrimmed = str.trim
-        val strNoDot = if(str.tail == ".") str.dropRight(1) else str
-        val strNoSpecialChat = str.replaceAll("\\+", " ")
-        strNoDot
+        val strNoDot = if(strTrimmed.tail == ".") strTrimmed.dropRight(1) else strTrimmed
+        val noLonePercentage = strNoDot.replaceAll(" % ", "")
+        val noPercentageInTheBegining = if(noLonePercentage.slice(0,2) == "% ") noLonePercentage.drop(2) else noLonePercentage
+        //println("noPercentageInTheBegining: " + noPercentageInTheBegining)
+        val noURlChars = try {
+          URLDecoder.decode(noPercentageInTheBegining, charset)
+        }
+        catch {
+          case e: Exception => noPercentageInTheBegining
+        }
+        val strNoSpecialChat = noURlChars.replaceAll("(\\+|\\*|_)", " ")
+        val noHTMLTags = StringEscapeUtils.unescapeHtml(strNoSpecialChat)
+        noHTMLTags
       }.distinct
   }
 
