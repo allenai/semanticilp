@@ -56,4 +56,10 @@ object Constants {
   )
 
   val elasticBeingUsed = remoteElastic
+
+
+  // vivek's questions
+  val vivekPredictonsFile = "other/vivekPredictions/vivek-predictions.tsv"
+  val vivekTestParagraphs = "other/vivekPredictions/test-documents.tsv"
+
 }

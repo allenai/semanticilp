@@ -1,0 +1,586 @@
+Ids 	pid	Question 	Correct 	Result 
+pId:p100, qId:100:1243747223	p100	what is transported to oxygen?	1	1: Correct!
+pId:p100, qId:100:1383848909	p100	cellular respiration produces what?	0	2: Incorrect!
+pId:p100, qId:100:1873756602	p100	During cellular respiration, water is split	1	3: Incorrect!
+pId:p100, qId:100:35157416	p100	Photosynthesis produces what?	1	4: Incorrect!
+pId:p102, qId:102:1553484829	p102	What happens when a molecule absorbs a photon of light?	0	5: Correct!
+pId:p102, qId:102:2005118599	p102	what would happen if an electron was not boosted?	0	6: Correct!
+pId:p103, qId:103:1185979027	p103	What would necessarily not happen if cancer cells could not secrete signaling molecules?	0	7: Incorrect!
+pId:p103, qId:103:1652222507	p103	New tumors are necessarily caused by the growth of blood vessels	1	8: Correct!
+pId:p103, qId:103:2046347313	p103	What can happen after cancer cells enter the blood vessels?	0	9: Correct!
+pId:p103, qId:103:2106237211	p103	How do cancer cells necessarily spread to distant tissues?	0	10: Incorrect!
+pId:p104, qId:104:1117004918	p104	What is the immediate effect of PDGF binding receptor tyrosine kinase?	0	11: Correct!
+pId:p104, qId:104:1809796510	p104	What is the correct order of events?	1	12: Correct!
+pId:p104, qId:104:2105346224	p104	What is the correct order of events?	1	13: Incorrect!
+pId:p104, qId:104:834619381	p104	What would happen without receptor tyrosine kinases?	1	14: Incorrect!
+pId:p105, qId:105:1068482647	p105	What would happen without cyclin?	1	15: Correct!
+pId:p105, qId:105:1464879210	p105	How does Cdk become active?	0	16: Incorrect!
+pId:p105, qId:105:1957721936	p105	What is cyclin produced in S phase used for?	1	17: Correct!
+pId:p105, qId:105:354551557	p105	Cdk associates with MPF to become cyclin.	1	18: Correct!
+pId:p106, qId:106:130685065	p106	How does MPF initiate mitosis?	0	19: Correct!
+pId:p106, qId:106:174478103	p106	Which of the following directly initiates mitosis?	0	20: Correct!
+pId:p106, qId:106:1767318032	p106	What does MPF do?	0	21: Correct!
+pId:p106, qId:106:1974492624	p106	What does Cdk do?	0	22: Incorrect!
+pId:p106, qId:106:237070529	p106	What do accumulating cyclins initiate?	1	23: Correct!
+pId:p107, qId:107:1344783918	p107	What is caused by cell division in E. coli?	1	24: Correct!
+pId:p107, qId:107:1809796510	p107	What is the correct order of events?	0	25: Correct!
+pId:p107, qId:107:370264599	p107	Which events happen at the same time?	0	26: Correct!
+pId:p107, qId:107:568061327	p107	What initiates E.coli division?	0	27: Correct!
+pId:p107, qId:107:631473028	p107	Which events happen at the same time?	1	28: Incorrect!
+pId:p107, qId:107:850751256	p107	What is the correct order of events?	0	29: Correct!
+pId:p108, qId:108:1148594867	p108	What would happen without actin microfilaments?	1	30: Correct!
+pId:p108, qId:108:2128746577	p108	What do microfilament rings do?	1	31: Correct!
+pId:p108, qId:108:592872473	p108	What would happen if the cleavage furrow did not deepen?	1	32: Incorrect!
+pId:p108, qId:108:951720108	p108	The cleavage furrow creates actin microfilaments	0	33: Correct!
+pId:p109, qId:109:2064864349	p109	The new cell wall forms the cell plate	1	34: Incorrect!
+pId:p109, qId:109:44821667	p109	What would happen without vesicles from the Golgi apparatus?	1	35: Correct!
+pId:p109, qId:109:583758785	p109	Cell wall materials produce the cell plate	0	36: Correct!
+pId:p109, qId:109:981675377	p109	What would happen without microtubules?	0	37: Incorrect!
+pId:p10, qId:10:1114000914	p10	What would happen without fertilization?	0	38: Correct!
+pId:p10, qId:10:1764392412	p10	What is the result of sexual reproduction?	0	39: Correct!
+pId:p10, qId:10:981009584	p10	What would happen without crossing over?	0	40: Correct!
+pId:p110, qId:110:1300884788	p110	What allows microtubules to continue to overlap even though they are pushed apart?	0	41: Correct!
+pId:p110, qId:110:1708890151	p110	What would happen without ATP?	0	42: Correct!
+pId:p110, qId:110:199105038	p110	What would happen without motor proteins?	0	43: Correct!
+pId:p110, qId:110:2121323463	p110	What would happen without addition of tubulin subunits?	1	44: Correct!
+pId:p110, qId:110:441704224	p110	What directly pushes spindle poles apart?	1	45: Correct!
+pId:p111, qId:111:674542686	p111	What would happen if spindle microtubules did not grow?	0	46: Correct!
+pId:p111, qId:111:785566863	p111	What happens during prophase?	0	47: Correct!
+pId:p112, qId:112:1682724371	p112	What would happen without receptors?	0	48: Correct!
+pId:p112, qId:112:1756487400	p112	What is the correct order of events?	0	49: Correct!
+pId:p112, qId:112:201459793	p112	What happens when the external concentration of signaling molecules decreases below the threshold?	0	50: Correct!
+pId:p112, qId:112:3027643	p112	What is the correct order of events?	0	51: Correct!
+pId:p113, qId:113:1252886094	p113	What would happen without cAMP?	1	52: Correct!
+pId:p113, qId:113:1294970467	p113	What is the final product of the signaling pathway?	1	53: Incorrect!
+pId:p113, qId:113:1822061659	p113	What would happen without glycogen?	0	54: Correct!
+pId:p113, qId:113:2082161351	p113	What would happen without inorganic phosphate?	1	55: Correct!
+pId:p114, qId:114:397857256	p114	What is the result of gene transcription?	1	56: Correct!
+pId:p114, qId:114:985158864	p114	What would happen if kinases could not enter the nucleus?	0	57: Correct!
+pId:p115, qId:115:1054144614	p115	Viagra inhibits hydrolysis of cGMP to GMP	0	58: Incorrect!
+pId:p115, qId:115:1113728519	p115	Which acts as a signaling molecule?	1	59: Correct!
+pId:p115, qId:115:525689384	p115	Relaxation of smooth muscle in artery walls leads to increased blood flow	0	60: Incorrect!
+pId:p115, qId:115:756467433	p115	What would happen without cGMP?	1	61: Incorrect!
+pId:p115, qId:115:949358312	p115	Hydrolysis of cGMP to GMP causes erections	0	62: Incorrect!
+pId:p116, qId:116:337161709	p116	What directly causes the final cellular response?	0	63: Correct!
+pId:p116, qId:116:836494501	p116	What would happen without the signal transduction pathway?	0	64: Incorrect!
+pId:p117, qId:117:1183656779	p117	What will happen if a receptor does not change its shape?	1	65: Incorrect!
+pId:p117, qId:117:191862586	p117	Ligand binding can cause aggregation of receptors or change in receptor shape	1	66: Correct!
+pId:p117, qId:117:2069407573	p117	What is the correct order of events?	1	67: Incorrect!
+pId:p117, qId:117:918825947	p117	What is the correct order of events?	0	68: Correct!
+pId:p118, qId:118:1418672829	p118	On what does Ced-9 act?	0	69: Incorrect!
+pId:p118, qId:118:1655726470	p118	Which is not a direct agent of apoptosis?	0	70: Incorrect!
+pId:p118, qId:118:2137715151	p118	Without Ced-9, excessive apoptosis would occur	0	71: Incorrect!
+pId:p118, qId:118:2143148857	p118	Apoptosis damages neighboring cells	1	72: Correct!
+pId:p119, qId:119:1130551724	p119	What is the correct order of events?	1	73: Correct!
+pId:p119, qId:119:1195274717	p119	An SEM emits a beam of secondary electrons	1	74: Correct!
+pId:p11, qId:11:2040808739	p11	What two events can happen at the same time?	1	75: Correct!
+pId:p11, qId:11:2093600527	p11	What is caused by flood?	1	76: Incorrect!
+pId:p11, qId:11:224054051	p11	What makes chance events have less impact?	0	77: Correct!
+pId:p11, qId:11:381096036	p11	what is the result of a fire?	1	78: Incorrect!
+pId:p11, qId:11:799861449	p11	What is the end result of a flood?	0	79: Incorrect!
+pId:p120, qId:120:2110483427	p120	The TEM uses what?	0	80: Correct!
+pId:p120, qId:120:293085786	p120	what do atoms of heavy metals do?	1	81: Correct!
+pId:p121, qId:121:1894427324	p121	What would happen if the phospholipid bilayer was not split into two separated layers?	1	82: Correct!
+pId:p121, qId:121:1975885163	p121	What entity fractures the cell?	1	83: Correct!
+pId:p121, qId:121:395927859	p121	Each membrane protein is fractured	0	84: Correct!
+pId:p122, qId:122:1566733189	p122	What would happen without NADPH?	0	85: Correct!
+pId:p122, qId:122:1681320591	p122	What loses a phosphate group?	0	86: Incorrect!
+pId:p122, qId:122:323183728	p122	What is created by the addition of the phosphate group from ATP?	1	87: Incorrect!
+pId:p123, qId:123:1742328222	p123	What would happen without cell surface proteins?	1	88: Correct!
+pId:p123, qId:123:537218565	p123	What converts cytoplasm from a sol to a gel?	0	89: Correct!
+pId:p123, qId:123:557129250	p123	Cytoplasm is converted from a sol to a gel inside pseudopodia	1	90: Incorrect!
+pId:p125, qId:125:1853231221	p125	What reduces O2?	1	91: Incorrect!
+pId:p125, qId:125:279267687	p125	NADH and FADH2 lose energy in several energy-releasing steps	0	92: Correct!
+pId:p126, qId:126:1766970986	p126	How were valleys formed?	0	93: Correct!
+pId:p126, qId:126:1774164758	p126	How were rocks containing marine fossils formed?	0	94: Incorrect!
+pId:p127, qId:127:1840466117	p127	What lead Darwin to perceive unity in life?	0	95: Correct!
+pId:p127, qId:127:1966006326	p127	What does descent with modification eventually lead to?	0	96: Correct!
+pId:p127, qId:127:697484405	p127	What caused adaptations?	1	97: Correct!
+pId:p128, qId:128:1105243673	p128	What does the unequal ability of individuals to survive and reproduce cause?	1	98: Correct!
+pId:p128, qId:128:139055496	p128	What would happen if individuals did not have an unequal ability to survive and reproduce?	0	99: Correct!
+pId:p129, qId:129:1150294745	p129	What would happen without natural selection?	1	100: Correct!
+pId:p129, qId:129:1365967883	p129	Which of the following is caused by the increased frequency of individuals with favorable adaptations?	1	101: Correct!
+pId:p129, qId:129:364398228	p129	Advantageous variations and less favorable variations will diminish	0	102: Correct!
+pId:p12, qId:12:1262706103	p12	What causes a loss of genetic variation?	0	103: Correct!
+pId:p12, qId:12:2107395116	p12	What would happen without genetic drift?	0	104: Correct!
+pId:p130, qId:130:1250904989	p130	Each new drug was what?	0	105: Correct!
+pId:p130, qId:130:1813959960	p130	What entity destroys penicillin?	0	106: Correct!
+pId:p131, qId:131:1502469394	p131	The whole-genome shotgun approach uses what?	1	107: Correct!
+pId:p131, qId:131:1722867102	p131	Powerful computer programs are necessary for the whole-genome shotgun approach	0	108: Correct!
+pId:p131, qId:131:794239706	p131	what is the final result of the whole-genome shotgun approach?	1	109: Incorrect!
+pId:p132, qId:132:1555388294	p132	What is required for sequencing?	1	110: Correct!
+pId:p132, qId:132:2114205630	p132	What has caused massive increases in speed and decreases in the cost of sequencing?	1	111: Correct!
+pId:p132, qId:132:424573659	p132	What are sequenced?	0	112: Correct!
+pId:p133, qId:133:1122526642	p133	Metagenomics uses computer software	0	113: Correct!
+pId:p133, qId:133:1902396622	p133	Computer software does what?	0	114: Correct!
+pId:p134, qId:134:1616438027	p134	Which of the following is not used by the software?	0	115: Correct!
+pId:p134, qId:134:1716042274	p134	What has been largely automated?	1	116: Correct!
+pId:p135, qId:135:1335266727	p135	What would happen without computer software?	0	117: Correct!
+pId:p135, qId:135:317680317	p135	Researchers create doubly mutant cells	1	118: Incorrect!
+pId:p136, qId:136:1819744903	p136	What is required for a transposable elements to move?	1	119: Correct!
+pId:p136, qId:136:1880450435	p136	Transposable elements completely detach from the cell's DNA	1	120: Correct!
+pId:p137, qId:137:199784919	p137	A "cut-and-paste" mechanism does what?	1	121: Correct!
+pId:p137, qId:137:203669661	p137	The "cut-and-paste" mechanism requires transposase	0	122: Incorrect!
+pId:p137, qId:137:740047132	p137	A "copy-and-paste" mechanism does what?	1	123: Correct!
+pId:p139, qId:139:1437823400	p139	Polyploidy can do what?	0	124: Correct!
+pId:p139, qId:139:1532654581	p139	Which of the following facilitates the evolution of genes?	0	125: Incorrect!
+pId:p139, qId:139:1825973799	p139	What causes one or more extra sets of chromosomes?	1	126: Correct!
+pId:p139, qId:139:256618857	p139	What is required for the divergence of another copy?	1	127: Correct!
+pId:p13, qId:13:186719256	p13	What is the correct order of events?	0	128: Correct!
+pId:p13, qId:13:638912937	p13	What is the result of gene flow?	0	129: Correct!
+pId:p13, qId:13:908367101	p13	Extensive gene flow can result in a common gene pool.	1	130: Correct!
+pId:p141, qId:141:1214981765	p141	What would happen if a particular exon within a gene was not duplicated on one chromosome and deleted from another?	1	131: Incorrect!
+pId:p141, qId:141:740384494	p141	What entity could be duplicated?	1	132: Correct!
+pId:p142, qId:142:1261132851	p142	What would happen without differing patterns of expression of the Hox genes?	0	133: Correct!
+pId:p142, qId:142:183488456	p142	What is the correct order of events?	1	134: Correct!
+pId:p142, qId:142:701185933	p142	Small changes in regulatory sequences explain the variation in number of leg-bearing segments among insects and crustaceans.	1	135: Correct!
+pId:p143, qId:143:1383255507	p143	What would happen without errors in meiosis?	1	136: Incorrect!
+pId:p143, qId:143:1544914468	p143	Slippage during DNA replication causes the activities of transposable elements	0	137: Correct!
+pId:p143, qId:143:1840853995	p143	What happens when gene mutations persist over generations?	0	138: Correct!
+pId:p144, qId:144:50870208	p144	What produces more offspring?	0	139: Correct!
+pId:p145, qId:145:1221667432	p145	Which event occurs first?	1	140: Correct!
+pId:p145, qId:145:1983476445	p145	Genetic drift describes what process?	0	141: Incorrect!
+pId:p145, qId:145:417450918	p145	What is the result of the founder effect?	1	142: Correct!
+pId:p146, qId:146:1411404912	p146	What is the result of genetic drift?	0	143: Correct!
+pId:p147, qId:147:1661008076	p147	genetic drift can be reversed	1	144: Incorrect!
+pId:p147, qId:147:1797952602	p147	What was the result of new alleles entering the population?	0	145: Correct!
+pId:p147, qId:147:558522624	p147	what was the result of drift?	1	146: Incorrect!
+pId:p147, qId:147:737598373	p147	What would happen if 271 birds from neighboring states were not added?	0	147: Correct!
+pId:p148, qId:148:16722881	p148	What happens because mating is more common between members of populations that previously had very little contact?	1	148: Correct!
+pId:p148, qId:148:1800864494	p148	Gene flow causes what?	1	149: Incorrect!
+pId:p149, qId:149:1315972107	p149	Human babies that in the range of 3-4 kg suffer higher rates of mortality	1	150: Incorrect!
+pId:p149, qId:149:1559202959	p149	Stabilizing selection results in what?	1	151: Incorrect!
+pId:p150, qId:150:1201266850	p150	What is required for heterozygote advantage?	1	152: Correct!
+pId:p150, qId:150:584712935	p150	If individuals exhibit heterozygote advantage at a particular locus, natural selection tends to maintain two or more alleles at that locus	0	153: Correct!
+pId:p151, qId:151:1485242698	p151	producing viable, fertile offspring requires the formation of a new species	0	154: Correct!
+pId:p151, qId:151:484788703	p151	What most effectively prevents all gene flow?	0	155: Correct!
+pId:p151, qId:151:834725386	p151	what is required for the formation of a new species?	0	156: Incorrect!
+pId:p152, qId:152:1180235226	p152	What would happen if the set of chromosomes could pair during meiosis with the set of chromosomes from the other species?	0	157: Incorrect!
+pId:p152, qId:152:320227584	p152	What is the final result of an infertile hybrid propagating itself asexually?	1	158: Correct!
+pId:p152, qId:152:95611533	p152	Why are most hybrids sterile?	1	159: Incorrect!
+pId:p153, qId:153:2016467335	p153	What would have happened if apples did not mature more quickly than hawthorn fruit?	1	160: Correct!
+pId:p154, qId:154:1764227507	p154	What can natural selection under different environmental conditions cause?	1	161: Correct!
+pId:p154, qId:154:1832261016	p154	Reproductive barriers are required for interbreeding with the parent population	1	162: Correct!
+pId:p154, qId:154:2018580300	p154	What is required for allopatric speciation?	1	163: Incorrect!
+pId:p155, qId:155:1356888024	p155	Reinforcement does what?	0	164: Correct!
+pId:p155, qId:155:1525092089	p155	Reinforcement creates stronger barriers to reproduction in which populations?	1	165: Correct!
+pId:p155, qId:155:59969542	p155	What is required for reinforcement?	0	166: Correct!
+pId:p156, qId:156:1197960824	p156	What is caused by the reversal of the speciation process?	1	167: Incorrect!
+pId:p156, qId:156:1228372951	p156	what would happen if two species did not contact one another in a hybrid zone?	0	168: Correct!
+pId:p156, qId:156:972921351	p156	If the speciation process reverses, what is the result?	1	169: Incorrect!
+pId:p157, qId:157:1070727694	p157	What is the final result of speciation?	1	170: Correct!
+pId:p157, qId:157:1694034001	p157	What is required for populations to become reproductively isolated?	1	171: Correct!
+pId:p157, qId:157:2082049851	p157	What would happen if gene flow is not interrupted?	1	172: Correct!
+pId:p157, qId:157:2118086373	p157	A storm causes gene flow to resume	1	173: Correct!
+pId:p158, qId:158:1570426814	p158	How does a group of organisms increase in size?	0	174: Correct!
+pId:p158, qId:158:397148272	p158	How does a group of organisms shrink?	1	175: Correct!
+pId:p158, qId:158:873095445	p158	What is required for differences to accumulate and become more pronounced?	1	176: Correct!
+pId:p159, qId:159:1155012850	p159	protocells do what?	0	177: Incorrect!
+pId:p159, qId:159:1228429911	p159	Which of the following happened first?	0	178: Correct!
+pId:p159, qId:159:1966177170	p159	Which event occurred first?	1	179: Incorrect!
+pId:p159, qId:159:2050408870	p159	What is required for inheritance?	1	180: Correct!
+pId:p160, qId:160:178463376	p160	On what does natural selection act on?	1	181: Correct!
+pId:p160, qId:160:1967053293	p160	What happened because protocells could pass their abilities to subsequent generations?	1	182: Correct!
+pId:p160, qId:160:215962976	p160	What is required for a vesicle to grow, split and pass its RNA molecules to its daughters?	1	183: Incorrect!
+pId:p161, qId:161:1393351502	p161	What is required to estimate the ages of ancient volcanic rock?	0	184: Correct!
+pId:p161, qId:161:86389326	p161	What would happen if the trapped radioisotopes did not have long half-lives?	1	185: Correct!
+pId:p162, qId:162:2049910539	p162	The increase of atmospheric O2 produced what?	0	186: Incorrect!
+pId:p163, qId:163:1052060520	p163	algae, plants, fungi, and animals produced single-celled eukaryotes	0	187: Incorrect!
+pId:p163, qId:163:1268187351	p163	What was required for the evolution of greater morphological diversity?	1	188: Incorrect!
+pId:p163, qId:163:1288922567	p163	What was produced by the diversification?	1	189: Incorrect!
+pId:p164, qId:164:1385630931	p164	The Cambrian explosion produced what?	1	190: Correct!
+pId:p164, qId:164:812476872	p164	Predators emerged that had new defensive adaptations	0	191: Incorrect!
+pId:p165, qId:165:1430284905	p165	a waterproof coating of wax does what?	1	192: Incorrect!
+pId:p165, qId:165:1576098987	p165	What helped prevent dehydration?	0	193: Correct!
+pId:p165, qId:165:667173893	p165	A vascular system does what?	1	194: Correct!
+pId:p166, qId:166:1646528735	p166	What would happen without restriction sites?	0	195: Correct!
+pId:p166, qId:166:1924280362	p166	What protects the DNA of a bacterial cell?	0	196: Incorrect!
+pId:p166, qId:166:590832951	p166	Restriction enzymes do what?	0	197: Correct!
+pId:p167, qId:167:1478742028	p167	What would happen without sticky ends?	0	198: Correct!
+pId:p167, qId:167:1772156519	p167	EcoRI does what?	0	199: Incorrect!
+pId:p167, qId:167:1841186380	p167	The restriction enzyme in this example produces fragments with sticky ends	0	200: Correct!
+pId:p168, qId:168:1347234780	p168	What is produced when a DNA molecule is cut many times?	0	201: Incorrect!
+pId:p168, qId:168:1366910987	p168	What will make many cuts?	1	202: Correct!
+pId:p168, qId:168:568664665	p168	What would happen if a restriction enzyme did not make many cuts in a DNA molecule?	1	203: Incorrect!
+pId:p169, qId:169:655418344	p169	DNA ligase does what?	1	204: Incorrect!
+pId:p169, qId:169:678671666	p169	Sticky ends form associations with DNA ligase	0	205: Incorrect!
+pId:p169, qId:169:702786839	p169	What would happen without sticky ends?	1	206: Correct!
+pId:p16, qId:16:1520264239	p16	What is the direct result of lysing?	0	207: Correct!
+pId:p16, qId:16:1709485887	p16	Phages are produced during lysing	1	208: Correct!
+pId:p170, qId:170:10275428	p170	Recombinant bacterial plasmids carry foreign DNA	0	209: Correct!
+pId:p171, qId:171:1266794428	p171	What will reproduce and form a colony?	0	210: Incorrect!
+pId:p171, qId:171:1467063868	p171	recombinant plasmids allow cells to hydrolyze X-gal	1	211: Correct!
+pId:p171, qId:171:1966581390	p171	What color are colonies that can hydrolyze X-gal?	1	212: Correct!
+pId:p172, qId:172:1221271105	p172	What does DNA ligase do?	1	213: Correct!
+pId:p172, qId:172:1657813435	p172	What would happen without sticky ends?	0	214: Correct!
+pId:p172, qId:172:570334286	p172	What cuts the plasmid?	0	215: Correct!
+pId:p173, qId:173:1971991936	p173	What can the bacteria do?	1	216: Correct!
+pId:p173, qId:173:639231357	p173	The foreign DNA does what?	1	217: Correct!
+pId:p173, qId:173:647016768	p173	Some cells may take up nothing at all	1	218: Incorrect!
+pId:p174, qId:174:1356516250	p174	Which event occurs first?	1	219: Correct!
+pId:p174, qId:174:452573511	p174	What happens because reproducing bacteria form clones of cells?	0	220: Correct!
+pId:p174, qId:174:559415646	p174	What does the ampR gene do?	1	221: Correct!
+pId:p175, qId:175:1202672920	p175	Colonies containing recombinant plasmids will be what?	0	222: Incorrect!
+pId:p175, qId:175:247331621	p175	recombinant plasmids produce functional beta-galactosidase	1	223: Correct!
+pId:p175, qId:175:451087750	p175	Colonies containing nonrecombinant plasmids will be what?	0	224: Correct!
+pId:p175, qId:175:577339982	p175	What would happen without X-gal?	1	225: Correct!
+pId:p176, qId:176:1148158658	p176	cDNA carries what?	0	226: Correct!
+pId:p176, qId:176:1532164597	p176	Why does the cDNA carry the complete coding sequence but no introns?	1	227: Incorrect!
+pId:p176, qId:176:667818208	p176	mRNA is made in vitro	1	228: Incorrect!
+pId:p177, qId:177:559055620	p177	Which event occurs first?	1	229: Correct!
+pId:p177, qId:177:577114117	p177	What is eventually produced by the enzymatic degradation of the mRNA?	1	230: Incorrect!
+pId:p177, qId:177:910431527	p177	What would happen without reverse transcriptase?	1	231: Correct!
+pId:p178, qId:178:541620370	p178	What is transferred to a defined location on a membrane?	0	232: Correct!
+pId:p179, qId:179:1858532025	p179	What do fluorescent tags or enzymes do?	0	233: Correct!
+pId:p179, qId:179:963537160	p179	A labeled probe is required for screening	0	234: Correct!
+pId:p17, qId:17:1076968836	p17	What would happen without RNA molecules?	0	235: Correct!
+pId:p17, qId:17:1151704343	p17	Which entity is part of HIV?	1	236: Correct!
+pId:p17, qId:17:1504050137	p17	What is required to make mRNA?	0	237: Correct!
+pId:p17, qId:17:1672611125	p17	What produces viral DNA?	1	238: Correct!
+pId:p17, qId:17:482909057	p17	What can RNA become?	1	239: Incorrect!
+pId:p180, qId:180:2008730074	p180	What will happen if we do not identify the location of a clone carrying the beta-globulin gene?	0	240: Correct!
+pId:p180, qId:180:473851259	p180	What is the result of liquid culture?	1	241: Correct!
+pId:p181, qId:181:1053849176	p181	The promoter expresses the foreign gene	1	242: Correct!
+pId:p181, qId:181:1464905829	p181	Which event occurs first?	1	243: Incorrect!
+pId:p181, qId:181:2083002483	p181	What is eventually synthesized because the bacterial host cell will recognize the promoter?	1	244: Incorrect!
+pId:p182, qId:182:53285321	p182	DNA does what?	1	245: Correct!
+pId:p182, qId:182:713990458	p182	What creates temporary holes in the plasma membranes?	1	246: Correct!
+pId:p183, qId:183:1510039877	p183	PCR errors limit what?	1	247: Correct!
+pId:p183, qId:183:604674218	p183	Sequencing produces error-free inserts	0	248: Incorrect!
+pId:p184, qId:184:1487026843	p184	What happens because longer molecules are impeded more than shorter ones?	0	249: Incorrect!
+pId:p184, qId:184:409906307	p184	Polysaccharide agarose does what?	1	250: Incorrect!
+pId:p184, qId:184:557633116	p184	Nucleic acid molecules do what?	1	251: Incorrect!
+pId:p185, qId:185:1379145926	p185	Ethidium bromide does what?	1	252: Correct!
+pId:p185, qId:185:1905458704	p185	What would happen without a DNA-binding dye?	0	253: Correct!
+pId:p185, qId:185:2082853323	p185	Macromolecules move through an agarose gel	1	254: Incorrect!
+pId:p186, qId:186:1703365765	p186	Digestion with the enzyme that recognizes the site will produce different RFLPs.	1	255: Incorrect!
+pId:p186, qId:186:1866957628	p186	What is required for restriction fragment analysis?	0	256: Correct!
+pId:p186, qId:186:728133344	p186	What would happen without an RFLP?	0	257: Correct!
+pId:p187, qId:187:1824953036	p187	What does ddNTP do?	1	258: Correct!
+pId:p187, qId:187:1868639039	p187	What will not happen without a distinct fluorescent label?	1	259: Correct!
+pId:p187, qId:187:291414531	p187	ddNTP is required to determine the entire original sequence	1	260: Correct!
+pId:p188, qId:188:1143557741	p188	next-generation sequencing techniques require what?	1	261: Correct!
+pId:p188, qId:188:918424461	p188	What is enabled by the immobilization of a single template strand?	0	262: Correct!
+pId:p188, qId:188:951291692	p188	Which pair of events can occur at the same time?	0	263: Correct!
+pId:p189, qId:189:168701894	p189	What is enabled using the information of about when and where the gene is transcribed?	1	264: Correct!
+pId:p189, qId:189:2134176997	p189	What is required to make labeled nucleic acid probes?	0	265: Correct!
+pId:p18, qId:18:1546416723	p18	Each cycle begins with heating the reaction mixture	1	266: Incorrect!
+pId:p18, qId:18:1806217698	p18	What would happen without annealing?	1	267: Correct!
+pId:p18, qId:18:364449546	p18	Single-stranded DNA extends the primers	0	268: Correct!
+pId:p190, qId:190:1181944862	p190	Which event occurs first?	1	269: Correct!
+pId:p190, qId:190:1320405681	p190	What happens after the transfer of the samples to a nitrocellulose membrane?	1	270: Correct!
+pId:p190, qId:190:1819477171	p190	What is required for Northern blotting?	1	271: Correct!
+pId:p191, qId:191:1971937022	p191	What does the reverse transcriptase do?	0	272: Correct!
+pId:p191, qId:191:2122430577	p191	reverse transcriptase does what?	0	273: Correct!
+pId:p191, qId:191:796210449	p191	What does cDNA do?	1	274: Incorrect!
+pId:p192, qId:192:117123625	p192	cDNAs are required for global expression studies	1	275: Incorrect!
+pId:p192, qId:192:751989981	p192	What does nucleic acid hybridization lead to?	1	276: Correct!
+pId:p192, qId:192:803454805	p192	How are cDNAs made?	0	277: Correct!
+pId:p193, qId:193:129499632	p193	What is fixed to a glass slide?	1	278: Correct!
+pId:p193, qId:193:1816212663	p193	What is labeled with fluorescent dyes?	1	279: Incorrect!
+pId:p193, qId:193:700882626	p193	What is required to produce cDNA molecules?	0	280: Correct!
+pId:p194, qId:194:1047106821	p194	a cell disables the normal cellular copies of the same gene	1	281: Correct!
+pId:p194, qId:194:1100845350	p194	What happens if the mutations alter the function of the gene product?	1	282: Correct!
+pId:p194, qId:194:1421409368	p194	Which event occurs first?	1	283: Correct!
+pId:p196, qId:196:1989423778	p196	What is the result of successful cloning?	1	284: Correct!
+pId:p196, qId:196:370405457	p196	What was successfully cloned?	1	285: Correct!
+pId:p196, qId:196:402966579	p196	What was incubated in culture medium?	0	286: Correct!
+pId:p197, qId:197:1404274090	p197	How are enucleated eggs produced?	0	287: Incorrect!
+pId:p197, qId:197:415591788	p197	What would happen without transplanted nuclei?	0	288: Correct!
+pId:p197, qId:197:812069542	p197	When the transplanted nuclei came from an early embryo, fewer than 2% of the recipient eggs developed into normal tadpoles	0	289: Correct!
+pId:p198, qId:198:1093497030	p198	What is necessary for dedifferentiation of donor nuclei?	1	290: Correct!
+pId:p198, qId:198:1414355583	p198	What happened because of one successfully completed normal development?	1	291: Correct!
+pId:p198, qId:198:1447998841	p198	What were implanted into surrogate mothers?	0	292: Correct!
+pId:p199, qId:199:1354445717	p199	What do ES cells produce?	1	293: Correct!
+pId:p199, qId:199:332099035	p199	What can be eventually produced from stem cells isolated from early embryos?	0	294: Correct!
+pId:p199, qId:199:826663322	p199	Stem cells produce early embryos	0	295: Correct!
+pId:p19, qId:19:1121120279	p19	Restriction enzyme recognition sequences are necessary to produce a library	0	296: Incorrect!
+pId:p19, qId:19:1601025120	p19	What would happen without DNA polymerase?	0	297: Correct!
+pId:p19, qId:19:1881310154	p19	What is necessary to make cDNA?	0	298: Correct!
+pId:p1, qId:1:1046218342	p1	Meiosis directly produces cells that develop into gametes	0	299: Correct!
+pId:p1, qId:1:1138501491	p1	What does meiosis directly produce?	1	300: Incorrect!
+pId:p1, qId:1:144098386	p1	What would happen without mitosis?	0	301: Incorrect!
+pId:p1, qId:1:1783311416	p1	What would happen without meiosis?	1	302: Correct!
+pId:p1, qId:1:1887149181	p1	Which process do diploid zygotes undergo?	1	303: Correct!
+pId:p1, qId:1:600528336	p1	What is the correct order of events?	0	304: Correct!
+pId:p200, qId:200:1651602404	p200	What grows in culture?	0	305: Correct!
+pId:p200, qId:200:1813885584	p200	What causes stem cells to differentiate into multiple types of specialized cells?	0	306: Correct!
+pId:p200, qId:200:219514364	p200	Specific growth factors differentiate into multiple types of specialized cells	1	307: Correct!
+pId:p201, qId:201:116105028	p201	What act as model cells for studying the disease and potential treatments?	1	308: Incorrect!
+pId:p201, qId:201:1289358009	p201	What happens when the patient's own cells are reprogrammed?	1	309: Correct!
+pId:p201, qId:201:1837673539	p201	What is necessary for replacement of nonfunctional tissues?	1	310: Incorrect!
+pId:p202, qId:202:2063154468	p202	A retrovirus inserts RNA into the chromosomal DNA of its host cell	0	311: Correct!
+pId:p202, qId:202:818901020	p202	A retrovirus does what?	1	312: Incorrect!
+pId:p203, qId:203:1159928695	p203	The procedure caused leukemia in three of the patients	1	313: Correct!
+pId:p203, qId:203:430848789	p203	What would happen without gene therapy?	0	314: Correct!
+pId:p204, qId:204:1354823460	p204	What blocks the function of these proteins?	1	315: Incorrect!
+pId:p204, qId:204:1817109906	p204	What would happen without determining the sequence and structure of proteins?	1	316: Incorrect!
+pId:p205, qId:205:1566400429	p205	What simplifies the task of purifying proteins?	0	317: Correct!
+pId:p205, qId:205:161853720	p205	What is required for producing large quantities of proteins?	1	318: Correct!
+pId:p205, qId:205:944707398	p205	Host cells can do what?	0	319: Correct!
+pId:p206, qId:206:1195077212	p206	What happens because sets of primers are labeled with different-colored fluorescent tags?	0	320: Correct!
+pId:p207, qId:207:1307925491	p207	Microorganisms do what?	1	321: Incorrect!
+pId:p207, qId:207:1723506872	p207	What is enabled by the transfer of genes for valuable metabolic capabilities into other microorganisms?	1	322: Correct!
+pId:p208, qId:208:1933463634	p208	What is used for genetic manipulations?	0	323: Correct!
+pId:p208, qId:208:637812591	p208	Genetic manipulations on an ordinary somatic cell generate an organism because a single tissue cell can give rise to an adult plant	1	324: Incorrect!
+pId:p209, qId:209:109511920	p209	What is required for complete plants to exhibit the new trait?	1	325: Incorrect!
+pId:p209, qId:209:195905862	p209	What is destroyed?	0	326: Correct!
+pId:p209, qId:209:771877199	p209	What can genetically engineered crops resist?	1	327: Correct!
+pId:p20, qId:20:1386464928	p20	What would happen without reverse transcriptase?	1	328: Correct!
+pId:p20, qId:20:1488757156	p20	With what process does analysis of hummingbird beta-globin gene expression with RT-PCR begin?	1	329: Correct!
+pId:p20, qId:20:2028907370	p20	Reverse transcriptase serves as a template for PCR amplification	0	330: Incorrect!
+pId:p210, qId:210:243585405	p210	What can be produced if crop plants carrying genes for resistance pollinated wild ones?	0	331: Correct!
+pId:p210, qId:210:742915307	p210	transgenic crops might do what?	1	332: Correct!
+pId:p21, qId:21:1536702239	p21	What is the final product of growing cells in liquid culture?	0	333: Correct!
+pId:p21, qId:21:1721719798	p21	What is produced by growing cells in a liquid culture?	0	334: Correct!
+pId:p22, qId:22:1104976078	p22	What is the correct order of events?	0	335: Correct!
+pId:p23, qId:23:1327008744	p23	Ethidium bromide binds DNA.	0	336: Incorrect!
+pId:p23, qId:23:711483608	p23	What would happen without the dye?	1	337: Incorrect!
+pId:p24, qId:24:341028083	p24	A recombinant DNA molecule is inserted into a plasmid	0	338: Correct!
+pId:p24, qId:24:350908487	p24	Which event occurs first?	0	339: Incorrect!
+pId:p24, qId:24:459551832	p24	What does inserting DNA from another source produce?	1	340: Incorrect!
+pId:p24, qId:24:784364730	p24	The recombinant bacterium produces a population of genetically identical cells through repeated cell divisions	0	341: Incorrect!
+pId:p25, qId:25:1211874730	p25	What would happen without the desired gene from the donor organism?	0	342: Correct!
+pId:p25, qId:25:1336947912	p25	Which of he following events can occur at the same time?	1	343: Incorrect!
+pId:p25, qId:25:374364019	p25	What would happen if cells did not integrate the foreign DNA into their genomes?	0	344: Correct!
+pId:p26, qId:26:129158400	p26	What would happen without the transgene?	0	345: Correct!
+pId:p26, qId:26:1318185908	p26	Antithrombin can be purified the animal's milk	0	346: Incorrect!
+pId:p26, qId:26:949475073	p26	Which of the following produces antithrombin?	1	347: Correct!
+pId:p27, qId:27:1104976078	p27	What is the correct order of events?	0	348: Correct!
+pId:p27, qId:27:401185334	p27	long fragments are cloned into plasmids or phages	1	349: Correct!
+pId:p28, qId:28:2114240821	p28	The series of words in a gene is transcribed into what?	0	350: Correct!
+pId:p28, qId:28:2128524745	p28	What would happen if genes were not transcribed?	0	351: Correct!
+pId:p28, qId:28:990928340	p28	Three-nucleotide words in mRNA are translated into what?	1	352: Correct!
+pId:p29, qId:29:1649506683	p29	The cell's protein-synthesizing machinery is required to produce RNA	1	353: Incorrect!
+pId:p29, qId:29:2094217024	p29	Which of the following is required to elongate the RNA polynucleotide?	1	354: Correct!
+pId:p29, qId:29:322728191	p29	What does messenger RNA do?	0	355: Correct!
+pId:p29, qId:29:803500893	p29	What would happen if RNA polymeraste did not join together RNA nucleotides?	0	356: Correct!
+pId:p29, qId:29:901560971	p29	Which of the following is transcribed from the template strand of a gene?	0	357: Correct!
+pId:p2, qId:2:1025089259	p2	What is the correct order of events?	1	358: Correct!
+pId:p2, qId:2:619160687	p2	Haploid cells duplicate chromosomes during interphase	0	359: Correct!
+pId:p30, qId:30:1433474486	p30	What happens when the new RNA molecule peels away from its DNA template?	0	360: Correct!
+pId:p30, qId:30:611757368	p30	what would happen if 10-20 DNA nucleotides were not exposed?	1	361: Correct!
+pId:p30, qId:30:72746735	p30	RNA polymerase untwists the double helix	1	362: Incorrect!
+pId:p31, qId:31:1679331027	p31	What happens after the pre-mRNA is released?	0	363: Correct!
+pId:p31, qId:31:519007441	p31	What is the role of RNA polymerase II?	1	364: Correct!
+pId:p31, qId:31:94424786	p31	What would happen if the growing RNA transcript was not cut free?	0	365: Incorrect!
+pId:p32, qId:32:1170643369	p32	What do modified ends not do?	0	366: Incorrect!
+pId:p32, qId:32:134244746	p32	Modified ends help protect the mRNA from degradation	1	367: Correct!
+pId:p32, qId:32:209602701	p32	What would happen without cytoplasmic proteins?	0	368: Correct!
+pId:p32, qId:32:527273834	p32	What is the direct action of enzymes?	1	369: Correct!
+pId:p33, qId:33:1937024257	p33	What does RNA polymerase II produce?	1	370: Correct!
+pId:p33, qId:33:2076764093	p33	mRNA with a continuous coding sequence enters the cytoplasm	0	371: Correct!
+pId:p33, qId:33:90824227	p33	RNA polymerase II cuts out introns	0	372: Incorrect!
+pId:p34, qId:34:1554499891	p34	What would happen without the exit tunnel?	0	373: Correct!
+pId:p34, qId:34:1789020327	p34	What does the ribosome do?	0	374: Correct!
+pId:p34, qId:34:2026670507	p34	tRNA and mRNA are added to the carboxyl end of the growing polypeptide	1	375: Correct!
+pId:p34, qId:34:622204530	p34	What does the polypeptide do?	0	376: Correct!
+pId:p35, qId:35:1701611512	p35	What does the release factor do?	1	377: Correct!
+pId:p35, qId:35:1935089655	p35	What would happen without the release factor?	0	378: Correct!
+pId:p35, qId:35:581910299	p35	Addition of a water molecule instead of an amino acid to the polypeptide chain hydrolyzes the bond between the completed polypeptide and the tRNA	0	379: Incorrect!
+pId:p36, qId:36:1137772354	p36	What would happen without CAP?	0	380: Correct!
+pId:p36, qId:36:1520312224	p36	What does cAMP do?	1	381: Correct!
+pId:p36, qId:36:785610830	p36	What happens when the CAP attaches to a specific site at the upstream end of the lac promoter?	1	382: Correct!
+pId:p37, qId:37:1328605858	p37	What would happen without ubiquitin?	0	383: Correct!
+pId:p37, qId:37:390426618	p37	Small proteins are attached to ubiquitin	0	384: Correct!
+pId:p38, qId:38:1173364125	p38	What would happen without Dicer?	0	385: Correct!
+pId:p38, qId:38:2077662206	p38	miRNAs are short double-stranded fragments	0	386: Incorrect!
+pId:p38, qId:38:610805680	p38	What entity forms a complex with one or more proteins?	0	387: Correct!
+pId:p39, qId:39:1116119337	p39	What is produced by enzymes that modify the chromatin?	0	388: Incorrect!
+pId:p39, qId:39:1827377124	p39	siRNAs recruit enzymes that modify the chromatin	0	389: Correct!
+pId:p39, qId:39:2142873823	p39	What would happen without siRNAs?	1	390: Correct!
+pId:p39, qId:39:751058199	p39	What would happen without the yeast enzyme?	1	391: Correct!
+pId:p3, qId:3:1039755875	p3	What would happen without sister chromatid cohesion?	1	392: Correct!
+pId:p3, qId:3:1506957547	p3	Which events may simultaneously occur?	1	393: Incorrect!
+pId:p3, qId:3:267067010	p3	What event should occur before the formation of a chiasma?	1	394: Correct!
+pId:p3, qId:3:88180858	p3	What is the direct result of crossing over and sister chromatid cohesion?	1	395: Correct!
+pId:p40, qId:40:1542855258	p40	What causes red blood cells to become distorted in shape?	1	396: Correct!
+pId:p40, qId:40:1654462750	p40	What is caused by sickled cells clumping together?	0	397: Incorrect!
+pId:p40, qId:40:848891510	p40	Distorted red blood cells clump together and block the flow of blood in the capillaries, resulting in serious damage to organs	0	398: Incorrect!
+pId:p41, qId:41:1633847688	p41	What does reverse transcriptase do?	0	399: Correct!
+pId:p41, qId:41:1666661298	p41	What would happen without the RNA intermediate?	0	400: Correct!
+pId:p41, qId:41:384689775	p41	The retrotransposon encodes reverse transcriptase	1	401: Incorrect!
+pId:p42, qId:42:1229828332	p42	What would happen without millions of ribosomes?	0	402: Correct!
+pId:p42, qId:42:1702032504	p42	what is the correct order of events?	0	403: Correct!
+pId:p42, qId:42:261373584	p42	What is eventually produced when the primary transcript is cleaved?	1	404: Incorrect!
+pId:p42, qId:42:34442715	p42	What would happen if the primary transcript was not cleaved?	0	405: Correct!
+pId:p43, qId:43:1055276797	p43	What happens during slippage?	1	406: Incorrect!
+pId:p43, qId:43:1193119772	p43	What would happen without slippage?	1	407: Incorrect!
+pId:p43, qId:43:1668842156	p43	Which of the following can occur at the same time?	1	408: Correct!
+pId:p44, qId:44:1554794437	p44	X inactivation occurs on the X chromosome that will become the barr body	1	409: Incorrect!
+pId:p44, qId:44:1773081739	p44	What is caused by the interaction of RNA with the chromosome?	1	410: Incorrect!
+pId:p44, qId:44:61328139	p44	What would happen without XIST?	0	411: Correct!
+pId:p45, qId:45:1401449997	p45	What would happen if a population is not divided into geographically isolated subpopulations?	0	412: Incorrect!
+pId:p45, qId:45:298880230	p45	Gene flow interruption causes populations to be divided into geographically isolated subpopulations	1	413: Correct!
+pId:p46, qId:46:1682692013	p46	Geographic separation may cause reproductive isolation	0	414: Incorrect!
+pId:p46, qId:46:367665407	p46	What can separated gene pools produce?	1	415: Incorrect!
+pId:p46, qId:46:740272509	p46	Which of the following events can occur at the same time?	0	416: Correct!
+pId:p47, qId:47:49739901	p47	Allopatric speciation occurs when gene flow to and from the isolated population is blocked	1	417: Incorrect!
+pId:p48, qId:48:1130702024	p48	What do copying errors produce?	1	418: Correct!
+pId:p48, qId:48:1947520508	p48	Copying errors can result in leaving the most descendant molecules	1	419: Incorrect!
+pId:p49, qId:49:1194208522	p49	What happens when an organism dies?	1	420: Correct!
+pId:p49, qId:49:484039131	p49	Carbon-12 slowly decays into nitrogen-14.	1	421: Correct!
+pId:p4, qId:4:1418910444	p4	Which entities are responsible for breaking DNA?	1	422: Correct!
+pId:p4, qId:4:792574467	p4	Which of the following events occur at the same time?	0	423: Incorrect!
+pId:p4, qId:4:816618625	p4	What is the correct order of events?	0	424: Correct!
+pId:p4, qId:4:849001385	p4	What would happen without the specific proteins?	1	425: Correct!
+pId:p50, qId:50:1160747531	p50	What would happen without free O2?	1	426: Incorrect!
+pId:p50, qId:50:1205836126	p50	What would happen if iron did not precipitate as iron oxide?	0	427: Incorrect!
+pId:p50, qId:50:1633852648	p50	What did free O2 do?	0	428: Incorrect!
+pId:p50, qId:50:1914324420	p50	What did oxygenic photosynthesis do?	1	429: Correct!
+pId:p51, qId:51:842612004	p51	2 cells produce a single prokaryotic cell by binary fission	1	430: Incorrect!
+pId:p52, qId:52:1049087613	p52	What will not happen if the original cell does not lyse?	0	431: Correct!
+pId:p52, qId:52:41015149	p52	The endospore's metabolism halts	0	432: Correct!
+pId:p52, qId:52:877990829	p52	What would happen if the cell did not lyse?	0	433: Correct!
+pId:p53, qId:53:817313481	p53	What would happen without the "mating bridge"?	0	434: Correct!
+pId:p53, qId:53:909925202	p53	what is the correct order of events?	1	435: Correct!
+pId:p55, qId:55:1497172764	p55	What can cause a triploid cell?	0	436: Correct!
+pId:p55, qId:55:2081442829	p55	Tetraploidy involves a 4n embryo	0	437: Incorrect!
+pId:p55, qId:55:2136983537	p55	Fertilization of an abnormal diploid egg produced by nondisjunction of all its chromosomes results in what?	1	438: Correct!
+pId:p56, qId:56:1664772766	p56	The companion chain acts as a template	0	439: Correct!
+pId:p56, qId:56:1669861317	p56	What would happen if the two chains did not unwind and separate?	1	440: Correct!
+pId:p56, qId:56:295506028	p56	Which events can occur at the same time?	1	441: Incorrect!
+pId:p57, qId:57:295506028	p57	Which events can occur at the same time?	1	442: Correct!
+pId:p57, qId:57:34268136	p57	Nucleotides are added to the growing strand	1	443: Incorrect!
+pId:p57, qId:57:532208842	p57	What would happen if the polymerase did not find an incorrectly paired nucleotide?	1	444: Correct!
+pId:p58, qId:58:1340836964	p58	DNA polymerase and DNA ligase fill the gap with nucleotides	0	445: Correct!
+pId:p58, qId:58:1712973681	p58	When a segment of the strand containing the damage is cut out, what is produced?	1	446: Correct!
+pId:p58, qId:58:691026423	p58	A segment of the strand containing the damage is cut out by what?	1	447: Incorrect!
+pId:p59, qId:59:1361048909	p59	Which event occurs in the nucleus?	0	448: Incorrect!
+pId:p59, qId:59:1710166788	p59	Translation is required for RNA transcripts to be modified in various ways	0	449: Incorrect!
+pId:p59, qId:59:816618625	p59	What is the correct order of events?	1	450: Incorrect!
+pId:p59, qId:59:920988674	p59	What would happen without further processing of mRNA?	0	451: Correct!
+pId:p5, qId:5:1104976078	p5	What is the correct order of events?	1	452: Incorrect!
+pId:p5, qId:5:1464381395	p5	What would happen if the concentration of extracellular chloride did not become abnormally high?	0	453: Incorrect!
+pId:p5, qId:5:1492053317	p5	Which entity directly causes poor absorption of nutrients?	0	454: Correct!
+pId:p5, qId:5:813242360	p5	What causes an abnormally high concentration of extracellular chloride?	0	455: Correct!
+pId:p60, qId:60:1244407907	p60	What would happen if the vacuole did not fuse with a lysosome?	0	456: Correct!
+pId:p60, qId:60:1970301131	p60	What is the result of gasses being produced in the lysosome?	0	457: Incorrect!
+pId:p60, qId:60:434725141	p60	Phagocytic cells trap invading pathogens in a vacuole	1	458: Correct!
+pId:p60, qId:60:562918320	p60	The Toll-like receptor binds to what?	0	459: Incorrect!
+pId:p61, qId:61:1031648397	p61	Sites of damage result in an inflammatory response	1	460: Correct!
+pId:p61, qId:61:1616187813	p61	What would happen without activated complement?	0	461: Correct!
+pId:p61, qId:61:1877835952	p61	Which events can happen at the same time?	1	462: Incorrect!
+pId:p61, qId:61:424440847	p61	What would happen if capillaries did not leak fluid into neighboring tissues?	0	463: Correct!
+pId:p61, qId:61:79603706	p61	What is the correct order of events?	0	464: Correct!
+pId:p62, qId:62:1201159395	p62	Which event occurs first?	0	465: Correct!
+pId:p62, qId:62:1274474991	p62	What would happen if the MHC molecule did not move to the cell surface?	0	466: Correct!
+pId:p62, qId:62:666678273	p62	Antigen presentation is necessary for the T cell to bind to both the antigen fragment and the MHC molecule	0	467: Incorrect!
+pId:p63, qId:63:1342023997	p63	What would happen without translation?	1	468: Incorrect!
+pId:p63, qId:63:1793782644	p63	What is processed for translation?	0	469: Correct!
+pId:p63, qId:63:480475861	p63	What is formed when the light chain and the heavy chain assemble together?	0	470: Correct!
+pId:p64, qId:64:1731049417	p64	The remaining B cells are necessary to produce memory B cells and antibody-secreting plasma cells	0	471: Incorrect!
+pId:p64, qId:64:2083096736	p64	In response to a specific antigen and to immune cell signals, one B cell produces what?	1	472: Correct!
+pId:p64, qId:64:708625794	p64	Antibody-secreting plasma cells are produced in response to what?	1	473: Correct!
+pId:p65, qId:65:1108165939	p65	What binds to the antigen fragment and to the class II MHC molecule?	1	474: Correct!
+pId:p65, qId:65:1773038151	p65	What two entities exchange signals in the form of cytokines?	1	475: Incorrect!
+pId:p65, qId:65:586465331	p65	What would happen without the accessory molecule?	1	476: Correct!
+pId:p65, qId:65:769086251	p65	The accessory protein binds to the antigen fragment and to the class II MHC molecule	1	477: Incorrect!
+pId:p66, qId:66:1310934901	p66	The rotor does what?	1	478: Correct!
+pId:p66, qId:66:1416339147	p66	What would happen without the rotor?	0	479: Incorrect!
+pId:p66, qId:66:169366338	p66	H+ ions do what?	0	480: Correct!
+pId:p66, qId:66:2014857236	p66	What is produced when the catalytic site is activated?	1	481: Correct!
+pId:p67, qId:67:1397104049	p67	Where does an excited electron go?	0	482: Correct!
+pId:p67, qId:67:1466432952	p67	What is transferred to the primary electron acceptor?	0	483: Incorrect!
+pId:p67, qId:67:649620044	p67	What would happen without the reaction-center complex?	1	484: Correct!
+pId:p6, qId:6:1582757689	p6	Which entity is responsible for sickle-cell disease?	0	485: Correct!
+pId:p6, qId:6:439769876	p6	What would happen if hemoglobin molecules did not aggregate into long rods?	0	486: Correct!
+pId:p6, qId:6:64064520	p6	What would happen without the substitution of a single amino acid?	1	487: Correct!
+pId:p6, qId:6:731774560	p6	Homozygous individuals can have paralysis	0	488: Correct!
+pId:p70, qId:70:109517534	p70	What would happen without the specimen?	0	489: Correct!
+pId:p70, qId:70:186719256	p70	What is the correct order of events?	0	490: Correct!
+pId:p70, qId:70:365560368	p70	The specimen refracts the light	1	491: Correct!
+pId:p71, qId:71:125935764	p71	What would happen if the process is not repeated several times?	1	492: Incorrect!
+pId:p71, qId:71:1376968933	p71	What two events can occur at the same time?	0	493: Correct!
+pId:p71, qId:71:949574384	p71	What does differential centrifugation result in?	1	494: Correct!
+pId:p72, qId:72:1823273627	p72	Which event occurs first?	1	495: Incorrect!
+pId:p72, qId:72:1970578796	p72	The transport vesicle membrane fuses with the plasma membrane	0	496: Incorrect!
+pId:p72, qId:72:55890885	p72	The Golgi apparatus moves along microtubules	1	497: Correct!
+pId:p73, qId:73:1168543736	p73	A dehydrogenase delivers the 2 electrons along along with 1 proton to its coenzyme	0	498: Incorrect!
+pId:p73, qId:73:184837701	p73	What happens to the 2 electrons?	1	499: Correct!
+pId:p73, qId:73:2038634249	p73	Which molecule receives only 1 positively charged proton?	1	500: Correct!
+pId:p74, qId:74:2051563341	p74	Which event occurs first?	0	501: Correct!
+pId:p74, qId:74:583547236	p74	Sodium ions "fall" down their electrochemical gradient to the inside of the membrane	0	502: Correct!
+pId:p74, qId:74:632375555	p74	What would happen without the concentration gradient of Na+ and the attraction of these cations to the negative side of the membrane?	0	503: Correct!
+pId:p75, qId:75:1638840557	p75	The plasma membrane had been outside the cell	0	504: Incorrect!
+pId:p75, qId:75:493651301	p75	What happens because the pocket deepens?	1	505: Correct!
+pId:p76, qId:76:1456231712	p76	What catalyzes the conversion of substrate to product?	1	506: Correct!
+pId:p76, qId:76:1823273627	p76	Which event occurs first?	0	507: Correct!
+pId:p76, qId:76:206306385	p76	what would happen if the product did not depart from the active site?	0	508: Correct!
+pId:p77, qId:77:1015281778	p77	Which of the following happens first?	1	509: Incorrect!
+pId:p77, qId:77:292745684	p77	What would happen without the oxidation of glucose?	0	510: Correct!
+pId:p77, qId:77:778691262	p77	Which event is part of the energy investment phase?	0	511: Correct!
+pId:p77, qId:77:940304046	p77	Substrate-level phosphorylation is necessary to produce NADH	1	512: Correct!
+pId:p78, qId:78:1227531186	p78	What would happen without the Calvin cycle?	0	513: Incorrect!
+pId:p78, qId:78:1460396516	p78	Which two events can occur at the same time?	1	514: Incorrect!
+pId:p78, qId:78:1747613271	p78	The Calvin cycle requires what?	1	515: Correct!
+pId:p78, qId:78:927794610	p78	The Calvin cycle requires light directly	1	516: Incorrect!
+pId:p79, qId:79:1031711532	p79	Which of the following happens first?	1	517: Correct!
+pId:p79, qId:79:1232993787	p79	What would happen without other pigment molecules?	0	518: Correct!
+pId:p79, qId:79:661670181	p79	Which events can occur at the same time?	1	519: Incorrect!
+pId:p7, qId:7:1594182962	p7	What would happen if fog did not collect on the beetle's body?	0	520: Correct!
+pId:p7, qId:7:1844549223	p7	What entity runs down into the beetle's mouth?	1	521: Correct!
+pId:p80, qId:80:1000125346	p80	What would happen without plasmodesmata?	0	522: Correct!
+pId:p80, qId:80:1161986600	p80	Which enzyme cannot fix carbon when CO2 concentration in the leaf falls and O2 concentration rises?	0	523: Correct!
+pId:p80, qId:80:1540213224	p80	What is required to produce ATP in bundle-sheath cells?	1	524: Correct!
+pId:p80, qId:80:1680517561	p80	What adds CO2 to PEP?	0	525: Correct!
+pId:p81, qId:81:1795979320	p81	What would happen without vacuoles?	1	526: Incorrect!
+pId:p81, qId:81:1924038843	p81	Other plants open their stomata during the night and close them during the day.	1	527: Correct!
+pId:p81, qId:81:496456244	p81	succulents make organic acids during the night	0	528: Incorrect!
+pId:p81, qId:81:699481888	p81	What is incorporated into sugar in the chloroplasts?	0	529: Incorrect!
+pId:p82, qId:82:121678206	p82	The modified G protein hydrolyzes GTP to GDP	0	530: Incorrect!
+pId:p82, qId:82:1558593697	p82	What does Vibrio cholerae do?	0	531: Incorrect!
+pId:p82, qId:82:243544029	p82	which event occurs first?	1	532: Correct!
+pId:p82, qId:82:444592847	p82	The cholera toxin does what?	1	533: Correct!
+pId:p83, qId:83:1573630722	p83	What is necessary for the appearance of a cleavage furrow?	0	534: Correct!
+pId:p83, qId:83:1660207704	p83	Which entity is part of the contractile ring?	1	535: Incorrect!
+pId:p83, qId:83:1774699256	p83	What is produced by the cleavage furrow deepening?	1	536: Correct!
+pId:p84, qId:84:1430381448	p84	What move(s) along microtubules to the middle of the cell?	0	537: Incorrect!
+pId:p84, qId:84:718658616	p84	What is required for cytokinesis in plant cells?	1	538: Correct!
+pId:p84, qId:84:840011300	p84	What is formed because hte cell plate enlarges?	0	539: Correct!
+pId:p86, qId:86:2028113369	p86	The Calvin cycle produces sugar	1	540: Correct!
+pId:p86, qId:86:237364635	p86	Which of the following is required for the light reactions?	1	541: Incorrect!
+pId:p86, qId:86:315528885	p86	How is ATP made?	1	542: Incorrect!
+pId:p86, qId:86:932472992	p86	What is the final product of the light reactions?	1	543: Correct!
+pId:p86, qId:86:991350426	p86	What do light reactions eventually produce?	0	544: Correct!
+pId:p87, qId:87:1097860333	p87	What regenerates the supply of NAD+?	0	545: Correct!
+pId:p87, qId:87:1823273627	p87	Which event occurs first?	0	546: Correct!
+pId:p87, qId:87:998674879	p87	Bacteria is produced by alcohol fermentation	0	547: Incorrect!
+pId:p88, qId:88:1200166234	p88	The product of step 1 is citrate	1	548: Correct!
+pId:p88, qId:88:1484520441	p88	Electrons are transferred to FAD	0	549: Incorrect!
+pId:p88, qId:88:183342587	p88	What would happen without NAD+?	0	550: Correct!
+pId:p88, qId:88:450941340	p88	What is a product of the citric acid cycle?	1	551: Correct!
+pId:p88, qId:88:978973084	p88	How is GTP produced?	0	552: Incorrect!
+pId:p89, qId:89:1296775802	p89	How does water enter the cell?	0	553: Incorrect!
+pId:p89, qId:89:749350457	p89	What is required for the wall to exert a back pressure on the cell?	1	554: Incorrect!
+pId:p89, qId:89:786522925	p89	Turgor pressure is caused by and prevents water uptake.	1	555: Incorrect!
+pId:p8, qId:8:1601602445	p8	What would happen if new layers of sediment did not cover older ones?	0	556: Correct!
+pId:p8, qId:8:91263090	p8	Newer layers are upper strata	0	557: Correct!
+pId:p91, qId:91:1939363771	p91	What would happen if the chain is not threaded into the ER lumen?	0	558: Correct!
+pId:p91, qId:91:258341233	p91	The bound ribosome is threaded into the ER lumen	0	559: Correct!
+pId:p91, qId:91:306605721	p91	What folds into its native shape?	0	560: Incorrect!
+pId:p92, qId:92:1695726646	p92	Golgi cisternae move to the trans face	1	561: Incorrect!
+pId:p92, qId:92:1820142834	p92	Vesicles transport enzymes "backward"	0	562: Incorrect!
+pId:p92, qId:92:2145456727	p92	In which direction do cisternae move?	0	563: Correct!
+pId:p93, qId:93:1971672108	p93	Phagocytosis produces what?	0	564: Correct!
+pId:p93, qId:93:228634761	p93	The food vacuole digests food	0	565: Correct!
+pId:p93, qId:93:82934816	p93	What becomes nutrients for the cell?	0	566: Incorrect!
+pId:p94, qId:94:337434669	p94	What directly causes breakdown of glycogen?	1	567: Correct!
+pId:p94, qId:94:490942489	p94	What is required for epinephrine to activate glycogen phosphorylase?	0	568: Incorrect!
+pId:p95, qId:95:1655361249	p95	What do relay molecules do?	0	569: Correct!
+pId:p95, qId:95:2092400565	p95	What is required for transduction?	0	570: Correct!
+pId:p95, qId:95:668030926	p95	What is required for reception?	1	571: Correct!
+pId:p95, qId:95:784648974	p95	Epinephrine acts as what?	0	572: Incorrect!
+pId:p96, qId:96:1177648416	p96	What would happen if factors did not bind to receptors?	1	573: Correct!
+pId:p96, qId:96:1180665049	p96	fusion results in what?	0	574: Correct!
+pId:p96, qId:96:328605033	p96	fusion results in a combination of genetic resources	1	575: Correct!
+pId:p96, qId:96:806079453	p96	What would happen without fusion?	0	576: Incorrect!
+pId:p97, qId:97:1199804984	p97	A fruiting body is formed when?	0	577: Incorrect!
+pId:p97, qId:97:1462750086	p97	What would happen if starving cells did not secrete a molecule?	1	578: Correct!
+pId:p97, qId:97:1630084083	p97	What happens when food is scarce?	0	579: Correct!
+pId:p98, qId:98:1010335218	p98	What travels through the blood?	1	580: Correct!
+pId:p98, qId:98:1157030465	p98	What produces testosterone?	0	581: Correct!
+pId:p9, qId:9:1025089259	p9	What is the correct order of events?	0	582: Correct!
+pId:p9, qId:9:1195004541	p9	Methicillin allows individuals to reproduce at higher rates	0	583: Incorrect!
+pId:p9, qId:9:352008069	p9	Methicillin works directly by deactivating cell walls	0	584: Incorrect!
+pId:p9, qId:9:493950699	p9	What would happen without Methicillin?	0	585: Incorrect!

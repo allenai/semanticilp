@@ -22,12 +22,15 @@ import ProcessBankReader._
 import edu.cmu.meteor.scorer.{MeteorConfiguration, MeteorScorer}
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, TextAnnotation}
 import edu.illinois.cs.cogcomp.edison.annotators.ClauseViewGenerator
+import edu.illinois.cs.cogcomp.pipeline.server.ServerClientAnnotator
 import org.simmetrics.metrics.StringMetrics
 import org.allenai.ari.controller.questionparser.{FillInTheBlankGenerator, QuestionParse}
 import org.allenai.ari.solvers.textilp.ResultJson._
 import org.allenai.ari.solvers.textilp.utils.SimilarityUtils.Levenshtein
 import org.apache.lucene.search.similarities.{MultiSimilarity, Similarity}
 import org.simmetrics.StringMetric
+
+import scala.util.Random
 //import com.quantifind.charts.Highcharts._
 
 import scala.io.Source
@@ -318,6 +321,22 @@ object ExperimentsApp {
     println(avgResults.toString)
     if(outputFileOpt.isDefined) outputFileOpt.get.close
   }
+
+  def processLuceneSnippets(dataset: Seq[(String, Seq[String], String)], knowledgeLength: Int = 8, printMistakes: Boolean = false) = {
+    val max = dataset.length
+    dataset.zipWithIndex.foreach {
+      case ((question, options, correct), idx) =>
+        println(s"Processing ${idx} out of ${max}")
+        val rawSentences = SolverUtils.extractPatagraphGivenQuestionAndFocusSet3(question, options, knowledgeLength).mkString(" ")
+        val knowledgeSnippet = annotationUtils.dropRedundantSentences(rawSentences)
+        println("Question: " + question)
+        println("knowledge: " + knowledgeSnippet)
+        val clientTa = annotationUtils.pipelineServerClient.annotate(question)
+        annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
+        annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
+        clientTa.addView(annotationUtils.fillInBlankAnnotator)
+    }
+ }
 
   def cacheTheKnowledgeOnDisk(dataset: Seq[(String, Seq[String], String)]): Unit = {
     dataset.zipWithIndex.foreach {
@@ -694,7 +713,10 @@ object ExperimentsApp {
       //        println("==== regents test  ")
       //        evaluateTextSolverOnRegents(SolverUtils.publicTest, luceneSolver)
       //        println("==== public test  ")
-
+        processLuceneSnippets(SolverUtils.regentsTrain)
+        processLuceneSnippets(SolverUtils.publicTrain)
+        processLuceneSnippets(SolverUtils.regentsTest)
+        processLuceneSnippets(SolverUtils.publicTest)
       case 12 => extractKnowledgeSnippet()
       case 13 => testSquadPythonEvaluationScript()
       case 14 =>
@@ -2177,6 +2199,41 @@ object ExperimentsApp {
           }
           println("average score: " + scores.sum.toDouble / scores.length + "  - size: " + scores.length)
        }
+      case 94 =>
+        // testing the effect of parallelism on annotation
+        lazy val pipelineServerClient = {
+          val x = new ServerClientAnnotator()
+          x.setUrl("http://austen.cs.illinois.edu", "5800")
+          //x.setViewsAll(viewsToAdd.toArray)
+          x.useCaching("testDB.cache")
+          x
+        }
+        val p = "On one particularly cold night in Alaska back in December (it’s January now as I write this) I got bored and decided to write my own random string method. As I started to write the code, I realized there were several different ways to tackle the problem. For me this is a cool thing about Scala; it’s like the old Perl slogan, “There’s more than one way to do it.”"
+        (0 to 100).par.foreach{ idx =>
+          println("idx = " + idx)
+          val ta = pipelineServerClient.annotate(p.substring(0, Random.nextInt(p.length)))
+        }
+      case 95 =>
+        // read Vivek's data
+        val predictions = Source.fromFile(new File(Constants.vivekPredictonsFile)).getLines().toList.drop(1).map { line =>
+          val split = line.split("\t")
+          val pid = split(1)
+          val question = split(2)
+          val resultStr = split(4)
+          val result = if(resultStr.contains("Incorrect")) 0.0 else 1.0
+          (pid, result)
+        }
+        val testParagrapghs = Source.fromFile(new File(Constants.vivekTestParagraphs)).getLines().toSet
+        println(testParagrapghs.slice(0, 50))
+        println(predictions.slice(0, 50))
+        val (test, train) = predictions.partition(x => testParagrapghs.contains(x._1))
+        val testResult = test.unzip._2.sum / test.unzip._2.length
+        val trainResult = train.unzip._2.sum / train.unzip._2.length
+        println("test result: " + testResult + "  testResult.length: " + test.size)
+        println("train result: " + trainResult + "  trainResult.length: " + train.size)
+      case 96 =>
+        // cache lucene annotations
+
     }
   }
 }

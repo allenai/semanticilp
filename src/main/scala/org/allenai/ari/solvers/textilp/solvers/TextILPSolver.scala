@@ -342,9 +342,9 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
         //annotationUtils.annotateViewLwithRemoteServer(ViewNames.SHALLOW_PARSE, qTA)
         //        annotationUtils.annotateViewLwithRemoteServer(qTA)
         val clientTa = annotationUtils.pipelineServerClient.annotate(question)
-        SolverUtils.runWithTimeout(5) {
+        //SolverUtils.runWithTimeout(5) {
           annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
-        }
+        //}
         //annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
         clientTa.addView(annotationUtils.fillInBlankAnnotator)
         Some(clientTa)
