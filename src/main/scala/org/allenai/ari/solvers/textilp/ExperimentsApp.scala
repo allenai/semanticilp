@@ -2230,16 +2230,23 @@ object ExperimentsApp {
           val question = split(2)
           val resultStr = split(4)
           val result = if(resultStr.contains("Incorrect")) 0.0 else 1.0
-          (pid, result)
+          (pid, result, question)
         }
         val testParagrapghs = Source.fromFile(new File(Constants.vivekTestParagraphs)).getLines().toSet
         println(testParagrapghs.slice(0, 50))
         println(predictions.slice(0, 50))
         val (test, train) = predictions.partition(x => testParagrapghs.contains(x._1))
-        val testResult = test.unzip._2.sum / test.unzip._2.length
-        val trainResult = train.unzip._2.sum / train.unzip._2.length
+        val testResult = test.unzip3._2.sum / test.unzip3._2.length
+        val trainResult = train.unzip3._2.sum / train.unzip3._2.length
         println("test result: " + testResult + "  testResult.length: " + test.size)
         println("train result: " + trainResult + "  trainResult.length: " + train.size)
+        val testNonCauseNonTemporal = test.filter(q => !q._3.isCauseQuestion && !q._3.isTemporal)
+        val trainNonCauseNonTemporal = train.filter(q => !q._3.isCauseQuestion && !q._3
+          .isTemporal)
+        println("test result: " + testNonCauseNonTemporal.unzip3._2.sum / testNonCauseNonTemporal.unzip3._2.length +
+          "  testResult.length: " + testNonCauseNonTemporal.size)
+        println("train result: " + trainNonCauseNonTemporal.unzip3._2.sum / trainNonCauseNonTemporal.unzip3._2.length +
+          "  trainResult.length: " + trainNonCauseNonTemporal.size)
       case 96 =>
         // cache lucene annotations
 
