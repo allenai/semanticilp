@@ -290,7 +290,6 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     // resultCause
     // resultILP
 
-    // CommaSRL+VerbSRL	SRLV2 	SimpleMatching	Coref+VerbSRL	SRLV1ILP	VerbSRL+PrepSRL	SRLV1 	Cause 	What does it do
 //    val resultOpt = Seq(resultWhatDoesItdo, resultCause, resultSRLV1, resultVerbSRLPlusPrepSRL, srlV1ILP,
 //      resultVerbSRLPlusCoref, resultILP, resultSRLV2, resultVerbSRLPlusCommaSRL).find{ result =>
 //      println(" --> Method:  " + result._2)

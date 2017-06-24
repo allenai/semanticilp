@@ -78,8 +78,9 @@ class AnnotationUtils() {
     //    settings.setProperty(CuratorConfigurator.DISABLE_CACHE.key, Configurator.FALSE)
     //    settings.setProperty(CuratorConfigurator.CACHE_FORCE_UPDATE.key, Configurator.TRUE)
     //viewsToDisable.foreach{ key => settings.setProperty(key.value, Configurator.FALSE) }
-    val rm = new ResourceManager(settings)
     //viewsToDisable.foreach { v => settings.setProperty(v.key, Configurator.FALSE) }
+    settings.setProperty(CuratorConfigurator.DISABLE_CACHE.key, Configurator.FALSE)
+    val rm = new ResourceManager(settings)
     val config = new CuratorConfigurator().getConfig(rm)
     CuratorFactory.buildCuratorClient()
   }
