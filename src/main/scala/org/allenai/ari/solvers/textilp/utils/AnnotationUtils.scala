@@ -82,7 +82,7 @@ class AnnotationUtils() {
     settings.setProperty(CuratorConfigurator.DISABLE_CACHE.key, Configurator.FALSE)
     val rm = new ResourceManager(settings)
     val config = new CuratorConfigurator().getConfig(rm)
-    CuratorFactory.buildCuratorClient()
+    CuratorFactory.buildCuratorClient(config)
   }
 
   import edu.illinois.cs.cogcomp.pipeline.server.ServerClientAnnotator

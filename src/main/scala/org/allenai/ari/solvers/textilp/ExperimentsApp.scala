@@ -151,13 +151,6 @@ object ExperimentsApp {
     pw.close()
   }
 
-  def testCuratorAnnotation() = {
-    val ta = annotationUtils.curatorService.createBasicTextAnnotation("", "",
-      "This is a sample sentence. Barak Obama is the president of US. Lake Tahoe is a nice place to visit. I like the blue skye. ")
-    annotationUtils.curatorService.addView(ta, ViewNames.WIKIFIER)
-    println(ta.getAvailableViews)
-  }
-
   //TODO if "the" is among the candidate answrs, drop it and make it another candidate
   //TODO capture alphabetical numbers too, like "six"
   def generateCandiateAnswers(reader: SQuADReader): Unit = {
@@ -732,7 +725,11 @@ object ExperimentsApp {
         // evaluate any of the text solvers on the squad dataset
         evaluateTextSolverOnSquad(trainReader, luceneSolver)
       case 15 => dumpSQuADQuestionsOnDisk(devReader)
-      case 16 => testCuratorAnnotation()
+      case 16 =>
+        val ta = annotationUtils.curatorService.createBasicTextAnnotation("", "",
+          "This is a sample sentence. Barak Obama is the president of US. Lake Tahoe is a nice place to visit. I like the blue skye. ")
+        annotationUtils.curatorService.addView(ta, ViewNames.WIKIFIER)
+        println(ta.getAvailableViews)
       case 17 => annotationUtils.processSQuADWithWikifier(trainReader)
       case 18 =>
         // puts the result of the Wikifier in redis

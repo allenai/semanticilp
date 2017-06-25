@@ -343,10 +343,13 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       if (useRemoteAnnotation) {
         //annotationUtils.annotateViewLwithRemoteServer(ViewNames.SHALLOW_PARSE, qTA)
         //        annotationUtils.annotateViewLwithRemoteServer(qTA)
+        println(" --> pipeline")
         val clientTa = annotationUtils.pipelineServerClient.annotate(question)
         //SolverUtils.runWithTimeout(5) {
-          annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
+        println(" --> external")
+        annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
         //}
+        println(" --> curator")
         annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
         clientTa.addView(annotationUtils.fillInBlankAnnotator)
         Some(clientTa)
@@ -370,10 +373,13 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
           //          annotationUtils.annotateViewLwithRemoteServer(ViewNames.SHALLOW_PARSE, pTA)
           //          annotationUtils.annotateViewLwithRemoteServer(ViewNames.DEPENDENCY_STANFORD, pTA)
           //annotationUtils.annotateViewLwithRemoteServer(pTA)
+          println(" --> pipeline")
           val clientTa = annotationUtils.pipelineServerClient.annotate(snippet)
 //          SolverUtils.runWithTimeout(10) {
+          println(" --> external")
             annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
 //          }
+          println(" --> curator")
           annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
           Some(clientTa)
         } else {
@@ -396,6 +402,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       println("snippet: " + snippet)
       None
     }
+    println("Done with annotations . . . ")
     val p = Paragraph(snippet, Seq(q), pTA)
     (q, p)
   }
