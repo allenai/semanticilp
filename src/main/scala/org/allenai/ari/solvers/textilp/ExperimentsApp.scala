@@ -1148,7 +1148,6 @@ object ExperimentsApp {
         //evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
         //evaluateTextSolverOnProcessBank(processReader.testInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
 
-        evaluateTextSolverOnProcessBankWithDifferentReasonings(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
 
       // println("no-temporals/no true or false: ")
       //
@@ -2153,6 +2152,11 @@ object ExperimentsApp {
         processLuceneSnippets(SolverUtils.regentsTest)
         println("==== regents test ")
         processLuceneSnippets(SolverUtils.publicTest)
+
+      case 97 =>
+        println("==== process bank train: per reasoning ")
+        evaluateTextSolverOnProcessBankWithDifferentReasonings(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
+
 
     }
   }

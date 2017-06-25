@@ -2343,7 +2343,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       }
 
       // constraint: not more than one argument of a frame, should be aligned to answer option:
-      ansPVerbAlignments.groupBy(_._1.getIncomingRelations.get(0).getSource).foreach { case (_, list) =>
+      ansPVerbAlignments.filter(_._1.getIncomingRelations.size > 0). // Dunno why by this is sometimes empty; probs SRL issue
+        groupBy(_._1.getIncomingRelations.get(0).getSource).foreach { case (_, list) =>
         val variables = list.map(_._4)
         val weights = variables.map(_ => 1.0)
         ilpSolver.addConsBasicLinear(s"", variables, weights, None, Some(1.0))
