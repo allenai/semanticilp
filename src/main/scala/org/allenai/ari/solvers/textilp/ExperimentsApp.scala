@@ -459,7 +459,7 @@ object ExperimentsApp {
     import java.io._
 
     // resultWhatDoesItdo, resultCause, resultSRLV1, resultVerbSRLPlusPrepSRL, srlV1ILP,
-    val types = Seq(WhatDoesItDoRule, CauseRule, SRLV1Rule, VerbSRLandPrepSRL, SRLV1ILP, VerbSRLandCoref, SimpleMatching)
+    val types = Seq(/*WhatDoesItDoRule, CauseRule, SRLV1Rule, */VerbSRLandPrepSRL, SRLV1ILP, VerbSRLandCoref, SimpleMatching)
     //    val types = Seq(VerbSRLandCoref)
 
     val qAndpPairs = list.flatMap { p => p.questions.map(q => (q, p)) }
