@@ -1,15 +1,15 @@
 package org.allenai.ari.solvers.textilp.utils
 
 import java.io.File
-import java.net.{InetSocketAddress, URLDecoder, URLEncoder}
+import java.net.{ InetSocketAddress, URLDecoder, URLEncoder }
 import java.util
 
 import edu.illinois.cs.cogcomp.McTest.MCTestBaseline
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
-import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, TextAnnotation}
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{ Constituent, TextAnnotation }
 import org.allenai.ari.solvers.textilp.alignment.KeywordTokenizer
 import org.allenai.ari.solvers.textilp.solvers.TextIlpParams
-import org.allenai.ari.solvers.textilp.{Entity, EntityRelationResult, Paragraph, Question}
+import org.allenai.ari.solvers.textilp.{ Entity, EntityRelationResult, Paragraph, Question }
 import org.allenai.common.cache.JsonQueryCache
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.lang.StringEscapeUtils
@@ -25,7 +25,7 @@ import redis.clients.jedis.Protocol
 import scala.collection.JavaConverters._
 import spray.json.DefaultJsonProtocol._
 
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{ Await, ExecutionContext, Future }
 import scala.io.Source
 
 object SolverUtils {
@@ -166,23 +166,23 @@ object SolverUtils {
       sortedSet.take(topK)
     } else {
       sortedSet
-    }).map{ case (str, _) =>
+    }).map {
+      case (str, _) =>
         val strTrimmed = str.trim
-        val strNoDot = if(strTrimmed.tail == ".") strTrimmed.dropRight(1) else strTrimmed
+        val strNoDot = if (strTrimmed.tail == ".") strTrimmed.dropRight(1) else strTrimmed
         val noLonePercentage = strNoDot.replaceAll(" % ", "")
-        val noPercentageInTheBegining = if(noLonePercentage.slice(0,2) == "% ") noLonePercentage.drop(2) else noLonePercentage
+        val noPercentageInTheBegining = if (noLonePercentage.slice(0, 2) == "% ") noLonePercentage.drop(2) else noLonePercentage
         //println("noPercentageInTheBegining: " + noPercentageInTheBegining)
         val noURlChars = try {
           URLDecoder.decode(noPercentageInTheBegining, charset)
-        }
-        catch {
+        } catch {
           case e: Exception => noPercentageInTheBegining
         }
         val strNoSpecialChat = noURlChars.replaceAll("(\\+|\\*|_)", " ")
         val noHTMLTags = StringEscapeUtils.unescapeHtml(strNoSpecialChat)
         val noInvalidWhiteSpace = noHTMLTags.replaceAll("", " ")
         noInvalidWhiteSpace
-      }.distinct
+    }.distinct.map(s => s.substring(0, math.min(1500, s.length))) // nothing longer than 1500 characters
   }
 
   def getLuceneHitFields(hit: SearchHit): Map[String, AnyRef] = {
@@ -402,18 +402,17 @@ object SolverUtils {
   import scala.concurrent.duration._
   implicit val xc = ExecutionContext.global
 
-  def runWithTimeout[T](timeMins: Long)(f: => T) : Option[T] = {
+  def runWithTimeout[T](timeMins: Long)(f: => T): Option[T] = {
     try {
       Await.result(Future(f), timeMins minute).asInstanceOf[Option[T]]
-    }
-    catch {
+    } catch {
       case e: Exception =>
         println("Process not done after " + timeMins + " minutes")
         None
     }
   }
 
-  def runWithTimeout[T](timeMins: Long, default: T)(f: => T) : T = {
+  def runWithTimeout[T](timeMins: Long, default: T)(f: => T): T = {
     runWithTimeout(timeMins)(f).getOrElse(default)
   }
 

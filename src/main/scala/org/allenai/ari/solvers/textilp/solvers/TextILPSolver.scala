@@ -38,6 +38,7 @@ object TextILPSolver {
   val pathLSTMViewName = "SRL_VERB_PATH_LSTM"
   val stanfordCorefViewName = "STANFORD_COREF"
   val curatorSRLViewName = "SRL_VERB_CURATOR"
+  val clausIeViewName = "CLAUSIE"
 
   val epsilon = 0.001
   val oneActiveSentenceConstraint = true
@@ -290,19 +291,28 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     // resultCause
     // resultILP
 
-//    val resultOpt = Seq(resultWhatDoesItdo, resultCause, resultSRLV1, resultVerbSRLPlusPrepSRL, srlV1ILP,
-//      resultVerbSRLPlusCoref, resultILP, resultSRLV2, resultVerbSRLPlusCommaSRL).find{ result =>
-//      println(" --> Method:  " + result._2)
-//      result._1._1.nonEmpty
-//    }
-//    if(resultOpt.isDefined) resultOpt.get._1 else (Seq.empty, EntityRelationResult())
-    resultILP._1
+    val resultOpt = Seq(resultWhatDoesItdo, resultCause, resultSRLV1, resultVerbSRLPlusPrepSRL, srlV1ILP,
+      resultVerbSRLPlusCoref, resultILP, resultSRLV2, resultVerbSRLPlusCommaSRL).find{ result =>
+      println(" --> Method:  " + result._2)
+      result._1._1.nonEmpty
+    }
+    if(resultOpt.isDefined) resultOpt.get._1 else (Seq.empty, EntityRelationResult())
+//    resultILP._1
   }
 
-  def solveWithReasoningType(question: String, options: Seq[String], snippet: String, reasoningType: ReasoningType): (Seq[Int], EntityRelationResult) = {
+  def getSimplifiedParagraphs(s: String): String =  {
+    val ta = annotationUtils.clausieServerClient.annotate(s)
+    ta.getView(TextILPSolver.clausIeViewName).getConstituents.asScala.flatMap{ c =>
+      val keys = c.getAttributeKeys
+      keys.asScala.map(c.getAttribute(_))
+    }.mkString(". ")
+  }
+
+  def solveWithReasoningType(question: String, options: Seq[String], snippet1: String, reasoningType: ReasoningType): (Seq[Int], EntityRelationResult) = {
     //val (q1: Question, p1: Paragraph) = preprocessQuestionData(question, options, snippet)
     //val subSnippet = SolverUtils.ParagraphSummarization.getSubparagraphString(p1, q1)
     //val (q: Question, p: Paragraph) = preprocessQuestionData(question, options, subSnippet)
+    val snippet = getSimplifiedParagraphs(snippet1)
     val (q: Question, p: Paragraph) = preprocessQuestionData(question, options, snippet)
     reasoningType match {
       case SRLV1Rule => SRLSolverV1WithAllViews(q, p)

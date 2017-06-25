@@ -7,13 +7,14 @@ import java.util.Properties
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation
 import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper
-import edu.illinois.cs.cogcomp.core.utilities.configuration.{Configurator, ResourceManager}
-import edu.illinois.cs.cogcomp.curator.{CuratorConfigurator, CuratorFactory}
-import edu.illinois.cs.cogcomp.pipeline.common.{PipelineConfigurator, Stanford331Configurator}
+import edu.illinois.cs.cogcomp.core.utilities.configuration.{ Configurator, ResourceManager }
+import edu.illinois.cs.cogcomp.curator.{ CuratorConfigurator, CuratorFactory }
+import edu.illinois.cs.cogcomp.pipeline.common.{ PipelineConfigurator, Stanford331Configurator }
 import edu.illinois.cs.cogcomp.pipeline.common.PipelineConfigurator._
 import edu.illinois.cs.cogcomp.pipeline.main.PipelineFactory
-import org.allenai.ari.solvers.squad.{CandidateGeneration, SQuADReader}
-import org.allenai.ari.solvers.textilp.{Paragraph, Question, TopicGroup}
+import org.allenai.ari.solvers.squad.{ CandidateGeneration, SQuADReader }
+import org.allenai.ari.solvers.textilp.solvers.TextILPSolver
+import org.allenai.ari.solvers.textilp.{ Paragraph, Question, TopicGroup }
 import org.allenai.common.cache.JsonQueryCache
 import redis.clients.jedis.JedisPool
 import spray.json.DefaultJsonProtocol._
@@ -92,6 +93,14 @@ class AnnotationUtils() {
     x.setUrl("http://austen.cs.illinois.edu", "5800")
     x.setViewsAll(viewsToAdd.toArray)
     x.useCaching("remotePipelineCachingTextilp6.cache")
+    x
+  }
+
+  lazy val clausieServerClient = {
+    val x = new ServerClientAnnotator()
+    x.setUrl("http://austen.cs.illinois.edu", "5988")
+    x.setViewsAll(Array(TextILPSolver.clausIeViewName))
+    x.useCaching("clausie.cache")
     x
   }
 
@@ -404,10 +413,11 @@ class AnnotationUtils() {
 
   def dropRedundantSentences(str: String): String = {
     val ta = pipelineService.createBasicTextAnnotation("", "", str)
-    ta.getView(ViewNames.SENTENCE).getConstituents.asScala.map{_.getSurfaceForm}.distinct.
-      map{c => println(c)
-      c
-    }mkString
+    ta.getView(ViewNames.SENTENCE).getConstituents.asScala.map { _.getSurfaceForm }.distinct.
+      map { c =>
+        println(c)
+        c
+      }mkString
   }
 
 }

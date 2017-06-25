@@ -110,7 +110,7 @@ object ProcessBankReader {
 
   def normalizeText(str: String): String = {
     println("input with paranthesis: " + str)
-/*    val out = str.trim.replaceAll("\\(Figure \\d{1,2}[\\,\\.]{1}\\d{1,2}\\)", "").
+    /*    val out = str.trim.replaceAll("\\(Figure \\d{1,2}[\\,\\.]{1}\\d{1,2}\\)", "").
       replaceAll("\\(see Figure \\d{1,2}[\\,\\.]{1}\\d{1,2}\\)", "").
       replaceAll("\\(Figure \\d{1,2}[\\,\\.]{1}\\d{1,2}[^ ]\\)", "").
       replaceAll("\\(Figure \\d{1,2}[\\,\\.]{1}\\d{1,2}[^ ], bottom\\)", "").

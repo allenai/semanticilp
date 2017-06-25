@@ -34,19 +34,19 @@ object Constants {
       "waterloo" -> "Waterloo Corpus",
       "wikipedia" -> "Wikipedia",
       "simplewikipedia" -> "Simple Wikipedia"
-      //    "waterloofiltered1" -> "waterloofiltered1",
-      //    "waterloofiltered2" -> "waterloofiltered2",
-      //    "quizlet-qna" -> "quizlet-qna",
-      //    "quizlet-termdef" -> "quizlet-termdef",
-      //    "studystack-qna" -> "studystack-qna",
-      //    "virginiaflashcard-sentences" -> "virginiaflashcard-sentences",
-      //    "ck12-flexbook-gr3-sentences" -> "ck12-flexbook-gr3-sentences",
-      //    "ck12-flexbook-gr4-sentences" -> "ck12-flexbook-gr4-sentences",
-      //    "ck12-flexbook-gr5-sentences" -> "ck12-flexbook-gr5-sentences",
-      //    "ck12-flexbook-gr3-qna" -> "ck12-flexbook-gr3-qna",
-      //    "barrons-2016-09-21" -> "barrons-2016-09-21",
-      //    "busc-2016-11-17" -> "busc-2016-11-17",
-      //    "ck12-flexbook-gr3-qna-2016-10-19" -> "ck12-flexbook-gr3-qna-2016-10-19"
+    //    "waterloofiltered1" -> "waterloofiltered1",
+    //    "waterloofiltered2" -> "waterloofiltered2",
+    //    "quizlet-qna" -> "quizlet-qna",
+    //    "quizlet-termdef" -> "quizlet-termdef",
+    //    "studystack-qna" -> "studystack-qna",
+    //    "virginiaflashcard-sentences" -> "virginiaflashcard-sentences",
+    //    "ck12-flexbook-gr3-sentences" -> "ck12-flexbook-gr3-sentences",
+    //    "ck12-flexbook-gr4-sentences" -> "ck12-flexbook-gr4-sentences",
+    //    "ck12-flexbook-gr5-sentences" -> "ck12-flexbook-gr5-sentences",
+    //    "ck12-flexbook-gr3-qna" -> "ck12-flexbook-gr3-qna",
+    //    "barrons-2016-09-21" -> "barrons-2016-09-21",
+    //    "busc-2016-11-17" -> "busc-2016-11-17",
+    //    "ck12-flexbook-gr3-qna-2016-10-19" -> "ck12-flexbook-gr3-qna-2016-10-19"
     )
   )
 
@@ -56,7 +56,6 @@ object Constants {
   )
 
   val elasticBeingUsed = remoteElastic
-
 
   // vivek's questions
   val vivekPredictonsFile = "other/vivekPredictions/vivek-predictions.tsv"
