@@ -74,6 +74,7 @@ lazy val root = (project in file(".")).
       ccgLib("illinois-core-utilities"),
       ccgLib("illinois-inference"),
       ccgLib("illinois-nlp-pipeline"),
+      ccgLib("illinois-curator"),
       "edu.cmu.cs.ark" % "ChuLiuEdmonds" % "1.0" force(),
       //ccgGroupId % "illinois-llm" % "1.1.4",
       ccgGroupId % "saul-examples_2.11" % "0.5.7-SNAPSHOT",
