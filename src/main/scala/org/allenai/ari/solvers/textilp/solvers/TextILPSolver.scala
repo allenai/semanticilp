@@ -31,6 +31,8 @@ case object SRLV3Rule extends ReasoningType
 case object VerbSRLandCommaSRL extends ReasoningType
 case object VerbSRLandCoref extends ReasoningType
 case object VerbSRLandPrepSRL extends ReasoningType
+case object CauseILP extends ReasoningType
+case object WhatDoesItDoILP extends ReasoningType
 case object CauseRule extends ReasoningType
 case object WhatDoesItDoRule extends ReasoningType
 
@@ -865,9 +867,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
 
     //val p = if(reasoningTypes.contains(SimpleMatching)) SolverUtils.ParagraphSummarization.getSubparagraph(p1, q, Some(annotationUtils)) else p1
     //val p = SolverUtils.ParagraphSummarization.getSubparagraph(p1, q, Some(annotationUtils))
-
     //val p = p1 //if(useSummary) SolverUtils.ParagraphSummarization.getSubparagraph(p1, q, Some(annotationUtils)) else p1
-
     //val p = SolverUtils.ParagraphSummarization.getSubparagraph(p1, q, Some(annotationUtils))
     val p = p1
 
@@ -928,6 +928,77 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
 
     def getVariablesConnectedToOption(ansIdx: Int): Seq[V] = {
       paragraphAnswerAlignments.filter { case (_, ansTmp, _, _) => ansTmp == ansIdx }.map(_._4)
+    }
+
+    // for result questions ...
+    if(reasoningTypes.contains(CauseILP)) {
+      if (q.questionText.isForCResultQuestion && activeAnswerOptions.length == 2) {
+        def getClosestIndex(qCons: Seq[Constituent], pCons: Seq[Constituent]): Int = {
+          pCons.map { c =>
+            TextILPSolver.getAvgScore(qCons, Seq(c))
+          }.zipWithIndex.maxBy(_._1)._2
+        }
+
+        val pCons = p.contextTAOpt.get.getView(ViewNames.SHALLOW_PARSE).asScala.toList
+        val qCons = q.qTAOpt.get.getView(ViewNames.SHALLOW_PARSE).asScala.toList
+        val qIdx = getClosestIndex(qCons, pCons)
+        val ans1Cons = q.answers(0).aTAOpt.get.getView(ViewNames.TOKENS).asScala.toList
+        val ans2Cons = q.answers(1).aTAOpt.get.getView(ViewNames.TOKENS).asScala.toList
+        val a1Idx = getClosestIndex(ans1Cons, pCons)
+        val a2Idx = getClosestIndex(ans2Cons, pCons)
+
+        // at least one of the answers happens before the question
+        if (a1Idx < qIdx && a2Idx > qIdx + 6) {
+          // a2 should be the answer
+          ilpSolver.addConsBasicLinear("resultReasoning-secondAnswerMustBeCorrect", Seq(activeAnswerOptions(1)._2), Seq(1.0), Some(1.0), None)
+        }
+        if (a2Idx < qIdx && a1Idx > qIdx + 6) {
+          // a1 should be the answer
+          ilpSolver.addConsBasicLinear("resultReasoning-firstAnswerMustBeCorrect", Seq(activeAnswerOptions(0)._2), Seq(1.0), Some(1.0), None)
+        }
+      }
+    }
+
+    if(reasoningTypes.contains(WhatDoesItDoILP)) {
+      if (q.questionText.isWhatDoesItDo && activeAnswerOptions.length == 2) {
+        def getClosestIndex(qCons: Seq[Constituent], pCons: Seq[Constituent]): Int = {
+          pCons.map { c =>
+            TextILPSolver.getAvgScore(qCons, Seq(c))
+          }.zipWithIndex.maxBy(_._1)._2
+        }
+        val qIdx = getClosestIndex(qTokens, pTokens)
+        val ans1Cons = q.answers(0).aTAOpt.get.getView(ViewNames.TOKENS).asScala.toList
+        val ans2Cons = q.answers(1).aTAOpt.get.getView(ViewNames.TOKENS).asScala.toList
+        val a1Idx = getClosestIndex(ans1Cons, pTokens)
+        val a2Idx = getClosestIndex(ans2Cons, pTokens)
+        // one before, one after: after is the anser
+        if (a1Idx < qIdx && a2Idx > qIdx) {
+          // at least one of the answers happens before the question
+          // the second one is the answer
+          ilpSolver.addConsBasicLinear("resultReasoning-secondAnswerMustBeCorrect", Seq(activeAnswerOptions(1)._2),
+            Seq(1.0), Some(1.0), None)
+        }
+        if (a1Idx > qIdx && a2Idx < qIdx) {
+          // at least one of the answers happens before the question
+          // the first one is the answer
+          ilpSolver.addConsBasicLinear("resultReasoning-firstAnswerMustBeCorrect", Seq(activeAnswerOptions(0)._2),
+            Seq(1.0), Some(1.0), None)
+        }
+        // both after: closer is the answer
+        if (a1Idx > qIdx && a2Idx > qIdx) {
+          // at least one of the answers happens before the question
+          if (a2Idx < a1Idx) {
+            // the second one is the answer
+            ilpSolver.addConsBasicLinear("resultReasoning-secondAnswerMustBeCorrect", Seq(activeAnswerOptions(1)._2),
+              Seq(1.0), Some(1.0), None)
+          }
+          if (a2Idx > a1Idx) {
+            // the first one is the answer
+            ilpSolver.addConsBasicLinear("resultReasoning-firstAnswerMustBeCorrect", Seq(activeAnswerOptions(0)._2),
+              Seq(1.0), Some(1.0), None)
+          }
+        }
+      }
     }
 
     if(reasoningTypes.contains(SimpleMatching)) {
@@ -2343,7 +2414,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       }
 
       // constraint: not more than one argument of a frame, should be aligned to answer option:
-      ansPVerbAlignments.filter(_._1.getIncomingRelations.size > 0). // Dunno why by this is sometimes empty; probs SRL issue
+      ansPVerbAlignments.//filter(_._1.getIncomingRelations.size > 0). // Dunno why by this is sometimes empty; probs SRL issue
         groupBy(_._1.getIncomingRelations.get(0).getSource).foreach { case (_, list) =>
         val variables = list.map(_._4)
         val weights = variables.map(_ => 1.0)
@@ -2674,7 +2745,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       }
 
       // constraint: not more than one argument of a frame, should be aligned to answer option:
-      ansPVerbAlignments.filter(_._1.getIncomingRelations.size > 0) // dunno why some arguments don't have incominb edges sometimes 
+      ansPVerbAlignments//.filter(_._1.getIncomingRelations.size > 0) // dunno why some arguments don't have incominb edges sometimes
         .groupBy(_._1.getIncomingRelations.get(0).getSource).foreach { case (_, list) =>
         val variables = list.map(_._4)
         val weights = variables.map(_ => 1.0)
@@ -2733,25 +2804,27 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       }
     }
 
-    // constraint: answer option must be active if anything connected to it is active
-    activeAnswerOptions.foreach {
-      case (ansIdx, x) =>
-        val connectedVariables = getVariablesConnectedToOption(ansIdx)
-        val allVars = connectedVariables :+ x
-        val coeffs = Seq.fill(connectedVariables.length)(-1.0) :+ 1.0
-        ilpSolver.addConsBasicLinear("activeOptionVarImplesOneActiveConnectedEdge", allVars, coeffs, None, Some(0.0))
-        connectedVariables.foreach { connectedVar =>
-          val vars = Seq(connectedVar, x)
-          val coeffs = Seq(1.0, -1.0)
-          ilpSolver.addConsBasicLinear("activeConnectedEdgeImpliesOneAnswerOption", vars, coeffs, None, Some(0.0))
-        }
-    }
+    if(false) {
+      // constraint: answer option must be active if anything connected to it is active
+      activeAnswerOptions.foreach {
+        case (ansIdx, x) =>
+          val connectedVariables = getVariablesConnectedToOption(ansIdx)
+          val allVars = connectedVariables :+ x
+          val coeffs = Seq.fill(connectedVariables.length)(-1.0) :+ 1.0
+          ilpSolver.addConsBasicLinear("activeOptionVarImplesOneActiveConnectedEdge", allVars, coeffs, None, Some(0.0))
+          connectedVariables.foreach { connectedVar =>
+            val vars = Seq(connectedVar, x)
+            val coeffs = Seq(1.0, -1.0)
+            ilpSolver.addConsBasicLinear("activeConnectedEdgeImpliesOneAnswerOption", vars, coeffs, None, Some(0.0))
+          }
+      }
 
-    // constraint: alignment to only one option, i.e. there must be only one single active option
-    if (activeAnswerOptions.nonEmpty /*&& activeConstaints*/) {
-      val activeAnsVars = activeAnswerOptions.map { case (ans, x) => x }
-      val activeAnsVarsCoeffs = Seq.fill(activeAnsVars.length)(1.0)
-      ilpSolver.addConsBasicLinear("onlyOneActiveOption", activeAnsVars, activeAnsVarsCoeffs, Some(1.0), Some(1.0))
+      // constraint: alignment to only one option, i.e. there must be only one single active option
+      if (activeAnswerOptions.nonEmpty /*&& activeConstaints*/ ) {
+        val activeAnsVars = activeAnswerOptions.map { case (ans, x) => x }
+        val activeAnsVarsCoeffs = Seq.fill(activeAnsVars.length)(1.0)
+        ilpSolver.addConsBasicLinear("onlyOneActiveOption", activeAnsVars, activeAnsVarsCoeffs, Some(1.0), Some(1.0))
+      }
     }
 
     // active answer option token

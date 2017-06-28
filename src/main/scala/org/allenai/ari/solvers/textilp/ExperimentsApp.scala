@@ -459,8 +459,8 @@ object ExperimentsApp {
     import java.io._
 
     // resultWhatDoesItdo, resultCause, resultSRLV1, resultVerbSRLPlusPrepSRL, srlV1ILP,
-    val types = Seq(/*WhatDoesItDoRule, CauseRule, SRLV1Rule, */VerbSRLandPrepSRL, SRLV1ILP, VerbSRLandCoref, SimpleMatching)
-    //    val types = Seq(VerbSRLandCoref)
+    //val types = Seq(WhatDoesItDoRule, CauseRule, SRLV1Rule, VerbSRLandPrepSRL, SRLV1ILP, VerbSRLandCoref, SimpleMatching)
+    val types = Seq(CauseILP, WhatDoesItDoILP)
 
     val qAndpPairs = list.flatMap { p => p.questions.map(q => (q, p)) }
     types.foreach { t =>
@@ -1145,10 +1145,10 @@ object ExperimentsApp {
         //     evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterWhatDoesItDo, textILPSolver)
         //     println("filterWhatDoesItDo: ")
         //
-        //evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
-        //evaluateTextSolverOnProcessBank(processReader.testInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
+        evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
+        evaluateTextSolverOnProcessBank(processReader.testInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
 
-        evaluateTextSolverOnProcessBankWithDifferentReasonings(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
+        //evaluateTextSolverOnProcessBankWithDifferentReasonings(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
 
       // println("no-temporals/no true or false: ")
       //
