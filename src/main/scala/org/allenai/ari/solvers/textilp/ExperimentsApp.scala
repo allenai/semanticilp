@@ -2156,8 +2156,8 @@ object ExperimentsApp {
 
       case 97 =>
         println("==== process bank train: per reasoning ")
-        evaluateTextSolverOnProcessBankWithDifferentReasonings(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
-
+        evaluateTextSolverOnProcessBankWithDifferentReasonings(processReader.trainingInstances.
+          filterNotTrueFalse.filterNotTemporals, textILPSolver)
 
     }
   }
