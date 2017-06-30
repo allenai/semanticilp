@@ -293,13 +293,13 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     // resultCause
     // resultILP
 
-    val resultOpt = Seq(resultWhatDoesItdo, resultCause, resultSRLV1, resultVerbSRLPlusPrepSRL, srlV1ILP,
-      resultVerbSRLPlusCoref, resultILP, resultSRLV2, resultVerbSRLPlusCommaSRL).find{ result =>
-      println(" --> Method:  " + result._2)
-      result._1._1.nonEmpty
-    }
-    if(resultOpt.isDefined) resultOpt.get._1 else (Seq.empty, EntityRelationResult())
-//    resultILP._1
+//    val resultOpt = Seq(resultWhatDoesItdo, resultCause, resultSRLV1, resultVerbSRLPlusPrepSRL, srlV1ILP,
+//      resultVerbSRLPlusCoref, resultILP, resultSRLV2, resultVerbSRLPlusCommaSRL).find{ result =>
+//      println(" --> Method:  " + result._2)
+//      result._1._1.nonEmpty
+//    }
+//    if(resultOpt.isDefined) resultOpt.get._1 else (Seq.empty, EntityRelationResult())
+    resultILP._1
   }
 
   def getSimplifiedParagraphs(s: String): String =  {
@@ -310,11 +310,11 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     }.mkString(". ")
   }
 
-  def solveWithReasoningType(question: String, options: Seq[String], snippet1: String, reasoningType: ReasoningType): (Seq[Int], EntityRelationResult) = {
+  def solveWithReasoningType(question: String, options: Seq[String], snippet: String, reasoningType: ReasoningType): (Seq[Int], EntityRelationResult) = {
     //val (q1: Question, p1: Paragraph) = preprocessQuestionData(question, options, snippet)
     //val subSnippet = SolverUtils.ParagraphSummarization.getSubparagraphString(p1, q1)
     //val (q: Question, p: Paragraph) = preprocessQuestionData(question, options, subSnippet)
-    val snippet = getSimplifiedParagraphs(snippet1)
+    //val snippet = getSimplifiedParagraphs(snippet1)
     val (q: Question, p: Paragraph) = preprocessQuestionData(question, options, snippet)
     reasoningType match {
       case SRLV1Rule => SRLSolverV1WithAllViews(q, p)
@@ -358,11 +358,11 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
         println(" --> pipeline")
         val clientTa = annotationUtils.pipelineServerClient.annotate(question)
         //SolverUtils.runWithTimeout(5) {
-        println(" --> external")
+//        println(" --> external")
         annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
         //}
-        println(" --> curator")
-        annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
+//        println(" --> curator")
+//        annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
         clientTa.addView(annotationUtils.fillInBlankAnnotator)
         Some(clientTa)
       } else {
@@ -388,11 +388,11 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
           println(" --> pipeline")
           val clientTa = annotationUtils.pipelineServerClient.annotate(snippet)
 //          SolverUtils.runWithTimeout(10) {
-          println(" --> external")
+//          println(" --> external")
             annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
 //          }
-          println(" --> curator")
-          annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
+//          println(" --> curator")
+//          annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
           Some(clientTa)
         } else {
           val ta = annotationUtils.pipelineService.createBasicTextAnnotation("", "", snippet)
@@ -1726,6 +1726,11 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       val qVerbArguments = qVerbConstituents diff qVerbPredicates
       val pVerbArguments = pVerbConstituents diff pVerbPredicates
 
+      println("qVerbArguments.size: " + qVerbArguments.size)
+      println("pVerbArguments.size: " + pVerbArguments.size)
+      println("qVerbPredicates.size: " + qVerbPredicates.size)
+      println("pVerbPredicates.size: " + pVerbPredicates.size)
+
       val pVerbPredicateToArgumentMap = pVerbConstituents.map(c => c -> c.getOutgoingRelations.asScala.map(_.getTarget)).toMap
       val qVerbPredicateToArgumentMap = qVerbConstituents.map(c => c -> c.getOutgoingRelations.asScala.map(_.getTarget)).toMap
 
@@ -2503,6 +2508,11 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       val pVerbPredicates = pVerbConstituents.filter(_.getLabel=="Predicate")
       val qVerbArguments = qVerbConstituents diff qVerbPredicates
       val pVerbArguments = pVerbConstituents diff pVerbPredicates
+      if(true) {
+        pVerbArguments.foreach{ c=>
+          println("c:  " + c + "c.getIncomingRelations.size(): " + c.getIncomingRelations.size())
+        }
+      }
       val pCorefConstituents = if (pTA.hasView(TextILPSolver.stanfordCorefViewName)) pTA.getView(TextILPSolver.stanfordCorefViewName).getConstituents.asScala else Seq.empty
       val pCorefConstituentGroups = pCorefConstituents.groupBy(_.getLabel)
 
@@ -2804,7 +2814,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       }
     }
 
-    if(false) {
+    if(true) {
       // constraint: answer option must be active if anything connected to it is active
       activeAnswerOptions.foreach {
         case (ansIdx, x) =>
