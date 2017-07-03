@@ -181,8 +181,10 @@ object SolverUtils {
         val strNoSpecialChat = noURlChars.replaceAll("(\\+|\\*|_)", " ")
         val noHTMLTags = StringEscapeUtils.unescapeHtml(strNoSpecialChat)
         val noInvalidWhiteSpace = noHTMLTags.replaceAll("", " ")
-        noInvalidWhiteSpace
-    }.distinct.map(s => s.substring(0, math.min(1500, s.length))) // nothing longer than 1500 characters
+        val noWeirdChar = noInvalidWhiteSpace.replaceAll("\u0080", " ").replaceAll("\u0096", " ").
+          replaceAll("\u0095", " ").replaceAll("\u0092", " ").replaceAll("\u0093", " ").replaceAll("\u0094", " ")
+        noWeirdChar
+    }.distinct.map(s => s.substring(0, math.min(350, s.length))) // nothing longer than 1500 characters
   }
 
   def getLuceneHitFields(hit: SearchHit): Map[String, AnyRef] = {
@@ -242,22 +244,33 @@ object SolverUtils {
     val questionWords = KeywordTokenizer.Default.stemmedKeywordTokenize(question)
     val focusWords = KeywordTokenizer.Default.stemmedKeywordTokenize(focus)
     val searchStr = s"$question $focus"
+
     val response = esClient.prepareSearch(Constants.elasticBeingUsed.indexName.keys.toSeq: _*)
       // NOTE: DFS_QUERY_THEN_FETCH guarantees that multi-index queries return accurate scoring
       // results, do not modify
       .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
       .setQuery(QueryBuilders.matchQuery("text", searchStr))
-      .setFrom(0).setSize(searchHitSize).setExplain(true)
+      .setFrom(0).setSize(200).setExplain(true)
       .execute()
       .actionGet()
     // Filter hits that don't overlap with both question and focus words.
-    def getLuceneHitFields(hit: SearchHit): Map[String, AnyRef] = {
-      hit.sourceAsMap().asScala.toMap
-    }
     val hits = response.getHits.getHits.filter { x =>
       val hitWordsSet = KeywordTokenizer.Default.stemmedKeywordTokenize(x.sourceAsString).toSet
       (hitWordsSet.intersect(questionWords.toSet).nonEmpty
         && hitWordsSet.intersect(focusWords.toSet).nonEmpty)
+    }
+
+//    val response = esClient.prepareSearch(Constants.elasticBeingUsed.indexName.keys.toSeq: _*)
+//      // NOTE: DFS_QUERY_THEN_FETCH guarantees that multi-index queries return accurate scoring
+//      // results, do not modify
+//      .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+//      .setQuery(QueryBuilders.matchQuery("text", searchStr))
+//      .setFrom(0).setSize(searchHitSize).setExplain(true)
+//      .execute()
+//      .actionGet()
+    // Filter hits that don't overlap with both question and focus words.
+    def getLuceneHitFields(hit: SearchHit): Map[String, AnyRef] = {
+      hit.sourceAsMap().asScala.toMap
     }
     hits.map { h: SearchHit => getLuceneHitFields(h)("text").toString -> h.score().toDouble }
   }
@@ -426,15 +439,15 @@ object SolverUtils {
 
     def callLuceneServer: Seq[(String, Double)] = {
       //println("extracting the knowledge from remote server. . . ")
-      /*val results = extract(question, focus, searchHitSize)
+      val results = extract(question, focus, searchHitSize)
       val cacheValue = JsArray(results.map { case (key, value) => JsArray(Seq(JsString(key), JsNumber(value))) })
-
       import java.io._
       val pw = new PrintWriter(f)
       pw.write(cacheValue.toString())
       pw.close()
-      results*/
-      Seq.empty
+      println("result . . . . \n "  + results)
+      results
+      //Seq.empty
     }
 
     if (f.exists()) {
@@ -450,13 +463,13 @@ object SolverUtils {
         key -> score.toDouble
       }
       val b = if (a.isEmpty) {
-        //println("Because the document is empty, we're calling the server . . . ")
+        println("Because the document is empty, we're calling the server . . . ")
         callLuceneServer
       } else {
         a
       }
       if (b.isEmpty) {
-        //println("nope! Still empty . . .")
+        println("nope! Still empty . . .")
       }
       b
     } else {

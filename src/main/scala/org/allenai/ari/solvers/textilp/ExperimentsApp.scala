@@ -2,15 +2,16 @@ package org.allenai.ari.solvers.textilp
 
 import java.io.File
 import java.net.URL
+import java.util
 
 import edu.illinois.cs.cogcomp.McTest.MCTestBaseline
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
-import edu.illinois.cs.cogcomp.core.utilities.{ DummyTextAnnotationGenerator, SerializationHelper }
+import edu.illinois.cs.cogcomp.core.utilities.{DummyTextAnnotationGenerator, SerializationHelper}
 import edu.illinois.cs.cogcomp.core.utilities.configuration.ResourceManager
 import org.allenai.ari.solvers.bioProccess.ProcessBankReader
 import org.allenai.ari.solvers.squad._
 import org.allenai.ari.solvers.textilp.solvers._
-import play.api.libs.json.{ JsArray, JsObject, Json }
+import play.api.libs.json.{JsArray, JsObject, Json}
 import org.allenai.ari.solvers.squad.SquadClassifierUtils._
 import org.allenai.ari.solvers.textilp.alignment.AlignmentFunction
 import org.allenai.ari.solvers.textilp.utils.WikiUtils.WikiDataProperties
@@ -19,15 +20,15 @@ import org.rogach.scallop._
 
 import scala.collection.JavaConverters._
 import ProcessBankReader._
-import edu.cmu.meteor.scorer.{ MeteorConfiguration, MeteorScorer }
-import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{ Constituent, TextAnnotation }
+import edu.cmu.meteor.scorer.{MeteorConfiguration, MeteorScorer}
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, TextAnnotation}
 import edu.illinois.cs.cogcomp.edison.annotators.ClauseViewGenerator
 import edu.illinois.cs.cogcomp.pipeline.server.ServerClientAnnotator
 import org.simmetrics.metrics.StringMetrics
-import org.allenai.ari.controller.questionparser.{ FillInTheBlankGenerator, QuestionParse }
+import org.allenai.ari.controller.questionparser.{FillInTheBlankGenerator, QuestionParse}
 import org.allenai.ari.solvers.textilp.ResultJson._
 import org.allenai.ari.solvers.textilp.utils.SimilarityUtils.Levenshtein
-import org.apache.lucene.search.similarities.{ MultiSimilarity, Similarity }
+import org.apache.lucene.search.similarities.{MultiSimilarity, Similarity}
 import org.simmetrics.StringMetric
 
 import scala.util.Random
@@ -265,7 +266,7 @@ object ExperimentsApp {
     val max = dataset.length
     val (perQuestionScore, perQuestionResults, otherTimes) = dataset.zipWithIndex.map {
       case ((question, options, correct), idx) =>
-        println(s"Processing ${idx} out of ${max}")
+        println(s"Processing $idx out of $max")
         //      println("collecting knowledge . . . ")
         //      val knowledgeSnippet = options.flatMap(focus => SolverUtils.extractParagraphGivenQuestionAndFocusWord(question, focus, 3)).mkString(" ")
         //      val knowledgeSnippet = options.flatMap(focus => SolverUtils.extractParagraphGivenQuestionAndFocusWord2(question, focus, 3)).mkString(" ")
@@ -277,10 +278,17 @@ object ExperimentsApp {
         } else {
           ""
         }
+
         println("knowledge: " + knowledgeSnippet)
         val knowledgeEnd = System.currentTimeMillis()
-        println("solving it . . . ")
-        val (selected, results) = textSolver.solve(question, options, knowledgeSnippet)
+
+        val (selected, results) = if(knowledgeSnippet.trim != "") {
+          println("solving it . . . ")
+          textSolver.solve(question, options, knowledgeSnippet)
+        }
+        else {
+          Seq.empty -> EntityRelationResult()
+        }
         if (knowledgeSnippet.trim.isEmpty && textSolver.isInstanceOf[TextILPSolver]) {
           println("Error: knowledge not found .  .  .")
           //options.indices -> EntityRelationResult()
@@ -322,19 +330,63 @@ object ExperimentsApp {
         println(s"Processing ${idx} out of ${max}")
         val rawSentences = SolverUtils.extractPatagraphGivenQuestionAndFocusSet3(question, options, knowledgeLength).mkString(" ")
         val knowledgeSnippet = annotationUtils.dropRedundantSentences(rawSentences)
-        println("-----------")
-        println("Question: " + question)
-        println("knowledge: " + knowledgeSnippet)
-        println("====-=-=---===--=-=-=-=-=-=-=-=-=-")
-        val clientTa = annotationUtils.pipelineServerClient.annotate(question)
-        annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
-        annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
-        clientTa.addView(annotationUtils.fillInBlankAnnotator)
-        val clientTa1 = annotationUtils.pipelineServerClient.annotate(knowledgeSnippet)
-        annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa1)
-        annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa1.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa1)
+        try {
+          println("-----------")
+          println("Question: " + question)
+          println("knowledge: " + knowledgeSnippet)
+          println("====-=-=---===--=-=-=-=-=-=-=-=-=-")
+          println("Q: pipeline: ")
+          val clientTa = annotationUtils.pipelineServerClient.annotate(question)
+          println("Q: external: ")
+          annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
+          println("Q: curator: ")
+          annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
+          println("Q: FillInBlank: ")
+          clientTa.addView(annotationUtils.fillInBlankAnnotator)
+          println("P: pipeline: ")
+          val clientTa1 = annotationUtils.pipelineServerClient.annotate(knowledgeSnippet)
+          println("P: external: ")
+          annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa1)
+          println("P: curator: ")
+          annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa1.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa1)
+        }
+        catch {
+          case e: Exception => e.printStackTrace()
+        }
     }
   }
+
+
+  def processProcessBankSnippets(list: List[Paragraph]) = {
+    val qAndpPairs = list.flatMap { p => p.questions.map(q => (q, p)) }
+    qAndpPairs.zipWithIndex.foreach { case ((q, p), idx) =>
+      println("==================================================")
+      println("Processed " + idx + " out of " + qAndpPairs.size)
+      println("-----------")
+      println("Question: " + q.questionText)
+      println("knowledge: " + p.context)
+      println("====-=-=---===--=-=-=-=-=-=-=-=-=-")
+      println("Q: pipeline: ")
+      try {
+        val clientTa = annotationUtils.pipelineServerClient.annotate(q.questionText)
+        println("Q: external: ")
+        annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
+        println("Q: curator: ")
+        annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
+        println("Q: FillInBlank: ")
+        clientTa.addView(annotationUtils.fillInBlankAnnotator)
+        println("P: pipeline: ")
+        val clientTa1 = annotationUtils.pipelineServerClient.annotate(p.context)
+        println("P: external: ")
+        annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa1)
+        println("P: curator: ")
+        annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa1.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa1)
+      }
+        catch {
+          case e: Exception => e.printStackTrace()
+        }
+      }
+    }
 
   def cacheTheKnowledgeOnDisk(dataset: Seq[(String, Seq[String], String)]): Unit = {
     dataset.zipWithIndex.foreach {
@@ -458,16 +510,15 @@ object ExperimentsApp {
   def evaluateTextSolverOnProcessBankWithDifferentReasonings(list: List[Paragraph], textILPSolver: TextILPSolver) = {
     import java.io._
 
-    // resultWhatDoesItdo, resultCause, resultSRLV1, resultVerbSRLPlusPrepSRL, srlV1ILP,
-    //val types = Seq(WhatDoesItDoRule, CauseRule, SRLV1Rule, VerbSRLandPrepSRL, SRLV1ILP, VerbSRLandCoref, SimpleMatching)
-    val types = Seq(CauseILP, WhatDoesItDoILP)
+    val types = Seq(/*WhatDoesItDoRule, CauseRule, *//*SRLV1Rule, VerbSRLandPrepSRL,*/ /*SRLV1ILP, */VerbSRLandCoref/*, SimpleMatching*/)
+    //val types = Seq(CauseILP, WhatDoesItDoILP)
 
     val qAndpPairs = list.flatMap { p => p.questions.map(q => (q, p)) }
     types.foreach { t =>
       println("==================================================")
       // use false if you don't it to write things on disk
       val outputFileOpt = if (true) {
-        Some(new PrintWriter(new File(t.toString + "-output.tsv")))
+        Some(new PrintWriter(new File(s"output-${t.toString}-length${list.length}.tsv")))
       } else {
         None
       }
@@ -475,8 +526,8 @@ object ExperimentsApp {
         case (q, p) =>
           (q, SolverUtils.ParagraphSummarization.getSubparagraph(p, q))
             //(q, p)
-      }.*/ zipWithIndex.map {
-          case ((q, p), idx) =>
+      }.*/ zipWithIndex.collect {
+          case  ((q, p), idx) if idx > 69 =>
             //println("==================================================")
             println("Processed " + idx + " out of " + qAndpPairs.size)
             //println("Paragraph: " + p)
@@ -490,7 +541,7 @@ object ExperimentsApp {
             val correctLabel = q.answers(correctIndex).answerText
             val score = SolverUtils.assignCredit(selected, correctIndex, candidates.length)
             //println("correctIndex: " + correctIndex)
-            //if(outputFileOpt.isDefined) outputFileOpt.get.write(q.questionText + "\t" + score + "\t" + selected + "\n")
+            if(outputFileOpt.isDefined) outputFileOpt.get.write(q.questionText + "\t" + score + "\t" + correctIndex + "\t" + selected + "\n")
             //println("selected: " + selected + " score: " + score + " explanation: " + explanation)
             //          if (score < 0.5 && selected.nonEmpty) println(" >>>>>>> Selected and Incorrect :" + score + s"  ${q.questionText}")
             //          if (score < 0.5) println(" >>>>>>> Incorrect :" + score)
@@ -687,30 +738,30 @@ object ExperimentsApp {
       //evaluateTextSolverOnRegents(SolverUtils.publicTest, salienceSolver)
       case 11 =>
         //        println("Starting 11: ")
-        //        evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver)
-        //        println("==== regents train  ")
-        //evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver)
-        //println("==== regents test  ")
+//                evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver)
+//                println("==== regents train  ")
+//        evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver)
+//        println("==== regents test  ")
         // evaluateTextSolverOnRegents(SolverUtils.regentsPerturbed, textILPSolver)
         //        println("==== regents perturbed  ")
-        //        evaluateTextSolverOnRegents(SolverUtils.publicTrain, textILPSolver)
-        //        println("==== public train ")
+//                evaluateTextSolverOnRegents(SolverUtils.publicTrain, textILPSolver)
+//                println("==== public train ")
         //        evaluateTextSolverOnRegents(SolverUtils.publicDev, textILPSolver)
         //        println("==== public dev ")
-        //evaluateTextSolverOnRegents(SolverUtils.publicTest, textILPSolver)
-        //println("==== public test ")
+        evaluateTextSolverOnRegents(SolverUtils.publicTest, textILPSolver)
+        println("==== public test ")
         //evaluateTextSolverOnRegents(SolverUtils.omnibusTrain, textILPSolver)
         //println("==== omnibus train ")
         //evaluateTextSolverOnRegents(SolverUtils.omnibusTest, textILPSolver)
         //println("==== omnibus test ")
-        evaluateTextSolverOnRegents(SolverUtils.regentsPerturbed, luceneSolver)
-        println("==== regents perturbed  ")
-        evaluateTextSolverOnRegents(SolverUtils.omnibusTest, luceneSolver)
-        println("==== omnibus test  ")
-        evaluateTextSolverOnRegents(SolverUtils.regentsTest, luceneSolver)
-        println("==== regents test  ")
-        evaluateTextSolverOnRegents(SolverUtils.publicTest, luceneSolver)
-        println("==== public test  ")
+//        evaluateTextSolverOnRegents(SolverUtils.regentsPerturbed, luceneSolver)
+//        println("==== regents perturbed  ")
+//        evaluateTextSolverOnRegents(SolverUtils.omnibusTest, luceneSolver)
+//        println("==== omnibus test  ")
+//        evaluateTextSolverOnRegents(SolverUtils.regentsTest, luceneSolver)
+//        println("==== regents test  ")
+//        evaluateTextSolverOnRegents(SolverUtils.publicTest, luceneSolver)
+//        println("==== public test  ")
       case 12 => extractKnowledgeSnippet()
       case 13 => testSquadPythonEvaluationScript()
       case 14 =>
@@ -1147,8 +1198,6 @@ object ExperimentsApp {
         //
         evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
         evaluateTextSolverOnProcessBank(processReader.testInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
-
-        //evaluateTextSolverOnProcessBankWithDifferentReasonings(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
 
       // println("no-temporals/no true or false: ")
       //
@@ -2144,7 +2193,6 @@ object ExperimentsApp {
         println("train result: " + trainNonCauseNonTemporal.unzip3._2.sum / trainNonCauseNonTemporal.unzip3._2.length +
           "  trainResult.length: " + trainNonCauseNonTemporal.size)
       case 96 =>
-        // cache lucene annotations
         println("==== regents train ")
         processLuceneSnippets(SolverUtils.regentsTrain)
         println("==== public train ")
@@ -2154,11 +2202,25 @@ object ExperimentsApp {
         println("==== regents test ")
         processLuceneSnippets(SolverUtils.publicTest)
 
+        println("==== process bank train: per reasoning ")
+        processProcessBankSnippets(processReader.trainingInstances)
+
+        println("==== process bank test: per reasoning ")
+        processProcessBankSnippets(processReader.testInstances)
+
       case 97 =>
         println("==== process bank train: per reasoning ")
-        evaluateTextSolverOnProcessBankWithDifferentReasonings(processReader.trainingInstances.
-          filterNotTrueFalse.filterNotTemporals, textILPSolver)
+        evaluateTextSolverOnProcessBankWithDifferentReasonings(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
+        evaluateTextSolverOnProcessBankWithDifferentReasonings(processReader.testInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
 
+      case 98 =>
+        val s = "he air smells summery, of cut grass and the diesel of lawnmowers... Still, stripping the blossoms does little harm in comparison with the harm done by cutting the leaves, which have a most important function to perform, for they now take on themselves the work of the dried-up roots and feed the bulb, and they breathe in through their leaves the particles of air most suited for the plant's nourishment... Lawnmower A walk-behind or ride-on grass cutting machine or a machine with grass-cutting attachment(s) where the cutting device operates in a plane approximately parallel to the ground and which uses the ground to determine the height of cut by means of wheels, air cushion or skids, etc., and which utilises an engine or an electric motor for a powe.. What harm does it do to pick wildflowers?.. Lawnmowers growl in the distance and scent the air with the lush aroma of newly cut grass... Additionally, most lawnmower manufacturers have developed mulching or recycling mowers which cut grass blades into small pieces and force them into the turf... Most lawnmower manufacturers have developed \u0093mulching\u0094 mowers which cut grass blades into small pieces and force them into the soil... Does not harm the most delicate finish, and leaves the car sparkling bright."
+        val clientTa1 = annotationUtils.pipelineServerClient.annotate(s)
+//        println("P: curator: ")
+//        annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa1.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa1)
+//        val set = new util.HashSet[String]()
+//        set.add(ViewNames.SRL_VERB)
+//        val ta1 = annotationUtils.curatorService.createAnnotatedTextAnnotation("", "", s, set)
     }
   }
 }

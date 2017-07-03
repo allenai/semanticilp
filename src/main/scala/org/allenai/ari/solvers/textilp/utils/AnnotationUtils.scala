@@ -417,7 +417,7 @@ class AnnotationUtils() {
       map { c =>
         println(c)
         c
-      }mkString
+      }.mkString(". ")
   }
 
 }
