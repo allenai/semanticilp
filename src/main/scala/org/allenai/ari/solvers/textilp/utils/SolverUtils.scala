@@ -30,6 +30,12 @@ import scala.io.Source
 
 object SolverUtils {
 
+  val smartStopwordList = {
+    val lines = Source.fromFile(new File("other/smart_stopwords_2-v1.txt")).getLines().toList.map(_.trim)
+    lines.filter(_.head != "#").toSet
+  }
+  lazy val keywordTokenizer = new KeywordTokenizer(smartStopwordList, Map.empty)
+
   val params = TextIlpParams(
     activeQuestionTermWeight = 0.33,
     alignmentScoreDiscount = 0.0, // not used
@@ -161,13 +167,8 @@ object SolverUtils {
       } else {
         extractParagraphGivenQuestionAndFocusWord3(question, f, 200)
       }
-    }.sortBy(-_._2)
-    (if (sortedSet.size > topK) {
-      sortedSet.take(topK)
-    } else {
-      sortedSet
-    }).map {
-      case (str, _) =>
+    }.map {
+      case (str, score) =>
         val strTrimmed = str.trim
         val strNoDot = if (strTrimmed.tail == ".") strTrimmed.dropRight(1) else strTrimmed
         val noLonePercentage = strNoDot.replaceAll(" % ", "")
@@ -183,8 +184,14 @@ object SolverUtils {
         val noInvalidWhiteSpace = noHTMLTags.replaceAll("", " ")
         val noWeirdChar = noInvalidWhiteSpace.replaceAll("\u0080", " ").replaceAll("\u0096", " ").
           replaceAll("\u0095", " ").replaceAll("\u0092", " ").replaceAll("\u0093", " ").replaceAll("\u0094", " ")
-        noWeirdChar
-    }.distinct.map(s => s.substring(0, math.min(350, s.length))) // nothing longer than 1500 characters
+        noWeirdChar -> score
+    }.distinct.map{case (s, score) => s.substring(0, math.min(350, s.length)) -> score}.sortBy(-_._2) // nothing longer than 1500 characters
+
+    (if (sortedSet.size > topK) {
+      sortedSet.take(topK)
+    } else {
+      sortedSet
+    }).map(_._1)
   }
 
   def getLuceneHitFields(hit: SearchHit): Map[String, AnyRef] = {
@@ -215,7 +222,7 @@ object SolverUtils {
   }
 
   def extractParagraphGivenQuestionAndFocusWord3(question: String, focus: String, searchHitSize: Int): Seq[(String, Double)] = {
-    val cacheKey = "elasticWebParagraph:" + question + "//focus:" + focus + "//topK:" + searchHitSize
+    val cacheKey = "elasticWebParagraph:" + question + "//focus:" + focus + "//topK:" + searchHitSize  + "withSmartStopwords"
     val cacheResult = if (Constants.useRedisCachingForElasticSearch) {
       elasticWebRedisCache.get(cacheKey)
     } else {
@@ -241,8 +248,8 @@ object SolverUtils {
   }
 
   def extract(question: String, focus: String, searchHitSize: Int): Seq[(String, Double)] = {
-    val questionWords = KeywordTokenizer.Default.stemmedKeywordTokenize(question)
-    val focusWords = KeywordTokenizer.Default.stemmedKeywordTokenize(focus)
+    val questionWords = keywordTokenizer.stemmedKeywordTokenize(question)
+    val focusWords = keywordTokenizer.stemmedKeywordTokenize(focus)
     val searchStr = s"$question $focus"
 
     val response = esClient.prepareSearch(Constants.elasticBeingUsed.indexName.keys.toSeq: _*)
@@ -254,11 +261,14 @@ object SolverUtils {
       .execute()
       .actionGet()
     // Filter hits that don't overlap with both question and focus words.
+//    println("hitWordsSet: " + questionWords)
+//    println("focusWords: " + focusWords)
     val hits = response.getHits.getHits.filter { x =>
-      val hitWordsSet = KeywordTokenizer.Default.stemmedKeywordTokenize(x.sourceAsString).toSet
-      (hitWordsSet.intersect(questionWords.toSet).nonEmpty
-        && hitWordsSet.intersect(focusWords.toSet).nonEmpty)
+      val hitWordsSet = keywordTokenizer.stemmedKeywordTokenize(x.sourceAsString).toSet
+//      println("hitWordsSet: " + hitWordsSet)
+      (hitWordsSet.intersect(questionWords.toSet).nonEmpty && hitWordsSet.intersect(focusWords.toSet).nonEmpty)
     }
+//    println("hits: " + hits.length)
 
 //    val response = esClient.prepareSearch(Constants.elasticBeingUsed.indexName.keys.toSeq: _*)
 //      // NOTE: DFS_QUERY_THEN_FETCH guarantees that multi-index queries return accurate scoring
@@ -439,17 +449,18 @@ object SolverUtils {
 
     def callLuceneServer: Seq[(String, Double)] = {
       //println("extracting the knowledge from remote server. . . ")
-      val results = extract(question, focus, searchHitSize)
+      /*val results = extract(question, focus, searchHitSize)
       val cacheValue = JsArray(results.map { case (key, value) => JsArray(Seq(JsString(key), JsNumber(value))) })
       import java.io._
       val pw = new PrintWriter(f)
       pw.write(cacheValue.toString())
       pw.close()
       println("result . . . . \n "  + results)
-      results
-      //Seq.empty
+      results*/
+      Seq.empty
     }
 
+    lazy val luceneResults = callLuceneServer
     if (f.exists()) {
       //println("fetching knowledge from cache . . . .")
       val soutceFile = Source.fromFile(f)
@@ -464,7 +475,8 @@ object SolverUtils {
       }
       val b = if (a.isEmpty) {
         println("Because the document is empty, we're calling the server . . . ")
-        callLuceneServer
+        //callLuceneServer
+        luceneResults
       } else {
         a
       }
@@ -473,7 +485,7 @@ object SolverUtils {
       }
       b
     } else {
-      callLuceneServer
+      luceneResults
     }
   }
 

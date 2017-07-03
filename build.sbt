@@ -72,11 +72,11 @@ lazy val root = (project in file(".")).
       "net.debasishg" %% "redisclient" % "3.0",
       "com.medallia.word2vec" % "Word2VecJava" % "0.10.3",
 //      ccgLib("illinois-core-utilities"),
-      (ccgGroupId % "illinois-core-utilities" % "3.1.25" withSources).exclude("edu.cmu.cs.ark", "ChuLiuEdmonds"),
+      (ccgGroupId % "illinois-core-utilities" % "3.1.26" withSources).exclude("edu.cmu.cs.ark", "ChuLiuEdmonds"),
       ccgLib("illinois-inference"),
       ccgLib("illinois-nlp-pipeline"),
 //      ccgLib("illinois-curator"),
-      (ccgGroupId % "illinois-curator" % "3.1.25" withSources).exclude("edu.cmu.cs.ark", "ChuLiuEdmonds"),
+      (ccgGroupId % "illinois-curator" % "3.1.26" withSources).exclude("edu.cmu.cs.ark", "ChuLiuEdmonds"),
       "edu.cmu.cs.ark" % "ChuLiuEdmonds" % "1.0" force(),
       //ccgGroupId % "illinois-llm" % "1.1.4",
       ccgGroupId % "saul-examples_2.11" % "0.5.7-SNAPSHOT",
@@ -109,15 +109,6 @@ lazy val root = (project in file(".")).
       "CogcompSoftware" at "http://cogcomp.cs.illinois.edu/m2repo/"
     )
   )
-/*
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.12</version>
-            <optional>true</optional>
-        </dependency>
- */
-
 
 lazy val viz = (project in file("viz")).
   settings(commonSettings: _*).

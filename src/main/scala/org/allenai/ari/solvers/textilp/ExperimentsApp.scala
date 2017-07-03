@@ -391,8 +391,11 @@ object ExperimentsApp {
   def cacheTheKnowledgeOnDisk(dataset: Seq[(String, Seq[String], String)]): Unit = {
     dataset.zipWithIndex.foreach {
       case ((question, options, correct), idx) =>
-        println(s"done with ${idx} out of ${dataset.length}. ")
-        options.foreach { f => SolverUtils.staticCacheLucene(question, f, 200) }
+        println(s"done with $idx out of ${dataset.length}. ")
+        options.zipWithIndex.foreach { case (f, opt) =>
+          println("\t\t----> opt: " + opt)
+          SolverUtils.staticCacheLucene(question, f, 200)
+        }
     }
   }
 
@@ -738,14 +741,14 @@ object ExperimentsApp {
       //evaluateTextSolverOnRegents(SolverUtils.publicTest, salienceSolver)
       case 11 =>
         //        println("Starting 11: ")
-//                evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver)
-//                println("==== regents train  ")
-//        evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver)
-//        println("==== regents test  ")
+                evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver)
+                println("==== regents train  ")
+        evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver)
+        println("==== regents test  ")
         // evaluateTextSolverOnRegents(SolverUtils.regentsPerturbed, textILPSolver)
         //        println("==== regents perturbed  ")
-//                evaluateTextSolverOnRegents(SolverUtils.publicTrain, textILPSolver)
-//                println("==== public train ")
+                evaluateTextSolverOnRegents(SolverUtils.publicTrain, textILPSolver)
+                println("==== public train ")
         //        evaluateTextSolverOnRegents(SolverUtils.publicDev, textILPSolver)
         //        println("==== public dev ")
         evaluateTextSolverOnRegents(SolverUtils.publicTest, textILPSolver)

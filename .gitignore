@@ -104,3 +104,11 @@ viz/myresources/synonym/
 viz/test-2.11/
 viz/test/resources/
 /other/questionSets/newsqa-data-v1/
+*.cache
+*.db
+sahandClientDB.db
+curatorCache.db
+externalAnnotations4.cache
+remotePipelineCachingTextilp6.cache
+clausie.cache
+
