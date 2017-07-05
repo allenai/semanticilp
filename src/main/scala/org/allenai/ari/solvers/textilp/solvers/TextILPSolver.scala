@@ -732,11 +732,15 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     val qSRLView = qTA.getView(srlViewName)
     val pSRLView = pTA.getView(srlViewName)
     val qSRLCons = qSRLView.getConstituents.asScala
+    ///println("srlViewName: " + srlViewName)
+    //qSRLCons.foreach{ t =>
+    //  println(" --> t: " + t + "\t t.getIncomingRelations.size(): " + t.getIncomingRelations.size())
+    //}
     val pSRLCons = pSRLView.getConstituents.asScala
 
     val keytermCons = if(keytermsWithWHOverlap) {
       // does question-srl contain any question term?
-      qSRLCons.filter(c => CandidateGeneration.questionTerms.contains(c.getSurfaceForm.toLowerCase))
+      qSRLCons.filter(c => CandidateGeneration.questionTerms.contains(c.getSurfaceForm.toLowerCase) && c.getIncomingRelations.size() > 0)
     }
     else {
       // align with answer words
@@ -749,7 +753,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
           (c.getEndCharOffset <= idxEnd && c.getEndCharOffset >= idxBegin) ||
             (c.getStartCharOffset <= idxEnd && c.getStartCharOffset >= idxBegin) ||
             (c.getEndCharOffset >= idxEnd && c.getStartCharOffset <= idxBegin)
-        }.filter(c => c.getLabel != "Predicate" && (c.getLabel == "A1" || c.getLabel == "A1"))
+        }.filter(c => c.getLabel != "Predicate" && (c.getLabel == "A1" || c.getLabel == "A1") && c.getIncomingRelations.size() > 0)
         //       .filter{ c => // its predicate should not be included in the answer itself
         //            !ans.answerText.toLowerCase.contains(c.getIncomingRelations.get(0).getSource.getSurfaceForm.toLowerCase)
         //          }
@@ -779,6 +783,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       if (verbose) println("question: " + qTA.text)
       val qArgLabel = cons.getLabel
       if (verbose) println(">>>>>>> qArgLabel: " + qArgLabel)
+      //println("cons: " + cons + " // view -> " + cons.getView.getViewName + "    //  span: " + cons.getSpan)
+      //println(cons.getTextAnnotation.text)
       val qSource = cons.getIncomingRelations.get(0).getSource
       //      println("qSource: " + qSource)
       if (verbose) println(">>>>>>>> " + qSource)

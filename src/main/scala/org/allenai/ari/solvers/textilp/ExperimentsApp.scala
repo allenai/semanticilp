@@ -300,9 +300,9 @@ object ExperimentsApp {
         if (printMistakes && score < 1.0) {
           println("Question: " + question + " / options: " + options + "   / selected: " + selected + " / score: " + score)
         }
-        if (score > 0) {
+        //if (score > 0) {
           println("Score " + score + "  selected: " + selected)
-        }
+        //}
         (score, results.statistics,
           ((knowledgeEnd - knowledgeStart) / 1000.0, (solveEnd - knowledgeEnd) / 1000.0, if (selected.nonEmpty) 1.0 else 0.0))
     }.unzip3
@@ -327,7 +327,7 @@ object ExperimentsApp {
     val max = dataset.length
     dataset.zipWithIndex.foreach {
       case ((question, options, correct), idx) =>
-        println(s"Processing ${idx} out of ${max}")
+        println(s"Processing $idx out of $max")
         val rawSentences = SolverUtils.extractPatagraphGivenQuestionAndFocusSet3(question, options, knowledgeLength).mkString(" ")
         val knowledgeSnippet = annotationUtils.dropRedundantSentences(rawSentences)
         try {
@@ -338,17 +338,17 @@ object ExperimentsApp {
           println("Q: pipeline: ")
           val clientTa = annotationUtils.pipelineServerClient.annotate(question)
           println("Q: external: ")
-          annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
-          println("Q: curator: ")
-          annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
-          println("Q: FillInBlank: ")
-          clientTa.addView(annotationUtils.fillInBlankAnnotator)
+          annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa, true)
+//          println("Q: curator: ")
+//          annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
+//          println("Q: FillInBlank: ")
+//          clientTa.addView(annotationUtils.fillInBlankAnnotator)
           println("P: pipeline: ")
           val clientTa1 = annotationUtils.pipelineServerClient.annotate(knowledgeSnippet)
           println("P: external: ")
-          annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa1)
-          println("P: curator: ")
-          annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa1.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa1)
+          annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa1, true)
+//          println("P: curator: ")
+//          annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa1.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa1)
         }
         catch {
           case e: Exception => e.printStackTrace()
@@ -370,17 +370,17 @@ object ExperimentsApp {
       try {
         val clientTa = annotationUtils.pipelineServerClient.annotate(q.questionText)
         println("Q: external: ")
-        annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
+        annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa, true)
         println("Q: curator: ")
-        annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
+//        annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
         println("Q: FillInBlank: ")
-        clientTa.addView(annotationUtils.fillInBlankAnnotator)
+//        clientTa.addView(annotationUtils.fillInBlankAnnotator)
         println("P: pipeline: ")
         val clientTa1 = annotationUtils.pipelineServerClient.annotate(p.context)
         println("P: external: ")
-        annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa1)
-        println("P: curator: ")
-        annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa1.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa1)
+        annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa1, true)
+//        println("P: curator: ")
+//        annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa1.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa1)
       }
         catch {
           case e: Exception => e.printStackTrace()
@@ -741,8 +741,8 @@ object ExperimentsApp {
       //evaluateTextSolverOnRegents(SolverUtils.publicTest, salienceSolver)
       case 11 =>
         //        println("Starting 11: ")
-                evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver)
-                println("==== regents train  ")
+        evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver)
+        println("==== regents train  ")
         evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver)
         println("==== regents test  ")
         // evaluateTextSolverOnRegents(SolverUtils.regentsPerturbed, textILPSolver)
@@ -2198,11 +2198,11 @@ object ExperimentsApp {
       case 96 =>
         println("==== regents train ")
         processLuceneSnippets(SolverUtils.regentsTrain)
+        println("==== regents test ")
+        processLuceneSnippets(SolverUtils.regentsTest)
         println("==== public train ")
         processLuceneSnippets(SolverUtils.publicTrain)
-        println("==== regents train ")
-        processLuceneSnippets(SolverUtils.regentsTest)
-        println("==== regents test ")
+        println("==== public train ")
         processLuceneSnippets(SolverUtils.publicTest)
 
         println("==== process bank train: per reasoning ")
@@ -2217,9 +2217,12 @@ object ExperimentsApp {
         evaluateTextSolverOnProcessBankWithDifferentReasonings(processReader.testInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
 
       case 98 =>
-        val s = "he air smells summery, of cut grass and the diesel of lawnmowers... Still, stripping the blossoms does little harm in comparison with the harm done by cutting the leaves, which have a most important function to perform, for they now take on themselves the work of the dried-up roots and feed the bulb, and they breathe in through their leaves the particles of air most suited for the plant's nourishment... Lawnmower A walk-behind or ride-on grass cutting machine or a machine with grass-cutting attachment(s) where the cutting device operates in a plane approximately parallel to the ground and which uses the ground to determine the height of cut by means of wheels, air cushion or skids, etc., and which utilises an engine or an electric motor for a powe.. What harm does it do to pick wildflowers?.. Lawnmowers growl in the distance and scent the air with the lush aroma of newly cut grass... Additionally, most lawnmower manufacturers have developed mulching or recycling mowers which cut grass blades into small pieces and force them into the turf... Most lawnmower manufacturers have developed \u0093mulching\u0094 mowers which cut grass blades into small pieces and force them into the soil... Does not harm the most delicate finish, and leaves the car sparkling bright."
-        val clientTa1 = annotationUtils.pipelineServerClient.annotate(s)
-//        println("P: curator: ")
+        val s = "A student drops a ball. Which force causes the ball to fall to the ground? "
+        val ta = annotationUtils.pipelineServerClient.annotate(s)
+        annotationUtils.pipelineExternalAnnotatorsServerClient.addView(ta, true)
+        ta.getView(TextILPSolver.pathLSTMViewName).getConstituents.asScala.filter(_.getLabel != "Predicate").foreach{ c =>
+          println("c : " + c  + " // incoming size: " + c.getIncomingRelations.size())
+        }
 //        annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa1.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa1)
 //        val set = new util.HashSet[String]()
 //        set.add(ViewNames.SRL_VERB)
