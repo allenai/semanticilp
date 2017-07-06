@@ -100,7 +100,7 @@ class AnnotationUtils() {
     val x = new ServerClientAnnotator()
     x.setUrl("http://austen.cs.illinois.edu", "5988")
     x.setViewsAll(Array(TextILPSolver.clausIeViewName))
-    x.useCaching("clausie.cache")
+    x.useCaching("clausie2.cache")
     x
   }
 

@@ -323,6 +323,86 @@ object ExperimentsApp {
     if (outputFileOpt.isDefined) outputFileOpt.get.close
   }
 
+  def evaluateTextSolverOnRegentsPerReasoningMethod(dataset: Seq[(String, Seq[String], String)], textSolver: TextSolver,
+    knowledgeLength: Int = 8, printMistakes: Boolean = false) = {
+    import java.io._
+    val types = Seq(/*WhatDoesItDoRule, CauseRule, */SRLV1Rule/*, VerbSRLandPrepSRL,SRLV1ILP, VerbSRLandCoref, SimpleMatching*/)
+
+    types.foreach { t =>
+      // use false if you don't it to write things on disk
+      val outputFileOpt = if (true) {
+        Some(new PrintWriter(new File(s"output-$textSolver-type:$t-length${dataset.length}.tsv")))
+      } else {
+        None
+      }
+      val start = System.currentTimeMillis()
+      SolverUtils.printMemoryDetails()
+      //    println("Starting the evaluation . . . ")
+      val max = dataset.length
+      val (perQuestionScore, perQuestionResults, otherTimes) = dataset.zipWithIndex.map {
+        case ((question, options, correct), idx) =>
+          println(s"Processing $idx out of $max")
+          //      println("collecting knowledge . . . ")
+          //      val knowledgeSnippet = options.flatMap(focus => SolverUtils.extractParagraphGivenQuestionAndFocusWord(question, focus, 3)).mkString(" ")
+          //      val knowledgeSnippet = options.flatMap(focus => SolverUtils.extractParagraphGivenQuestionAndFocusWord2(question, focus, 3)).mkString(" ")
+          val knowledgeStart = System.currentTimeMillis()
+          //val knowledgeSnippet = SolverUtils.extractPatagraphGivenQuestionAndFocusSet3(question, options, knowledgeLength).mkString(" ")
+          val knowledgeSnippet = if (textSolver.isInstanceOf[TextILPSolver]) {
+            val rawSentences = SolverUtils.extractPatagraphGivenQuestionAndFocusSet3(question, options, knowledgeLength).mkString(". ")
+            annotationUtils.dropRedundantSentences(rawSentences)
+          } else {
+            ""
+          }
+
+          println("knowledge: " + knowledgeSnippet)
+          val knowledgeEnd = System.currentTimeMillis()
+
+          val (selected, results) = if (knowledgeSnippet.trim != "") {
+            println("solving it . . . ")
+            textSolver.asInstanceOf[TextILPSolver].solveWithReasoningType(question, options, knowledgeSnippet, t)
+          }
+          else {
+            Seq.empty -> EntityRelationResult()
+          }
+          if (knowledgeSnippet.trim.isEmpty && textSolver.isInstanceOf[TextILPSolver]) {
+            println("Error: knowledge not found .  .  .")
+            //options.indices -> EntityRelationResult()
+          }
+
+          val solveEnd = System.currentTimeMillis()
+          val score = SolverUtils.assignCredit(selected, correct.head - 'A', options.length)
+          if (outputFileOpt.isDefined) outputFileOpt.get.write(question + "\t" + score + "\t" + selected + "\n")
+          if (printMistakes && score < 1.0) {
+            println("Question: " + question + " / options: " + options + "   / selected: " + selected + " / score: " + score)
+          }
+          //if (score > 0) {
+          println("Score " + score + "  selected: " + selected)
+          //}
+          (score, results.statistics,
+            ((knowledgeEnd - knowledgeStart) / 1000.0, (solveEnd - knowledgeEnd) / 1000.0, if (selected.nonEmpty) 1.0 else 0.0))
+      }.unzip3
+      val (avgKnowledgeTime, avgSolveTime, nonEmptyList) = otherTimes.unzip3
+      val avgCoverage = nonEmptyList.sum / nonEmptyList.length
+      val nonZeroScores = perQuestionScore.zip(nonEmptyList).filter(_._2 > 0.0).map(_._1)
+      println("reasoning type:  " + t)
+      println("Average score: " + perQuestionScore.sum / perQuestionScore.size)
+      println("Avg precision: " + nonZeroScores.sum / nonZeroScores.size)
+      println("avgCoverage: " + avgCoverage)
+      println("Total number of questions: " + perQuestionResults.length)
+      println("Total number of questions: " + nonZeroScores.length)
+      println("Avg solve overall time: " + avgSolveTime.sum / avgSolveTime.length)
+      println("Avg knowledge extraction time: " + avgKnowledgeTime.sum / avgKnowledgeTime.length)
+      val end = System.currentTimeMillis()
+      println("Total time (mins): " + (end - start) / 60000.0)
+      val avgResults = perQuestionResults.reduceRight[Stats] { case (a: Stats, b: Stats) => a.sumWith(b) }.divideBy(perQuestionResults.length)
+      println(avgResults.toString)
+      if (outputFileOpt.isDefined) outputFileOpt.get.close()
+      println("------------")
+    }
+  }
+
+
+
   def processLuceneSnippets(dataset: Seq[(String, Seq[String], String)], knowledgeLength: Int = 8, printMistakes: Boolean = false) = {
     val max = dataset.length
     dataset.zipWithIndex.foreach {
@@ -368,19 +448,21 @@ object ExperimentsApp {
       println("====-=-=---===--=-=-=-=-=-=-=-=-=-")
       println("Q: pipeline: ")
       try {
-        val clientTa = annotationUtils.pipelineServerClient.annotate(q.questionText)
+//        val clientTa = annotationUtils.pipelineServerClient.annotate(q.questionText)
         println("Q: external: ")
-        annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa, true)
+//        annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa, true)
         println("Q: curator: ")
 //        annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
         println("Q: FillInBlank: ")
 //        clientTa.addView(annotationUtils.fillInBlankAnnotator)
         println("P: pipeline: ")
-        val clientTa1 = annotationUtils.pipelineServerClient.annotate(p.context)
+//        val clientTa1 = annotationUtils.pipelineServerClient.annotate(p.context)
         println("P: external: ")
-        annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa1, true)
+//        annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa1, true)
 //        println("P: curator: ")
 //        annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa1.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa1)
+        val ttt = annotationUtils.clausieServerClient.annotate(p.context)
+        require(ttt.hasView(TextILPSolver.clausIeViewName))
       }
         catch {
           case e: Exception => e.printStackTrace()
@@ -513,7 +595,7 @@ object ExperimentsApp {
   def evaluateTextSolverOnProcessBankWithDifferentReasonings(list: List[Paragraph], textILPSolver: TextILPSolver) = {
     import java.io._
 
-    val types = Seq(/*WhatDoesItDoRule, CauseRule, *//*SRLV1Rule, VerbSRLandPrepSRL,*/ /*SRLV1ILP, */VerbSRLandCoref/*, SimpleMatching*/)
+    val types = Seq(/*WhatDoesItDoRule, CauseRule, */SRLV1Rule/*, VerbSRLandPrepSRL,SRLV1ILP, VerbSRLandCoref, SimpleMatching*/)
     //val types = Seq(CauseILP, WhatDoesItDoILP)
 
     val qAndpPairs = list.flatMap { p => p.questions.map(q => (q, p)) }
@@ -740,19 +822,21 @@ object ExperimentsApp {
       //evaluateTextSolverOnRegents(SolverUtils.publicTrain, salienceSolver)
       //evaluateTextSolverOnRegents(SolverUtils.publicTest, salienceSolver)
       case 11 =>
-        //        println("Starting 11: ")
+
+//        evaluateTextSolverOnRegentsPerReasoningMethod(SolverUtils.regentsTrain, textILPSolver)
+
 //        evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver)
 //        println("==== regents train  ")
-//        evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver)
-//        println("==== regents test  ")
+        evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver)
+        println("==== regents test  ")
         // evaluateTextSolverOnRegents(SolverUtils.regentsPerturbed, textILPSolver)
         //        println("==== regents perturbed  ")
-                evaluateTextSolverOnRegents(SolverUtils.publicTrain, textILPSolver)
-                println("==== public train ")
+//                evaluateTextSolverOnRegents(SolverUtils.publicTrain.slice(155, 431), textILPSolver)
+//                println("==== public train ")
         //        evaluateTextSolverOnRegents(SolverUtils.publicDev, textILPSolver)
         //        println("==== public dev ")
-        evaluateTextSolverOnRegents(SolverUtils.publicTest, textILPSolver)
-        println("==== public test ")
+//        evaluateTextSolverOnRegents(SolverUtils.publicTest, textILPSolver)
+//        println("==== public test ")
         //evaluateTextSolverOnRegents(SolverUtils.omnibusTrain, textILPSolver)
         //println("==== omnibus train ")
         //evaluateTextSolverOnRegents(SolverUtils.omnibusTest, textILPSolver)
@@ -2196,14 +2280,14 @@ object ExperimentsApp {
         println("train result: " + trainNonCauseNonTemporal.unzip3._2.sum / trainNonCauseNonTemporal.unzip3._2.length +
           "  trainResult.length: " + trainNonCauseNonTemporal.size)
       case 96 =>
-        println("==== regents train ")
-        processLuceneSnippets(SolverUtils.regentsTrain)
-        println("==== regents test ")
-        processLuceneSnippets(SolverUtils.regentsTest)
-        println("==== public train ")
-        processLuceneSnippets(SolverUtils.publicTrain)
-        println("==== public train ")
-        processLuceneSnippets(SolverUtils.publicTest)
+//        println("==== regents train ")
+//        processLuceneSnippets(SolverUtils.regentsTrain)
+//        println("==== regents test ")
+//        processLuceneSnippets(SolverUtils.regentsTest)
+//        println("==== public train ")
+//        processLuceneSnippets(SolverUtils.publicTrain)
+//        println("==== public train ")
+//        processLuceneSnippets(SolverUtils.publicTest)
 
         println("==== process bank train: per reasoning ")
         processProcessBankSnippets(processReader.trainingInstances)
@@ -2214,7 +2298,7 @@ object ExperimentsApp {
       case 97 =>
         println("==== process bank train: per reasoning ")
         evaluateTextSolverOnProcessBankWithDifferentReasonings(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
-        evaluateTextSolverOnProcessBankWithDifferentReasonings(processReader.testInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
+//        evaluateTextSolverOnProcessBankWithDifferentReasonings(processReader.testInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
 
       case 98 =>
         val s = "A student drops a ball. Which force causes the ball to fall to the ground? "
@@ -2227,6 +2311,9 @@ object ExperimentsApp {
 //        val set = new util.HashSet[String]()
 //        set.add(ViewNames.SRL_VERB)
 //        val ta1 = annotationUtils.curatorService.createAnnotatedTextAnnotation("", "", s, set)
+
+      case 99 =>
+        // cache clausie outputs
     }
   }
 }

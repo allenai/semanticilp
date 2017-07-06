@@ -119,7 +119,7 @@ object TextILPSolver {
     TextILPSolver.keywordTokenizer, useRedisCache = false, useContextInRedisCache = false)
 
 
-  val sahandClient = new SahandClient("http://smeagol.cs.illinois.edu:8080/")
+  lazy val sahandClient = new SahandClient("http://smeagol.cs.illinois.edu:8080/")
 
 
   val toBeVerbs = Set("am", "is", "are", "was", "were", "being", "been", "be", "were", "be")
@@ -198,9 +198,9 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     if(srlVerbPipeline._1.nonEmpty) {
       srlVerbPipeline
     }
-    else if (srlVerbCurator._1.nonEmpty) {
-      srlVerbCurator
-    }
+//    else if (srlVerbCurator._1.nonEmpty) {
+//      srlVerbCurator
+//    }
     else {
       SRLSolverV1(q, p, TextILPSolver.pathLSTMViewName)
     }
@@ -342,7 +342,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
         //        annotationUtils.annotateViewLwithRemoteServer(qTA)
         val clientTa = annotationUtils.pipelineServerClient.annotate(question)
         annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
-        //annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
+        annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
         clientTa.addView(annotationUtils.fillInBlankAnnotator)
         Some(clientTa)
       } else {
@@ -366,7 +366,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
           //annotationUtils.annotateViewLwithRemoteServer(pTA)
           val clientTa = annotationUtils.pipelineServerClient.annotate(snippet)
           annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
-          //annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
+          annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
           Some(clientTa)
         } else {
           val ta = annotationUtils.pipelineService.createBasicTextAnnotation("", "", snippet)
