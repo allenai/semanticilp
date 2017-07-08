@@ -413,11 +413,12 @@ class AnnotationUtils() {
 
   def dropRedundantSentences(str: String): String = {
     val ta = pipelineService.createBasicTextAnnotation("", "", str)
-    ta.getView(ViewNames.SENTENCE).getConstituents.asScala.map { _.getSurfaceForm }.distinct.
-      map { c =>
+    ta.getView(ViewNames.SENTENCE).getConstituents.asScala.map { _.getSurfaceForm }.distinct.mkString(". ").
+      replaceAll("\\.\\.\\.\\.", ".").replaceAll("\\.\\.\\.", ".").replaceAll("\\.\\.", ".")
+      /*map { c =>
         println(c)
         c
-      }.mkString(". ")
+      }*/
   }
 
 }

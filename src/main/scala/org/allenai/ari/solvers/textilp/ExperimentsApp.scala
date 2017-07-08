@@ -252,7 +252,8 @@ object ExperimentsApp {
   }
 
   def evaluateTextSolverOnRegents(dataset: Seq[(String, Seq[String], String)], textSolver: TextSolver,
-    knowledgeLength: Int = 8, printMistakes: Boolean = false) = {
+    knowledgeLength: Int = 8, printMistakes: Boolean = false, splitToSentences: Boolean = false) = {
+    val types = Seq(WhatDoesItDoRule, CauseRule, SRLV1Rule, VerbSRLandPrepSRL,SRLV1ILP, VerbSRLandCoref, SimpleMatching)
     import java.io._
     // use false if you don't it to write things on disk
     val outputFileOpt = if (true) {
@@ -279,12 +280,31 @@ object ExperimentsApp {
           ""
         }
 
+        println("question: " + question)
         println("knowledge: " + knowledgeSnippet)
         val knowledgeEnd = System.currentTimeMillis()
 
+        var bestSelected: Seq[Int] = Seq.empty
         val (selected, results) = if(knowledgeSnippet.trim != "") {
           println("solving it . . . ")
-          textSolver.solve(question, options, knowledgeSnippet)
+          if(splitToSentences) {
+            val ta = annotationUtils.pipelineServerClient.annotate(knowledgeSnippet)
+            val output = types.find{ t =>
+              println("--> method: " + t)
+              val out = ta.getView(ViewNames.SENTENCE).getConstituents.asScala.find{ c =>
+                println("     ---> sentence: " + c.getSurfaceForm)
+                val (selected, _) = textSolver.asInstanceOf[TextILPSolver].solveWithReasoningType(question, options, knowledgeSnippet, t)
+                bestSelected = selected
+                println("     ---> selected: " + selected)
+                selected.nonEmpty
+              }
+              out.isDefined
+            }
+            bestSelected -> EntityRelationResult()
+          }
+          else {
+            textSolver.solve(question, options, knowledgeSnippet)
+          }
         }
         else {
           Seq.empty -> EntityRelationResult()
@@ -823,12 +843,17 @@ object ExperimentsApp {
       //evaluateTextSolverOnRegents(SolverUtils.publicTest, salienceSolver)
       case 11 =>
 
-//        evaluateTextSolverOnRegentsPerReasoningMethod(SolverUtils.regentsTrain, textILPSolver)
+        //evaluateTextSolverOnRegentsPerReasoningMethod(SolverUtils.regentsTrain, textILPSolver)
 
 //        evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver)
 //        println("==== regents train  ")
         evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver)
         println("==== regents test  ")
+        evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver, splitToSentences = false)
+        println("==== regents train  ")
+        evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver, splitToSentences = false)
+        println("==== regents test  ")
+
         // evaluateTextSolverOnRegents(SolverUtils.regentsPerturbed, textILPSolver)
         //        println("==== regents perturbed  ")
 //                evaluateTextSolverOnRegents(SolverUtils.publicTrain.slice(155, 431), textILPSolver)
@@ -2264,11 +2289,10 @@ object ExperimentsApp {
           val result = if (resultStr.contains("Incorrect")) 0.0 else 1.0
           (pid, result, question)
         }
-        val testParagrapghs = Source.fromFile(new File(Constants.vivekTestParagraphs)).getLines().toSet
-        println(testParagrapghs.slice(0, 50))
+        println(Constants.vivekTestParagraphs.slice(0, 50))
         println(predictions.slice(0, 50))
-        val (test, train) = predictions.partition(x => testParagrapghs.contains(x._1))
-        val testResult = test.unzip3._2.sum / test.unzip3._2.length
+        val (test, train) = predictions.partition(x => Constants.vivekTestParagraphs.contains(x._1))
+/*        val testResult = test.unzip3._2.sum / test.unzip3._2.length
         val trainResult = train.unzip3._2.sum / train.unzip3._2.length
         println("test result: " + testResult + "  testResult.length: " + test.size)
         println("train result: " + trainResult + "  trainResult.length: " + train.size)
@@ -2278,7 +2302,18 @@ object ExperimentsApp {
         println("test result: " + testNonCauseNonTemporal.unzip3._2.sum / testNonCauseNonTemporal.unzip3._2.length +
           "  testResult.length: " + testNonCauseNonTemporal.size)
         println("train result: " + trainNonCauseNonTemporal.unzip3._2.sum / trainNonCauseNonTemporal.unzip3._2.length +
-          "  trainResult.length: " + trainNonCauseNonTemporal.size)
+          "  trainResult.length: " + trainNonCauseNonTemporal.size)*/
+
+//        println("----------")
+//        println("train: \n" + train.mkString("\n"))
+//        println("----------")
+//        println("test: \n" + test.mkString("\n"))
+
+
+        // get missing documents
+        val all  = (1 to 210).map(i => "p" + i)
+        val vivekDocs = predictions.map(_._1).distinct
+        println("missing docs: " + (all diff vivekDocs))
       case 96 =>
 //        println("==== regents train ")
 //        processLuceneSnippets(SolverUtils.regentsTrain)
@@ -2298,7 +2333,7 @@ object ExperimentsApp {
       case 97 =>
         println("==== process bank train: per reasoning ")
         evaluateTextSolverOnProcessBankWithDifferentReasonings(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
-//        evaluateTextSolverOnProcessBankWithDifferentReasonings(processReader.testInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
+        evaluateTextSolverOnProcessBankWithDifferentReasonings(processReader.testInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
 
       case 98 =>
         val s = "A student drops a ball. Which force causes the ball to fall to the ground? "
@@ -2313,7 +2348,16 @@ object ExperimentsApp {
 //        val ta1 = annotationUtils.curatorService.createAnnotatedTextAnnotation("", "", s, set)
 
       case 99 =>
-        // cache clausie outputs
+        // answer a question
+        val startTime = System.currentTimeMillis()
+        val question = ""
+        val knowledgeSnippet = ""
+        val options = Seq("")
+        println("question: " + question)
+        println("knowledge: " + knowledgeSnippet)
+        val (selected, explanation) = textILPSolver.solve(question, options, knowledgeSnippet)
+        val solveEnd = System.currentTimeMillis()
+        println(" ---->  options: " + options + "   / selected: " + selected)
     }
   }
 }

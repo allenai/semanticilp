@@ -5,6 +5,8 @@ import java.net.URLEncoder
 
 import redis.clients.jedis.Protocol
 
+import scala.io.Source
+
 case class Elastic(clusterName: String, hostIp: String, hostPort: Int, indexName: Map[String, String])
 
 object Constants {
@@ -59,6 +61,16 @@ object Constants {
 
   // vivek's questions
   val vivekPredictonsFile = "other/vivekPredictions/vivek-predictions.tsv"
-  val vivekTestParagraphs = "other/vivekPredictions/test-documents.tsv"
+  val vivekTestParagraphsFile = "other/vivekPredictions/test-documents.tsv"
+  lazy val vivekTestParagraphs = Source.fromFile(new File(Constants.vivekTestParagraphsFile)).getLines().toSet
 
+  val vivekQuestions = Source.fromFile(new File(Constants.vivekPredictonsFile)).getLines().toList.drop(1).map { line =>
+    val split = line.split("\t")
+    val pid = split(1)
+    val question = split(2)
+    (pid, question)
+  }
+  val (vivekTestQuestionsAndPars, vivekTrainQuestionsAndPars) = vivekQuestions.partition(x => Constants.vivekTestParagraphs.contains(x._1))
+  val vivekTestQuestions = vivekTestQuestionsAndPars.map(_._2).toSet
+  val vivekTrainQuestions = vivekTrainQuestionsAndPars.map(_._2).toSet
 }
