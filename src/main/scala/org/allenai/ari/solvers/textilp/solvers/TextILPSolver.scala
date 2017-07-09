@@ -323,7 +323,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
   }
 
   private def preprocessQuestionData(question: String, options: Seq[String], snippet: String): (Question, Paragraph) = {
-    println("preprocesssing . . .  ")
+    println("pre-processsing . . .  ")
     val answers = options.map { o =>
       val ansTA = try {
         if (useRemoteAnnotation) {
@@ -350,10 +350,10 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
         //annotationUtils.annotateViewLwithRemoteServer(ViewNames.SHALLOW_PARSE, qTA)
         //        annotationUtils.annotateViewLwithRemoteServer(qTA)
         val clientTa = annotationUtils.pipelineServerClient.annotate(question)
-        println(" --> external: ")
-        annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
+//        println(" --> external: ")
+//        annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
         println(" --> curator: ")
-        annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
+//        annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
         clientTa.addView(annotationUtils.fillInBlankAnnotator)
         Some(clientTa)
       } else {
@@ -369,7 +369,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       None
     }
     val q = Question(question, "", answers, qTA)
-    println("Annotating paragraph: ")
+    //println("Annotating paragraph: " + snippet)
     val pTA = if (snippet.trim.nonEmpty) {
       try {
         if (useRemoteAnnotation) {
@@ -377,10 +377,10 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
           //          annotationUtils.annotateViewLwithRemoteServer(ViewNames.DEPENDENCY_STANFORD, pTA)
           //annotationUtils.annotateViewLwithRemoteServer(pTA)
           val clientTa = annotationUtils.pipelineServerClient.annotate(snippet)
-          println(" --> external: ")
-          annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
+//          println(" --> external: ")
+//          annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
           println(" --> curator: ")
-          annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
+//          annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
           Some(clientTa)
         } else {
           val ta = annotationUtils.pipelineService.createBasicTextAnnotation("", "", snippet)
@@ -403,6 +403,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       None
     }
     val p = Paragraph(snippet, Seq(q), pTA)
+//    println("p.context: " + p.context)
+//    println("pTA.get.text: " + pTA.get.text)
     (q, p)
   }
 
@@ -725,7 +727,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       Seq.empty
     }
 
-    selectedAnswers.distinct -> EntityRelationResult(log = s"Solver by SRL / View: $srlViewName  / selected: $selectedAnswers")
+    selectedAnswers.distinct -> EntityRelationResult(log = s"Solved by SRL / View: $srlViewName  / selected: $selectedAnswers")
   }
 
   // input supposed to be a predicate (i.e. it gets connected to other arguments via outgoing edges)

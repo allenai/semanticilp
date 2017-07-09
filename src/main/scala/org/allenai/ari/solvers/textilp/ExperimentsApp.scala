@@ -845,23 +845,23 @@ object ExperimentsApp {
 
         //evaluateTextSolverOnRegentsPerReasoningMethod(SolverUtils.regentsTrain, textILPSolver)
 
-//        evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver)
+//        evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver, splitToSentences = true)
+//        println("==== regents train / sentence split = true  ")
+//        evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver, splitToSentences = true)
+//        println("==== regents test  / sentence split = true  ")
+//        evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver, splitToSentences = false)
 //        println("==== regents train  ")
-        evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver)
-        println("==== regents test  ")
-        evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver, splitToSentences = false)
-        println("==== regents train  ")
-        evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver, splitToSentences = false)
-        println("==== regents test  ")
+//        evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver, splitToSentences = false)
+//        println("==== regents test  ")
 
         // evaluateTextSolverOnRegents(SolverUtils.regentsPerturbed, textILPSolver)
         //        println("==== regents perturbed  ")
-//                evaluateTextSolverOnRegents(SolverUtils.publicTrain.slice(155, 431), textILPSolver)
-//                println("==== public train ")
+//        evaluateTextSolverOnRegents(SolverUtils.publicTrain, textILPSolver)
+//        println("==== public train ")
         //        evaluateTextSolverOnRegents(SolverUtils.publicDev, textILPSolver)
         //        println("==== public dev ")
-//        evaluateTextSolverOnRegents(SolverUtils.publicTest, textILPSolver)
-//        println("==== public test ")
+        evaluateTextSolverOnRegents(SolverUtils.publicTest, textILPSolver)
+        println("==== public test ")
         //evaluateTextSolverOnRegents(SolverUtils.omnibusTrain, textILPSolver)
         //println("==== omnibus train ")
         //evaluateTextSolverOnRegents(SolverUtils.omnibusTest, textILPSolver)
@@ -2358,6 +2358,24 @@ object ExperimentsApp {
         val (selected, explanation) = textILPSolver.solve(question, options, knowledgeSnippet)
         val solveEnd = System.currentTimeMillis()
         println(" ---->  options: " + options + "   / selected: " + selected)
+
+      case 100 =>
+        val a =
+          """Food energy is a form of chemical energy. For us, this is in the form of the chemical energy in food. Food provides energy in the form of chemical energy. This requires energy, which can be converted from chemical energy stored in food to useful forms of energy, or can be converted from the energy in sunlight to stored forms of chemical energy and converted again into useful forms of energy. The leaf captures solar energy, which is converted into chemical energy in the form of sugars and starch and is transferred up the food chain. Chemical-bond energy is found in food molecules. Even food (which is made by the same process as fossil fuels) is a form of energy stored in chemical form. This is not the same as electrical-energy which is a
+            |form of external-energy.""".stripMargin
+        println(a)
+        println(" ---> After fixing things: ")
+        println(a.replaceAll("\n", " "))
+      case 101 =>
+        val a = "Brown eyes is an example of a                      trait. genes are either dominant or recessive (dominant traits overshadow recessive traits) example: father with brown eyes, a mother with blue eyes \n[info] the offspring will most likely have brown eyes since brown-eyedness is a dominant gene. The brown eye trait is dominant. For example, if a person has brown eyes but a hidden trait for blue eyes (Bb), his or her phenotype will be the trait that is dominant. In a simple example of the way in which dominant traits work , someone could have two parents who are heterozygous for brown and blue eyes . g. the person does not have the trait or does not have brown eyes?. The inheritance of eye color is an example, with brown eye color being the dominant trait and blue eyes being recessive. Blue eyes is an example of a                      trait."
+        println(a)
+        println(a.replaceAll("( +)"," "))
+      case 102 =>
+        val question = "Which force causes a marble to sink to the bottom of a glass of water?"
+        val options = Seq("gravity", "friction", "magnetism", "electricity")
+        val knowledgeLength = 8
+        val rawSentences = SolverUtils.extractPatagraphGivenQuestionAndFocusSet3(question, options, knowledgeLength).mkString(". ")
+        println(annotationUtils.dropRedundantSentences(rawSentences))
     }
   }
 }

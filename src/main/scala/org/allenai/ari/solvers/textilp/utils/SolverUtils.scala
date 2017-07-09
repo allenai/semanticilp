@@ -183,7 +183,8 @@ object SolverUtils {
         val noHTMLTags = StringEscapeUtils.unescapeHtml(strNoSpecialChat)
         val noInvalidWhiteSpace = noHTMLTags.replaceAll("", " ")
         val noWeirdChar = noInvalidWhiteSpace.replaceAll("\u0080", " ").replaceAll("\u0096", " ").
-          replaceAll("\u0095", " ").replaceAll("\u0092", " ").replaceAll("\u0093", " ").replaceAll("\u0094", " ")
+          replaceAll("\u0095", " ").replaceAll("\u0092", " ").replaceAll("\u0093", " ").replaceAll("\u0094", " ").
+          replaceAll("\n", " ").replaceAll("( +)"," ")
         noWeirdChar -> score
     }.distinct.map{case (s, score) => s.substring(0, math.min(350, s.length)) -> score}.sortBy(-_._2) // nothing longer than 1500 characters
 
@@ -449,15 +450,15 @@ object SolverUtils {
 
     def callLuceneServer: Seq[(String, Double)] = {
       //println("extracting the knowledge from remote server. . . ")
-      /*val results = extract(question, focus, searchHitSize)
+      val results = extract(question, focus, searchHitSize)
       val cacheValue = JsArray(results.map { case (key, value) => JsArray(Seq(JsString(key), JsNumber(value))) })
       import java.io._
       val pw = new PrintWriter(f)
       pw.write(cacheValue.toString())
       pw.close()
       println("result . . . . \n "  + results)
-      results*/
-      Seq.empty
+      results
+      //Seq.empty
     }
 
     lazy val luceneResults = callLuceneServer
@@ -569,12 +570,14 @@ object SolverUtils {
     }
 
     def getSubparagraph(p: Paragraph, q: Question, annotationUtilsOpt: Option[AnnotationUtils] = None): Paragraph = {
+      println("-->> creating summary <<--")
       val subParagraph = getSubparagraphString(p, q)
       val taOpt = annotationUtilsOpt.map { annotationUtils =>
         val clientTa = annotationUtils.pipelineServerClient.annotate(subParagraph)
-        annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
+        //annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
         clientTa
       }
+      ///println("summary: " + subParagraph)
       Paragraph(subParagraph, p.questions, taOpt)
     }
 
