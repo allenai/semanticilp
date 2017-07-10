@@ -5,8 +5,8 @@ import java.io.File
 import edu.illinois.cs.cogcomp.annotation.AnnotatorService
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
 import org.allenai.ari.solvers.squad.CandidateGeneration
-import org.allenai.ari.solvers.textilp.utils.{AnnotationUtils, Constants}
-import org.allenai.ari.solvers.textilp.{Answer, Paragraph, Question}
+import org.allenai.ari.solvers.textilp.utils.{ AnnotationUtils, Constants }
+import org.allenai.ari.solvers.textilp.{ Answer, Paragraph, Question }
 
 import scala.xml.XML
 
@@ -69,21 +69,22 @@ class ProcessBankReader(annotate: Boolean, annotationUtils: AnnotationUtils) {
 
   Constants.vivekTestParagraphs
 
-  val (testInstances, trainingInstances) = paragraphs.partition{ p => Constants.vivekTestParagraphs.contains(p.id) }
+  val (testInstances, trainingInstances) = paragraphs.partition { p => Constants.vivekTestParagraphs.contains(p.id) }
 
-  trainingInstances.foreach{ p => p.questions.foreach{ q =>
+  trainingInstances.foreach { p =>
+    p.questions.foreach { q =>
       assert(Constants.vivekTrainQuestions.contains(q.questionText), s"Question ${q} in Par-id: ${p.id}, was supposed to be in Train")
     }
   }
 
-  testInstances.foreach{ p => p.questions.foreach{ q =>
+  testInstances.foreach { p =>
+    p.questions.foreach { q =>
       assert(Constants.vivekTestQuestions.contains(q.questionText), s"Question ${q} in Par-id: ${p.id}, was supposed to be in Train")
     }
   }
 
-
   //  val trainingInstances = paragraphs.take(150)
-//  val testInstances = paragraphs.slice(150, 200)
+  //  val testInstances = paragraphs.slice(150, 200)
 }
 
 object ProcessBankReader {

@@ -6,12 +6,12 @@ import java.util
 
 import edu.illinois.cs.cogcomp.McTest.MCTestBaseline
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
-import edu.illinois.cs.cogcomp.core.utilities.{DummyTextAnnotationGenerator, SerializationHelper}
+import edu.illinois.cs.cogcomp.core.utilities.{ DummyTextAnnotationGenerator, SerializationHelper }
 import edu.illinois.cs.cogcomp.core.utilities.configuration.ResourceManager
 import org.allenai.ari.solvers.bioProccess.ProcessBankReader
 import org.allenai.ari.solvers.squad._
 import org.allenai.ari.solvers.textilp.solvers._
-import play.api.libs.json.{JsArray, JsObject, Json}
+import play.api.libs.json.{ JsArray, JsObject, Json }
 import org.allenai.ari.solvers.squad.SquadClassifierUtils._
 import org.allenai.ari.solvers.textilp.alignment.AlignmentFunction
 import org.allenai.ari.solvers.textilp.utils.WikiUtils.WikiDataProperties
@@ -20,15 +20,15 @@ import org.rogach.scallop._
 
 import scala.collection.JavaConverters._
 import ProcessBankReader._
-import edu.cmu.meteor.scorer.{MeteorConfiguration, MeteorScorer}
-import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, TextAnnotation}
+import edu.cmu.meteor.scorer.{ MeteorConfiguration, MeteorScorer }
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{ Constituent, TextAnnotation }
 import edu.illinois.cs.cogcomp.edison.annotators.ClauseViewGenerator
 import edu.illinois.cs.cogcomp.pipeline.server.ServerClientAnnotator
 import org.simmetrics.metrics.StringMetrics
-import org.allenai.ari.controller.questionparser.{FillInTheBlankGenerator, QuestionParse}
+import org.allenai.ari.controller.questionparser.{ FillInTheBlankGenerator, QuestionParse }
 import org.allenai.ari.solvers.textilp.ResultJson._
 import org.allenai.ari.solvers.textilp.utils.SimilarityUtils.Levenshtein
-import org.apache.lucene.search.similarities.{MultiSimilarity, Similarity}
+import org.apache.lucene.search.similarities.{ MultiSimilarity, Similarity }
 import org.simmetrics.StringMetric
 
 import scala.util.Random
@@ -253,7 +253,7 @@ object ExperimentsApp {
 
   def evaluateTextSolverOnRegents(dataset: Seq[(String, Seq[String], String)], textSolver: TextSolver,
     knowledgeLength: Int = 8, printMistakes: Boolean = false, splitToSentences: Boolean = false) = {
-    val types = Seq(WhatDoesItDoRule, CauseRule, SRLV1Rule, VerbSRLandPrepSRL,SRLV1ILP, VerbSRLandCoref, SimpleMatching)
+    val types = Seq(WhatDoesItDoRule, CauseRule, SRLV1Rule, VerbSRLandPrepSRL, SRLV1ILP, VerbSRLandCoref, SimpleMatching)
     import java.io._
     // use false if you don't it to write things on disk
     val outputFileOpt = if (true) {
@@ -285,13 +285,13 @@ object ExperimentsApp {
         val knowledgeEnd = System.currentTimeMillis()
 
         var bestSelected: Seq[Int] = Seq.empty
-        val (selected, results) = if(knowledgeSnippet.trim != "") {
+        val (selected, results) = if (knowledgeSnippet.trim != "") {
           println("solving it . . . ")
-          if(splitToSentences) {
+          if (splitToSentences) {
             val ta = annotationUtils.pipelineServerClient.annotate(knowledgeSnippet)
-            val output = types.find{ t =>
+            val output = types.find { t =>
               println("--> method: " + t)
-              val out = ta.getView(ViewNames.SENTENCE).getConstituents.asScala.find{ c =>
+              val out = ta.getView(ViewNames.SENTENCE).getConstituents.asScala.find { c =>
                 println("     ---> sentence: " + c.getSurfaceForm)
                 val (selected, _) = textSolver.asInstanceOf[TextILPSolver].solveWithReasoningType(question, options, knowledgeSnippet, t)
                 bestSelected = selected
@@ -301,12 +301,10 @@ object ExperimentsApp {
               out.isDefined
             }
             bestSelected -> EntityRelationResult()
-          }
-          else {
+          } else {
             textSolver.solve(question, options, knowledgeSnippet)
           }
-        }
-        else {
+        } else {
           Seq.empty -> EntityRelationResult()
         }
         if (knowledgeSnippet.trim.isEmpty && textSolver.isInstanceOf[TextILPSolver]) {
@@ -321,7 +319,7 @@ object ExperimentsApp {
           println("Question: " + question + " / options: " + options + "   / selected: " + selected + " / score: " + score)
         }
         //if (score > 0) {
-          println("Score " + score + "  selected: " + selected)
+        println("Score " + score + "  selected: " + selected)
         //}
         (score, results.statistics,
           ((knowledgeEnd - knowledgeStart) / 1000.0, (solveEnd - knowledgeEnd) / 1000.0, if (selected.nonEmpty) 1.0 else 0.0))
@@ -346,7 +344,7 @@ object ExperimentsApp {
   def evaluateTextSolverOnRegentsPerReasoningMethod(dataset: Seq[(String, Seq[String], String)], textSolver: TextSolver,
     knowledgeLength: Int = 8, printMistakes: Boolean = false) = {
     import java.io._
-    val types = Seq(/*WhatDoesItDoRule, CauseRule, */SRLV1Rule/*, VerbSRLandPrepSRL,SRLV1ILP, VerbSRLandCoref, SimpleMatching*/)
+    val types = Seq( /*WhatDoesItDoRule, CauseRule, */ SRLV1Rule /*, VerbSRLandPrepSRL,SRLV1ILP, VerbSRLandCoref, SimpleMatching*/ )
 
     types.foreach { t =>
       // use false if you don't it to write things on disk
@@ -380,8 +378,7 @@ object ExperimentsApp {
           val (selected, results) = if (knowledgeSnippet.trim != "") {
             println("solving it . . . ")
             textSolver.asInstanceOf[TextILPSolver].solveWithReasoningType(question, options, knowledgeSnippet, t)
-          }
-          else {
+          } else {
             Seq.empty -> EntityRelationResult()
           }
           if (knowledgeSnippet.trim.isEmpty && textSolver.isInstanceOf[TextILPSolver]) {
@@ -421,8 +418,6 @@ object ExperimentsApp {
     }
   }
 
-
-
   def processLuceneSnippets(dataset: Seq[(String, Seq[String], String)], knowledgeLength: Int = 8, printMistakes: Boolean = false) = {
     val max = dataset.length
     dataset.zipWithIndex.foreach {
@@ -439,64 +434,63 @@ object ExperimentsApp {
           val clientTa = annotationUtils.pipelineServerClient.annotate(question)
           println("Q: external: ")
           annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa, true)
-//          println("Q: curator: ")
-//          annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
-//          println("Q: FillInBlank: ")
-//          clientTa.addView(annotationUtils.fillInBlankAnnotator)
+          //          println("Q: curator: ")
+          //          annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
+          //          println("Q: FillInBlank: ")
+          //          clientTa.addView(annotationUtils.fillInBlankAnnotator)
           println("P: pipeline: ")
           val clientTa1 = annotationUtils.pipelineServerClient.annotate(knowledgeSnippet)
           println("P: external: ")
           annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa1, true)
-//          println("P: curator: ")
-//          annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa1.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa1)
-        }
-        catch {
+          //          println("P: curator: ")
+          //          annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa1.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa1)
+        } catch {
           case e: Exception => e.printStackTrace()
         }
     }
   }
 
-
   def processProcessBankSnippets(list: List[Paragraph]) = {
     val qAndpPairs = list.flatMap { p => p.questions.map(q => (q, p)) }
-    qAndpPairs.zipWithIndex.foreach { case ((q, p), idx) =>
-      println("==================================================")
-      println("Processed " + idx + " out of " + qAndpPairs.size)
-      println("-----------")
-      println("Question: " + q.questionText)
-      println("knowledge: " + p.context)
-      println("====-=-=---===--=-=-=-=-=-=-=-=-=-")
-      println("Q: pipeline: ")
-      try {
-//        val clientTa = annotationUtils.pipelineServerClient.annotate(q.questionText)
-        println("Q: external: ")
-//        annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa, true)
-        println("Q: curator: ")
-//        annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
-        println("Q: FillInBlank: ")
-//        clientTa.addView(annotationUtils.fillInBlankAnnotator)
-        println("P: pipeline: ")
-//        val clientTa1 = annotationUtils.pipelineServerClient.annotate(p.context)
-        println("P: external: ")
-//        annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa1, true)
-//        println("P: curator: ")
-//        annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa1.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa1)
-        val ttt = annotationUtils.clausieServerClient.annotate(p.context)
-        require(ttt.hasView(TextILPSolver.clausIeViewName))
-      }
-        catch {
+    qAndpPairs.zipWithIndex.foreach {
+      case ((q, p), idx) =>
+        println("==================================================")
+        println("Processed " + idx + " out of " + qAndpPairs.size)
+        println("-----------")
+        println("Question: " + q.questionText)
+        println("knowledge: " + p.context)
+        println("====-=-=---===--=-=-=-=-=-=-=-=-=-")
+        println("Q: pipeline: ")
+        try {
+          //        val clientTa = annotationUtils.pipelineServerClient.annotate(q.questionText)
+          println("Q: external: ")
+          //        annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa, true)
+          println("Q: curator: ")
+          //        annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
+          println("Q: FillInBlank: ")
+          //        clientTa.addView(annotationUtils.fillInBlankAnnotator)
+          println("P: pipeline: ")
+          //        val clientTa1 = annotationUtils.pipelineServerClient.annotate(p.context)
+          println("P: external: ")
+          //        annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa1, true)
+          //        println("P: curator: ")
+          //        annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa1.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa1)
+          val ttt = annotationUtils.clausieServerClient.annotate(p.context)
+          require(ttt.hasView(TextILPSolver.clausIeViewName))
+        } catch {
           case e: Exception => e.printStackTrace()
         }
-      }
     }
+  }
 
   def cacheTheKnowledgeOnDisk(dataset: Seq[(String, Seq[String], String)]): Unit = {
     dataset.zipWithIndex.foreach {
       case ((question, options, correct), idx) =>
         println(s"done with $idx out of ${dataset.length}. ")
-        options.zipWithIndex.foreach { case (f, opt) =>
-          println("\t\t----> opt: " + opt)
-          SolverUtils.staticCacheLucene(question, f, 200)
+        options.zipWithIndex.foreach {
+          case (f, opt) =>
+            println("\t\t----> opt: " + opt)
+            SolverUtils.staticCacheLucene(question, f, 200)
         }
     }
   }
@@ -615,7 +609,7 @@ object ExperimentsApp {
   def evaluateTextSolverOnProcessBankWithDifferentReasonings(list: List[Paragraph], textILPSolver: TextILPSolver) = {
     import java.io._
 
-    val types = Seq(/*WhatDoesItDoRule, CauseRule, */SRLV1Rule/*, VerbSRLandPrepSRL,SRLV1ILP, VerbSRLandCoref, SimpleMatching*/)
+    val types = Seq( /*WhatDoesItDoRule, CauseRule, */ SRLV1Rule /*, VerbSRLandPrepSRL,SRLV1ILP, VerbSRLandCoref, SimpleMatching*/ )
     //val types = Seq(CauseILP, WhatDoesItDoILP)
 
     val qAndpPairs = list.flatMap { p => p.questions.map(q => (q, p)) }
@@ -632,7 +626,7 @@ object ExperimentsApp {
           (q, SolverUtils.ParagraphSummarization.getSubparagraph(p, q))
             //(q, p)
       }.*/ zipWithIndex.collect {
-          case  ((q, p), idx) if idx > 69 =>
+          case ((q, p), idx) if idx > 69 =>
             //println("==================================================")
             println("Processed " + idx + " out of " + qAndpPairs.size)
             //println("Paragraph: " + p)
@@ -646,7 +640,7 @@ object ExperimentsApp {
             val correctLabel = q.answers(correctIndex).answerText
             val score = SolverUtils.assignCredit(selected, correctIndex, candidates.length)
             //println("correctIndex: " + correctIndex)
-            if(outputFileOpt.isDefined) outputFileOpt.get.write(q.questionText + "\t" + score + "\t" + correctIndex + "\t" + selected + "\n")
+            if (outputFileOpt.isDefined) outputFileOpt.get.write(q.questionText + "\t" + score + "\t" + correctIndex + "\t" + selected + "\n")
             //println("selected: " + selected + " score: " + score + " explanation: " + explanation)
             //          if (score < 0.5 && selected.nonEmpty) println(" >>>>>>> Selected and Incorrect :" + score + s"  ${q.questionText}")
             //          if (score < 0.5) println(" >>>>>>> Incorrect :" + score)
@@ -845,35 +839,35 @@ object ExperimentsApp {
 
         //evaluateTextSolverOnRegentsPerReasoningMethod(SolverUtils.regentsTrain, textILPSolver)
 
-//        evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver, splitToSentences = true)
-//        println("==== regents train / sentence split = true  ")
-//        evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver, splitToSentences = true)
-//        println("==== regents test  / sentence split = true  ")
-//        evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver, splitToSentences = false)
-//        println("==== regents train  ")
-//        evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver, splitToSentences = false)
-//        println("==== regents test  ")
+        //        evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver, splitToSentences = true)
+        //        println("==== regents train / sentence split = true  ")
+        //        evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver, splitToSentences = true)
+        //        println("==== regents test  / sentence split = true  ")
+        evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver, splitToSentences = false)
+        println("==== regents train  ")
+        evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver, splitToSentences = false)
+        println("==== regents test  ")
 
-        // evaluateTextSolverOnRegents(SolverUtils.regentsPerturbed, textILPSolver)
-        //        println("==== regents perturbed  ")
-//        evaluateTextSolverOnRegents(SolverUtils.publicTrain, textILPSolver)
-//        println("==== public train ")
-        //        evaluateTextSolverOnRegents(SolverUtils.publicDev, textILPSolver)
-        //        println("==== public dev ")
-        evaluateTextSolverOnRegents(SolverUtils.publicTest, textILPSolver)
-        println("==== public test ")
-        //evaluateTextSolverOnRegents(SolverUtils.omnibusTrain, textILPSolver)
-        //println("==== omnibus train ")
-        //evaluateTextSolverOnRegents(SolverUtils.omnibusTest, textILPSolver)
-        //println("==== omnibus test ")
-//        evaluateTextSolverOnRegents(SolverUtils.regentsPerturbed, luceneSolver)
-//        println("==== regents perturbed  ")
-//        evaluateTextSolverOnRegents(SolverUtils.omnibusTest, luceneSolver)
-//        println("==== omnibus test  ")
-//        evaluateTextSolverOnRegents(SolverUtils.regentsTest, luceneSolver)
-//        println("==== regents test  ")
-//        evaluateTextSolverOnRegents(SolverUtils.publicTest, luceneSolver)
-//        println("==== public test  ")
+      // evaluateTextSolverOnRegents(SolverUtils.regentsPerturbed, textILPSolver)
+      //        println("==== regents perturbed  ")
+      //        evaluateTextSolverOnRegents(SolverUtils.publicTrain, textILPSolver)
+      //        println("==== public train ")
+      //        evaluateTextSolverOnRegents(SolverUtils.publicDev, textILPSolver)
+      //        println("==== public dev ")
+      //        evaluateTextSolverOnRegents(SolverUtils.publicTest, textILPSolver)
+      //        println("==== public test ")
+      //evaluateTextSolverOnRegents(SolverUtils.omnibusTrain, textILPSolver)
+      //println("==== omnibus train ")
+      //evaluateTextSolverOnRegents(SolverUtils.omnibusTest, textILPSolver)
+      //println("==== omnibus test ")
+      //        evaluateTextSolverOnRegents(SolverUtils.regentsPerturbed, luceneSolver)
+      //        println("==== regents perturbed  ")
+      //        evaluateTextSolverOnRegents(SolverUtils.omnibusTest, luceneSolver)
+      //        println("==== omnibus test  ")
+      //        evaluateTextSolverOnRegents(SolverUtils.regentsTest, luceneSolver)
+      //        println("==== regents test  ")
+      //        evaluateTextSolverOnRegents(SolverUtils.publicTest, luceneSolver)
+      //        println("==== public test  ")
       case 12 => extractKnowledgeSnippet()
       case 13 => testSquadPythonEvaluationScript()
       case 14 =>
@@ -2201,7 +2195,7 @@ object ExperimentsApp {
         println(taOpt.get.getView(annotationUtils.fillInBlankAnnotator.getViewName))
 
       case 90 =>
-        // choosing the sentence that contains the question and answer
+      /*        // choosing the sentence that contains the question and answer
         val paragraphs = processReader.trainingInstances.filterNotTemporals.filterNotTrueFalse
         val qAndpPairs = paragraphs.flatMap { p => p.questions.map(q => (q, p)) }
         qAndpPairs.foreach {
@@ -2215,7 +2209,7 @@ object ExperimentsApp {
             println(q.correctIdxOpt)
             println("getQuestionKeyTerms(q): " + SolverUtils.ParagraphSummarization.getQuestionKeyTerms(q))
             println(sortedSentences.mkString("\n"))
-        }
+        }*/
 
       case 91 =>
         // this gives you the paragraph sentences
@@ -2292,7 +2286,7 @@ object ExperimentsApp {
         println(Constants.vivekTestParagraphs.slice(0, 50))
         println(predictions.slice(0, 50))
         val (test, train) = predictions.partition(x => Constants.vivekTestParagraphs.contains(x._1))
-/*        val testResult = test.unzip3._2.sum / test.unzip3._2.length
+        /*        val testResult = test.unzip3._2.sum / test.unzip3._2.length
         val trainResult = train.unzip3._2.sum / train.unzip3._2.length
         println("test result: " + testResult + "  testResult.length: " + test.size)
         println("train result: " + trainResult + "  trainResult.length: " + train.size)
@@ -2304,25 +2298,24 @@ object ExperimentsApp {
         println("train result: " + trainNonCauseNonTemporal.unzip3._2.sum / trainNonCauseNonTemporal.unzip3._2.length +
           "  trainResult.length: " + trainNonCauseNonTemporal.size)*/
 
-//        println("----------")
-//        println("train: \n" + train.mkString("\n"))
-//        println("----------")
-//        println("test: \n" + test.mkString("\n"))
-
+        //        println("----------")
+        //        println("train: \n" + train.mkString("\n"))
+        //        println("----------")
+        //        println("test: \n" + test.mkString("\n"))
 
         // get missing documents
-        val all  = (1 to 210).map(i => "p" + i)
+        val all = (1 to 210).map(i => "p" + i)
         val vivekDocs = predictions.map(_._1).distinct
         println("missing docs: " + (all diff vivekDocs))
       case 96 =>
-//        println("==== regents train ")
-//        processLuceneSnippets(SolverUtils.regentsTrain)
-//        println("==== regents test ")
-//        processLuceneSnippets(SolverUtils.regentsTest)
-//        println("==== public train ")
-//        processLuceneSnippets(SolverUtils.publicTrain)
-//        println("==== public train ")
-//        processLuceneSnippets(SolverUtils.publicTest)
+        //        println("==== regents train ")
+        //        processLuceneSnippets(SolverUtils.regentsTrain)
+        //        println("==== regents test ")
+        //        processLuceneSnippets(SolverUtils.regentsTest)
+        //        println("==== public train ")
+        //        processLuceneSnippets(SolverUtils.publicTrain)
+        //        println("==== public train ")
+        //        processLuceneSnippets(SolverUtils.publicTest)
 
         println("==== process bank train: per reasoning ")
         processProcessBankSnippets(processReader.trainingInstances)
@@ -2339,13 +2332,13 @@ object ExperimentsApp {
         val s = "A student drops a ball. Which force causes the ball to fall to the ground? "
         val ta = annotationUtils.pipelineServerClient.annotate(s)
         annotationUtils.pipelineExternalAnnotatorsServerClient.addView(ta, true)
-        ta.getView(TextILPSolver.pathLSTMViewName).getConstituents.asScala.filter(_.getLabel != "Predicate").foreach{ c =>
-          println("c : " + c  + " // incoming size: " + c.getIncomingRelations.size())
+        ta.getView(TextILPSolver.pathLSTMViewName).getConstituents.asScala.filter(_.getLabel != "Predicate").foreach { c =>
+          println("c : " + c + " // incoming size: " + c.getIncomingRelations.size())
         }
-//        annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa1.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa1)
-//        val set = new util.HashSet[String]()
-//        set.add(ViewNames.SRL_VERB)
-//        val ta1 = annotationUtils.curatorService.createAnnotatedTextAnnotation("", "", s, set)
+      //        annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa1.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa1)
+      //        val set = new util.HashSet[String]()
+      //        set.add(ViewNames.SRL_VERB)
+      //        val ta1 = annotationUtils.curatorService.createAnnotatedTextAnnotation("", "", s, set)
 
       case 99 =>
         // answer a question
@@ -2369,7 +2362,7 @@ object ExperimentsApp {
       case 101 =>
         val a = "Brown eyes is an example of a                      trait. genes are either dominant or recessive (dominant traits overshadow recessive traits) example: father with brown eyes, a mother with blue eyes \n[info] the offspring will most likely have brown eyes since brown-eyedness is a dominant gene. The brown eye trait is dominant. For example, if a person has brown eyes but a hidden trait for blue eyes (Bb), his or her phenotype will be the trait that is dominant. In a simple example of the way in which dominant traits work , someone could have two parents who are heterozygous for brown and blue eyes . g. the person does not have the trait or does not have brown eyes?. The inheritance of eye color is an example, with brown eye color being the dominant trait and blue eyes being recessive. Blue eyes is an example of a                      trait."
         println(a)
-        println(a.replaceAll("( +)"," "))
+        println(a.replaceAll("( +)", " "))
       case 102 =>
         val question = "Which force causes a marble to sink to the bottom of a glass of water?"
         val options = Seq("gravity", "friction", "magnetism", "electricity")

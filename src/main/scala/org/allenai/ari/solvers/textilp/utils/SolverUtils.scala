@@ -184,9 +184,9 @@ object SolverUtils {
         val noInvalidWhiteSpace = noHTMLTags.replaceAll("", " ")
         val noWeirdChar = noInvalidWhiteSpace.replaceAll("\u0080", " ").replaceAll("\u0096", " ").
           replaceAll("\u0095", " ").replaceAll("\u0092", " ").replaceAll("\u0093", " ").replaceAll("\u0094", " ").
-          replaceAll("\n", " ").replaceAll("( +)"," ")
+          replaceAll("\n", " ").replaceAll("( +)", " ")
         noWeirdChar -> score
-    }.distinct.map{case (s, score) => s.substring(0, math.min(350, s.length)) -> score}.sortBy(-_._2) // nothing longer than 1500 characters
+    }.distinct.map { case (s, score) => s.substring(0, math.min(350, s.length)) -> score }.sortBy(-_._2) // nothing longer than 1500 characters
 
     (if (sortedSet.size > topK) {
       sortedSet.take(topK)
@@ -223,7 +223,7 @@ object SolverUtils {
   }
 
   def extractParagraphGivenQuestionAndFocusWord3(question: String, focus: String, searchHitSize: Int): Seq[(String, Double)] = {
-    val cacheKey = "elasticWebParagraph:" + question + "//focus:" + focus + "//topK:" + searchHitSize  + "withSmartStopwords"
+    val cacheKey = "elasticWebParagraph:" + question + "//focus:" + focus + "//topK:" + searchHitSize + "withSmartStopwords"
     val cacheResult = if (Constants.useRedisCachingForElasticSearch) {
       elasticWebRedisCache.get(cacheKey)
     } else {
@@ -262,23 +262,23 @@ object SolverUtils {
       .execute()
       .actionGet()
     // Filter hits that don't overlap with both question and focus words.
-//    println("hitWordsSet: " + questionWords)
-//    println("focusWords: " + focusWords)
+    //    println("hitWordsSet: " + questionWords)
+    //    println("focusWords: " + focusWords)
     val hits = response.getHits.getHits.filter { x =>
       val hitWordsSet = keywordTokenizer.stemmedKeywordTokenize(x.sourceAsString).toSet
-//      println("hitWordsSet: " + hitWordsSet)
+      //      println("hitWordsSet: " + hitWordsSet)
       (hitWordsSet.intersect(questionWords.toSet).nonEmpty && hitWordsSet.intersect(focusWords.toSet).nonEmpty)
     }
-//    println("hits: " + hits.length)
+    //    println("hits: " + hits.length)
 
-//    val response = esClient.prepareSearch(Constants.elasticBeingUsed.indexName.keys.toSeq: _*)
-//      // NOTE: DFS_QUERY_THEN_FETCH guarantees that multi-index queries return accurate scoring
-//      // results, do not modify
-//      .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-//      .setQuery(QueryBuilders.matchQuery("text", searchStr))
-//      .setFrom(0).setSize(searchHitSize).setExplain(true)
-//      .execute()
-//      .actionGet()
+    //    val response = esClient.prepareSearch(Constants.elasticBeingUsed.indexName.keys.toSeq: _*)
+    //      // NOTE: DFS_QUERY_THEN_FETCH guarantees that multi-index queries return accurate scoring
+    //      // results, do not modify
+    //      .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
+    //      .setQuery(QueryBuilders.matchQuery("text", searchStr))
+    //      .setFrom(0).setSize(searchHitSize).setExplain(true)
+    //      .execute()
+    //      .actionGet()
     // Filter hits that don't overlap with both question and focus words.
     def getLuceneHitFields(hit: SearchHit): Map[String, AnyRef] = {
       hit.sourceAsMap().asScala.toMap
@@ -450,15 +450,15 @@ object SolverUtils {
 
     def callLuceneServer: Seq[(String, Double)] = {
       //println("extracting the knowledge from remote server. . . ")
-      val results = extract(question, focus, searchHitSize)
+      /*val results = extract(question, focus, searchHitSize)
       val cacheValue = JsArray(results.map { case (key, value) => JsArray(Seq(JsString(key), JsNumber(value))) })
       import java.io._
       val pw = new PrintWriter(f)
       pw.write(cacheValue.toString())
       pw.close()
       println("result . . . . \n "  + results)
-      results
-      //Seq.empty
+      results*/
+      Seq.empty
     }
 
     lazy val luceneResults = callLuceneServer
@@ -555,8 +555,8 @@ object SolverUtils {
     val notToContain = Set("what", "What", "is", "would happen", "does", "What process", "would happen",
       "happens", "can happen", "would necessarily not happen", "do", "does", "is caused")
 
-    def getQuestionKeyTerms(q: Question): Seq[String] = {
-      q.qTAOpt.get.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala.
+    def getQuestionKeyTerms(questionTA: TextAnnotation): Seq[String] = {
+      questionTA.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala.
         filter(c => c.getLabel == "NP" || c.getLabel == "VP").map(_.getSurfaceForm.toLowerCase).
         filter(c => !notToContain.contains(c)).flatMap(_.split("^do ")).flatMap(_.split("^does ")).
         flatMap(_.split("^the ")).flatMap(_.split("^were not ")).flatMap(_.split("^is ")).
@@ -564,27 +564,28 @@ object SolverUtils {
         filter(_.nonEmpty)
     }
 
-    def scoreTheSentence(q: Question, sentence: Constituent): Double = {
-      val keyTerms = getQuestionKeyTerms(q)
+    def scoreTheSentence(questionTA: TextAnnotation, sentence: Constituent): Double = {
+      val keyTerms = getQuestionKeyTerms(questionTA)
       keyTerms.count(sentence.getSurfaceForm.toLowerCase.contains).toDouble
     }
 
-    def getSubparagraph(p: Paragraph, q: Question, annotationUtilsOpt: Option[AnnotationUtils] = None): Paragraph = {
+    /*    def getSubparagraph(paragraphTA: TextAnnotation, questionTA: TextAnnotation, annotationUtilsOpt: Option[AnnotationUtils] = None): Paragraph = {
       println("-->> creating summary <<--")
-      val subParagraph = getSubparagraphString(p, q)
+      val subParagraph = getSubparagraphString(paragraphTA, questionTA)
       val taOpt = annotationUtilsOpt.map { annotationUtils =>
         val clientTa = annotationUtils.pipelineServerClient.annotate(subParagraph)
-        //annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
+        annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
         clientTa
       }
       ///println("summary: " + subParagraph)
       Paragraph(subParagraph, p.questions, taOpt)
-    }
+    }*/
 
-    def getSubparagraphString(p: Paragraph, q: Question): String = {
-      val sentences = p.contextTAOpt.get.getView(ViewNames.SENTENCE).getConstituents.asScala
+    def getSubparagraphString(paragraphTA: TextAnnotation, questionTA: TextAnnotation): String = {
+      println("-->> creating summary <<--")
+      val sentences = paragraphTA.getView(ViewNames.SENTENCE).getConstituents.asScala
       //println("sentences: " + sentences)
-      val sortedSentences = sentences.map(s => s -> scoreTheSentence(q, s)).zipWithIndex.sortBy(-_._1._2)
+      val sortedSentences = sentences.map(s => s -> scoreTheSentence(questionTA, s)).zipWithIndex.sortBy(-_._1._2)
       val maxScore = sortedSentences.head._1._2
       val selectedIdx = sortedSentences.filter(_._1._2 == maxScore).map(_._2)
       val maxIdx = sentences.length

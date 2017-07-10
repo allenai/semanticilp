@@ -96,6 +96,14 @@ class AnnotationUtils() {
     x
   }
 
+  lazy val pipelineServerClientWithBasicViews = {
+    val x = new ServerClientAnnotator()
+    x.setUrl("http://austen.cs.illinois.edu", "5800")
+    x.setViewsAll(Seq(ViewNames.SHALLOW_PARSE).toArray)
+    x.useCaching("remotePipelineCachingTextilp-basicViews.cache")
+    x
+  }
+
   lazy val clausieServerClient = {
     val x = new ServerClientAnnotator()
     x.setUrl("http://austen.cs.illinois.edu", "5988")
@@ -415,7 +423,7 @@ class AnnotationUtils() {
     val ta = pipelineService.createBasicTextAnnotation("", "", str)
     ta.getView(ViewNames.SENTENCE).getConstituents.asScala.map { _.getSurfaceForm }.distinct.mkString(". ").
       replaceAll("\\.\\.\\.\\.", ".").replaceAll("\\.\\.\\.", ".").replaceAll("\\.\\.", ".")
-      /*map { c =>
+    /*map { c =>
         println(c)
         c
       }*/

@@ -322,7 +322,12 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     }
   }
 
-  private def preprocessQuestionData(question: String, options: Seq[String], snippet: String): (Question, Paragraph) = {
+  private def preprocessQuestionData(question: String, options: Seq[String], snippet1: String): (Question, Paragraph) = {
+    val snippet = {
+      val questionTA = annotationUtils.pipelineServerClientWithBasicViews.annotate(question)
+      val paragraphTA = annotationUtils.pipelineServerClientWithBasicViews.annotate(snippet1)
+      SolverUtils.ParagraphSummarization.getSubparagraphString(paragraphTA, questionTA)
+    }
     println("pre-processsing . . .  ")
     val answers = options.map { o =>
       val ansTA = try {
@@ -350,8 +355,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
         //annotationUtils.annotateViewLwithRemoteServer(ViewNames.SHALLOW_PARSE, qTA)
         //        annotationUtils.annotateViewLwithRemoteServer(qTA)
         val clientTa = annotationUtils.pipelineServerClient.annotate(question)
-//        println(" --> external: ")
-//        annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
+        println(" --> external: ")
+        annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
         println(" --> curator: ")
 //        annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
         clientTa.addView(annotationUtils.fillInBlankAnnotator)
@@ -853,7 +858,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
 
   def createILPModel[V <: IlpVar](
                                    q: Question,
-                                   p1: Paragraph,
+                                   p: Paragraph,
                                    ilpSolver: IlpSolver[V, _],
                                    alignmentFunction: AlignmentFunction,
                                    reasoningTypes: Set[ReasoningType],
@@ -865,7 +870,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
 
     //val p = p1 //if(useSummary) SolverUtils.ParagraphSummarization.getSubparagraph(p1, q, Some(annotationUtils)) else p1
 
-    val p = SolverUtils.ParagraphSummarization.getSubparagraph(p1, q, Some(annotationUtils))
+    //val p = SolverUtils.ParagraphSummarization.getSubparagraph(p1, q, Some(annotationUtils))
 
     val modelCreationStart = System.currentTimeMillis()
 
