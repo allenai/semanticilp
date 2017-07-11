@@ -443,16 +443,16 @@ object ExperimentsApp {
           val clientTa = annotationUtils.pipelineServerClient.annotate(question)
           println("Q: external: ")
           annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa, true)
-          //          println("Q: curator: ")
-          //          annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
-          //          println("Q: FillInBlank: ")
-          //          clientTa.addView(annotationUtils.fillInBlankAnnotator)
+                    println("Q: curator: ")
+                    annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
+                    println("Q: FillInBlank: ")
+                    clientTa.addView(annotationUtils.fillInBlankAnnotator)
           println("P: pipeline: ")
           val clientTa1 = annotationUtils.pipelineServerClient.annotate(knowledgeSnippet)
           println("P: external: ")
           annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa1, true)
-          //          println("P: curator: ")
-          //          annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa1.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa1)
+                    println("P: curator: ")
+                    annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa1.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa1)
         } catch {
           case e: Exception => e.printStackTrace()
         }
@@ -847,7 +847,10 @@ object ExperimentsApp {
       case 11 =>
 
 //        evaluateTextSolverOnRegentsPerReasoningMethod(SolverUtils.regentsTrain, textILPSolver)
-        evaluateTextSolverOnRegentsPerReasoningMethod(SolverUtils.publicTrain, textILPSolver)
+//        evaluateTextSolverOnRegentsPerReasoningMethod(SolverUtils.publicTrain, textILPSolver)
+
+        evaluateTextSolverOnRegents(SolverUtils.eigthGradeTrain, textILPSolver, splitToSentences = true)
+        evaluateTextSolverOnRegents(SolverUtils.eigthGradeTest, textILPSolver, splitToSentences = true)
 
         //        evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver, splitToSentences = true)
         //        println("==== regents train / sentence split = true  ")
@@ -2318,7 +2321,10 @@ object ExperimentsApp {
         val vivekDocs = predictions.map(_._1).distinct
         println("missing docs: " + (all diff vivekDocs))
       case 96 =>
-        //        println("==== regents train ")
+        processLuceneSnippets(SolverUtils.eigthGradeTest)
+        processLuceneSnippets(SolverUtils.eigthGradeTrain)
+
+      //        println("==== regents train ")
         //        processLuceneSnippets(SolverUtils.regentsTrain)
         //        println("==== regents test ")
         //        processLuceneSnippets(SolverUtils.regentsTest)
@@ -2327,11 +2333,11 @@ object ExperimentsApp {
         //        println("==== public train ")
         //        processLuceneSnippets(SolverUtils.publicTest)
 
-        println("==== process bank train: per reasoning ")
-        processProcessBankSnippets(processReader.trainingInstances)
-
-        println("==== process bank test: per reasoning ")
-        processProcessBankSnippets(processReader.testInstances)
+//        println("==== process bank train: per reasoning ")
+//        processProcessBankSnippets(processReader.trainingInstances)
+//
+//        println("==== process bank test: per reasoning ")
+//        processProcessBankSnippets(processReader.testInstances)
 
       case 97 =>
         println("==== process bank train: per reasoning ")

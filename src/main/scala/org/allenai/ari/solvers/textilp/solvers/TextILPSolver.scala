@@ -309,9 +309,10 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     } -> "srlV1ILP_path_lstm"
 
     // CommaSRL+VerbSRL	SRLV2 	SimpleMatching	Coref+VerbSRL	SRLV1ILP	VerbSRL+PrepSRL	SRLV1 	Cause 	What does it do
-    val resultOpt = Seq(resultWhatDoesItdo, resultCause, resultSRLV1, resultVerbSRLPlusPrepSRL_curator_srl,
-      /*resultVerbSRLPlusPrepSRL_pipeline_srl*/ resultVerbSRLPlusPrepSRL_path_lstm/*, , srlV1ILP_curator_srl , srlV1ILP_pipeline_srl, */, srlV1ILP_path_lstm,
-      resultVerbSRLPlusCoref_pathLSTM /* resultVerbSRLPlusCoref_pipelineSRL, resultVerbSRLPlusCoref_curatorSRL*//*, resultILP, resultSRLV2, resultVerbSRLPlusCommaSRL*/).find{ t =>
+    val resultOpt = (resultWhatDoesItdo #:: resultCause #:: resultSRLV1 #:: resultVerbSRLPlusPrepSRL_curator_srl #::
+      ///*resultVerbSRLPlusPrepSRL_pipeline_srl resultVerbSRLPlusPrepSRL_path_lstm #:: , , srlV1ILP_curator_srl , srlV1ILP_pipeline_srl, */ #:: srlV1ILP_path_lstm #::
+      //resultVerbSRLPlusCoref_pathLSTM  #:: /* resultVerbSRLPlusCoref_pipelineSRL, resultVerbSRLPlusCoref_curatorSRL*//*, resultILP, resultSRLV2, resultVerbSRLPlusCommaSRL*/
+      Stream.empty).find{ t =>
       println("trying: " + t._2)
       t._1._1.nonEmpty
     }
