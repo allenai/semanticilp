@@ -10,7 +10,7 @@ import edu.illinois.cs.cogcomp.core.utilities.{ DummyTextAnnotationGenerator, Se
 import edu.illinois.cs.cogcomp.core.utilities.configuration.ResourceManager
 import org.allenai.ari.solvers.bioProccess.ProcessBankReader
 import org.allenai.ari.solvers.squad._
-import org.allenai.ari.solvers.textilp.solvers._
+import org.allenai.ari.solvers.textilp.solvers.{ CauseRule, WhatDoesItDoRule, _ }
 import play.api.libs.json.{ JsArray, JsObject, Json }
 import org.allenai.ari.solvers.squad.SquadClassifierUtils._
 import org.allenai.ari.solvers.textilp.alignment.AlignmentFunction
@@ -344,8 +344,11 @@ object ExperimentsApp {
   def evaluateTextSolverOnRegentsPerReasoningMethod(dataset: Seq[(String, Seq[String], String)], textSolver: TextSolver,
     knowledgeLength: Int = 8, printMistakes: Boolean = false) = {
     import java.io._
-    val types = Seq( /*WhatDoesItDoRule, CauseRule, */ SRLV1Rule /*, VerbSRLandPrepSRL,SRLV1ILP, VerbSRLandCoref, SimpleMatching*/ )
-
+    val resultFile = new PrintWriter(new File(s"results-per-solver-length${dataset.length}.txt"))
+    resultFile.write(s"Type \t SRL \t Score \t Precision \t Recall \t Total Answered \t Out of \t Total Time \n")
+    //    val types = Seq( WhatDoesItDoRule, CauseRule,  SRLV1Rule, VerbSRLandPrepSRL,SRLV1ILP, VerbSRLandCoref, SimpleMatching )
+    val types = Seq(WhatDoesItDoRule, CauseRule, SRLV1Rule, VerbSRLandPrepSRL, SRLV1ILP, VerbSRLandCoref, SRLV2Rule, SRLV3Rule, VerbSRLandCommaSRL)
+    val srlViewsAll = Seq(ViewNames.SRL_VERB, TextILPSolver.curatorSRLViewName, TextILPSolver.pathLSTMViewName)
     types.foreach { t =>
       // use false if you don't it to write things on disk
       val outputFileOpt = if (true) {
@@ -355,67 +358,73 @@ object ExperimentsApp {
       }
       val start = System.currentTimeMillis()
       SolverUtils.printMemoryDetails()
-      //    println("Starting the evaluation . . . ")
-      val max = dataset.length
-      val (perQuestionScore, perQuestionResults, otherTimes) = dataset.zipWithIndex.map {
-        case ((question, options, correct), idx) =>
-          println(s"Processing $idx out of $max")
-          //      println("collecting knowledge . . . ")
-          //      val knowledgeSnippet = options.flatMap(focus => SolverUtils.extractParagraphGivenQuestionAndFocusWord(question, focus, 3)).mkString(" ")
-          //      val knowledgeSnippet = options.flatMap(focus => SolverUtils.extractParagraphGivenQuestionAndFocusWord2(question, focus, 3)).mkString(" ")
-          val knowledgeStart = System.currentTimeMillis()
-          //val knowledgeSnippet = SolverUtils.extractPatagraphGivenQuestionAndFocusSet3(question, options, knowledgeLength).mkString(" ")
-          val knowledgeSnippet = if (textSolver.isInstanceOf[TextILPSolver]) {
-            val rawSentences = SolverUtils.extractPatagraphGivenQuestionAndFocusSet3(question, options, knowledgeLength).mkString(". ")
-            annotationUtils.dropRedundantSentences(rawSentences)
-          } else {
-            ""
-          }
+      val srlViewTypes = if (t == CauseRule || t == WhatDoesItDoRule || t == SimpleMatching) Seq(TextILPSolver.pathLSTMViewName) else srlViewsAll
+      srlViewTypes.foreach { srlVu =>
+        //    println("Starting the evaluation . . . ")
+        val max = dataset.length
+        val (perQuestionScore, perQuestionResults, otherTimes) = dataset.zipWithIndex.map {
+          case ((question, options, correct), idx) =>
+            println(s"Processing $idx out of $max")
+            //      println("collecting knowledge . . . ")
+            //      val knowledgeSnippet = options.flatMap(focus => SolverUtils.extractParagraphGivenQuestionAndFocusWord(question, focus, 3)).mkString(" ")
+            //      val knowledgeSnippet = options.flatMap(focus => SolverUtils.extractParagraphGivenQuestionAndFocusWord2(question, focus, 3)).mkString(" ")
+            val knowledgeStart = System.currentTimeMillis()
+            //val knowledgeSnippet = SolverUtils.extractPatagraphGivenQuestionAndFocusSet3(question, options, knowledgeLength).mkString(" ")
+            val knowledgeSnippet = if (textSolver.isInstanceOf[TextILPSolver]) {
+              val rawSentences = SolverUtils.extractPatagraphGivenQuestionAndFocusSet3(question, options, knowledgeLength).mkString(". ")
+              annotationUtils.dropRedundantSentences(rawSentences)
+            } else {
+              ""
+            }
 
-          println("knowledge: " + knowledgeSnippet)
-          val knowledgeEnd = System.currentTimeMillis()
+            println("knowledge: " + knowledgeSnippet)
+            val knowledgeEnd = System.currentTimeMillis()
 
-          val (selected, results) = if (knowledgeSnippet.trim != "") {
-            println("solving it . . . ")
-            textSolver.asInstanceOf[TextILPSolver].solveWithReasoningType(question, options, knowledgeSnippet, t)
-          } else {
-            Seq.empty -> EntityRelationResult()
-          }
-          if (knowledgeSnippet.trim.isEmpty && textSolver.isInstanceOf[TextILPSolver]) {
-            println("Error: knowledge not found .  .  .")
-            //options.indices -> EntityRelationResult()
-          }
+            val (selected, results) = if (knowledgeSnippet.trim != "") {
+              println("solving it . . . ")
+              textSolver.asInstanceOf[TextILPSolver].solveWithReasoningType(question, options, knowledgeSnippet, t, srlVu)
+            } else {
+              Seq.empty -> EntityRelationResult()
+            }
+            if (knowledgeSnippet.trim.isEmpty && textSolver.isInstanceOf[TextILPSolver]) {
+              println("Error: knowledge not found .  .  .")
+              //options.indices -> EntityRelationResult()
+            }
 
-          val solveEnd = System.currentTimeMillis()
-          val score = SolverUtils.assignCredit(selected, correct.head - 'A', options.length)
-          if (outputFileOpt.isDefined) outputFileOpt.get.write(question + "\t" + score + "\t" + selected + "\n")
-          if (printMistakes && score < 1.0) {
-            println("Question: " + question + " / options: " + options + "   / selected: " + selected + " / score: " + score)
-          }
-          //if (score > 0) {
-          println("Score " + score + "  selected: " + selected)
-          //}
-          (score, results.statistics,
-            ((knowledgeEnd - knowledgeStart) / 1000.0, (solveEnd - knowledgeEnd) / 1000.0, if (selected.nonEmpty) 1.0 else 0.0))
-      }.unzip3
-      val (avgKnowledgeTime, avgSolveTime, nonEmptyList) = otherTimes.unzip3
-      val avgCoverage = nonEmptyList.sum / nonEmptyList.length
-      val nonZeroScores = perQuestionScore.zip(nonEmptyList).filter(_._2 > 0.0).map(_._1)
-      println("reasoning type:  " + t)
-      println("Average score: " + perQuestionScore.sum / perQuestionScore.size)
-      println("Avg precision: " + nonZeroScores.sum / nonZeroScores.size)
-      println("avgCoverage: " + avgCoverage)
-      println("Total number of questions: " + perQuestionResults.length)
-      println("Total number of questions: " + nonZeroScores.length)
-      println("Avg solve overall time: " + avgSolveTime.sum / avgSolveTime.length)
-      println("Avg knowledge extraction time: " + avgKnowledgeTime.sum / avgKnowledgeTime.length)
-      val end = System.currentTimeMillis()
-      println("Total time (mins): " + (end - start) / 60000.0)
-      val avgResults = perQuestionResults.reduceRight[Stats] { case (a: Stats, b: Stats) => a.sumWith(b) }.divideBy(perQuestionResults.length)
-      println(avgResults.toString)
-      if (outputFileOpt.isDefined) outputFileOpt.get.close()
-      println("------------")
+            val solveEnd = System.currentTimeMillis()
+            val score = SolverUtils.assignCredit(selected, correct.head - 'A', options.length)
+            if (outputFileOpt.isDefined) outputFileOpt.get.write(question + "\t" + score + "\t" + selected + "\n")
+            if (printMistakes && score < 1.0) {
+              println("Question: " + question + " / options: " + options + "   / selected: " + selected + " / score: " + score)
+            }
+            //if (score > 0) {
+            println("Score " + score + "  selected: " + selected)
+            //}
+            (score, results.statistics,
+              ((knowledgeEnd - knowledgeStart) / 1000.0, (solveEnd - knowledgeEnd) / 1000.0, if (selected.nonEmpty) 1.0 else 0.0))
+        }.unzip3
+        val (avgKnowledgeTime, avgSolveTime, nonEmptyList) = otherTimes.unzip3
+        val avgCoverage = nonEmptyList.sum / nonEmptyList.length
+        val nonZeroScores = perQuestionScore.zip(nonEmptyList).filter(_._2 > 0.0).map(_._1)
+        println("reasoning type:  " + t)
+        println("Average score: " + perQuestionScore.sum / perQuestionScore.size)
+        println("Avg precision: " + nonZeroScores.sum / nonZeroScores.size)
+        println("avgCoverage: " + avgCoverage)
+        println("Total number of questions: " + perQuestionResults.length)
+        println("Total number of questions: " + nonZeroScores.length)
+        println("Avg solve overall time: " + avgSolveTime.sum / avgSolveTime.length)
+        println("Avg knowledge extraction time: " + avgKnowledgeTime.sum / avgKnowledgeTime.length)
+        val end = System.currentTimeMillis()
+        println("Total time (mins): " + (end - start) / 60000.0)
+        val avgResults = perQuestionResults.reduceRight[Stats] { case (a: Stats, b: Stats) => a.sumWith(b) }.divideBy(perQuestionResults.length)
+        println(avgResults.toString)
+        if (outputFileOpt.isDefined) outputFileOpt.get.close()
+        resultFile.write(s"${t} \t  ${srlVu} \t ${perQuestionScore.sum / perQuestionScore.size} \t ${nonZeroScores.sum / nonZeroScores.size} \t ${avgCoverage} " +
+          s"\t ${nonZeroScores.length} \t ${perQuestionResults.length} \t ${avgSolveTime.sum / avgSolveTime.length} \n")
+        println("------------")
+      }
     }
+    resultFile.close()
   }
 
   def processLuceneSnippets(dataset: Seq[(String, Seq[String], String)], knowledgeLength: Int = 8, printMistakes: Boolean = false) = {
@@ -837,21 +846,22 @@ object ExperimentsApp {
       //evaluateTextSolverOnRegents(SolverUtils.publicTest, salienceSolver)
       case 11 =>
 
-        //evaluateTextSolverOnRegentsPerReasoningMethod(SolverUtils.regentsTrain, textILPSolver)
+//        evaluateTextSolverOnRegentsPerReasoningMethod(SolverUtils.regentsTrain, textILPSolver)
+        evaluateTextSolverOnRegentsPerReasoningMethod(SolverUtils.publicTrain, textILPSolver)
 
         //        evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver, splitToSentences = true)
         //        println("==== regents train / sentence split = true  ")
         //        evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver, splitToSentences = true)
         //        println("==== regents test  / sentence split = true  ")
-        evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver, splitToSentences = false)
-        println("==== regents train  ")
-        evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver, splitToSentences = false)
-        println("==== regents test  ")
+//        evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver, splitToSentences = false)
+//        println("==== regents train  ")
+      //        evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver, splitToSentences = false)
+      //        println("==== regents test  ")
 
       // evaluateTextSolverOnRegents(SolverUtils.regentsPerturbed, textILPSolver)
       //        println("==== regents perturbed  ")
-      //        evaluateTextSolverOnRegents(SolverUtils.publicTrain, textILPSolver)
-      //        println("==== public train ")
+//              evaluateTextSolverOnRegents(SolverUtils.publicTrain, textILPSolver)
+//              println("==== public train ")
       //        evaluateTextSolverOnRegents(SolverUtils.publicDev, textILPSolver)
       //        println("==== public dev ")
       //        evaluateTextSolverOnRegents(SolverUtils.publicTest, textILPSolver)
@@ -2369,6 +2379,22 @@ object ExperimentsApp {
         val knowledgeLength = 8
         val rawSentences = SolverUtils.extractPatagraphGivenQuestionAndFocusSet3(question, options, knowledgeLength).mkString(". ")
         println(annotationUtils.dropRedundantSentences(rawSentences))
+      case 103 =>
+        lazy val a = {
+          println("evaluating a ")
+          1
+        }
+        lazy val b = {
+          println("evaluating b ")
+          2
+        }
+        lazy val c = {
+          println("evaluating c ")
+          3
+        }
+        val aa = (a #:: b #:: c #:: Stream.empty)
+        val out = (a #:: b #:: c #:: Stream.empty).find(_ == 1)
+        println("out = " + out)
     }
   }
 }

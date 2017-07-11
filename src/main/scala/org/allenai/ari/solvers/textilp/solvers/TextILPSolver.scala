@@ -195,15 +195,16 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
   def SRLSolverV1WithAllViews(q: Question, p: Paragraph): (Seq[Int], EntityRelationResult) = {
     lazy val srlVerbPipeline = SRLSolverV1(q, p, ViewNames.SRL_VERB)
     lazy val srlVerbCurator = SRLSolverV1(q, p, TextILPSolver.curatorSRLViewName)
-    if(srlVerbPipeline._1.nonEmpty) {
+    /*if(srlVerbPipeline._1.nonEmpty) {
       srlVerbPipeline
     }
-//    else if (srlVerbCurator._1.nonEmpty) {
-//      srlVerbCurator
-//    }
+    else if (srlVerbCurator._1.nonEmpty) {
+      srlVerbCurator
+    }
     else {
       SRLSolverV1(q, p, TextILPSolver.pathLSTMViewName)
-    }
+    }*/
+    SRLSolverV1(q, p, TextILPSolver.pathLSTMViewName)
   }
 
   def SRLSolverV2WithAllViews(q: Question, p: Paragraph): (Seq[Int], EntityRelationResult) = {
@@ -254,49 +255,63 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     //lazy val pSummary = SolverUtils.ParagraphSummarization.getSubparagraph(p, q)
     //    val ilpSolver = new IllinoisInference(new OJalgoHook)
     //    val ilpSolver = new IllinoisInference(new GurobiHook)
-    lazy val resultVerbSRLPlusCommaSRL = {
+    lazy val resultVerbSRLPlusCommaSRL_pipelneSRL = {
       val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
-      createILPModel(q, p, ilpSolver, aligner, Set(VerbSRLandCommaSRL), useSummary = true)
+      createILPModel(q, p, ilpSolver, aligner, Set(VerbSRLandCommaSRL), useSummary = true, ViewNames.SRL_VERB)
+    } -> "resultVerbSRLPlusCommaSRL_pipeline_srl"
+    lazy val resultVerbSRLPlusCommaSRL_curatorSRL = {
+      val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
+      createILPModel(q, p, ilpSolver, aligner, Set(VerbSRLandCommaSRL), useSummary = true, TextILPSolver.curatorSRLViewName)
+    } -> "resultVerbSRLPlusCommaSRL_curator_srl"
+    lazy val resultVerbSRLPlusCommaSRL_pathLSTM = {
+      val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
+      createILPModel(q, p, ilpSolver, aligner, Set(VerbSRLandCommaSRL), useSummary = true, TextILPSolver.pathLSTMViewName)
     } -> "resultVerbSRLPlusCommaSRL"
     lazy val resultILP = {
       val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
-      createILPModel(q, p, ilpSolver, aligner, Set(SimpleMatching), useSummary = true)
+      createILPModel(q, p, ilpSolver, aligner, Set(SimpleMatching), useSummary = true, TextILPSolver.pathLSTMViewName)
     } -> "resultILP"
-    lazy val resultVerbSRLPlusCoref = {
+    lazy val resultVerbSRLPlusCoref_pipelineSRL = {
       val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
-      createILPModel(q, p, ilpSolver, aligner, Set(VerbSRLandCoref), useSummary = true)
-    } -> "resultVerbSRLPlusCoref"
-    lazy val resultVerbSRLPlusPrepSRL = {
+      createILPModel(q, p, ilpSolver, aligner, Set(VerbSRLandCoref), useSummary = true, ViewNames.SRL_VERB)
+    } -> "resultVerbSRLPlusCoref_pipeline_srl"
+    lazy val resultVerbSRLPlusCoref_curatorSRL = {
       val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
-      createILPModel(q, p, ilpSolver, aligner, Set(VerbSRLandPrepSRL), useSummary = true)
-    } -> "resultVerbSRLPlusPrepSRL"
-    lazy val srlV1ILP = {
+      createILPModel(q, p, ilpSolver, aligner, Set(VerbSRLandCoref), useSummary = true, TextILPSolver.curatorSRLViewName)
+    } -> "resultVerbSRLPlusCoref_curator_srl"
+    lazy val resultVerbSRLPlusCoref_pathLSTM = {
       val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
-      createILPModel(q, p, ilpSolver, aligner, Set(SRLV1ILP), useSummary = false)
-    } -> "srlV1ILP"
-    lazy val srlV1ILPWithSummary = {
+      createILPModel(q, p, ilpSolver, aligner, Set(VerbSRLandCoref), useSummary = true, TextILPSolver.pathLSTMViewName)
+    } -> "resultVerbSRLPlusCoref_path_lstm"
+    lazy val resultVerbSRLPlusPrepSRL_pipeline_srl = {
       val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
-      createILPModel(q, p, ilpSolver, aligner, Set(SRLV1ILP), useSummary = true)
-    } -> "srlV1ILPWithSummary"
-
-    //resultILP
-    //resultVerbSRLPlusCoref
-    //    resultVerbSRLPlusCommaSRL
-    //    srlV1ILP
-
-    //srlV1ILPWithSummary
-
-    //srlV1ILP
-    //resultILP
-    //resultVerbSRLPlusPrepSRL
-    //    srlV1ILP
-    //    resultSRLV2
-    //    resultCause
-    //resultILP
+      createILPModel(q, p, ilpSolver, aligner, Set(VerbSRLandPrepSRL), useSummary = true, ViewNames.SRL_VERB)
+    } -> "resultVerbSRLPlusPrepSRL_pipeline_srl"
+    lazy val resultVerbSRLPlusPrepSRL_curator_srl = {
+      val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
+      createILPModel(q, p, ilpSolver, aligner, Set(VerbSRLandPrepSRL), useSummary = true, TextILPSolver.curatorSRLViewName)
+    } -> "resultVerbSRLPlusPrepSRL_curator_srl"
+    lazy val resultVerbSRLPlusPrepSRL_path_lstm = {
+      val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
+      createILPModel(q, p, ilpSolver, aligner, Set(VerbSRLandPrepSRL), useSummary = true, TextILPSolver.pathLSTMViewName)
+    } -> "resultVerbSRLPlusPrepSRL_path_lstm"
+    lazy val srlV1ILP_pipeline_srl = {
+      val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
+      createILPModel(q, p, ilpSolver, aligner, Set(SRLV1ILP), useSummary = false, ViewNames.SRL_VERB)
+    } -> "srlV1ILP_pipeline_srl"
+    lazy val srlV1ILP_curator_srl = {
+      val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
+      createILPModel(q, p, ilpSolver, aligner, Set(SRLV1ILP), useSummary = false, TextILPSolver.curatorSRLViewName)
+    } -> "srlV1ILP_curator_srl"
+    lazy val srlV1ILP_path_lstm = {
+      val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
+      createILPModel(q, p, ilpSolver, aligner, Set(SRLV1ILP), useSummary = false, TextILPSolver.pathLSTMViewName)
+    } -> "srlV1ILP_path_lstm"
 
     // CommaSRL+VerbSRL	SRLV2 	SimpleMatching	Coref+VerbSRL	SRLV1ILP	VerbSRL+PrepSRL	SRLV1 	Cause 	What does it do
-    val resultOpt = Seq(resultWhatDoesItdo, resultCause, resultSRLV1, resultVerbSRLPlusPrepSRL, srlV1ILP,
-      resultVerbSRLPlusCoref, resultILP, resultSRLV2, resultVerbSRLPlusCommaSRL).find{ t =>
+    val resultOpt = Seq(resultWhatDoesItdo, resultCause, resultSRLV1, resultVerbSRLPlusPrepSRL_curator_srl,
+      /*resultVerbSRLPlusPrepSRL_pipeline_srl*/ resultVerbSRLPlusPrepSRL_path_lstm/*, , srlV1ILP_curator_srl , srlV1ILP_pipeline_srl, */, srlV1ILP_path_lstm,
+      resultVerbSRLPlusCoref_pathLSTM /* resultVerbSRLPlusCoref_pipelineSRL, resultVerbSRLPlusCoref_curatorSRL*//*, resultILP, resultSRLV2, resultVerbSRLPlusCommaSRL*/).find{ t =>
       println("trying: " + t._2)
       t._1._1.nonEmpty
     }
@@ -307,7 +322,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     else (Seq.empty, EntityRelationResult())
   }
 
-  def solveWithReasoningType(question: String, options: Seq[String], snippet: String, reasoningType: ReasoningType): (Seq[Int], EntityRelationResult) = {
+  def solveWithReasoningType(question: String, options: Seq[String], snippet: String, reasoningType: ReasoningType, srlViewName: String = TextILPSolver.pathLSTMViewName): (Seq[Int], EntityRelationResult) = {
     val (q: Question, p: Paragraph) = preprocessQuestionData(question, options, snippet)
 
     reasoningType match {
@@ -318,7 +333,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       case CauseRule => CauseResultRules(q, p)
       case x =>
         val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
-        createILPModel(q, p, ilpSolver, aligner, Set(x), useSummary = true)
+        createILPModel(q, p, ilpSolver, aligner, Set(x), useSummary = true, srlViewName)
     }
   }
 
@@ -358,7 +373,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
         println(" --> external: ")
         annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
         println(" --> curator: ")
-//        annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
+        annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
         clientTa.addView(annotationUtils.fillInBlankAnnotator)
         Some(clientTa)
       } else {
@@ -382,10 +397,10 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
           //          annotationUtils.annotateViewLwithRemoteServer(ViewNames.DEPENDENCY_STANFORD, pTA)
           //annotationUtils.annotateViewLwithRemoteServer(pTA)
           val clientTa = annotationUtils.pipelineServerClient.annotate(snippet)
-//          println(" --> external: ")
-//          annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
+          println(" --> external: ")
+          annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
           println(" --> curator: ")
-//          annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
+          annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
           Some(clientTa)
         } else {
           val ta = annotationUtils.pipelineService.createBasicTextAnnotation("", "", snippet)
@@ -862,7 +877,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
                                    ilpSolver: IlpSolver[V, _],
                                    alignmentFunction: AlignmentFunction,
                                    reasoningTypes: Set[ReasoningType],
-                                   useSummary: Boolean
+                                   useSummary: Boolean,
+                                   srlViewName: String
                                  ): (Seq[Int], EntityRelationResult) = {
 
     //val p = if(reasoningTypes.contains(SimpleMatching)) SolverUtils.ParagraphSummarization.getSubparagraph(p1, q, Some(annotationUtils)) else p1
@@ -1651,8 +1667,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
 
     // in this reasoning, we match the frames of the question with the frames of the paragraphs directly
     if(reasoningTypes.contains(SRLV1ILP)) {
-      val qVerbConstituents = if (qTA.hasView(TextILPSolver.pathLSTMViewName)) qTA.getView(TextILPSolver.pathLSTMViewName).getConstituents.asScala else Seq.empty
-      val pVerbConstituents = if (pTA.hasView(TextILPSolver.pathLSTMViewName)) pTA.getView(TextILPSolver.pathLSTMViewName).getConstituents.asScala else Seq.empty
+      val qVerbConstituents = if (qTA.hasView(srlViewName)) qTA.getView(srlViewName).getConstituents.asScala else Seq.empty
+      val pVerbConstituents = if (pTA.hasView(srlViewName)) pTA.getView(srlViewName).getConstituents.asScala else Seq.empty
       val qVerbPredicates = qVerbConstituents.filter(_.getLabel=="Predicate")
       val pVerbPredicates = pVerbConstituents.filter(_.getLabel=="Predicate")
       val qVerbArguments = qVerbConstituents diff qVerbPredicates
@@ -1797,8 +1813,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
 
       val commaSRLPredicateabels = Set("Attribute", "Complementary", "Interrupter", "Introductory", "List", "Quotation", "Substitute", "Locative")
 
-      val qVerbConstituents = if (qTA.hasView(TextILPSolver.pathLSTMViewName)) qTA.getView(TextILPSolver.pathLSTMViewName).getConstituents.asScala else Seq.empty
-      val pVerbConstituents = if (pTA.hasView(TextILPSolver.pathLSTMViewName)) pTA.getView(TextILPSolver.pathLSTMViewName).getConstituents.asScala else Seq.empty
+      val qVerbConstituents = if (qTA.hasView(srlViewName)) qTA.getView(srlViewName).getConstituents.asScala else Seq.empty
+      val pVerbConstituents = if (pTA.hasView(srlViewName)) pTA.getView(srlViewName).getConstituents.asScala else Seq.empty
       //val qCommaConstituents = if (qTA.hasView(ViewNames.SRL_COMMA)) qTA.getView(ViewNames.SRL_COMMA).getConstituents.asScala else Seq.empty
       val pCommaConstituents = if (pTA.hasView(ViewNames.SRL_COMMA)) pTA.getView(ViewNames.SRL_COMMA).getConstituents.asScala else Seq.empty
       val pCommaPredicates = pCommaConstituents.filter(c => commaSRLPredicateabels.contains(c.getLabel))
@@ -2097,8 +2113,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     }
 
     if(reasoningTypes.contains(VerbSRLandPrepSRL)) {
-      val qVerbConstituents = if (qTA.hasView(TextILPSolver.pathLSTMViewName)) qTA.getView(TextILPSolver.pathLSTMViewName).getConstituents.asScala else Seq.empty
-      val pVerbConstituents = if (pTA.hasView(TextILPSolver.pathLSTMViewName)) pTA.getView(TextILPSolver.pathLSTMViewName).getConstituents.asScala else Seq.empty
+      val qVerbConstituents = if (qTA.hasView(srlViewName)) qTA.getView(srlViewName).getConstituents.asScala else Seq.empty
+      val pVerbConstituents = if (pTA.hasView(srlViewName)) pTA.getView(srlViewName).getConstituents.asScala else Seq.empty
       val pPrepConstituents = if (pTA.hasView(ViewNames.SRL_PREP)) pTA.getView(ViewNames.SRL_PREP).getConstituents.asScala else Seq.empty
       val pPrepPredicates = if (pTA.hasView(ViewNames.SRL_PREP)) pTA.getView(ViewNames.SRL_PREP).asInstanceOf[PredicateArgumentView].getPredicates.asScala else Seq.empty
       val qVerbPredicates = qVerbConstituents.filter(_.getLabel=="Predicate")
@@ -2427,9 +2443,9 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     }
 
     if(reasoningTypes.contains(VerbSRLandCoref)) {
-      val qVerbViewOpt = if (qTA.hasView(TextILPSolver.pathLSTMViewName)) Some(qTA.getView(TextILPSolver.pathLSTMViewName)) else None
+      val qVerbViewOpt = if (qTA.hasView(srlViewName)) Some(qTA.getView(srlViewName)) else None
       val qVerbConstituents = if(qVerbViewOpt.isDefined) qVerbViewOpt.get.getConstituents.asScala else Seq.empty
-      val pVerbConstituents = if (pTA.hasView(TextILPSolver.pathLSTMViewName)) pTA.getView(TextILPSolver.pathLSTMViewName).getConstituents.asScala else Seq.empty
+      val pVerbConstituents = if (pTA.hasView(srlViewName)) pTA.getView(srlViewName).getConstituents.asScala else Seq.empty
       val qVerbPredicates = qVerbConstituents.filter(_.getLabel=="Predicate")
       val pVerbPredicates = pVerbConstituents.filter(_.getLabel=="Predicate")
       val qVerbArguments = qVerbConstituents diff qVerbPredicates
