@@ -123,6 +123,33 @@ object TextILPSolver {
 
 
   val toBeVerbs = Set("am", "is", "are", "was", "were", "being", "been", "be", "were", "be")
+
+
+  val w = Map(
+    "CauseRule-SRL_VERB_PATH_LSTM"           ->  -0.0597,
+    "SimpleMatching-SRL_VERB_PATH_LSTM"        ->  0.786,
+    "SRLV1ILP-SRL_VERB"                       ->  0.1429,
+    "SRLV1ILP-SRL_VERB_CURATOR"              ->  -0.3243,
+    "SRLV1ILP-SRL_VERB_PATH_LSTM"            ->  -0.3608,
+    "SRLV1Rule-SRL_VERB"                     ->  -0.3526,
+    "SRLV1Rule-SRL_VERB_CURATOR"             ->  -0.0705,
+    "SRLV1Rule-SRL_VERB_PATH_LSTM"            ->  0.4313,
+    "SRLV2Rule-SRL_VERB"                      ->  0.3081,
+    "SRLV3Rule-SRL_VERB"                      ->  0.1799,
+    "SRLV3Rule-SRL_VERB_CURATOR"              ->  0.0844,
+    "SRLV3Rule-SRL_VERB_PATH_LSTM"            ->  0.2259,
+    "VerbSRLandCommaSRL-SRL_VERB"              ->  0.401,
+    "VerbSRLandCommaSRL-SRL_VERB_CURATOR"     ->  0.2555,
+    "VerbSRLandCommaSRL-SRL_VERB_PATH_LSTM"   ->  0.1549,
+    "VerbSRLandCoref-SRL_VERB"               ->  -0.5351,
+    "VerbSRLandCoref-SRL_VERB_CURATOR"        ->  -0.124,
+    "VerbSRLandCoref-SRL_VERB_PATH_LSTM"      ->  0.3771,
+    "VerbSRLandPrepSRL-SRL_VERB"             ->  -0.0538,
+    "VerbSRLandPrepSRL-SRL_VERB_CURATOR"      ->  0.1708,
+    "VerbSRLandPrepSRL-SRL_VERB_PATH_LSTM"   ->  -0.0414,
+    "WhatDoesItDoRule-SRL_VERB_PATH_LSTM"     ->  0.1258,
+    "Intercept"                               ->  -0.371
+  )
 }
 
 case class TextIlpParams(
@@ -195,7 +222,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
   def SRLSolverV1WithAllViews(q: Question, p: Paragraph): (Seq[Int], EntityRelationResult) = {
     lazy val srlVerbPipeline = SRLSolverV1(q, p, ViewNames.SRL_VERB)
     lazy val srlVerbCurator = SRLSolverV1(q, p, TextILPSolver.curatorSRLViewName)
-    /*if(srlVerbPipeline._1.nonEmpty) {
+    if(srlVerbPipeline._1.nonEmpty) {
       srlVerbPipeline
     }
     else if (srlVerbCurator._1.nonEmpty) {
@@ -203,8 +230,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     }
     else {
       SRLSolverV1(q, p, TextILPSolver.pathLSTMViewName)
-    }*/
-    SRLSolverV1(q, p, TextILPSolver.pathLSTMViewName)
+    }
+    //SRLSolverV1(q, p, TextILPSolver.pathLSTMViewName)
   }
 
   def SRLSolverV2WithAllViews(q: Question, p: Paragraph): (Seq[Int], EntityRelationResult) = {
@@ -245,9 +272,20 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
   def solve(question: String, options: Seq[String], snippet: String): (Seq[Int], EntityRelationResult) = {
     val (q: Question, p: Paragraph) = preprocessQuestionData(question, options, snippet)
     println("Reasoning methods . . . ")
-    lazy val resultSRLV1 = SRLSolverV1WithAllViews(q, p) -> "resultSRLV1"
-    lazy val resultSRLV2 = SRLSolverV2WithAllViews(q, p) -> "resultSRLV2"
-    lazy val resultSRLV3 = SRLSolverV3WithAllViews(q, p, aligner) -> "resultSRLV3"
+    lazy val resultSRLV1_path_lstm = SRLSolverV1(q, p, TextILPSolver.pathLSTMViewName) -> "resultSRLV1_path_lstm"
+    lazy val resultSRLV1_curator = SRLSolverV1(q, p, TextILPSolver.curatorSRLViewName) -> "resultSRLV1_curator"
+    lazy val resultSRLV1_pipeline = SRLSolverV1(q, p, ViewNames.SRL_VERB) -> "resultSRLV1_pipeline"
+
+    lazy val resultSRLV2_path_lstm = SRLSolverV2(q, p, TextILPSolver.pathLSTMViewName) -> "resultSRLV2_path_lstm"
+    lazy val resultSRLV2_curator = SRLSolverV2(q, p, TextILPSolver.curatorSRLViewName) -> "resultSRLV2_curator"
+    lazy val resultSRLV2_pipeline = SRLSolverV2(q, p, ViewNames.SRL_VERB) -> "resultSRLV2_pipeline"
+
+    lazy val resultSRLV3_path_lstm = SRLSolverV3(q, p, aligner, TextILPSolver.pathLSTMViewName) -> "resultSRLV3_path_lstm"
+    lazy val resultSRLV3_curator = SRLSolverV3(q, p, aligner, TextILPSolver.curatorSRLViewName) -> "resultSRLV3_curator"
+    lazy val resultSRLV3_pipeline = SRLSolverV3(q, p, aligner, ViewNames.SRL_VERB) -> "resultSRLV3_pipeline"
+
+//    lazy val resultSRLV2 = SRLSolverV2WithAllViews(q, p) -> "resultSRLV2"
+//    lazy val resultSRLV3 = SRLSolverV3WithAllViews(q, p, aligner) -> "resultSRLV3"
     lazy val resultMeteor = MeteorSolver(q, p, aligner) -> "resultMeteor"
     lazy val resultWhatDoesItdo = WhatDoesItDoSolver(q, p) -> "resultWhatDoesItdo"
     // SimilarityMetricSolver(q, p)
@@ -267,7 +305,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
       createILPModel(q, p, ilpSolver, aligner, Set(VerbSRLandCommaSRL), useSummary = true, TextILPSolver.pathLSTMViewName)
     } -> "resultVerbSRLPlusCommaSRL"
-    lazy val resultILP = {
+    lazy val resultSimpleMatching = {
       val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
       createILPModel(q, p, ilpSolver, aligner, Set(SimpleMatching), useSummary = true, TextILPSolver.pathLSTMViewName)
     } -> "resultILP"
@@ -308,14 +346,15 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       createILPModel(q, p, ilpSolver, aligner, Set(SRLV1ILP), useSummary = false, TextILPSolver.pathLSTMViewName)
     } -> "srlV1ILP_path_lstm"
 
-    // CommaSRL+VerbSRL	SRLV2 	SimpleMatching	Coref+VerbSRL	SRLV1ILP	VerbSRL+PrepSRL	SRLV1 	Cause 	What does it do
-    val resultOpt = (resultWhatDoesItdo #:: resultCause #:: resultSRLV1 #:: resultVerbSRLPlusPrepSRL_curator_srl #::
-      ///*resultVerbSRLPlusPrepSRL_pipeline_srl resultVerbSRLPlusPrepSRL_path_lstm #:: , , srlV1ILP_curator_srl , srlV1ILP_pipeline_srl, */ #:: srlV1ILP_path_lstm #::
-      //resultVerbSRLPlusCoref_pathLSTM  #:: /* resultVerbSRLPlusCoref_pipelineSRL, resultVerbSRLPlusCoref_curatorSRL*//*, resultILP, resultSRLV2, resultVerbSRLPlusCommaSRL*/
-      Stream.empty).find{ t =>
+    val resultOpt = (/*resultCause #:: resultWhatDoesItdo #:: resultVerbSRLPlusCoref_curatorSRL #:: resultVerbSRLPlusCoref_pathLSTM #::
+        resultSRLV1_pipeline #:: resultVerbSRLPlusCoref_pipelineSRL #:: resultVerbSRLPlusPrepSRL_pipeline_srl #::
+        srlV1ILP_pipeline_srl #:: resultVerbSRLPlusPrepSRL_path_lstm  #:: srlV1ILP_curator_srl #:: srlV1ILP_path_lstm #::*/
+        /*resultVerbSRLPlusCommaSRL_pipelneSRL #:: resultVerbSRLPlusCommaSRL_pathLSTM #::*/ resultVerbSRLPlusCommaSRL_curatorSRL #::
+      resultSRLV3_pipeline /*#:: resultSimpleMatching*/ #:: Stream.empty).find{ t =>
       println("trying: " + t._2)
       t._1._1.nonEmpty
     }
+
     if(resultOpt.isDefined) {
       println(" ----> Selected method: " + resultOpt.get._2)
       resultOpt.get._1
@@ -327,15 +366,51 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     val (q: Question, p: Paragraph) = preprocessQuestionData(question, options, snippet)
 
     reasoningType match {
-      case SRLV1Rule => SRLSolverV1WithAllViews(q, p)
-      case SRLV2Rule => SRLSolverV1WithAllViews(q, p)
-      case SRLV3Rule => SRLSolverV3WithAllViews(q, p, aligner)
+      case SRLV1Rule => SRLSolverV1(q, p, srlViewName)
+      case SRLV2Rule => SRLSolverV2(q, p, srlViewName)
+      case SRLV3Rule => SRLSolverV3(q, p, aligner, srlViewName)
       case WhatDoesItDoRule => WhatDoesItDoSolver(q, p)
       case CauseRule => CauseResultRules(q, p)
       case x =>
         val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
         createILPModel(q, p, ilpSolver, aligner, Set(x), useSummary = true, srlViewName)
     }
+  }
+
+  def solveWithLinearCombination(question: String, options: Seq[String], snippet: String): (Seq[Int], EntityRelationResult) = {
+    val (q: Question, p: Paragraph) = preprocessQuestionData(question, options, snippet)
+    val types = Seq(SimpleMatching, WhatDoesItDoRule, CauseRule, SRLV1Rule, VerbSRLandPrepSRL, SRLV1ILP, VerbSRLandCoref,
+      SRLV2Rule, SRLV3Rule, VerbSRLandCommaSRL)
+    val srlViewsAll = Seq(ViewNames.SRL_VERB, TextILPSolver.curatorSRLViewName, TextILPSolver.pathLSTMViewName)
+    val scoreVectors = types.flatMap { t =>
+      val start = System.currentTimeMillis()
+      SolverUtils.printMemoryDetails()
+      val srlViewTypes = if (t == CauseRule || t == WhatDoesItDoRule || t == SimpleMatching) Seq(TextILPSolver.pathLSTMViewName) else srlViewsAll
+      srlViewTypes.map { srlViewName =>
+        val weight = TextILPSolver.w.getOrElse(s"$t-$srlViewName", 0.0)
+        val (selected, _) = t match {
+          case SRLV1Rule => SRLSolverV1(q, p, srlViewName)
+          case SRLV2Rule => SRLSolverV2(q, p, srlViewName)
+          case SRLV3Rule => SRLSolverV3(q, p, aligner, srlViewName)
+          case WhatDoesItDoRule => WhatDoesItDoSolver(q, p)
+          case CauseRule => CauseResultRules(q, p)
+          case x =>
+            val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
+            createILPModel(q, p, ilpSolver, aligner, Set(x), useSummary = true, srlViewName)
+        }
+        options.indices.map{idx =>
+          if(selected.contains(idx)) {
+            weight / selected.length
+          }
+          else {
+            0.0
+          }
+        }
+      }
+    }
+    val scorePerIdx = scoreVectors.reduceRight[Seq[Double]]{case (a, b) => a.zip(b).map{ case (x, y) => x + y } }
+    val selected = scorePerIdx.zipWithIndex.maxBy(_._1)._2
+    (Seq(selected), EntityRelationResult())
   }
 
   private def preprocessQuestionData(question: String, options: Seq[String], snippet1: String): (Question, Paragraph) = {

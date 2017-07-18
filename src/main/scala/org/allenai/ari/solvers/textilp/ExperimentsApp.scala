@@ -1,17 +1,17 @@
 package org.allenai.ari.solvers.textilp
 
-import java.io.File
+import java.io.{BufferedWriter, File, FileWriter, PrintWriter}
 import java.net.URL
 import java.util
 
 import edu.illinois.cs.cogcomp.McTest.MCTestBaseline
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
-import edu.illinois.cs.cogcomp.core.utilities.{ DummyTextAnnotationGenerator, SerializationHelper }
+import edu.illinois.cs.cogcomp.core.utilities.{DummyTextAnnotationGenerator, SerializationHelper}
 import edu.illinois.cs.cogcomp.core.utilities.configuration.ResourceManager
 import org.allenai.ari.solvers.bioProccess.ProcessBankReader
 import org.allenai.ari.solvers.squad._
-import org.allenai.ari.solvers.textilp.solvers.{ CauseRule, WhatDoesItDoRule, _ }
-import play.api.libs.json.{ JsArray, JsObject, Json }
+import org.allenai.ari.solvers.textilp.solvers.{CauseRule, WhatDoesItDoRule, _}
+import play.api.libs.json.{JsArray, JsObject, Json}
 import org.allenai.ari.solvers.squad.SquadClassifierUtils._
 import org.allenai.ari.solvers.textilp.alignment.AlignmentFunction
 import org.allenai.ari.solvers.textilp.utils.WikiUtils.WikiDataProperties
@@ -20,15 +20,14 @@ import org.rogach.scallop._
 
 import scala.collection.JavaConverters._
 import ProcessBankReader._
-import edu.cmu.meteor.scorer.{ MeteorConfiguration, MeteorScorer }
-import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{ Constituent, TextAnnotation }
+import edu.cmu.meteor.scorer.{MeteorConfiguration, MeteorScorer}
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, TextAnnotation}
 import edu.illinois.cs.cogcomp.edison.annotators.ClauseViewGenerator
 import edu.illinois.cs.cogcomp.pipeline.server.ServerClientAnnotator
 import org.simmetrics.metrics.StringMetrics
-import org.allenai.ari.controller.questionparser.{ FillInTheBlankGenerator, QuestionParse }
+import org.allenai.ari.controller.questionparser.{FillInTheBlankGenerator, QuestionParse}
 import org.allenai.ari.solvers.textilp.ResultJson._
-import org.allenai.ari.solvers.textilp.utils.SimilarityUtils.Levenshtein
-import org.apache.lucene.search.similarities.{ MultiSimilarity, Similarity }
+import org.apache.commons.io.FilenameUtils
 import org.simmetrics.StringMetric
 
 import scala.util.Random
@@ -253,10 +252,11 @@ object ExperimentsApp {
 
   def evaluateTextSolverOnRegents(dataset: Seq[(String, Seq[String], String)], textSolver: TextSolver,
     knowledgeLength: Int = 8, printMistakes: Boolean = false, splitToSentences: Boolean = false) = {
+    val resultFile = new PrintWriter(new File(s"output/results-$textSolver-length${dataset.length}.txt"))
     val types = Seq(WhatDoesItDoRule, CauseRule, SRLV1Rule, VerbSRLandPrepSRL, SRLV1ILP, VerbSRLandCoref, SimpleMatching)
     import java.io._
     // use false if you don't it to write things on disk
-    val outputFileOpt = if (true) {
+    val predictionsFileOpt = if (true) {
       Some(new PrintWriter(new File(s"output-$textSolver-length${dataset.length}.tsv")))
     } else {
       None
@@ -302,7 +302,8 @@ object ExperimentsApp {
             }
             bestSelected -> EntityRelationResult()
           } else {
-            textSolver.solve(question, options, knowledgeSnippet)
+            //textSolver.solve(question, options, knowledgeSnippet)
+            textSolver.asInstanceOf[TextILPSolver].solveWithLinearCombination(question, options, knowledgeSnippet)
           }
         } else {
           Seq.empty -> EntityRelationResult()
@@ -314,7 +315,7 @@ object ExperimentsApp {
 
         val solveEnd = System.currentTimeMillis()
         val score = SolverUtils.assignCredit(selected, correct.head - 'A', options.length)
-        if (outputFileOpt.isDefined) outputFileOpt.get.write(question + "\t" + score + "\t" + selected + "\n")
+        if (predictionsFileOpt.isDefined) predictionsFileOpt.get.write(question + "\t" + score + "\t" + selected + "\n")
         if (printMistakes && score < 1.0) {
           println("Question: " + question + " / options: " + options + "   / selected: " + selected + " / score: " + score)
         }
@@ -336,30 +337,36 @@ object ExperimentsApp {
     println("Avg knowledge extraction time: " + avgKnowledgeTime.sum / avgKnowledgeTime.length)
     val end = System.currentTimeMillis()
     println("Total time (mins): " + (end - start) / 60000.0)
+    resultFile.write(s"score: ${perQuestionScore.sum / perQuestionScore.size} " +
+      s"\nPrecision: ${nonZeroScores.sum / nonZeroScores.size} " +
+      s"\nCoverage: ${avgCoverage} " +
+      s"\nAvgOverallTime: ${avgSolveTime.sum / avgSolveTime.length}")
     val avgResults = perQuestionResults.reduceRight[Stats] { case (a: Stats, b: Stats) => a.sumWith(b) }.divideBy(perQuestionResults.length)
     println(avgResults.toString)
-    if (outputFileOpt.isDefined) outputFileOpt.get.close
+    if (predictionsFileOpt.isDefined) predictionsFileOpt.get.close
+    resultFile.close()
   }
 
   def evaluateTextSolverOnRegentsPerReasoningMethod(dataset: Seq[(String, Seq[String], String)], textSolver: TextSolver,
     knowledgeLength: Int = 8, printMistakes: Boolean = false) = {
     import java.io._
-    val resultFile = new PrintWriter(new File(s"results-per-solver-length${dataset.length}.txt"))
+    val resultFile = new PrintWriter(new File(s"output/results-per-solver-length${dataset.length}.txt"))
     resultFile.write(s"Type \t SRL \t Score \t Precision \t Recall \t Total Answered \t Out of \t Total Time \n")
     //    val types = Seq( WhatDoesItDoRule, CauseRule,  SRLV1Rule, VerbSRLandPrepSRL,SRLV1ILP, VerbSRLandCoref, SimpleMatching )
-    val types = Seq(WhatDoesItDoRule, CauseRule, SRLV1Rule, VerbSRLandPrepSRL, SRLV1ILP, VerbSRLandCoref, SRLV2Rule, SRLV3Rule, VerbSRLandCommaSRL)
+    val types = Seq(WhatDoesItDoRule /*SimpleMatching, WhatDoesItDoRule, CauseRule, SRLV1Rule, VerbSRLandPrepSRL, SRLV1ILP, VerbSRLandCoref,
+      SRLV2Rule, SRLV3Rule, *//*VerbSRLandCommaSRL*/)
     val srlViewsAll = Seq(ViewNames.SRL_VERB, TextILPSolver.curatorSRLViewName, TextILPSolver.pathLSTMViewName)
     types.foreach { t =>
-      // use false if you don't it to write things on disk
-      val outputFileOpt = if (true) {
-        Some(new PrintWriter(new File(s"output-$textSolver-type:$t-length${dataset.length}.tsv")))
-      } else {
-        None
-      }
       val start = System.currentTimeMillis()
       SolverUtils.printMemoryDetails()
       val srlViewTypes = if (t == CauseRule || t == WhatDoesItDoRule || t == SimpleMatching) Seq(TextILPSolver.pathLSTMViewName) else srlViewsAll
       srlViewTypes.foreach { srlVu =>
+        // use false if you don't it to write things on disk
+        val outputFileOpt = if (true) {
+          Some(new PrintWriter(new File(s"output/${dataset.length}-$t-$srlVu.tsv")))
+        } else {
+          None
+        }
         //    println("Starting the evaluation . . . ")
         val max = dataset.length
         val (perQuestionScore, perQuestionResults, otherTimes) = dataset.zipWithIndex.map {
@@ -393,7 +400,8 @@ object ExperimentsApp {
 
             val solveEnd = System.currentTimeMillis()
             val score = SolverUtils.assignCredit(selected, correct.head - 'A', options.length)
-            if (outputFileOpt.isDefined) outputFileOpt.get.write(question + "\t" + score + "\t" + selected + "\n")
+            if (outputFileOpt.isDefined) outputFileOpt.get.write(question + "\t" + score + "\t" + (correct.head - 'A') + "\t" +  selected + "\n")
+            // + score + "\t" + correctIndex + "\t" + selected + "\n")
             if (printMistakes && score < 1.0) {
               println("Question: " + question + " / options: " + options + "   / selected: " + selected + " / score: " + score)
             }
@@ -443,16 +451,16 @@ object ExperimentsApp {
           val clientTa = annotationUtils.pipelineServerClient.annotate(question)
           println("Q: external: ")
           annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa, true)
-                    println("Q: curator: ")
-                    annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
-                    println("Q: FillInBlank: ")
-                    clientTa.addView(annotationUtils.fillInBlankAnnotator)
+          println("Q: curator: ")
+          annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
+          println("Q: FillInBlank: ")
+          clientTa.addView(annotationUtils.fillInBlankAnnotator)
           println("P: pipeline: ")
           val clientTa1 = annotationUtils.pipelineServerClient.annotate(knowledgeSnippet)
           println("P: external: ")
           annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa1, true)
-                    println("P: curator: ")
-                    annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa1.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa1)
+          println("P: curator: ")
+          annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa1.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa1)
         } catch {
           case e: Exception => e.printStackTrace()
         }
@@ -570,8 +578,8 @@ object ExperimentsApp {
     } else {
       None
     }
-
     val qAndpPairs = list.flatMap { p => p.questions.map(q => (q, p)) }
+    val resultFile = new PrintWriter(new File(s"output/results-$textSolver-length${qAndpPairs.length}.txt"))
     val (resultLists, stats, nonEmptyList) = qAndpPairs.map {
       case (q, p) =>
         //(q, SolverUtils.ParagraphSummarization.getSubparagraph(p, q))
@@ -588,7 +596,8 @@ object ExperimentsApp {
           //println("candidates: " + candidates)
           //          println("length of allCandidatesMinusCorrectOnes: " + allCandidatesMinusCorrectOnes.size)
           //          println("candidates.length: " + candidates.length)
-          val (selected, explanation) = textSolver.solve(q.questionText, candidates, p.context)
+          //val (selected, explanation) = textSolver.solve(q.questionText, candidates, p.context)
+          val (selected, explanation) = textSolver.asInstanceOf[TextILPSolver].solveWithLinearCombination(q.questionText, candidates, p.context)
           val correctLabel = q.answers(correctIndex).answerText
           val score = SolverUtils.assignCredit(selected, correctIndex, candidates.length)
           //println("correctIndex: " + correctIndex)
@@ -612,30 +621,52 @@ object ExperimentsApp {
     println("avgCoverage: " + avgCoverage)
     println("total size: " + resultLists.length)
     println("total answered: " + nonEmptyScores.length)
+    resultFile.write("avgAristoScore: " + avgAristoScore + "\navgPrecision: " +
+      avgPrecision + "\navgCoverage: " + avgCoverage + "\nresultLists.length: " + resultLists.length)
     if (outputFileOpt.isDefined) outputFileOpt.get.close
+    resultFile.close()
   }
 
-  def evaluateTextSolverOnProcessBankWithDifferentReasonings(list: List[Paragraph], textILPSolver: TextILPSolver) = {
-    import java.io._
-
-    val types = Seq( /*WhatDoesItDoRule, CauseRule, */ SRLV1Rule /*, VerbSRLandPrepSRL,SRLV1ILP, VerbSRLandCoref, SimpleMatching*/ )
-    //val types = Seq(CauseILP, WhatDoesItDoILP)
-
-    val qAndpPairs = list.flatMap { p => p.questions.map(q => (q, p)) }
+  /*
+  import java.io._
+    val resultFile = new PrintWriter(new File(s"results-per-solver-length${dataset.length}.txt"))
+    resultFile.write(s"Type \t SRL \t Score \t Precision \t Recall \t Total Answered \t Out of \t Total Time \n")
+    //    val types = Seq( WhatDoesItDoRule, CauseRule,  SRLV1Rule, VerbSRLandPrepSRL,SRLV1ILP, VerbSRLandCoref, SimpleMatching )
+    val types = Seq(/*WhatDoesItDoRule, CauseRule, *//*SRLV1Rule*//*VerbSRLandPrepSRL, SRLV1ILP, VerbSRLandCoref*/ SRLV2Rule, SRLV3Rule, VerbSRLandCommaSRL)
+    val srlViewsAll = Seq(ViewNames.SRL_VERB, TextILPSolver.curatorSRLViewName, TextILPSolver.pathLSTMViewName)
     types.foreach { t =>
-      println("==================================================")
       // use false if you don't it to write things on disk
       val outputFileOpt = if (true) {
-        Some(new PrintWriter(new File(s"output-${t.toString}-length${list.length}.tsv")))
+        Some(new PrintWriter(new File(s"output-$textSolver-type:$t-length${dataset.length}.tsv")))
       } else {
         None
       }
-      val (resultLists, stats, nonEmptyList) = qAndpPairs. /*map {
-        case (q, p) =>
-          (q, SolverUtils.ParagraphSummarization.getSubparagraph(p, q))
-            //(q, p)
-      }.*/ zipWithIndex.collect {
-          case ((q, p), idx) if idx > 69 =>
+      val start = System.currentTimeMillis()
+      SolverUtils.printMemoryDetails()
+      val srlViewTypes = if (t == CauseRule || t == WhatDoesItDoRule || t == SimpleMatching) Seq(TextILPSolver.pathLSTMViewName) else srlViewsAll
+      srlViewTypes.foreach { srlVu =>
+  */
+  def evaluateTextSolverOnProcessBankWithDifferentReasonings(list: List[Paragraph], textILPSolver: TextILPSolver) = {
+    import java.io._
+    //val types = Seq( /*WhatDoesItDoRule, CauseRule, */ SRLV1Rule /*, VerbSRLandPrepSRL,SRLV1ILP, VerbSRLandCoref, SimpleMatching*/ )
+    val types = Seq(SimpleMatching, WhatDoesItDoRule, CauseRule, SRLV1Rule, VerbSRLandPrepSRL, SRLV1ILP, VerbSRLandCoref,
+      SRLV2Rule, SRLV3Rule, VerbSRLandCommaSRL)
+    val srlViewsAll = Seq(ViewNames.SRL_VERB, TextILPSolver.curatorSRLViewName, TextILPSolver.pathLSTMViewName)
+    val qAndpPairs = list.flatMap { p => p.questions.map(q => (q, p)) }
+    val resultFile = new PrintWriter(new File(s"output/results-per-solver-length${qAndpPairs.length}-processBank.txt"))
+    resultFile.write(s"Type \t SRL \t Score \t Precision \t Recall \t Total Answered \t Out of \n")
+    types.foreach { t =>
+      println("==================================================")
+      val srlViewTypes = if (t == CauseRule || t == WhatDoesItDoRule || t == SimpleMatching) Seq(TextILPSolver.pathLSTMViewName) else srlViewsAll
+      // use false if you don't it to write things on disk
+      srlViewTypes.foreach { srlVu =>
+        val outputFileOpt = if (true) {
+          Some(new PrintWriter(new File(s"output/${list.length}-${t.toString}-$srlVu.tsv")))
+        } else {
+          None
+        }
+        val (resultLists, stats, nonEmptyList) = qAndpPairs.zipWithIndex.collect {
+          case ((q, p), idx) =>
             //println("==================================================")
             println("Processed " + idx + " out of " + qAndpPairs.size)
             //println("Paragraph: " + p)
@@ -645,7 +676,7 @@ object ExperimentsApp {
             //println("candidates: " + candidates)
             //          println("length of allCandidatesMinusCorrectOnes: " + allCandidatesMinusCorrectOnes.size)
             //          println("candidates.length: " + candidates.length)
-            val (selected, explanation) = textILPSolver.solveWithReasoningType(q.questionText, candidates, p.context, t)
+            val (selected, explanation) = textILPSolver.solveWithReasoningType(q.questionText, candidates, p.context, t, srlVu)
             val correctLabel = q.answers(correctIndex).answerText
             val score = SolverUtils.assignCredit(selected, correctIndex, candidates.length)
             //println("correctIndex: " + correctIndex)
@@ -658,20 +689,24 @@ object ExperimentsApp {
             (score, explanation.statistics, if (selected.nonEmpty) 1.0 else 0.0) // -> (explanation.confidence -> correctLabel)
         }.unzip3
 
-      val avgStats = stats.reduceRight[Stats] { case (a: Stats, b: Stats) => a.sumWith(b) }.divideBy(stats.length)
-      val avgCoverage = nonEmptyList.sum / nonEmptyList.length
-      val nonEmptyScores = resultLists.zip(nonEmptyList).filter(_._2 > 0).map(_._1)
-      val avgPrecision = nonEmptyScores.sum / nonEmptyScores.length
-      val avgAristoScore = resultLists.sum / resultLists.length
-      println("------------")
-      println("t: " + t.toString)
-      println("avgAristoScore: " + avgAristoScore)
-      println("avgPrecision: " + avgPrecision)
-      println("avgCoverage: " + avgCoverage)
-      println("total size: " + resultLists.length)
-      println("total answered: " + nonEmptyScores.length)
-      if (outputFileOpt.isDefined) outputFileOpt.get.close
+        val avgStats = stats.reduceRight[Stats] { case (a: Stats, b: Stats) => a.sumWith(b) }.divideBy(stats.length)
+        val avgCoverage = nonEmptyList.sum / nonEmptyList.length
+        val nonEmptyScores = resultLists.zip(nonEmptyList).filter(_._2 > 0).map(_._1)
+        val avgPrecision = nonEmptyScores.sum / nonEmptyScores.length
+        val avgAristoScore = resultLists.sum / resultLists.length
+        println("------------")
+        println("t: " + t.toString)
+        println("avgAristoScore: " + avgAristoScore)
+        println("avgPrecision: " + avgPrecision)
+        println("avgCoverage: " + avgCoverage)
+        println("total size: " + resultLists.length)
+        println("total answered: " + nonEmptyScores.length)
+        if (outputFileOpt.isDefined) outputFileOpt.get.close
+        resultFile.write(s"${t} \t  ${srlVu} \t $avgAristoScore \t $avgPrecision \t ${avgCoverage} " +
+          s"\t ${nonEmptyScores.length} \t ${resultLists.length} \n")
+      }
     }
+    resultFile.close()
   }
 
   def testTheDatastes() = {
@@ -846,25 +881,25 @@ object ExperimentsApp {
       //evaluateTextSolverOnRegents(SolverUtils.publicTest, salienceSolver)
       case 11 =>
 
-//        evaluateTextSolverOnRegentsPerReasoningMethod(SolverUtils.regentsTrain, textILPSolver)
-//        evaluateTextSolverOnRegentsPerReasoningMethod(SolverUtils.publicTrain, textILPSolver)
+      //        evaluateTextSolverOnRegentsPerReasoningMethod(SolverUtils.regentsTrain, textILPSolver)
+      //        evaluateTextSolverOnRegentsPerReasoningMethod(SolverUtils.publicTrain, textILPSolver)
 
-        evaluateTextSolverOnRegents(SolverUtils.eigthGradeTrain, textILPSolver, splitToSentences = true)
-        evaluateTextSolverOnRegents(SolverUtils.eigthGradeTest, textILPSolver, splitToSentences = true)
+      //        evaluateTextSolverOnRegents(SolverUtils.eigthGradeTrain, textILPSolver, splitToSentences = true)
+      //        evaluateTextSolverOnRegents(SolverUtils.eigthGradeTest, textILPSolver, splitToSentences = true)
 
-        //        evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver, splitToSentences = true)
-        //        println("==== regents train / sentence split = true  ")
-        //        evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver, splitToSentences = true)
-        //        println("==== regents test  / sentence split = true  ")
-//        evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver, splitToSentences = false)
-//        println("==== regents train  ")
-      //        evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver, splitToSentences = false)
-      //        println("==== regents test  ")
+      //        evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver, splitToSentences = true)
+      //        println("==== regents train / sentence split = true  ")
+      //        evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver, splitToSentences = true)
+      //        println("==== regents test  / sentence split = true  ")
+              evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver, splitToSentences = false)
+              println("==== regents train  ")
+              evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver, splitToSentences = false)
+              println("==== regents test  ")
 
       // evaluateTextSolverOnRegents(SolverUtils.regentsPerturbed, textILPSolver)
       //        println("==== regents perturbed  ")
-//              evaluateTextSolverOnRegents(SolverUtils.publicTrain, textILPSolver)
-//              println("==== public train ")
+      //              evaluateTextSolverOnRegents(SolverUtils.publicTrain, textILPSolver)
+      //              println("==== public train ")
       //        evaluateTextSolverOnRegents(SolverUtils.publicDev, textILPSolver)
       //        println("==== public dev ")
       //        evaluateTextSolverOnRegents(SolverUtils.publicTest, textILPSolver)
@@ -2325,24 +2360,24 @@ object ExperimentsApp {
         processLuceneSnippets(SolverUtils.eigthGradeTrain)
 
       //        println("==== regents train ")
-        //        processLuceneSnippets(SolverUtils.regentsTrain)
-        //        println("==== regents test ")
-        //        processLuceneSnippets(SolverUtils.regentsTest)
-        //        println("==== public train ")
-        //        processLuceneSnippets(SolverUtils.publicTrain)
-        //        println("==== public train ")
-        //        processLuceneSnippets(SolverUtils.publicTest)
+      //        processLuceneSnippets(SolverUtils.regentsTrain)
+      //        println("==== regents test ")
+      //        processLuceneSnippets(SolverUtils.regentsTest)
+      //        println("==== public train ")
+      //        processLuceneSnippets(SolverUtils.publicTrain)
+      //        println("==== public train ")
+      //        processLuceneSnippets(SolverUtils.publicTest)
 
-//        println("==== process bank train: per reasoning ")
-//        processProcessBankSnippets(processReader.trainingInstances)
-//
-//        println("==== process bank test: per reasoning ")
-//        processProcessBankSnippets(processReader.testInstances)
+      //        println("==== process bank train: per reasoning ")
+      //        processProcessBankSnippets(processReader.trainingInstances)
+      //
+      //        println("==== process bank test: per reasoning ")
+      //        processProcessBankSnippets(processReader.testInstances)
 
       case 97 =>
         println("==== process bank train: per reasoning ")
         evaluateTextSolverOnProcessBankWithDifferentReasonings(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
-        evaluateTextSolverOnProcessBankWithDifferentReasonings(processReader.testInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
+      //evaluateTextSolverOnProcessBankWithDifferentReasonings(processReader.testInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
 
       case 98 =>
         val s = "A student drops a ball. Which force causes the ball to fall to the ground? "
@@ -2401,6 +2436,163 @@ object ExperimentsApp {
         val aa = (a #:: b #:: c #:: Stream.empty)
         val out = (a #:: b #:: c #:: Stream.empty).find(_ == 1)
         println("out = " + out)
+
+      case 104 =>
+//                evaluateTextSolverOnRegentsPerReasoningMethod(SolverUtils.regentsTrain, textILPSolver)
+                evaluateTextSolverOnRegentsPerReasoningMethod(SolverUtils.publicTrain, textILPSolver)
+//        evaluateTextSolverOnProcessBankWithDifferentReasonings(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
+
+      case 105 =>
+        // find the maximal scored sequence
+        // first: read results from files
+        val files = new File("output/").listFiles.filter(_.isFile).toList.filter{ f =>
+          FilenameUtils.getExtension(f.getName) == "tsv" //&& f.getName.substring(0, 3) == "127"
+        }
+        println(files.size)
+        val methods = files.map { _.getName.drop(4) }
+        //val methods = Seq("CauseRule-SRL_VERB_PATH_LSTM.tsv","WhatDoesItDoRule-SRL_VERB_PATH_LSTM.tsv","VerbSRLandCoref-SRL_VERB_CURATOR.tsv","VerbSRLandCoref-SRL_VERB_PATH_LSTM.tsv","SRLV1Rule-SRL_VERB.tsv","VerbSRLandCoref-SRL_VERB.tsv")
+        //println("methods: " + methods)
+        //println("methods.size: " + methods.size)
+        val results = files.flatMap { f =>
+          val method = f.getName.drop(4)
+          Source.fromFile(f).getLines().toList.map { line =>
+            val split = line.split("\t")
+            val q = split(0)
+            val score = split(1).toDouble
+            (q, score, method)
+          }
+        }
+
+        val resultsGroupedByQuestion = results.groupBy(_._1).map {
+          case (_, r) =>
+            r.map { case (_, score, method) => method -> score }.toMap
+        }
+        println("size of the question set: " + resultsGroupedByQuestion.size)
+
+        //println("resultsGroupedByQuestion: " + resultsGroupedByQuestion.mkString("\n"))
+        var bestScore = 0.0
+        var bestPermutation = methods
+        import util.Random._
+        Random.setSeed(10)
+        //val r = new Random()
+        //Random.setSeed(10)
+        val randomSet = (0 to 3).map(_ => Random.nextInt(methods.length)).distinct
+
+        //val permutations = methods.permutations.toSeq
+        //val permSize = permutations.length
+        //println("methods: " + methods.size  + "  permSize: " + permSize + "  ")
+        (0 to 99999999).foreach{ idx =>
+          val idx1 = Random.nextInt(methods.length)
+          val tmp = Random.nextInt(methods.length)
+          val idx2 = if(tmp == idx1) {
+              if(tmp >= methods.length - 1) tmp - 1 else tmp + 1
+            } else {
+              tmp
+            }
+//          println("idx1: " + idx1 + " /  idx2: " + idx2)
+//          println("bestPermutation: " + bestPermutation)
+          val p = bestPermutation.updated(idx1, bestPermutation(idx2)).updated(idx2, bestPermutation(idx1))
+//          println("p: " + p)
+        //methods.permutations.zipWithIndex.foreach { case (p, idx) =>
+          val scores = resultsGroupedByQuestion.map { resultMap =>
+              val methodUsedToAns = p.find { method =>
+                //println("-- method: " + method + " -- score: " + resultMap(method))
+                resultMap(method) > 0.34 || resultMap(method) == 0.0
+              }
+              if (methodUsedToAns.isDefined) resultMap(methodUsedToAns.get) else resultMap(p.last)
+          }.toSeq
+          val score = scores.sum / scores.length
+          if(score > bestScore) {
+            bestScore = score
+            bestPermutation = p
+          }
+          //println("----> score: " + scores.sum / scores.length)
+          if(idx % 100000 == 0) println(s" --> idx: ${idx} /  best score: ${bestScore}  / Permutation: " + bestPermutation)
+        }
+//        val maxResults = scoresPerPerm.maxBy(_._2)
+//        println("maxResults: " + maxResults)
+
+      case 106 =>
+        // extract feature vector files from the log files
+        val prntsisPtrn = "\\d".r
+        // first: read results from files
+        val files = new File("output/").listFiles.filter(_.isFile).toList.filter{ f =>
+          FilenameUtils.getExtension(f.getName) == "tsv" //&& f.getName.substring(0, 3) == "127"
+        }
+        println(files.size)
+        val methods = files.map { _.getName.drop(4) }.distinct
+        //val methods = Seq("SimpleMatching-SRL_VERB_PATH_LSTM.tsv")//,"WhatDoesItDoRule-SRL_VERB_PATH_LSTM.tsv","VerbSRLandCoref-SRL_VERB_CURATOR.tsv","VerbSRLandCoref-SRL_VERB_PATH_LSTM.tsv","SRLV1Rule-SRL_VERB.tsv","VerbSRLandCoref-SRL_VERB.tsv")
+        //println("methods: " + methods)
+        //println("methods.size: " + methods.size)
+        val results = files.flatMap { f =>
+          println("f:  " + f)
+          val method = f.getName.drop(4)
+          Source.fromFile(f).getLines().toList.zipWithIndex.map { case (line, idx) =>
+            val split = line.split("\t")
+            val q = split(0)
+            val selected = prntsisPtrn.findAllIn(split(3)).map (_.toString.toInt).toSet
+            val correctIdx = split(2).toInt
+            val score = split(1).toDouble
+            (idx.toString + "-" + q, method, correctIdx, selected)
+          }
+        }
+        val resultsGroupedByQuestion = results.groupBy(_._1).map {
+          case (_, r) =>
+            val crctIdx = r.head._3
+            r.foreach { case (_, method, correctIdx, selected) => assert(correctIdx == crctIdx, s"the correct index is not the same across different methods; something must be wrong. \n ${r.mkString("\n")} ") }
+            r.map { case (_, method, correctIdx, selected) => method -> (correctIdx, selected) }.toMap
+        }
+        println("size of the question set: " + resultsGroupedByQuestion.size)
+
+        // write as ariff file
+        val file = new File("output/train-featurefile.arff")
+        val bw = new BufferedWriter(new FileWriter(file))
+        bw.write("@RELATION Components\n")
+        methods.foreach{ m =>
+          bw.write(s"@ATTRIBUTE $m NUMERIC\n")
+        }
+        bw.write("@ATTRIBUTE output {1, 0}\n")
+        bw.write("@DATA\n")
+        resultsGroupedByQuestion.foreach{ resultPerMethod =>
+          val values = resultPerMethod.values
+          val correctIdx = resultPerMethod.head._2._1
+          val possibleOptions = (values.map(_._1) ++ values.flatMap(_._2)).toSeq.distinct
+          // for each index, write a row
+          possibleOptions.foreach{ idx =>
+            methods.foreach{ m =>
+              val selected = resultPerMethod(m)._2
+              if(selected.contains(correctIdx)) {
+                bw.write(s"${1.0}, ")
+              }
+              else {
+                bw.write("0.0, ")
+              }
+            }
+            if(idx == correctIdx) {
+              bw.write("1 \n")
+            }
+            else {
+              bw.write("0 \n")
+            }
+          }
+        }
+        bw.close()
+
+      case 107 =>
+
+        evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver, splitToSentences = false)
+        println("==== regents train  ")
+        evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver, splitToSentences = false)
+        println("==== regents test  ")
+
+        evaluateTextSolverOnRegents(SolverUtils.publicTrain, textILPSolver)
+        println("==== public train ")
+        evaluateTextSolverOnRegents(SolverUtils.publicTest, textILPSolver)
+        println("==== public test ")
+
+        evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
+        evaluateTextSolverOnProcessBank(processReader.testInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
+
     }
   }
 }

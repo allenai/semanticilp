@@ -71,17 +71,17 @@ class ProcessBankReader(annotate: Boolean, annotationUtils: AnnotationUtils) {
 
   val (testInstances, trainingInstances) = paragraphs.partition { p => Constants.vivekTestParagraphs.contains(p.id) }
 
-  trainingInstances.foreach { p =>
-    p.questions.foreach { q =>
-      assert(Constants.vivekTrainQuestions.contains(q.questionText), s"Question ${q} in Par-id: ${p.id}, was supposed to be in Train")
-    }
-  }
-
-  testInstances.foreach { p =>
-    p.questions.foreach { q =>
-      assert(Constants.vivekTestQuestions.contains(q.questionText), s"Question ${q} in Par-id: ${p.id}, was supposed to be in Train")
-    }
-  }
+  //  trainingInstances.foreach { p =>
+  //    p.questions.foreach { q =>
+  //      assert(Constants.vivekTrainQuestions.contains(q.questionText), s"Question ${q} in Par-id: ${p.id}, was supposed to be in Train")
+  //    }
+  //  }
+  //
+  //  testInstances.foreach { p =>
+  //    p.questions.foreach { q =>
+  //      assert(Constants.vivekTestQuestions.contains(q.questionText), s"Question ${q} in Par-id: ${p.id}, was supposed to be in Train")
+  //    }
+  //  }
 
   //  val trainingInstances = paragraphs.take(150)
   //  val testInstances = paragraphs.slice(150, 200)
