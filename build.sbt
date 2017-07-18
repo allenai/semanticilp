@@ -5,7 +5,7 @@ import sbt.Keys._
 //import org.allenai.plugins.CoreRepositories.Resolvers
 //import org.allenai.plugins.StylePlugin
 
-val cogcompNLPVersion = "3.1.21"
+val cogcompNLPVersion = "3.1.25"
 val ccgGroupId = "edu.illinois.cs.cogcomp"
 
 lazy val commonSettings = Seq(
@@ -71,13 +71,13 @@ lazy val root = (project in file(".")).
       "com.google.inject" % "guice" % "4.0",
       "net.debasishg" %% "redisclient" % "3.0",
       "com.medallia.word2vec" % "Word2VecJava" % "0.10.3",
-//      ccgLib("illinois-core-utilities"),
-      (ccgGroupId % "illinois-core-utilities" % "3.1.27" withSources).exclude("edu.cmu.cs.ark", "ChuLiuEdmonds"),
+      ccgLib("illinois-core-utilities"),
+//      (ccgGroupId % "illinois-core-utilities" % "3.1.27" withSources).exclude("edu.cmu.cs.ark", "ChuLiuEdmonds"),
       ccgLib("illinois-inference"),
-//      ccgLib("illinois-nlp-pipeline"),
-      (ccgGroupId % "illinois-nlp-pipeline" % "3.1.27" withSources).exclude("edu.cmu.cs.ark", "ChuLiuEdmonds"),
-//      ccgLib("illinois-curator"),
-      (ccgGroupId % "illinois-curator" % "3.1.27" withSources).exclude("edu.cmu.cs.ark", "ChuLiuEdmonds"),
+      ccgLib("illinois-nlp-pipeline"),
+//      (ccgGroupId % "illinois-nlp-pipeline" % "3.1.27" withSources).exclude("edu.cmu.cs.ark", "ChuLiuEdmonds"),
+      ccgLib("illinois-curator"),
+//      (ccgGroupId % "illinois-curator" % "3.1.27" withSources).exclude("edu.cmu.cs.ark", "ChuLiuEdmonds"),
       "edu.cmu.cs.ark" % "ChuLiuEdmonds" % "1.0" force(),
       //ccgGroupId % "illinois-llm" % "1.1.4",
       ccgGroupId % "saul-examples_2.11" % "0.5.7-SNAPSHOT",
