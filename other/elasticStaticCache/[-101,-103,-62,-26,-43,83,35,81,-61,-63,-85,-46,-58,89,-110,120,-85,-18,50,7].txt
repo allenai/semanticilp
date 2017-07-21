@@ -1,0 +1,1 @@
+[["As the tank fills with sludge and grease, efficiency of treatment decreases.",1.7489200830459595],["The efficiency of angling gear is then measurably decreased.",1.7027231454849243],["The efficiency of mechanics, equipment operators, and support personnel decreases as they work in MOPP gear.",1.2162307500839233]]

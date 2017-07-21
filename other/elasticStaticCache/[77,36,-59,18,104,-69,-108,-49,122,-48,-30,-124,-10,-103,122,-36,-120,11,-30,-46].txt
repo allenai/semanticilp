@@ -1,0 +1,1 @@
+[["Shopping Cart Remaining Empty?",2.1287291049957275],["Your shopping cart will remain intact.",1.8626378774642944]]

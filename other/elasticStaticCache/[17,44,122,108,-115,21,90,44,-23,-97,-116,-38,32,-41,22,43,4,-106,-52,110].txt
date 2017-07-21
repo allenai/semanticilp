@@ -1,0 +1,1 @@
+[["No infectious organism was found, though studies of the sand found a few types of fungus.",0.7970837354660034],["Resistance to Infectious Agents Resistance can be divided into two types: Nonspecific or innate resistance, which is resistance present in the normal animal prior to infection;",0.7906589508056641]]

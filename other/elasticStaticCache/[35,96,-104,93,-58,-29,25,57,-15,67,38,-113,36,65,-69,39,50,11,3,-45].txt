@@ -1,0 +1,1 @@
+[["bone adaptation and fracture healing;",2.7624571323394775],["These adaptations occur through a process called bone remodeling.",2.654000997543335],["A method is introduced for combining this knowledge with the retrieval and adaptation process of case based reasoning in the application domain and its application in the area of bone healing is illustrated.",1.878784418106079]]

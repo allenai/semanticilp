@@ -1,0 +1,1 @@
+[["(f) The following statement: &quot;ARI means resistance to air flow, which will affect actual R-values at different temperatures.",0.9227228164672852],["An incorrect inference was of deep water formation in the Okhotsk, which resulted from assigning minimum temperatures from maximum-minimum thermometers to the bottom [Mantyla, personal communication].",0.9161279797554016]]

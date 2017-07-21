@@ -1352,7 +1352,7 @@ object ExperimentsApp {
         //     println("filterWhatDoesItDo: ")
         //
         evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
-        evaluateTextSolverOnProcessBank(processReader.testInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
+//        evaluateTextSolverOnProcessBank(processReader.testInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
 
       // println("no-temporals/no true or false: ")
       //
@@ -2454,8 +2454,8 @@ object ExperimentsApp {
         println(files.size)
 //        val methods = files.map { _.getName.drop(4) }.distinct
         val methods = Seq(
+          "WhatDoesItDoRule-SRL_VERB_PATH_LSTM.tsv",
         "CauseRule-SRL_VERB_PATH_LSTM.tsv",
-        "WhatDoesItDoRule-SRL_VERB_PATH_LSTM.tsv",
         "SRLV1Rule-SRL_VERB.tsv",
         "VerbSRLandCoref-SRL_VERB_CURATOR.tsv",
         "SRLV1ILP-SRL_VERB.tsv",
@@ -2475,6 +2475,12 @@ object ExperimentsApp {
         "SRLV3Rule-SRL_VERB_PATH_LSTM.tsv",
         "SRLV3Rule-SRL_VERB_CURATOR.tsv"
       )
+        /**
+          * resultWhatDoesItdo #:: resultCause #:: resultSRLV1_pipeline #:: resultVerbSRLPlusPrepSRL_pipeline_srl #::
+      srlV1ILP_pipeline_srl #:: resultVerbSRLPlusCoref_pipelineSRL #:: resultSimpleMatching #:: resultSRLV2_pipeline #::
+      resultVerbSRLPlusCommaSRL_pipelneSRL
+          */
+
         println("methods: " + methods)
         //println("methods.size: " + methods.size)
         val results = files.flatMap { f =>
