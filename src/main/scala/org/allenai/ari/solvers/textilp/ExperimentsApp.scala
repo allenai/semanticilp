@@ -212,24 +212,6 @@ object ExperimentsApp {
     println("ent(sun, moon) = " + AlignmentFunction.entailment.entail(Seq("sun"), Seq("moon")))
   }
 
-  def solveSampleQuestionWithTextILP() = {
-    textILPSolver.solve(
-      "A decomposer is an organism that",
-      Seq("hunts and eats animals", "migrates for the winter",
-        "breaks down dead plants and animals", "uses water and sunlight to make food"),
-      "explanation:Decomposers: organisms that obtain energy by eating dead plant or animal matter. " +
-        "Windy, cloudy, rainy, and cold are words that help describe\tfocus: deposition. " +
-        "explanation:DECOMPOSER An organism that breaks down cells of dead plants and animals into simpler substances." +
-        "explanation:The plants use sunlight, carbon dioxide, water, and minerals to make food that sustains themselves and other organisms in the forest."
-    )
-    //    textILPSolver.solve(
-    //      "A decomposer",
-    //      Set("hunts ", "migrates for the winter",
-    //        "breaks down dead plants and animals", "uses water and sunlight to make food"),
-    //      "Decomposers"
-    //    )
-  }
-
   def testElasticSearchSnippetExtraction() = {
     println(SolverUtils.extractParagraphGivenQuestionAndFocusWord("when is the best time of the year in New York city, especially when it snows or rains?", "Christmas", 3).mkString("\n"))
   }
@@ -302,8 +284,8 @@ object ExperimentsApp {
             }
             bestSelected -> EntityRelationResult()
           } else {
-            //textSolver.solve(question, options, knowledgeSnippet)
-            textSolver.asInstanceOf[TextILPSolver].solveWithLinearCombination(question, options, knowledgeSnippet)
+            textSolver.solve(question, options, knowledgeSnippet)
+//            textSolver.asInstanceOf[TextILPSolver].solveWithLinearCombination(question, options, knowledgeSnippet)
           }
         } else {
           Seq.empty -> EntityRelationResult()
@@ -315,7 +297,8 @@ object ExperimentsApp {
 
         val solveEnd = System.currentTimeMillis()
         val score = SolverUtils.assignCredit(selected, correct.head - 'A', options.length)
-        if (predictionsFileOpt.isDefined) predictionsFileOpt.get.write(question + "\t" + score + "\t" + selected + "\n")
+        if (predictionsFileOpt.isDefined) predictionsFileOpt.get.write(question + "\t" + score + "\t" + selected + "\t" +
+          results.statistics.numberOfBinaryVars + "\t" + results.statistics.numberOfConstraints + "\t" + results.statistics.objectiveValue + "\n")
         if (printMistakes && score < 1.0) {
           println("Question: " + question + " / options: " + options + "   / selected: " + selected + " / score: " + score)
         }
@@ -353,8 +336,8 @@ object ExperimentsApp {
     val resultFile = new PrintWriter(new File(s"output/results-per-solver-length${dataset.length}.txt"))
     resultFile.write(s"Type \t SRL \t Score \t Precision \t Recall \t Total Answered \t Out of \t Total Time \n")
     //    val types = Seq( WhatDoesItDoRule, CauseRule,  SRLV1Rule, VerbSRLandPrepSRL,SRLV1ILP, VerbSRLandCoref, SimpleMatching )
-    val types = Seq(WhatDoesItDoRule /*SimpleMatching, WhatDoesItDoRule, CauseRule, SRLV1Rule, VerbSRLandPrepSRL, SRLV1ILP, VerbSRLandCoref,
-      SRLV2Rule, SRLV3Rule, *//*VerbSRLandCommaSRL*/)
+    val types = Seq(/*SimpleMatching, WhatDoesItDoRule, CauseRule, SRLV1Rule, *//*VerbSRLandPrepSRL, SRLV1ILP,*/ /*VerbSRLandCoref,
+      SRLV2Rule, SRLV3Rule,*/ VerbSRLandCommaSRL)
     val srlViewsAll = Seq(ViewNames.SRL_VERB, TextILPSolver.curatorSRLViewName, TextILPSolver.pathLSTMViewName)
     types.foreach { t =>
       val start = System.currentTimeMillis()
@@ -400,7 +383,10 @@ object ExperimentsApp {
 
             val solveEnd = System.currentTimeMillis()
             val score = SolverUtils.assignCredit(selected, correct.head - 'A', options.length)
-            if (outputFileOpt.isDefined) outputFileOpt.get.write(question + "\t" + score + "\t" + (correct.head - 'A') + "\t" +  selected + "\n")
+            if (outputFileOpt.isDefined) outputFileOpt.get.write(question + "\t" + score + "\t" + (correct.head - 'A') +
+              "\t" + selected + "\t" + results.statistics.numberOfBinaryVars + "\t" + results.statistics.numberOfConstraints +
+              "\t" + results.statistics.objectiveValue + "\n")
+            println(results.statistics)
             // + score + "\t" + correctIndex + "\t" + selected + "\n")
             if (printMistakes && score < 1.0) {
               println("Question: " + question + " / options: " + options + "   / selected: " + selected + " / score: " + score)
@@ -649,8 +635,8 @@ object ExperimentsApp {
   def evaluateTextSolverOnProcessBankWithDifferentReasonings(list: List[Paragraph], textILPSolver: TextILPSolver) = {
     import java.io._
     //val types = Seq( /*WhatDoesItDoRule, CauseRule, */ SRLV1Rule /*, VerbSRLandPrepSRL,SRLV1ILP, VerbSRLandCoref, SimpleMatching*/ )
-    val types = Seq(SimpleMatching, WhatDoesItDoRule, CauseRule, SRLV1Rule, VerbSRLandPrepSRL, SRLV1ILP, VerbSRLandCoref,
-      SRLV2Rule, SRLV3Rule, VerbSRLandCommaSRL)
+    val types = Seq(SimpleMatching/*SimpleMatching, WhatDoesItDoRule, CauseRule, SRLV1Rule, VerbSRLandPrepSRL, *//*SRLV1ILP, VerbSRLandCoref,
+      SRLV2Rule, SRLV3Rule*/ /*VerbSRLandCommaSRL*/)
     val srlViewsAll = Seq(ViewNames.SRL_VERB, TextILPSolver.curatorSRLViewName, TextILPSolver.pathLSTMViewName)
     val qAndpPairs = list.flatMap { p => p.questions.map(q => (q, p)) }
     val resultFile = new PrintWriter(new File(s"output/results-per-solver-length${qAndpPairs.length}-processBank.txt"))
@@ -680,7 +666,10 @@ object ExperimentsApp {
             val correctLabel = q.answers(correctIndex).answerText
             val score = SolverUtils.assignCredit(selected, correctIndex, candidates.length)
             //println("correctIndex: " + correctIndex)
-            if (outputFileOpt.isDefined) outputFileOpt.get.write(q.questionText + "\t" + score + "\t" + correctIndex + "\t" + selected + "\n")
+            if (outputFileOpt.isDefined) outputFileOpt.get.write(q.questionText + "\t" + score + "\t" + correctIndex +
+              "\t" + selected + "\t" + explanation.statistics.numberOfBinaryVars + "\t" + explanation.statistics.numberOfConstraints +
+              "\t" + explanation.statistics.objectiveValue + "\n")
+
             //println("selected: " + selected + " score: " + score + " explanation: " + explanation)
             //          if (score < 0.5 && selected.nonEmpty) println(" >>>>>>> Selected and Incorrect :" + score + s"  ${q.questionText}")
             //          if (score < 0.5) println(" >>>>>>> Incorrect :" + score)
@@ -869,7 +858,19 @@ object ExperimentsApp {
       case 3 => testPipelineAnnotation()
       case 4 => testRemoteSolverWithSampleQuestion()
       case 5 => evaluateDataSetWithRemoteSolver(devReader, "salience")
-      case 6 => solveSampleQuestionWithTextILP()
+      case 6 =>
+        val out = textILPSolver.solveWithReasoningType(
+          "A decomposer is an organism that",
+          Seq("hunts and eats animals", "migrates for the winter",
+            "breaks down dead plants and animals", "uses water and sunlight to make food"),
+          "explanation:Decomposers: organisms that obtain energy by eating dead plant or animal matter. " +
+            "Windy, cloudy, rainy, and cold are words that help describe\tfocus: deposition. " +
+            "explanation:DECOMPOSER An organism that breaks down cells of dead plants and animals into simpler substances." +
+            "explanation:The plants use sunlight, carbon dioxide, water, and minerals to make food that sustains themselves and other organisms in the forest.",
+          SimpleMatching
+        )
+        println(out._1)
+        println(out._2.statistics)
       case 7 => testAlignmentScore()
       case 8 => testElasticSearchSnippetExtraction()
       case 9 => testTheDatastes()
@@ -2438,22 +2439,46 @@ object ExperimentsApp {
         println("out = " + out)
 
       case 104 =>
-//                evaluateTextSolverOnRegentsPerReasoningMethod(SolverUtils.regentsTrain, textILPSolver)
-                evaluateTextSolverOnRegentsPerReasoningMethod(SolverUtils.publicTrain, textILPSolver)
-//        evaluateTextSolverOnProcessBankWithDifferentReasonings(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
+//        evaluateTextSolverOnRegentsPerReasoningMethod(SolverUtils.regentsTrain, textILPSolver)
+//        evaluateTextSolverOnRegentsPerReasoningMethod(SolverUtils.publicTrain, textILPSolver)
+        evaluateTextSolverOnProcessBankWithDifferentReasonings(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
 
       case 105 =>
+
         // find the maximal scored sequence
         // first: read results from files
         val files = new File("output/").listFiles.filter(_.isFile).toList.filter{ f =>
-          FilenameUtils.getExtension(f.getName) == "tsv" //&& f.getName.substring(0, 3) == "127"
+          println("f.getName.substring(0, 3): " + f.getName.substring(0, 3))
+          FilenameUtils.getExtension(f.getName) == "tsv" && f.getName.substring(0, 3) == "148"
         }
         println(files.size)
-        val methods = files.map { _.getName.drop(4) }
-        //val methods = Seq("CauseRule-SRL_VERB_PATH_LSTM.tsv","WhatDoesItDoRule-SRL_VERB_PATH_LSTM.tsv","VerbSRLandCoref-SRL_VERB_CURATOR.tsv","VerbSRLandCoref-SRL_VERB_PATH_LSTM.tsv","SRLV1Rule-SRL_VERB.tsv","VerbSRLandCoref-SRL_VERB.tsv")
-        //println("methods: " + methods)
+//        val methods = files.map { _.getName.drop(4) }.distinct
+        val methods = Seq(
+        "CauseRule-SRL_VERB_PATH_LSTM.tsv",
+        "WhatDoesItDoRule-SRL_VERB_PATH_LSTM.tsv",
+        "SRLV1Rule-SRL_VERB.tsv",
+        "VerbSRLandCoref-SRL_VERB_CURATOR.tsv",
+        "SRLV1ILP-SRL_VERB.tsv",
+        "VerbSRLandCoref-SRL_VERB.tsv",
+          "SimpleMatching-SRL_VERB_PATH_LSTM.tsv",
+        "SRLV1ILP-SRL_VERB_CURATOR.tsv",
+        "VerbSRLandCoref-SRL_VERB_PATH_LSTM.tsv",
+          "VerbSRLandPrepSRL-SRL_VERB.tsv",
+        "SRLV1ILP-SRL_VERB_PATH_LSTM.tsv",
+        "VerbSRLandPrepSRL-SRL_VERB_PATH_LSTM.tsv",
+          "SRLV3Rule-SRL_VERB.tsv",
+        "VerbSRLandCommaSRL-SRL_VERB.tsv",
+        "VerbSRLandCommaSRL-SRL_VERB_CURATOR.tsv",
+        "VerbSRLandCommaSRL-SRL_VERB_PATH_LSTM.tsv",
+        "VerbSRLandPrepSRL-SRL_VERB_CURATOR.tsv",
+        "SRLV1Rule-SRL_VERB_PATH_LSTM.tsv",
+        "SRLV3Rule-SRL_VERB_PATH_LSTM.tsv",
+        "SRLV3Rule-SRL_VERB_CURATOR.tsv"
+      )
+        println("methods: " + methods)
         //println("methods.size: " + methods.size)
         val results = files.flatMap { f =>
+          println("f: " + f)
           val method = f.getName.drop(4)
           Source.fromFile(f).getLines().toList.map { line =>
             val split = line.split("\t")
@@ -2472,45 +2497,52 @@ object ExperimentsApp {
         //println("resultsGroupedByQuestion: " + resultsGroupedByQuestion.mkString("\n"))
         var bestScore = 0.0
         var bestPermutation = methods
-        import util.Random._
-        Random.setSeed(10)
-        //val r = new Random()
-        //Random.setSeed(10)
-        val randomSet = (0 to 3).map(_ => Random.nextInt(methods.length)).distinct
 
+        // size of the permutation
+        val k = math.min(7, methods.size)
         //val permutations = methods.permutations.toSeq
         //val permSize = permutations.length
         //println("methods: " + methods.size  + "  permSize: " + permSize + "  ")
-        (0 to 99999999).foreach{ idx =>
-          val idx1 = Random.nextInt(methods.length)
-          val tmp = Random.nextInt(methods.length)
-          val idx2 = if(tmp == idx1) {
-              if(tmp >= methods.length - 1) tmp - 1 else tmp + 1
-            } else {
-              tmp
-            }
-//          println("idx1: " + idx1 + " /  idx2: " + idx2)
-//          println("bestPermutation: " + bestPermutation)
-          val p = bestPermutation.updated(idx1, bestPermutation(idx2)).updated(idx2, bestPermutation(idx1))
-//          println("p: " + p)
-        //methods.permutations.zipWithIndex.foreach { case (p, idx) =>
-          val scores = resultsGroupedByQuestion.map { resultMap =>
-              val methodUsedToAns = p.find { method =>
-                //println("-- method: " + method + " -- score: " + resultMap(method))
-                resultMap(method) > 0.34 || resultMap(method) == 0.0
+        var moveOn = false
+        (0 to 20).foreach { round =>
+          println(s" -------- round: $round ----------")
+          (0 to methods.length - k).foreach { idx =>
+            moveOn = false
+            permuteSublist(idx, idx + k, bestPermutation).foreach { p =>
+              assert(p.size == bestPermutation.size, "")
+              if(!moveOn) {
+                val scores = resultsGroupedByQuestion.map { resultMap =>
+                    val methodUsedToAns = p.find { method =>
+                      //println("-- method: " + method + " -- score: " + resultMap(method))
+                      resultMap(method) > 0.34 || resultMap(method) == 0.0
+                    }
+                    if (methodUsedToAns.isDefined) resultMap(methodUsedToAns.get) else resultMap(p.last)
+                  }.toSeq
+                  val score = scores.sum / scores.length
+//                  println("\t\t\t permutation " + p + " ->  score: " + score)
+                  if (score > bestScore) {
+                    bestScore = score
+                    bestPermutation = p
+                    moveOn = true
+                  }
+                }
               }
-              if (methodUsedToAns.isDefined) resultMap(methodUsedToAns.get) else resultMap(p.last)
-          }.toSeq
-          val score = scores.sum / scores.length
-          if(score > bestScore) {
-            bestScore = score
-            bestPermutation = p
+              println(s" --> idx: ${idx} /  best score: ${bestScore}  / Permutation: " + bestPermutation)
+            }
+            //println("----> score: " + scores.sum / scores.length)
           }
-          //println("----> score: " + scores.sum / scores.length)
-          if(idx % 100000 == 0) println(s" --> idx: ${idx} /  best score: ${bestScore}  / Permutation: " + bestPermutation)
-        }
 //        val maxResults = scoresPerPerm.maxBy(_._2)
 //        println("maxResults: " + maxResults)
+
+        def permuteSublist(start: Int, end: Int, list: Seq[String]): Seq[Seq[String]] = {
+          val sublistPermutations = list.slice(start, end).permutations
+          val out = sublistPermutations.map{ sublist =>
+            list.slice(0, start) ++ sublist ++ list.slice(end, list.length)
+          }.toSeq
+          assert(out.head.length == list.size, "length don't match :-/ ")
+          out
+        }
+
 
       case 106 =>
         // extract feature vector files from the log files
@@ -2520,8 +2552,31 @@ object ExperimentsApp {
           FilenameUtils.getExtension(f.getName) == "tsv" //&& f.getName.substring(0, 3) == "127"
         }
         println(files.size)
-        val methods = files.map { _.getName.drop(4) }.distinct
+        //val methods = files.map { _.getName.drop(4) }.distinct
         //val methods = Seq("SimpleMatching-SRL_VERB_PATH_LSTM.tsv")//,"WhatDoesItDoRule-SRL_VERB_PATH_LSTM.tsv","VerbSRLandCoref-SRL_VERB_CURATOR.tsv","VerbSRLandCoref-SRL_VERB_PATH_LSTM.tsv","SRLV1Rule-SRL_VERB.tsv","VerbSRLandCoref-SRL_VERB.tsv")
+        val methods = List(
+          "CauseRule-SRL_VERB_PATH_LSTM.tsv",
+          "WhatDoesItDoRule-SRL_VERB_PATH_LSTM.tsv",
+          "SRLV1Rule-SRL_VERB.tsv",
+          "VerbSRLandCoref-SRL_VERB_CURATOR.tsv",
+          "SRLV1ILP-SRL_VERB.tsv",
+          "VerbSRLandCoref-SRL_VERB.tsv",
+          "SRLV1ILP-SRL_VERB_CURATOR.tsv",
+          "VerbSRLandCoref-SRL_VERB_PATH_LSTM.tsv",
+          "VerbSRLandPrepSRL-SRL_VERB.tsv",
+          "SRLV1ILP-SRL_VERB_PATH_LSTM.tsv",
+          "VerbSRLandPrepSRL-SRL_VERB_PATH_LSTM.tsv",
+          "SRLV3Rule-SRL_VERB.tsv",
+          "VerbSRLandCommaSRL-SRL_VERB.tsv",
+          "VerbSRLandCommaSRL-SRL_VERB_CURATOR.tsv",
+          "VerbSRLandCommaSRL-SRL_VERB_PATH_LSTM.tsv",
+          "SimpleMatching-SRL_VERB_PATH_LSTM.tsv",
+          "VerbSRLandPrepSRL-SRL_VERB_CURATOR.tsv",
+          "SRLV1Rule-SRL_VERB_PATH_LSTM.tsv",
+          "SRLV3Rule-SRL_VERB_PATH_LSTM.tsv",
+          "SRLV3Rule-SRL_VERB_CURATOR.tsv"
+        )
+
         //println("methods: " + methods)
         //println("methods.size: " + methods.size)
         val results = files.flatMap { f =>
@@ -2593,6 +2648,115 @@ object ExperimentsApp {
         evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
         evaluateTextSolverOnProcessBank(processReader.testInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
 
+      case 108 =>
+        // find the maximal scored sequence
+        // first: read results from files
+        val files = new File("output/").listFiles.filter(_.isFile).toList.filter{ f =>
+          println("f.getName.substring(0, 3): " + f.getName.substring(0, 3))
+          FilenameUtils.getExtension(f.getName) == "tsv" && f.getName.substring(0, 3) != "148"
+        }
+        println(files.size)
+        //        val methods = files.map { _.getName.drop(4) }.distinct
+        val methods = Seq(
+          "CauseRule-SRL_VERB_PATH_LSTM.tsv",
+          "WhatDoesItDoRule-SRL_VERB_PATH_LSTM.tsv",
+          "SRLV1Rule-SRL_VERB.tsv",
+          "VerbSRLandCoref-SRL_VERB_CURATOR.tsv",
+          "SRLV1ILP-SRL_VERB.tsv",
+          "VerbSRLandCoref-SRL_VERB.tsv",
+          "SimpleMatching-SRL_VERB_PATH_LSTM.tsv",
+          "SRLV1ILP-SRL_VERB_CURATOR.tsv",
+          "VerbSRLandCoref-SRL_VERB_PATH_LSTM.tsv",
+          "VerbSRLandPrepSRL-SRL_VERB.tsv",
+          "SRLV1ILP-SRL_VERB_PATH_LSTM.tsv",
+          "VerbSRLandPrepSRL-SRL_VERB_PATH_LSTM.tsv",
+          "SRLV3Rule-SRL_VERB.tsv",
+          "VerbSRLandCommaSRL-SRL_VERB.tsv",
+          "VerbSRLandCommaSRL-SRL_VERB_CURATOR.tsv",
+          "VerbSRLandCommaSRL-SRL_VERB_PATH_LSTM.tsv",
+          "VerbSRLandPrepSRL-SRL_VERB_CURATOR.tsv",
+          "SRLV1Rule-SRL_VERB_PATH_LSTM.tsv",
+          "SRLV3Rule-SRL_VERB_PATH_LSTM.tsv",
+          "SRLV3Rule-SRL_VERB_CURATOR.tsv"
+        )
+        println("methods: " + methods)
+        //println("methods.size: " + methods.size)
+        val results = files.flatMap { f =>
+          println("f: " + f)
+          val method = f.getName.drop(4)
+          Source.fromFile(f).getLines().toList.map { line =>
+            val split = line.split("\t")
+            val q = split(0)
+            val score = split(1).toDouble
+            (q, score, method)
+          }
+        }
+
+        val resultsGroupedByQuestion = results.groupBy(_._1).map {
+          case (_, r) =>
+            r.map { case (_, score, method) => method -> score }.toMap
+        }
+        println("size of the question set: " + resultsGroupedByQuestion.size)
+
+        //println("resultsGroupedByQuestion: " + resultsGroupedByQuestion.mkString("\n"))
+
+        var bestPermutation = methods
+
+        val scores = resultsGroupedByQuestion.map { resultMap =>
+          val methodUsedToAns = bestPermutation.find { method =>
+            //println("-- method: " + method + " -- score: " + resultMap(method))
+            resultMap(method) > 0.34 || resultMap(method) == 0.0
+          }
+          if (methodUsedToAns.isDefined) resultMap(methodUsedToAns.get) else resultMap(bestPermutation.last)
+        }.toSeq
+        var bestScore = scores.sum / scores.length
+
+        // size of the permutation
+        //val k = math.min(7, methods.size)
+        //val permutations = methods.permutations.toSeq
+        //val permSize = permutations.length
+        //println("methods: " + methods.size  + "  permSize: " + permSize + "  ")
+
+        (0 to 20).foreach { round =>
+          println(s" -------- round: $round ----------")
+          (2 to 8).foreach { k =>
+            println(" -----> k : " + k)
+            (0 to methods.length - k).foreach { idx =>
+              println("----> score: " + bestScore + "  cascade: " + bestPermutation)
+              var bestLocalPemutation = bestPermutation.slice(idx, idx + k)
+              var bestLocalScore = 0.0
+              bestLocalPemutation.permutations.foreach { p =>
+                val scores = resultsGroupedByQuestion.map { resultMap =>
+                  val methodUsedToAns = p.find { method =>
+                    //println("\t\t\t method: " + method + " -- score: " + resultMap(method))
+                    resultMap(method) > 0.34 || resultMap(method) == 0.0
+                  }
+                  if (methodUsedToAns.isDefined) resultMap(methodUsedToAns.get) else resultMap(p.last)
+                }.toSeq
+                val score = scores.sum / scores.length
+//                println(s"\t\t\t\tscore: ${score} --> ${p} ")
+                if (score >= bestLocalScore) {
+                  bestLocalScore = score
+                  bestLocalPemutation = p
+                }
+              }
+              val pTmp = bestPermutation.slice(0, idx) ++ bestLocalPemutation ++ bestPermutation.slice(idx + k, bestPermutation.size)
+              assert(pTmp.length == methods.length, "dimentions don't match . . . ")
+              val scores = resultsGroupedByQuestion.map { resultMap =>
+                val methodUsedToAns = pTmp.find { method =>
+                  //println("-- method: " + method + " -- score: " + resultMap(method))
+                  resultMap(method) > 0.34 || resultMap(method) == 0.0
+                }
+                if (methodUsedToAns.isDefined) resultMap(methodUsedToAns.get) else resultMap(pTmp.last)
+              }.toSeq
+              val scoreTmp = scores.sum / scores.length
+              if(scoreTmp >= bestScore) {
+                bestPermutation = pTmp
+                bestScore = scoreTmp
+              }
+            }
+          }
+        }
     }
   }
 }

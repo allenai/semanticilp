@@ -346,14 +346,32 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       createILPModel(q, p, ilpSolver, aligner, Set(SRLV1ILP), useSummary = false, TextILPSolver.pathLSTMViewName)
     } -> "srlV1ILP_path_lstm"
 
-    val resultOpt = (/*resultCause #:: resultWhatDoesItdo #:: resultVerbSRLPlusCoref_curatorSRL #:: resultVerbSRLPlusCoref_pathLSTM #::
+    /*resultCause #:: resultWhatDoesItdo #:: resultVerbSRLPlusCoref_curatorSRL #:: resultVerbSRLPlusCoref_pathLSTM #::
         resultSRLV1_pipeline #:: resultVerbSRLPlusCoref_pipelineSRL #:: resultVerbSRLPlusPrepSRL_pipeline_srl #::
         srlV1ILP_pipeline_srl #:: resultVerbSRLPlusPrepSRL_path_lstm  #:: srlV1ILP_curator_srl #:: srlV1ILP_path_lstm #::*/
-        /*resultVerbSRLPlusCommaSRL_pipelneSRL #:: resultVerbSRLPlusCommaSRL_pathLSTM #::*/ resultVerbSRLPlusCommaSRL_curatorSRL #::
-      resultSRLV3_pipeline /*#:: resultSimpleMatching*/ #:: Stream.empty).find{ t =>
+    /*resultVerbSRLPlusCommaSRL_pipelneSRL #:: resultVerbSRLPlusCommaSRL_pathLSTM #::*/ /*resultVerbSRLPlusCommaSRL_curatorSRL #::*/
+    /*resultSRLV3_pipeline*/ /*#:: resultSimpleMatching*/
+
+//    val resultOpt = Seq(resultWhatDoesItdo, resultCause, resultSRLV1, resultVerbSRLPlusPrepSRL, srlV1ILP,
+//      resultVerbSRLPlusCoref, resultILP, resultSRLV2, resultVerbSRLPlusCommaSRL).find{ t =>
+//      println("trying: " + t._2)
+//      t._1._1.nonEmpty
+//    }
+
+    val resultOpt = (resultWhatDoesItdo #:: resultCause #:: resultSRLV1_pipeline #:: resultVerbSRLPlusPrepSRL_pipeline_srl #::
+      srlV1ILP_pipeline_srl #:: resultVerbSRLPlusCoref_pipelineSRL #:: resultSimpleMatching #:: resultSRLV2_pipeline #::
+      resultVerbSRLPlusCommaSRL_pipelneSRL #:: Stream.empty).find{ t =>
       println("trying: " + t._2)
       t._1._1.nonEmpty
     }
+
+//    val resultOpt = (resultVerbSRLPlusCoref_curatorSRL #:: srlV1ILP_pipeline_srl #:: resultVerbSRLPlusCoref_pipelineSRL #::
+//      srlV1ILP_curator_srl #:: resultVerbSRLPlusCoref_pathLSTM #:: resultVerbSRLPlusPrepSRL_pipeline_srl #:: srlV1ILP_path_lstm #::
+//      resultSRLV3_pipeline #:: resultVerbSRLPlusCommaSRL_pipelneSRL #:: resultVerbSRLPlusCommaSRL_curatorSRL #::
+//      resultVerbSRLPlusCommaSRL_pipelneSRL #:: Stream.empty).find{ t =>
+//      println("trying: " + t._2)
+//      t._1._1.nonEmpty
+//    }
 
     if(resultOpt.isDefined) {
       println(" ----> Selected method: " + resultOpt.get._2)
@@ -446,10 +464,10 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
         //annotationUtils.annotateViewLwithRemoteServer(ViewNames.SHALLOW_PARSE, qTA)
         //        annotationUtils.annotateViewLwithRemoteServer(qTA)
         val clientTa = annotationUtils.pipelineServerClient.annotate(question)
-        println(" --> external: ")
-        annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
-        println(" --> curator: ")
-        annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
+//        println(" --> external: ")
+//        annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
+//        println(" --> curator: ")
+//        annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
         clientTa.addView(annotationUtils.fillInBlankAnnotator)
         Some(clientTa)
       } else {
@@ -473,10 +491,10 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
           //          annotationUtils.annotateViewLwithRemoteServer(ViewNames.DEPENDENCY_STANFORD, pTA)
           //annotationUtils.annotateViewLwithRemoteServer(pTA)
           val clientTa = annotationUtils.pipelineServerClient.annotate(snippet)
-          println(" --> external: ")
-          annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
-          println(" --> curator: ")
-          annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
+//          println(" --> external: ")
+//          annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
+//          println(" --> curator: ")
+//          annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
           Some(clientTa)
         } else {
           val ta = annotationUtils.pipelineService.createBasicTextAnnotation("", "", snippet)
@@ -2866,20 +2884,22 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     val modelSolveStart = System.currentTimeMillis()
 
 
-    val numberOfBinaryVars = ilpSolver.getNBinVars
-    val numberOfContinuousVars = ilpSolver.getNContVars
-    val numberOfIntegerVars = ilpSolver.getNIntVars
-    val numberOfConstraints = ilpSolver.getNConss
+    val numberOfBinaryVars = ilpSolver.getNOrigBinVars
+    val numberOfContinuousVars = ilpSolver.getNOrigContVars
+    val numberOfIntegerVars = ilpSolver.getNOrigIntVars
+    val numberOfConstraints = ilpSolver.getNOrigConss
 
     // solving and extracting the answer
     ilpSolver.solve()
 
     val modelSolveEnd = System.currentTimeMillis()
 
-    val statistics = Stats(numberOfBinaryVars, numberOfContinuousVars, numberOfIntegerVars, numberOfConstraints, ilpIterations = ilpSolver.getNLPIterations,
-      modelCreationInSec = (modelSolveEnd - modelSolveStart) / 1000.0, solveTimeInSec = (modelSolveStart - modelCreationStart) / 1000.0)
+    val statistics = Stats(numberOfBinaryVars, numberOfContinuousVars, numberOfIntegerVars, numberOfConstraints,
+      ilpIterations = ilpSolver.getNLPIterations, modelCreationInSec = (modelSolveEnd - modelSolveStart) / 1000.0,
+      solveTimeInSec = (modelSolveStart - modelCreationStart) / 1000.0, objectiveValue = ilpSolver.getPrimalbound)
     if (verbose) {
       println("Statistics: " + statistics)
+    println("ilpSolver.getPrimalbound: " + ilpSolver.getPrimalbound)
     }
 
     if (verbose) println("Done solving the model  . . . ")
@@ -3099,7 +3119,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
         "  aTokens: " + aTokens.toString
 
       val erView = EntityRelationResult(questionString + paragraphString + choiceString, entities, relations,
-        confidence = ilpSolver.getPrimalbound, log = solvedAnswerLog)
+        confidence = ilpSolver.getPrimalbound, log = solvedAnswerLog, statistics = statistics)
       selectedIndex -> erView
     }
     else {

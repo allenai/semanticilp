@@ -28,7 +28,7 @@ case class Entity(entityName: String, surface: String, boundaries: Seq[(Int, Int
 case class Relation(relationName: String, entity1: String, entity2: String, weight: Double)
 case class Stats(numberOfBinaryVars: Double = 0.0, numberOfContinuousVars: Double = 0.0,
   numberOfIntegerVars: Double = 0.0, numberOfConstraints: Double = 0.0, modelCreationInSec: Double = 0.0,
-  solveTimeInSec: Double = 0.0, ilpIterations: Double = 0.0) {
+  solveTimeInSec: Double = 0.0, ilpIterations: Double = 0.0, objectiveValue: Double = 0.0) {
   def asVector: Seq[Double] = {
     Seq(numberOfBinaryVars, numberOfContinuousVars, numberOfIntegerVars, numberOfConstraints,
       modelCreationInSec, solveTimeInSec, ilpIterations)
@@ -50,7 +50,8 @@ case class Stats(numberOfBinaryVars: Double = 0.0, numberOfContinuousVars: Doubl
   override def toString: String = {
     s"numberOfBinaryVars: $numberOfBinaryVars \nnumberOfContinuousVars: $numberOfContinuousVars \n" +
       s"numberOfIntegerVars: $numberOfIntegerVars \nnumberOfConstraints: $numberOfConstraints \n" +
-      s"modelCreationInSec: $modelCreationInSec \nsolveTimeInSec: $solveTimeInSec \nilpIterations: $ilpIterations"
+      s"modelCreationInSec: $modelCreationInSec \nsolveTimeInSec: $solveTimeInSec \nilpIterations: $ilpIterations \n" +
+      s"objectiveValue: $objectiveValue"
   }
 }
 case class EntityRelationResult(
