@@ -1,6 +1,6 @@
 package org.allenai.ari.solvers.textilp
 
-import java.io.{BufferedWriter, File, FileWriter, PrintWriter}
+import java.io._
 import java.net.URL
 import java.util
 
@@ -22,13 +22,19 @@ import scala.collection.JavaConverters._
 import ProcessBankReader._
 import edu.cmu.meteor.scorer.{MeteorConfiguration, MeteorScorer}
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, TextAnnotation}
+import edu.illinois.cs.cogcomp.core.io.IOUtils
 import edu.illinois.cs.cogcomp.edison.annotators.ClauseViewGenerator
 import edu.illinois.cs.cogcomp.pipeline.server.ServerClientAnnotator
 import org.simmetrics.metrics.StringMetrics
 import org.allenai.ari.controller.questionparser.{FillInTheBlankGenerator, QuestionParse}
-import org.allenai.ari.solvers.textilp.ResultJson._
 import org.apache.commons.io.FilenameUtils
 import org.simmetrics.StringMetric
+import weka.classifiers.Evaluation
+import weka.classifiers.bayes.NaiveBayesUpdateable
+import weka.classifiers.functions.Logistic
+import weka.core.Instances
+import weka.core.converters.ArffLoader
+import weka.core.converters.ArffLoader.ArffReader
 
 import scala.util.Random
 //import com.quantifind.charts.Highcharts._
@@ -285,7 +291,8 @@ object ExperimentsApp {
             bestSelected -> EntityRelationResult()
           } else {
             textSolver.solve(question, options, knowledgeSnippet)
-//            textSolver.asInstanceOf[TextILPSolver].solveWithLinearCombination(question, options, knowledgeSnippet)
+            //            textSolver.asInstanceOf[TextILPSolver].solveWithHighestScore(question, options, knowledgeSnippet)
+            //            textSolver.asInstanceOf[TextILPSolver].solveWithLinearCombination(question, options, knowledgeSnippet)
           }
         } else {
           Seq.empty -> EntityRelationResult()
@@ -336,8 +343,7 @@ object ExperimentsApp {
     val resultFile = new PrintWriter(new File(s"output/results-per-solver-length${dataset.length}.txt"))
     resultFile.write(s"Type \t SRL \t Score \t Precision \t Recall \t Total Answered \t Out of \t Total Time \n")
     //    val types = Seq( WhatDoesItDoRule, CauseRule,  SRLV1Rule, VerbSRLandPrepSRL,SRLV1ILP, VerbSRLandCoref, SimpleMatching )
-    val types = Seq(/*SimpleMatching, WhatDoesItDoRule, CauseRule, SRLV1Rule, *//*VerbSRLandPrepSRL, SRLV1ILP,*/ /*VerbSRLandCoref,
-      SRLV2Rule, SRLV3Rule,*/ VerbSRLandCommaSRL)
+    val types = Seq(SimpleMatching, WhatDoesItDoRule, CauseRule, SRLV1Rule, VerbSRLandPrepSRL, SRLV1ILP, VerbSRLandCoref, SRLV2Rule, SRLV3Rule, VerbSRLandCommaSRL)
     val srlViewsAll = Seq(ViewNames.SRL_VERB, TextILPSolver.curatorSRLViewName, TextILPSolver.pathLSTMViewName)
     types.foreach { t =>
       val start = System.currentTimeMillis()
@@ -635,8 +641,8 @@ object ExperimentsApp {
   def evaluateTextSolverOnProcessBankWithDifferentReasonings(list: List[Paragraph], textILPSolver: TextILPSolver) = {
     import java.io._
     //val types = Seq( /*WhatDoesItDoRule, CauseRule, */ SRLV1Rule /*, VerbSRLandPrepSRL,SRLV1ILP, VerbSRLandCoref, SimpleMatching*/ )
-    val types = Seq(SimpleMatching/*SimpleMatching, WhatDoesItDoRule, CauseRule, SRLV1Rule, VerbSRLandPrepSRL, *//*SRLV1ILP, VerbSRLandCoref,
-      SRLV2Rule, SRLV3Rule*/ /*VerbSRLandCommaSRL*/)
+    val types = Seq(SimpleMatching /*SimpleMatching, WhatDoesItDoRule, CauseRule, SRLV1Rule, VerbSRLandPrepSRL, */ /*SRLV1ILP, VerbSRLandCoref,
+      SRLV2Rule, SRLV3Rule*/ /*VerbSRLandCommaSRL*/ )
     val srlViewsAll = Seq(ViewNames.SRL_VERB, TextILPSolver.curatorSRLViewName, TextILPSolver.pathLSTMViewName)
     val qAndpPairs = list.flatMap { p => p.questions.map(q => (q, p)) }
     val resultFile = new PrintWriter(new File(s"output/results-per-solver-length${qAndpPairs.length}-processBank.txt"))
@@ -882,20 +888,17 @@ object ExperimentsApp {
       //evaluateTextSolverOnRegents(SolverUtils.publicTest, salienceSolver)
       case 11 =>
 
-      //        evaluateTextSolverOnRegentsPerReasoningMethod(SolverUtils.regentsTrain, textILPSolver)
-      //        evaluateTextSolverOnRegentsPerReasoningMethod(SolverUtils.publicTrain, textILPSolver)
+        //        evaluateTextSolverOnRegents(SolverUtils.eigthGradeTrain, textILPSolver, splitToSentences = true)
+        //        evaluateTextSolverOnRegents(SolverUtils.eigthGradeTest, textILPSolver, splitToSentences = true)
 
-      //        evaluateTextSolverOnRegents(SolverUtils.eigthGradeTrain, textILPSolver, splitToSentences = true)
-      //        evaluateTextSolverOnRegents(SolverUtils.eigthGradeTest, textILPSolver, splitToSentences = true)
-
-      //        evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver, splitToSentences = true)
-      //        println("==== regents train / sentence split = true  ")
-      //        evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver, splitToSentences = true)
-      //        println("==== regents test  / sentence split = true  ")
-              evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver, splitToSentences = false)
-              println("==== regents train  ")
-              evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver, splitToSentences = false)
-              println("==== regents test  ")
+        //        evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver, splitToSentences = true)
+        //        println("==== regents train / sentence split = true  ")
+        //        evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver, splitToSentences = true)
+        //        println("==== regents test  / sentence split = true  ")
+        evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver, splitToSentences = false)
+        println("==== regents train  ")
+        evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver, splitToSentences = false)
+        println("==== regents test  ")
 
       // evaluateTextSolverOnRegents(SolverUtils.regentsPerturbed, textILPSolver)
       //        println("==== regents perturbed  ")
@@ -1352,7 +1355,7 @@ object ExperimentsApp {
         //     println("filterWhatDoesItDo: ")
         //
         evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
-//        evaluateTextSolverOnProcessBank(processReader.testInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
+        evaluateTextSolverOnProcessBank(processReader.testInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
 
       // println("no-temporals/no true or false: ")
       //
@@ -1367,10 +1370,11 @@ object ExperimentsApp {
       //      }
       // evaluateTextSolverOnProcessBank(processReader, slidingWindowSolver)
       case 52 =>
+        import ResultJson._
         // write processBank on disk as json
         import java.io._
-        val pw = new PrintWriter(new File("processBank-train2.json"))
-        val json = Json.toJson(processReader.trainingInstances).toString
+        val pw = new PrintWriter(new File("processBank-test3-filterNotTemporals.filterNotTrueFalse.json"))
+        val json = Json.toJson(processReader.testInstances.filterNotTemporals.filterNotTrueFalse).toString
         pw.write(json)
         pw.close()
 
@@ -1411,6 +1415,7 @@ object ExperimentsApp {
       case 57 => testStanfordDepView()
       case 58 => testIndependentClauseViewGenerator()
       case 59 =>
+        import ResultJson._
         // answerText: String, answerStart: Int, aTAOpt: Option[TextAnnotation] = None
         val q = Question("", "", Seq(Answer("AnsText", 1, None)), None, correctIdxOpt = Some(1))
         val listOfQs = List(q, q, q)
@@ -1418,6 +1423,7 @@ object ExperimentsApp {
         val json = Json.toJson(listOfP).toString
         println(json)
       case 60 =>
+        import ResultJson._
         // test extarction of the constituent after "without "
         val ta = annotationUtils.pipelineService.createAnnotatedTextAnnotation("", "", "What happens without Donuld Trump?")
         val toks = ta.getView(ViewNames.TOKENS).getConstituents.asScala
@@ -2275,19 +2281,20 @@ object ExperimentsApp {
         }
 
       case 92 =>
-        import java.io._
         import SquadJsonPattern._
-        // save bioProcess data
-        val paragraphs = processReader.testInstances
+        // save bioProcess data isomg SquadJsonPattern
+        // not that the above import from SquadJsonPattern is key
+        val paragraphs: Seq[Paragraph] = processReader.trainingInstances
         val json = Json.toJson(paragraphs).toString
-        val pw = new PrintWriter(new File("processBank-test.json"))
+        val pw = new PrintWriter(new File("output/processBank-train5.json"))
         pw.write(json)
         pw.close()
 
+
       case 93 =>
-        // read the json predictions of the system and evlauate
-        processAnswers("processBank-test-output.json", processReader.testInstances)
-        processAnswers("processBank-train-output.json", processReader.trainingInstances)
+        // read the json predictions of the BiDaF and evaluate
+        processAnswers("output/processBank-train5-output.json", processReader.trainingInstances.filterNotTemporals.filterNotTrueFalse)
+        processAnswers("output/processBank-test5-output.json", processReader.testInstances.filterNotTemporals.filterNotTrueFalse)
         def processAnswers(ansFile: String, questionSet: List[Paragraph]) = {
           println("ansFile: " + ansFile)
           val lines = Source.fromFile(ansFile).getLines.toList.mkString
@@ -2298,7 +2305,11 @@ object ExperimentsApp {
               p.questions.zipWithIndex.map {
                 case (q, qIdx) =>
                   val id: String = s"$pIdx-$qIdx"
-                  val ans: String = answerMap(id)
+                  println(" === id: " + id)
+                  val ans: String = answerMap.getOrElse(id, {
+                    println(" =====> The id did not found!!!!")
+                    "random"
+                  } )
                   val selectedIdx = q.answers.zipWithIndex.map {
                     case (a, idx) =>
                       idx -> TextILPSolver.offlineAligner.scoreCellCell(a.answerText, ans)
@@ -2306,7 +2317,7 @@ object ExperimentsApp {
                   SolverUtils.assignCredit(Seq(selectedIdx), q.correctIdxOpt.get, 2)
               }
           }
-          println("average score: " + scores.sum.toDouble / scores.length + "  - size: " + scores.length)
+          println("average score: " + scores.sum / scores.length + "  - size: " + scores.length)
         }
       case 94 =>
         // testing the effect of parallelism on annotation
@@ -2381,17 +2392,17 @@ object ExperimentsApp {
       //evaluateTextSolverOnProcessBankWithDifferentReasonings(processReader.testInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
 
       case 98 =>
-        val s = "A student drops a ball. Which force causes the ball to fall to the ground? "
+        val s = "The equation below shows the products formed when a solution of silver nitrate (AgNO3) reacts with a solution of sodium chloride (NaCl). AgNO3 \u0002+ NaCl (Reactants) -> NaNO3 \u0002+ AgCl (Products) In this equation, the total mass of the reactants is "
         val ta = annotationUtils.pipelineServerClient.annotate(s)
-        annotationUtils.pipelineExternalAnnotatorsServerClient.addView(ta, true)
-        ta.getView(TextILPSolver.pathLSTMViewName).getConstituents.asScala.filter(_.getLabel != "Predicate").foreach { c =>
-          println("c : " + c + " // incoming size: " + c.getIncomingRelations.size())
-        }
+        //annotationUtils.pipelineExternalAnnotatorsServerClient.addView(ta, true)
+//        ta.getView(TextILPSolver.pathLSTMViewName).getConstituents.asScala.filter(_.getLabel != "Predicate").foreach { c =>
+//          println("c : " + c + " // incoming size: " + c.getIncomingRelations.size())
+//        }
       //        annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa1.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa1)
       //        val set = new util.HashSet[String]()
       //        set.add(ViewNames.SRL_VERB)
       //        val ta1 = annotationUtils.curatorService.createAnnotatedTextAnnotation("", "", s, set)
-
+        println(ta.getAvailableViews.asScala)
       case 99 =>
         // answer a question
         val startTime = System.currentTimeMillis()
@@ -2439,46 +2450,46 @@ object ExperimentsApp {
         println("out = " + out)
 
       case 104 =>
-//        evaluateTextSolverOnRegentsPerReasoningMethod(SolverUtils.regentsTrain, textILPSolver)
-//        evaluateTextSolverOnRegentsPerReasoningMethod(SolverUtils.publicTrain, textILPSolver)
-        evaluateTextSolverOnProcessBankWithDifferentReasonings(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
+        evaluateTextSolverOnRegentsPerReasoningMethod(SolverUtils.regentsTrain, textILPSolver)
+        evaluateTextSolverOnRegentsPerReasoningMethod(SolverUtils.eigthGradeTrain, textILPSolver)
+      //        evaluateTextSolverOnRegentsPerReasoningMethod(SolverUtils.publicTrain, textILPSolver)
+      //        evaluateTextSolverOnProcessBankWithDifferentReasonings(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
 
       case 105 =>
 
         // find the maximal scored sequence
         // first: read results from files
-        val files = new File("output/").listFiles.filter(_.isFile).toList.filter{ f =>
+        val files = new File("output/").listFiles.filter(_.isFile).toList.filter { f =>
           println("f.getName.substring(0, 3): " + f.getName.substring(0, 3))
-          FilenameUtils.getExtension(f.getName) == "tsv" && f.getName.substring(0, 3) == "148"
+          FilenameUtils.getExtension(f.getName) == "tsv" && f.getName.substring(0, 3) != "148"
         }
         println(files.size)
-//        val methods = files.map { _.getName.drop(4) }.distinct
+        //        val methods = files.map { _.getName.drop(4) }.distinct
         val methods = Seq(
           "WhatDoesItDoRule-SRL_VERB_PATH_LSTM.tsv",
-        "CauseRule-SRL_VERB_PATH_LSTM.tsv",
-        "SRLV1Rule-SRL_VERB.tsv",
-        "VerbSRLandCoref-SRL_VERB_CURATOR.tsv",
-        "SRLV1ILP-SRL_VERB.tsv",
-        "VerbSRLandCoref-SRL_VERB.tsv",
+          "CauseRule-SRL_VERB_PATH_LSTM.tsv",
+          "SRLV1Rule-SRL_VERB.tsv",
+          "VerbSRLandCoref-SRL_VERB_CURATOR.tsv",
+          "SRLV1ILP-SRL_VERB.tsv",
+          "VerbSRLandCoref-SRL_VERB.tsv",
           "SimpleMatching-SRL_VERB_PATH_LSTM.tsv",
-        "SRLV1ILP-SRL_VERB_CURATOR.tsv",
-        "VerbSRLandCoref-SRL_VERB_PATH_LSTM.tsv",
+          "SRLV1ILP-SRL_VERB_CURATOR.tsv",
+          "VerbSRLandCoref-SRL_VERB_PATH_LSTM.tsv",
           "VerbSRLandPrepSRL-SRL_VERB.tsv",
-        "SRLV1ILP-SRL_VERB_PATH_LSTM.tsv",
-        "VerbSRLandPrepSRL-SRL_VERB_PATH_LSTM.tsv",
+          "SRLV1ILP-SRL_VERB_PATH_LSTM.tsv",
+          "VerbSRLandPrepSRL-SRL_VERB_PATH_LSTM.tsv",
           "SRLV3Rule-SRL_VERB.tsv",
-        "VerbSRLandCommaSRL-SRL_VERB.tsv",
-        "VerbSRLandCommaSRL-SRL_VERB_CURATOR.tsv",
-        "VerbSRLandCommaSRL-SRL_VERB_PATH_LSTM.tsv",
-        "VerbSRLandPrepSRL-SRL_VERB_CURATOR.tsv",
-        "SRLV1Rule-SRL_VERB_PATH_LSTM.tsv",
-        "SRLV3Rule-SRL_VERB_PATH_LSTM.tsv",
-        "SRLV3Rule-SRL_VERB_CURATOR.tsv"
-      )
-        /**
-          * resultWhatDoesItdo #:: resultCause #:: resultSRLV1_pipeline #:: resultVerbSRLPlusPrepSRL_pipeline_srl #::
-      srlV1ILP_pipeline_srl #:: resultVerbSRLPlusCoref_pipelineSRL #:: resultSimpleMatching #:: resultSRLV2_pipeline #::
-      resultVerbSRLPlusCommaSRL_pipelneSRL
+          "VerbSRLandCommaSRL-SRL_VERB.tsv",
+          "VerbSRLandCommaSRL-SRL_VERB_CURATOR.tsv",
+          "VerbSRLandCommaSRL-SRL_VERB_PATH_LSTM.tsv",
+          "VerbSRLandPrepSRL-SRL_VERB_CURATOR.tsv",
+          "SRLV1Rule-SRL_VERB_PATH_LSTM.tsv",
+          "SRLV3Rule-SRL_VERB_PATH_LSTM.tsv",
+          "SRLV3Rule-SRL_VERB_CURATOR.tsv"
+        )
+        /** resultWhatDoesItdo #:: resultCause #:: resultSRLV1_pipeline #:: resultVerbSRLPlusPrepSRL_pipeline_srl #::
+          * srlV1ILP_pipeline_srl #:: resultVerbSRLPlusCoref_pipelineSRL #:: resultSimpleMatching #:: resultSRLV2_pipeline #::
+          * resultVerbSRLPlusCommaSRL_pipelneSRL
           */
 
         println("methods: " + methods)
@@ -2516,45 +2527,44 @@ object ExperimentsApp {
             moveOn = false
             permuteSublist(idx, idx + k, bestPermutation).foreach { p =>
               assert(p.size == bestPermutation.size, "")
-              if(!moveOn) {
+              if (!moveOn) {
                 val scores = resultsGroupedByQuestion.map { resultMap =>
-                    val methodUsedToAns = p.find { method =>
-                      //println("-- method: " + method + " -- score: " + resultMap(method))
-                      resultMap(method) > 0.34 || resultMap(method) == 0.0
-                    }
-                    if (methodUsedToAns.isDefined) resultMap(methodUsedToAns.get) else resultMap(p.last)
-                  }.toSeq
-                  val score = scores.sum / scores.length
-//                  println("\t\t\t permutation " + p + " ->  score: " + score)
-                  if (score > bestScore) {
-                    bestScore = score
-                    bestPermutation = p
-                    moveOn = true
+                  val methodUsedToAns = p.find { method =>
+                    //println("-- method: " + method + " -- score: " + resultMap(method))
+                    resultMap(method) > 0.34 || resultMap(method) == 0.0
                   }
+                  if (methodUsedToAns.isDefined) resultMap(methodUsedToAns.get) else resultMap(p.last)
+                }.toSeq
+                val score = scores.sum / scores.length
+                //                  println("\t\t\t permutation " + p + " ->  score: " + score)
+                if (score > bestScore) {
+                  bestScore = score
+                  bestPermutation = p
+                  moveOn = true
                 }
               }
-              println(s" --> idx: ${idx} /  best score: ${bestScore}  / Permutation: " + bestPermutation)
             }
-            //println("----> score: " + scores.sum / scores.length)
+            println(s" --> idx: ${idx} /  best score: ${bestScore}  / Permutation: " + bestPermutation)
           }
-//        val maxResults = scoresPerPerm.maxBy(_._2)
-//        println("maxResults: " + maxResults)
+          //println("----> score: " + scores.sum / scores.length)
+        }
+        //        val maxResults = scoresPerPerm.maxBy(_._2)
+        //        println("maxResults: " + maxResults)
 
         def permuteSublist(start: Int, end: Int, list: Seq[String]): Seq[Seq[String]] = {
           val sublistPermutations = list.slice(start, end).permutations
-          val out = sublistPermutations.map{ sublist =>
+          val out = sublistPermutations.map { sublist =>
             list.slice(0, start) ++ sublist ++ list.slice(end, list.length)
           }.toSeq
           assert(out.head.length == list.size, "length don't match :-/ ")
           out
         }
 
-
       case 106 =>
         // extract feature vector files from the log files
         val prntsisPtrn = "\\d".r
         // first: read results from files
-        val files = new File("output/").listFiles.filter(_.isFile).toList.filter{ f =>
+        val files = new File("output2/").listFiles.filter(_.isFile).toList.filter { f =>
           FilenameUtils.getExtension(f.getName) == "tsv" //&& f.getName.substring(0, 3) == "127"
         }
         println(files.size)
@@ -2583,25 +2593,46 @@ object ExperimentsApp {
           "SRLV3Rule-SRL_VERB_CURATOR.tsv"
         )
 
+        val nonILPMethods = Set(
+          "CauseRule-SRL_VERB_PATH_LSTM.tsv",
+          "WhatDoesItDoRule-SRL_VERB_PATH_LSTM.tsv",
+          "SRLV1Rule-SRL_VERB_PATH_LSTM.tsv",
+          "SRLV1Rule-SRL_VERB.tsv",
+          "SRLV1Rule-SRL_VERB_CURATOR.tsv",
+          "SRLV3Rule-SRL_VERB.tsv",
+          "SRLV3Rule-SRL_VERB_PATH_LSTM.tsv",
+          "SRLV3Rule-SRL_VERB_CURATOR.tsv"
+        )
+
         //println("methods: " + methods)
         //println("methods.size: " + methods.size)
         val results = files.flatMap { f =>
           println("f:  " + f)
           val method = f.getName.drop(4)
-          Source.fromFile(f).getLines().toList.zipWithIndex.map { case (line, idx) =>
-            val split = line.split("\t")
-            val q = split(0)
-            val selected = prntsisPtrn.findAllIn(split(3)).map (_.toString.toInt).toSet
-            val correctIdx = split(2).toInt
-            val score = split(1).toDouble
-            (idx.toString + "-" + q, method, correctIdx, selected)
+          Source.fromFile(f).getLines().toList.zipWithIndex.map {
+            case (line, idx) =>
+              val split = line.split("\t")
+              val q = split(0)
+              val selected = prntsisPtrn.findAllIn(split(3)).map(_.toString.toInt).toSet
+              val correctIdx = split(2).toInt
+              val score = split(1).toDouble
+              val numberOfBinVars = split(4).toDouble
+              val numberOfConstraints = split(5).toDouble
+              val objValue = if (nonILPMethods.contains(method)) { 1.0 } else { split(6).toDouble }
+              (idx.toString + "-" + q, method, correctIdx, selected, numberOfBinVars, numberOfConstraints, objValue)
           }
         }
         val resultsGroupedByQuestion = results.groupBy(_._1).map {
           case (_, r) =>
             val crctIdx = r.head._3
-            r.foreach { case (_, method, correctIdx, selected) => assert(correctIdx == crctIdx, s"the correct index is not the same across different methods; something must be wrong. \n ${r.mkString("\n")} ") }
-            r.map { case (_, method, correctIdx, selected) => method -> (correctIdx, selected) }.toMap
+            r.foreach {
+              case (_, method, correctIdx, selected, _, _, _) =>
+                assert(correctIdx == crctIdx, s"the correct index is not the same across different methods; something must be wrong. \n ${r.mkString("\n")} ")
+            }
+            r.map {
+              case (_, method, correctIdx, selected, numberOfBinVars, numberOfConstraints, objValue) =>
+                method -> (correctIdx, selected, numberOfBinVars, numberOfConstraints, objValue)
+            }.toMap
         }
         println("size of the question set: " + resultsGroupedByQuestion.size)
 
@@ -2609,30 +2640,38 @@ object ExperimentsApp {
         val file = new File("output/train-featurefile.arff")
         val bw = new BufferedWriter(new FileWriter(file))
         bw.write("@RELATION Components\n")
-        methods.foreach{ m =>
-          bw.write(s"@ATTRIBUTE $m NUMERIC\n")
+        methods.foreach { m =>
+          bw.write(s"@ATTRIBUTE ${m}_BINARY NUMERIC\n")
+          bw.write(s"@ATTRIBUTE ${m}_OBJ NUMERIC\n")
+          bw.write(s"@ATTRIBUTE ${m}_BIN_VAR_COUNT NUMERIC\n")
+          bw.write(s"@ATTRIBUTE ${m}_CONS_COUNT NUMERIC\n")
+          bw.write(s"@ATTRIBUTE ${m}_OBJ_OVR_VAR_COUNT NUMERIC\n")
+          bw.write(s"@ATTRIBUTE ${m}_OBJ_OVR_CONS_COUNT NUMERIC\n")
         }
         bw.write("@ATTRIBUTE output {1, 0}\n")
         bw.write("@DATA\n")
-        resultsGroupedByQuestion.foreach{ resultPerMethod =>
+        resultsGroupedByQuestion.foreach { resultPerMethod =>
           val values = resultPerMethod.values
           val correctIdx = resultPerMethod.head._2._1
-          val possibleOptions = (values.map(_._1) ++ values.flatMap(_._2)).toSeq.distinct
+          val maxIndex = (values.map(_._1) ++ values.flatMap(_._2)).max
+          val possibleOptions = (0 to maxIndex)
           // for each index, write a row
-          possibleOptions.foreach{ idx =>
-            methods.foreach{ m =>
+          possibleOptions.foreach { idx =>
+            methods.foreach { m =>
               val selected = resultPerMethod(m)._2
-              if(selected.contains(correctIdx)) {
-                bw.write(s"${1.0}, ")
-              }
-              else {
-                bw.write("0.0, ")
+              val binVarNum = resultPerMethod(m)._3
+              val constNum = resultPerMethod(m)._4
+              val objValue = resultPerMethod(m)._5
+              if (selected.contains(idx)) {
+                bw.write(s"${1.0}, $objValue, $binVarNum, $constNum, ${if (binVarNum == 0.0) 0.0 else objValue / binVarNum}, " +
+                  s"${if (constNum == 0.0) 0.0 else objValue / constNum}, ")
+              } else {
+                bw.write("0.0, 0.0, 0.0, 0.0, 0.0, 0.0, ")
               }
             }
-            if(idx == correctIdx) {
+            if (idx == correctIdx) {
               bw.write("1 \n")
-            }
-            else {
+            } else {
               bw.write("0 \n")
             }
           }
@@ -2657,7 +2696,7 @@ object ExperimentsApp {
       case 108 =>
         // find the maximal scored sequence
         // first: read results from files
-        val files = new File("output/").listFiles.filter(_.isFile).toList.filter{ f =>
+        val files = new File("output/").listFiles.filter(_.isFile).toList.filter { f =>
           println("f.getName.substring(0, 3): " + f.getName.substring(0, 3))
           FilenameUtils.getExtension(f.getName) == "tsv" && f.getName.substring(0, 3) != "148"
         }
@@ -2670,7 +2709,6 @@ object ExperimentsApp {
           "VerbSRLandCoref-SRL_VERB_CURATOR.tsv",
           "SRLV1ILP-SRL_VERB.tsv",
           "VerbSRLandCoref-SRL_VERB.tsv",
-          "SimpleMatching-SRL_VERB_PATH_LSTM.tsv",
           "SRLV1ILP-SRL_VERB_CURATOR.tsv",
           "VerbSRLandCoref-SRL_VERB_PATH_LSTM.tsv",
           "VerbSRLandPrepSRL-SRL_VERB.tsv",
@@ -2683,7 +2721,8 @@ object ExperimentsApp {
           "VerbSRLandPrepSRL-SRL_VERB_CURATOR.tsv",
           "SRLV1Rule-SRL_VERB_PATH_LSTM.tsv",
           "SRLV3Rule-SRL_VERB_PATH_LSTM.tsv",
-          "SRLV3Rule-SRL_VERB_CURATOR.tsv"
+          "SRLV3Rule-SRL_VERB_CURATOR.tsv",
+          "SimpleMatching-SRL_VERB_PATH_LSTM.tsv"
         )
         println("methods: " + methods)
         //println("methods.size: " + methods.size)
@@ -2740,7 +2779,7 @@ object ExperimentsApp {
                   if (methodUsedToAns.isDefined) resultMap(methodUsedToAns.get) else resultMap(p.last)
                 }.toSeq
                 val score = scores.sum / scores.length
-//                println(s"\t\t\t\tscore: ${score} --> ${p} ")
+                //                println(s"\t\t\t\tscore: ${score} --> ${p} ")
                 if (score >= bestLocalScore) {
                   bestLocalScore = score
                   bestLocalPemutation = p
@@ -2756,13 +2795,320 @@ object ExperimentsApp {
                 if (methodUsedToAns.isDefined) resultMap(methodUsedToAns.get) else resultMap(pTmp.last)
               }.toSeq
               val scoreTmp = scores.sum / scores.length
-              if(scoreTmp >= bestScore) {
+              if (scoreTmp >= bestScore) {
                 bestPermutation = pTmp
                 bestScore = scoreTmp
               }
             }
           }
         }
+
+      case 109 =>
+        val startTime = System.currentTimeMillis()
+        val out = textILPSolver.solveAllAnswerOptions(
+          "A decomposer is an organism that",
+          Seq("hunts and eats animals", "migrates for the winter",
+            "breaks down dead plants and animals", "uses water and sunlight to make food"),
+          "explanation:Decomposers: organisms that obtain energy by eating dead plant or animal matter. " +
+            "Windy, cloudy, rainy, and cold are words that help describe\tfocus: deposition. " +
+            "explanation:DECOMPOSER An organism that breaks down cells of dead plants and animals into simpler substances." +
+            "explanation:The plants use sunlight, carbon dioxide, water, and minerals to make food that sustains themselves and other organisms in the forest.",
+          SimpleMatching, ViewNames.SRL_VERB
+        )
+        out.foreach { o =>
+          println(o._1)
+          println(o._2.statistics)
+        }
+        val endTime = System.currentTimeMillis()
+        println("total time: " + (endTime - startTime) / 1000.0)
+
+      case 110 =>
+        val out = textILPSolver.extractFeatureVectorForQuestionWithCorrectLabel(
+          "A decomposer is an organism that",
+          Seq("hunts and eats animals", "migrates for the winter",
+            "breaks down dead plants and animals", "uses water and sunlight to make food"),
+          "explanation:Decomposers: organisms that obtain energy by eating dead plant or animal matter. " +
+            "Windy, cloudy, rainy, and cold are words that help describe\tfocus: deposition. " +
+            "explanation:DECOMPOSER An organism that breaks down cells of dead plants and animals into simpler substances." +
+            "explanation:The plants use sunlight, carbon dioxide, water, and minerals to make food that sustains themselves and other organisms in the forest.", 1
+        )
+        println(out.mkString("\n"))
+
+      case 111 =>
+        def writeFeaturesOnDisk(dataset: Seq[(String, Seq[String], String)]): Unit = {
+          val f = s"output/featureVectors-${dataset.length}.txt"
+          IOUtils.rm(f)
+          val max = dataset.length
+          dataset.zipWithIndex.foreach {
+            case ((question, options, correct), idx) =>
+              println(s"Processing $idx out of $max")
+              val knowledgeSnippet = {
+                val rawSentences = SolverUtils.extractPatagraphGivenQuestionAndFocusSet3(question, options, 8).mkString(". ")
+                annotationUtils.dropRedundantSentences(rawSentences)
+              }
+              println("knowledge: " + knowledgeSnippet)
+              if (knowledgeSnippet.trim != "") {
+                println("solving it . . . ")
+                val out = textILPSolver.extractFeatureVectorForQuestionWithCorrectLabel(question, options, knowledgeSnippet, correct.head - 'A').map(_.mkString(", ")).mkString("\n")
+                val resultFile = new FileWriter(new File(f), true)
+                resultFile.write(out + "\n")
+                resultFile.close()
+              }
+          }
+        }
+
+        def writeProcessBankData(list: List[Paragraph]) = {
+          val qAndpPairs = list.flatMap { p => p.questions.map(q => (q, p)) }
+          val max = qAndpPairs.length
+          val resultFile = new PrintWriter(new File(s"output/featureVectors-${max}.txt"))
+          qAndpPairs.zipWithIndex.foreach {
+            case ((q, p), idx) =>
+              println(s"Processing $idx out of $max")
+              val knowledgeSnippet = p.context
+              val question = q.questionText
+              val options = q.answers.map(_.answerText)
+
+              if (knowledgeSnippet.trim != "") {
+                println("solving it . . . ")
+                val out = textILPSolver.extractFeatureVectorForQuestionWithCorrectLabel(question, options, knowledgeSnippet, q.correctIdxOpt.get).map(_.mkString(", ")).mkString("\n")
+                resultFile.write(out + "\n")
+              }
+          }
+          resultFile.close()
+        }
+
+        def writeFeatureHeaderFile(): Unit = {
+          val types = Seq(SimpleMatching, WhatDoesItDoRule, CauseRule, SRLV1Rule, VerbSRLandPrepSRL, SRLV1ILP, VerbSRLandCoref, SRLV2Rule, SRLV3Rule, VerbSRLandCommaSRL)
+          val srlViewsAll = Seq(ViewNames.SRL_VERB, TextILPSolver.curatorSRLViewName, TextILPSolver.pathLSTMViewName)
+          val bw = new BufferedWriter(new FileWriter("output/headerFile.arff"))
+          bw.write("@RELATION Components\n")
+          types.foreach { t =>
+            val srlViewTypes = if (t == CauseRule || t == WhatDoesItDoRule || t == SimpleMatching) Seq(TextILPSolver.pathLSTMViewName) else srlViewsAll
+            srlViewTypes.foreach { srlVu =>
+              bw.write(s"@ATTRIBUTE $t-${srlVu}_BINARY NUMERIC\n")
+              bw.write(s"@ATTRIBUTE $t-${srlVu}_OBJ NUMERIC\n")
+              bw.write(s"@ATTRIBUTE $t-${srlVu}_BIN_VAR_COUNT NUMERIC\n")
+              bw.write(s"@ATTRIBUTE $t-${srlVu}_CONS_COUNT NUMERIC\n")
+              bw.write(s"@ATTRIBUTE $t-${srlVu}_OBJ_OVR_VAR_COUNT NUMERIC\n")
+              bw.write(s"@ATTRIBUTE $t-${srlVu}_OBJ_OVR_CONS_COUNT NUMERIC\n")
+            }
+          }
+          bw.write("@ATTRIBUTE output {1.0, 0.0}\n")
+          bw.write("@DATA\n")
+          bw.close()
+        }
+
+        writeFeatureHeaderFile()
+
+      //        writeProcessBankData(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals)
+      //        writeFeaturesOnDisk(SolverUtils.regentsTrain)
+      //        writeFeaturesOnDisk(SolverUtils.eigthGradeTrain)
+      //        writeFeaturesOnDisk(SolverUtils.publicTrain)
+      case 112 =>
+        def cacheOnDiskAi2(dataset: Seq[(String, Seq[String], String)]): Unit = {
+          val max = dataset.length
+          dataset.zipWithIndex.foreach {
+            case ((question, options, correct), idx) =>
+              println(s"Processing $idx out of $max")
+              val knowledgeSnippet = {
+                val rawSentences = SolverUtils.extractPatagraphGivenQuestionAndFocusSet3(question, options, 8).mkString(". ")
+                annotationUtils.dropRedundantSentences(rawSentences)
+              }
+
+              println("knowledge: " + knowledgeSnippet)
+              annotationUtils.annotateWithEverythng(question, withFillInBlank = true)
+              if (knowledgeSnippet.trim != "") {
+                annotationUtils.annotateWithEverythng(knowledgeSnippet, withFillInBlank = false)
+              }
+          }
+        }
+
+        def cacheOnDisk(list: List[Paragraph]) = {
+          val qAndpPairs = list.flatMap { p => p.questions.map(q => (q, p)) }
+          val max = qAndpPairs.length
+          qAndpPairs.zipWithIndex.foreach {
+            case ((q, p), idx) =>
+              println(s"Processing $idx out of $max")
+              val knowledgeSnippet = p.context
+              val question = q.questionText
+              val options = q.answers.map(_.answerText)
+              annotationUtils.annotateWithEverythng(q.questionText, withFillInBlank = true)
+              if (knowledgeSnippet.trim != "") {
+                annotationUtils.annotateWithEverythng(p.context, withFillInBlank = false)
+              }
+          }
+        }
+//        cacheOnDisk(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals)
+//        cacheOnDiskAi2(SolverUtils.regentsTrain)
+//        cacheOnDiskAi2(SolverUtils.eigthGradeTrain)
+//        cacheOnDiskAi2(SolverUtils.publicTrain)
+
+        cacheOnDisk(processReader.testInstances.filterNotTrueFalse.filterNotTemporals)
+        cacheOnDiskAi2(SolverUtils.regentsTest)
+        cacheOnDiskAi2(SolverUtils.eigthGradeTest)
+        cacheOnDiskAi2(SolverUtils.publicTest)
+      case 113 =>
+        // cache everything with curator
+        annotationUtils.annotateWithFrameNetAndCache("And we danced to the best song ever!")
+      case 114 =>
+        // train a Weka classifier
+        val loader = new ArffLoader()
+        loader.setFile(new File("output/featuresCombined.arff"))
+        val train = loader.getDataSet
+        //println("structure.numAttributes(): " + train.numAttributes())
+        train.setClassIndex(train.numAttributes() - 1)
+
+        val lg = new Logistic
+        lg.buildClassifier(train)
+        println(lg.coefficients())
+        println(lg.getTechnicalInformation)
+        println(lg.getOptions)
+
+        val eval = new Evaluation(train)
+        eval.evaluateModel(lg, train)
+        println(eval.toMatrixString("=== Confusion matrix for fold " + 0 + "/" + 10 + " ===\n"))
+        println("eval.fMeasure(0): " + eval.fMeasure(0))
+        println("eval.fMeasure(1): " + eval.fMeasure(1))
+
+        val oos = new ObjectOutputStream(new FileOutputStream("output/logistic.model"))
+        oos.writeObject(lg)
+        oos.flush()
+        oos.close()
+
+      case 115 =>
+        def evaluateAi2(dataset: Seq[(String, Seq[String], String)]): Unit = {
+          val max = dataset.length
+          val scores = dataset.zipWithIndex.map {
+            case ((question, options, correct), idx) =>
+              println(s"Processing $idx out of $max")
+              val knowledgeSnippet = {
+                val rawSentences = SolverUtils.extractPatagraphGivenQuestionAndFocusSet3(question, options, 8).mkString(". ")
+                annotationUtils.dropRedundantSentences(rawSentences)
+              }
+              println("knowledge: " + knowledgeSnippet)
+              val correctIndex = correct.head - 'A'
+              val selected = if (knowledgeSnippet.trim != "") {
+                println("solving it . . . ")
+                try {
+                  Seq(textILPSolver.predictWithWekaClassifier(question, options, knowledgeSnippet))
+                }
+                catch {
+                  case e: Exception =>
+
+                    e.printStackTrace()
+                    Seq.empty
+                }
+              }
+              else {
+                Seq.empty
+              }
+              SolverUtils.assignCredit(selected, correctIndex, options.length)
+          }
+          println(" --> Average score: " + {scores.sum / scores.size})
+        }
+
+        def evluateProcessbankData(list: List[Paragraph]) = {
+          val qAndpPairs = list.flatMap { p => p.questions.map(q => (q, p)) }
+          val max = qAndpPairs.length
+          val scores = qAndpPairs.zipWithIndex.map { case ((q, p), idx) =>
+              println(s"Processing $idx out of $max")
+              val knowledgeSnippet = p.context
+              val question = q.questionText
+              val options = q.answers.map(_.answerText)
+              val selected = if (knowledgeSnippet.trim != "") {
+                println("solving it . . . ")
+                Seq(textILPSolver.predictWithWekaClassifier(question, options, knowledgeSnippet))
+              }
+              else {
+                Seq.empty
+              }
+              SolverUtils.assignCredit(selected, q.correctIdxOpt.get, options.length)
+          }
+          println(" --> Average score: " + {scores.sum / scores.size})
+        }
+
+
+//        evaluateAi2(SolverUtils.regentsTrain)
+//        println("regents train \n --------------")
+//        evaluateAi2(SolverUtils.regentsTest)
+//        println("--> regentsTest \n --------------")
+//        evaluateAi2(SolverUtils.eigthGradeTrain)
+//        println("--> eigthGradeTrain \n --------------")
+//        evaluateAi2(SolverUtils.eigthGradeTest)
+//        println("---> eigthGradeTest \n --------------")
+//        evluateProcessbankData(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals)
+//        println("---> processReader train \n --------------")
+//        evluateProcessbankData(processReader.testInstances.filterNotTrueFalse.filterNotTemporals)
+//        println("---> processReader test \n --------------")
+        evaluateAi2(SolverUtils.publicTrain)
+        println("---> publicTrain \n --------------")
+//        evaluateAi2(SolverUtils.publicTest)
+//        println("---> publicTest \n --------------")
+
+      case 116 =>
+        import SquadJsonPattern._
+        // save ai2 datasets using SquadJsonPattern
+        // note that the above import from SquadJsonPattern is key
+        val paragraphs: Seq[Paragraph] = SolverUtils.convertAi2DatasetIntoStandardFormat(SolverUtils.publicTrain, annotationUtils)
+        println("size of the dataset: " + paragraphs.length)
+        val json = Json.toJson(paragraphs).toString
+        val pw = new PrintWriter(new File("output/public-train6.json"))
+        pw.write(json)
+        pw.close()
+
+      case 117 =>
+        // read the json predictions of the BiDaF and evaluate
+        processAnswers("output/regents-train1-output.json", SolverUtils.convertAi2DatasetIntoStandardFormat(SolverUtils.regentsTrain, annotationUtils))
+        processAnswers("output/regents-test4-output.json", SolverUtils.convertAi2DatasetIntoStandardFormat(SolverUtils.regentsTest, annotationUtils))
+        processAnswers("output/regents-8th-train1-output.json", SolverUtils.convertAi2DatasetIntoStandardFormat(SolverUtils.eigthGradeTrain, annotationUtils))
+        processAnswers("output/regents-8th-test1-output.json", SolverUtils.convertAi2DatasetIntoStandardFormat(SolverUtils.eigthGradeTest, annotationUtils))
+        processAnswers("output/public-train6-output.json", SolverUtils.convertAi2DatasetIntoStandardFormat(SolverUtils.publicTrain, annotationUtils))
+        processAnswers("output/public-test2-output.json", SolverUtils.convertAi2DatasetIntoStandardFormat(SolverUtils.publicTest, annotationUtils))
+        def processAnswers(ansFile: String, questionSet: Seq[Paragraph]) = {
+          println("ansFile: " + ansFile)
+          val lines = Source.fromFile(ansFile).getLines.toList.mkString
+          val json = Json.parse(lines)
+          val answerMap = json.as[JsObject].fields.map { case (a, b) => a.toString -> b.toString }.toMap
+          println("answerMap: " + answerMap.keySet.toSeq.sorted)
+          val scores: Seq[Double] = questionSet.zipWithIndex.flatMap {
+            case (p, pIdx) =>
+              p.questions.zipWithIndex.map {
+                case (q, qIdx) =>
+                  val id: String = s"$pIdx-$qIdx"
+                  println(" === id: " + id)
+                  val ans: String = answerMap.getOrElse(id, {
+                    println(" =====> The id did not found!!!!")
+                    "random"
+                  } )
+                  val selectedIdx = q.answers.zipWithIndex.map {
+                    case (a, idx) =>
+                      idx -> TextILPSolver.offlineAligner.scoreCellCell(a.answerText, ans)
+                  }.maxBy(_._2)._1
+                  SolverUtils.assignCredit(Seq(selectedIdx), q.correctIdxOpt.get, q.answers.length)
+              }
+          }
+          println(s"File: ${ansFile}  / average score: " + scores.sum / scores.length + "  - size: " + scores.length)
+        }
+      case 118 =>
+        // mturk experiments
+        // extracting subset that enails
+        val lines = Source.fromFile(new File("mturk/train_Ob44th8thSciQDevTestSplit.tsv")).getLines().toSeq
+        val entailSubset = lines.map{ line =>
+          val split = line.split("\t")
+          val question = split(0)
+          val answer = split(1)
+          val sentence = split(3)
+          val entailsLabel = split(10)
+          (question, answer,sentence, entailsLabel)
+        }.collect{ case (question, answer, sentence, entailsLabel) if entailsLabel == "entails" => (question, answer, sentence) }
+        //println(entailSubset.size)
+        //println(entailSubset.slice(0, 10).mkString("\n"))
+        val file = new File("mturk/entailsSubset.tsv")
+        val bw = new BufferedWriter(new FileWriter(file))
+        entailSubset.foreach{ case (question, answer, sentence) =>
+          bw.write(question + "\t" + answer + "\t" + sentence + "\n")
+        }
+        bw.close()
     }
   }
 }

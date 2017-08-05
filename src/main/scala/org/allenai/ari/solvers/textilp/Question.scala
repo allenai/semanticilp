@@ -3,8 +3,6 @@ package org.allenai.ari.solvers.textilp
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation
 import org.apache.commons.math3.util.Precision
 
-import scala.collection.mutable.ArrayBuffer
-
 case class TopicGroup(title: String, paragraphs: Seq[Paragraph])
 case class QPPair(question: Question, paragraph: Paragraph, beginTokenIdx: Int, endTokenIdx: Int, scoreOpt: Option[Double] = None, sentenceIdOpt: Option[Int] = None)
 case class Paragraph(context: String, questions: Seq[Question], contextTAOpt: Option[TextAnnotation], id: String = "")
@@ -28,7 +26,7 @@ case class Entity(entityName: String, surface: String, boundaries: Seq[(Int, Int
 case class Relation(relationName: String, entity1: String, entity2: String, weight: Double)
 case class Stats(numberOfBinaryVars: Double = 0.0, numberOfContinuousVars: Double = 0.0,
   numberOfIntegerVars: Double = 0.0, numberOfConstraints: Double = 0.0, modelCreationInSec: Double = 0.0,
-  solveTimeInSec: Double = 0.0, ilpIterations: Double = 0.0, objectiveValue: Double = 0.0) {
+  solveTimeInSec: Double = 0.0, ilpIterations: Double = 0.0, objectiveValue: Double = 0.0, selected: Boolean = false) {
   def asVector: Seq[Double] = {
     Seq(numberOfBinaryVars, numberOfContinuousVars, numberOfIntegerVars, numberOfConstraints,
       modelCreationInSec, solveTimeInSec, ilpIterations)
@@ -51,7 +49,7 @@ case class Stats(numberOfBinaryVars: Double = 0.0, numberOfContinuousVars: Doubl
     s"numberOfBinaryVars: $numberOfBinaryVars \nnumberOfContinuousVars: $numberOfContinuousVars \n" +
       s"numberOfIntegerVars: $numberOfIntegerVars \nnumberOfConstraints: $numberOfConstraints \n" +
       s"modelCreationInSec: $modelCreationInSec \nsolveTimeInSec: $solveTimeInSec \nilpIterations: $ilpIterations \n" +
-      s"objectiveValue: $objectiveValue"
+      s"objectiveValue: $objectiveValue \nselected: $selected"
   }
 }
 case class EntityRelationResult(
@@ -156,8 +154,8 @@ object SquadJsonPattern {
 
   import play.api.libs.json._
 
-  implicit val listOfparagraphWrite = new Writes[List[Paragraph]] {
-    def writes(p: List[Paragraph]) = {
+  implicit val listOfparagraphWrite = new Writes[Seq[Paragraph]] {
+    def writes(p: Seq[Paragraph]) = {
       Json.obj(
         "data" -> p.zipWithIndex.map {
           case (pp, pIdx) =>

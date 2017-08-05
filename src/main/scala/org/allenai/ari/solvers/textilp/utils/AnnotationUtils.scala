@@ -6,6 +6,7 @@ import java.util.Properties
 
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation
+import edu.illinois.cs.cogcomp.core.io.caches.TextAnnotationMapDBHandler
 import edu.illinois.cs.cogcomp.core.utilities.SerializationHelper
 import edu.illinois.cs.cogcomp.core.utilities.configuration.{ Configurator, ResourceManager }
 import edu.illinois.cs.cogcomp.curator.{ CuratorConfigurator, CuratorFactory }
@@ -423,10 +424,57 @@ class AnnotationUtils() {
     val ta = pipelineService.createBasicTextAnnotation("", "", str)
     ta.getView(ViewNames.SENTENCE).getConstituents.asScala.map { _.getSurfaceForm }.distinct.mkString(". ").
       replaceAll("\\.\\.\\.\\.", ".").replaceAll("\\.\\.\\.", ".").replaceAll("\\.\\.", ".")
-    /*map { c =>
-        println(c)
-        c
-      }*/
+  }
+
+  // framenet parser
+
+  def annotateWithFrameNetAndCache(input: String): Unit = {
+    import sys.process._
+    val output = Seq("curl", "-d", "sentence=Jack sold the car to Jenny.", "http://austen.cs.illinois.edu:8082/parse").!!
+    println(output)
+    //    println("-----")
+    //println(output.split("\t").toSeq)
+    output.split("\n").map { l =>
+      val split = l.split("\t")
+      val word = split(1)
+      val predicate = split(14)
+      val arg = split(15)
+      ()
+    }
+    println(output.split("\n").toSeq.size)
+    //    println(output.split("\t").toSeq.size.toDouble / 16)
+    //    println(output.split("\t").toSeq.size.toDouble / 7)
+    //    output.split("\t").toSeq.foreach{ l =>
+    //      println("l: " + l)
+    //    }
+  }
+
+  lazy val globalAnnotationCache = new TextAnnotationMapDBHandler("allTheCacheTogether.db")
+
+  def annotateWithEverythng(input1: String, withFillInBlank: Boolean = false): TextAnnotation = {
+    val input = SolverUtils.clearRedundantCharacters(input1)
+    println("input: " + input)
+    val ta = pipelineService.createBasicTextAnnotation("", "", input)
+    if (globalAnnotationCache.contains(ta)) {
+      val ta2 = globalAnnotationCache.getTextAnnotation(ta)
+      if (withFillInBlank && !ta2.hasView(fillInBlankAnnotator.getViewName)) {
+        ta2.addView(fillInBlankAnnotator)
+        globalAnnotationCache.updateTextAnnotation(ta2)
+      }
+      ta2
+    } else {
+      println("--> normal views: ")
+      //pipelineServerClient.addView(ta)
+      val ta1 = pipelineServerClient.annotate(input)
+      println(" --> external: ")
+      pipelineExternalAnnotatorsServerClient.addView(ta1)
+      println(" --> curator: ")
+      annotateWithCuratorAndSaveUnderName(ta1.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, ta1)
+      println(" --> adding fill in the blanks ")
+      if (withFillInBlank) ta1.addView(fillInBlankAnnotator)
+      globalAnnotationCache.addTextAnnotation("", ta1)
+      ta1
+    }
   }
 
 }

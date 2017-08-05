@@ -112,4 +112,6 @@ externalAnnotations4.cache
 remotePipelineCachingTextilp6.cache
 clausie.cache
 output
-output/* 
+output/*
+output2
+output2/*

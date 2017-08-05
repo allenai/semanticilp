@@ -40,7 +40,6 @@ class SolveQuestion @Inject() extends Controller {
     val snippet = ProcessBankReader.normalizeText((request.body \ "snippet").as[JsString].value)
 
     println("Options: " + options)
-    println("Snippet: " + snippet)
 
     val optionsPostProcessed = if (options.length < 2) {
       // it's empty; get the candidate options automatically
@@ -49,19 +48,23 @@ class SolveQuestion @Inject() extends Controller {
       println("Automatically extracted candidtes: " + generatedCandidates.mkString("//"))
       generatedCandidates.toSeq
     } else {
-      options.split("//").toSeq
+      options.split("(\\([A-Z]\\)|\\/\\/)").toSeq.map(_.trim).filter(_.nonEmpty)
     }
 
-    val snippetPostprocessed = if (snippet.length < 2) {
+    println("optionsPostProcessed: " + optionsPostProcessed)
+
+
+    println("snippet: " + snippet)
+    val snippetPostprocessed = if (snippet.length < 5) {
       // it's empty; get it with elastic-search
-      println("Asking the elastic-search . . . ")
+      println("Asking the elastic-search . . . " + question)
       //val snippet = optionsPostProcessed.flatMap(focus => SolverUtils.extractParagraphGivenQuestionAndFocusWord(question, focus, 3)).mkString(" ")
-      val snippet = SolverUtils.extractPatagraphGivenQuestionAndFocusSet3(question, optionsPostProcessed, 8).mkString(" ")
-      println(snippet)
-      snippet
+      val rawSentences = SolverUtils.extractPatagraphGivenQuestionAndFocusSet3(question, optionsPostProcessed, 8).mkString(". ")
+      annotationUtils.dropRedundantSentences(rawSentences)
     } else {
       snippet
     }
+    println("snippetPostprocessed: " + snippetPostprocessed)
 
     println("solver type : " + solverType)
     val solverContent = if (solverType.toLowerCase.contains("salience")) {

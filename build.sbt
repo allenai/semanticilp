@@ -99,7 +99,9 @@ lazy val root = (project in file(".")).
       "com.github.mpkorstanje" % "simmetrics-core" % "4.1.1",
       "github.sahand" % "sahand-client_2.11" % "1.2.2",
 //      "com.quantifind" %% "wisp" % "0.0.4",
-      "io.github.pityka" %% "nspl-awt" % "0.0.7"//,
+      "io.github.pityka" %% "nspl-awt" % "0.0.7",
+      "nz.ac.waikato.cms.weka" % "weka-dev" % "3.7.12",
+      "edu.mit" % "jverbnet" % "1.2.0.1"//,
 //      "io.github.pityka" %% "nspl-scalatags-js" % "0.0.7"
     ),
     resolvers ++= Seq(

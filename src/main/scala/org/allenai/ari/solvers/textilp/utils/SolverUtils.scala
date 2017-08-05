@@ -1,15 +1,15 @@
 package org.allenai.ari.solvers.textilp.utils
 
 import java.io.File
-import java.net.{ InetSocketAddress, URLDecoder, URLEncoder }
+import java.net.{InetSocketAddress, URLDecoder, URLEncoder}
 import java.util
 
 import edu.illinois.cs.cogcomp.McTest.MCTestBaseline
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
-import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{ Constituent, TextAnnotation }
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, TextAnnotation}
 import org.allenai.ari.solvers.textilp.alignment.KeywordTokenizer
 import org.allenai.ari.solvers.textilp.solvers.TextIlpParams
-import org.allenai.ari.solvers.textilp.{ Entity, EntityRelationResult, Paragraph, Question }
+import org.allenai.ari.solvers.textilp._
 import org.allenai.common.cache.JsonQueryCache
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.commons.lang.StringEscapeUtils
@@ -25,7 +25,7 @@ import redis.clients.jedis.Protocol
 import scala.collection.JavaConverters._
 import spray.json.DefaultJsonProtocol._
 
-import scala.concurrent.{ Await, ExecutionContext, Future }
+import scala.concurrent.{Await, ExecutionContext, Future}
 import scala.io.Source
 
 object SolverUtils {
@@ -182,9 +182,7 @@ object SolverUtils {
         val strNoSpecialChat = noURlChars.replaceAll("(\\+|\\*|_)", " ")
         val noHTMLTags = StringEscapeUtils.unescapeHtml(strNoSpecialChat)
         val noInvalidWhiteSpace = noHTMLTags.replaceAll("", " ")
-        val noWeirdChar = noInvalidWhiteSpace.replaceAll("\u0080", " ").replaceAll("\u0096", " ").
-          replaceAll("\u0095", " ").replaceAll("\u0092", " ").replaceAll("\u0093", " ").replaceAll("\u0094", " ").
-          replaceAll("\n", " ").replaceAll("( +)", " ")
+        val noWeirdChar = clearRedundantCharacters(noInvalidWhiteSpace.replaceAll("( +)", " "))
         noWeirdChar -> score
     }.distinct.map { case (s, score) => s.substring(0, math.min(350, s.length)) -> score }.sortBy(-_._2) // nothing longer than 1500 characters
 
@@ -194,6 +192,10 @@ object SolverUtils {
       sortedSet
     }).map(_._1)
   }
+
+  def clearRedundantCharacters(string: String) = string.replaceAll("\u0080", " ").replaceAll("\u0096", " ").
+    replaceAll("\u0095", " ").replaceAll("\u0092", " ").replaceAll("\u0093", " ").replaceAll("\u0094", " ").
+    replaceAll("\n", " ").replaceAll("\u0002", "")
 
   def getLuceneHitFields(hit: SearchHit): Map[String, AnyRef] = {
     hit.sourceAsMap().asScala.toMap
@@ -298,6 +300,22 @@ object SolverUtils {
   lazy val eigthGradeTest = loadQuestions("Regents-Gr08-Test.tsv")
   lazy val regentsPerturbed = loadQuestions("regents-train-perturbed.tsv")
   lazy val small = loadQuestions("small.tsv")
+
+  def convertAi2DatasetIntoStandardFormat(input: Seq[(String, Seq[String], String)], annotationUtils: AnnotationUtils): Seq[Paragraph] = {
+    input.zipWithIndex.map { case ((question, answerOptions, correctAns), idx) =>
+      val knowledgeSnippet = {
+        val rawSentences = SolverUtils.extractPatagraphGivenQuestionAndFocusSet3(question, answerOptions, 8).mkString(". ")
+        annotationUtils.dropRedundantSentences(rawSentences)
+      }.trim.replaceAll("  ", "")
+      val answers = answerOptions.map(a => Answer(a, 0, None))
+//      println("correctAns: " + correctAns)
+//      println("answerOptions: " + answerOptions)
+//      println("answerOptions.zipWithIndex.find(_ == correctAns): " + answerOptions.zipWithIndex.find(_ == correctAns))
+      val correctAnsIdx = correctAns.head - 'A' //answerOptions.zipWithIndex.find(_ == correctAns).get._2
+      val q = Question(question, s"q${idx}", answers, None, Some(correctAnsIdx))
+      Paragraph(knowledgeSnippet, Seq(q), None, s"p${idx}")
+    }.filter(_.context.trim.length > 5)
+  }
 
   def loadQuestions(fileName: String): Seq[(String, Seq[String], String)] = {
     println(s"loading questions from ${fileName}")
@@ -458,7 +476,7 @@ object SolverUtils {
       val pw = new PrintWriter(f)
       pw.write(cacheValue.toString())
       pw.close()
-      println("result . . . . \n "  + results)
+      println("result . . . . \n " + results)
       results*/
       Seq.empty
     }
