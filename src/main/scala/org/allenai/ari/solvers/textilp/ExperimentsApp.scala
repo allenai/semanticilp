@@ -2938,15 +2938,22 @@ object ExperimentsApp {
               }
           }
         }
-//        cacheOnDisk(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals)
+
+//        cacheOnDiskAi2(SolverUtils.eigthGradeTrainPublic)
+//          println("---> eigthGradeTrainPublic \n --------------")
+        cacheOnDiskAi2(SolverUtils.eigthGradeTestPublic)
+          println("---> eigthGradeTestPublic \n --------------")
+
+
+        //        cacheOnDisk(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals)
 //        cacheOnDiskAi2(SolverUtils.regentsTrain)
 //        cacheOnDiskAi2(SolverUtils.eigthGradeTrain)
 //        cacheOnDiskAi2(SolverUtils.publicTrain)
 
-        cacheOnDisk(processReader.testInstances.filterNotTrueFalse.filterNotTemporals)
-        cacheOnDiskAi2(SolverUtils.regentsTest)
-        cacheOnDiskAi2(SolverUtils.eigthGradeTest)
-        cacheOnDiskAi2(SolverUtils.publicTest)
+//        cacheOnDisk(processReader.testInstances.filterNotTrueFalse.filterNotTemporals)
+//        cacheOnDiskAi2(SolverUtils.regentsTest)
+//        cacheOnDiskAi2(SolverUtils.eigthGradeTest)
+//        cacheOnDiskAi2(SolverUtils.publicTest)
       case 113 =>
         // cache everything with curator
         annotationUtils.annotateWithFrameNetAndCache("And we danced to the best song ever!")
@@ -2990,7 +2997,15 @@ object ExperimentsApp {
               val selected = if (knowledgeSnippet.trim != "") {
                 println("solving it . . . ")
                 try {
-                  Seq(textILPSolver.predictWithWekaClassifier(question, options, knowledgeSnippet))
+                  val selected = Seq(textILPSolver.predictWithWekaClassifier(question, options, knowledgeSnippet))
+                  val f = new FileWriter(s"output/predictionPerQuestion-${max}.txt", true)
+                  f.write(question + "\t" + selected.head + "\t" + correctIndex + "\n")
+                  f.close()
+//                  val features = textILPSolver.extractFeatureVectorForQuestionWithCorrectLabel(question, options, knowledgeSnippet, correct.head - 'A').map(_.mkString(", ")).mkString("\n")
+//                  val f2 = new FileWriter(s"output/features-${max}.txt", true)
+//                  f2.write(features + "\n")
+//                  f2.close()
+                  selected
                 }
                 catch {
                   case e: Exception =>
@@ -3017,7 +3032,11 @@ object ExperimentsApp {
               val options = q.answers.map(_.answerText)
               val selected = if (knowledgeSnippet.trim != "") {
                 println("solving it . . . ")
-                Seq(textILPSolver.predictWithWekaClassifier(question, options, knowledgeSnippet))
+                val selected = Seq(textILPSolver.predictWithWekaClassifier(question, options, knowledgeSnippet))
+                val f = new FileWriter(s"output/predictionPerQuestion-ProcessBank-${max}.txt", true)
+                f.write(question + "\t" + selected + "\t" + q.correctIdxOpt.get + "\n")
+                f.close()
+                selected
               }
               else {
                 Seq.empty
@@ -3027,10 +3046,17 @@ object ExperimentsApp {
           println(" --> Average score: " + {scores.sum / scores.size})
         }
 
+//        evaluateAi2(SolverUtils.eigthGradeTrainPublic)
+//        println("---> eigthGradeTrainPublic \n --------------")
+//        evaluateAi2(SolverUtils.eigthGradeTestPublic.take(40))
+//        println("---> eigthGradeTestPublic \n --------------")
 
-//        evaluateAi2(SolverUtils.regentsTrain)
+//        evaluateAi2(SolverUtils.regentsPerturbed)
+//        println("---> regentsPerturbed \n --------------")
+
+        //        evaluateAi2(SolverUtils.regentsTrain)
 //        println("regents train \n --------------")
-//        evaluateAi2(SolverUtils.regentsTest)
+//        evaluateAi2(SolverUtils.regentsTest.slice(0, 20))
 //        println("--> regentsTest \n --------------")
 //        evaluateAi2(SolverUtils.eigthGradeTrain)
 //        println("--> eigthGradeTrain \n --------------")
@@ -3038,12 +3064,12 @@ object ExperimentsApp {
 //        println("---> eigthGradeTest \n --------------")
 //        evluateProcessbankData(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals)
 //        println("---> processReader train \n --------------")
-//        evluateProcessbankData(processReader.testInstances.filterNotTrueFalse.filterNotTemporals)
-//        println("---> processReader test \n --------------")
-        evaluateAi2(SolverUtils.publicTrain)
-        println("---> publicTrain \n --------------")
-//        evaluateAi2(SolverUtils.publicTest)
-//        println("---> publicTest \n --------------")
+        evluateProcessbankData(processReader.testInstances.filterNotTrueFalse.filterNotTemporals.take(25))
+        println("---> processReader test \n --------------")
+//        evaluateAi2(SolverUtils.publicTrain)
+//        println("---> publicTrain \n --------------")
+        evaluateAi2(SolverUtils.publicTest.take(40))
+        println("---> publicTest \n --------------")
 
       case 116 =>
         import SquadJsonPattern._
@@ -3109,6 +3135,11 @@ object ExperimentsApp {
           bw.write(question + "\t" + answer + "\t" + sentence + "\n")
         }
         bw.close()
+
+      case 119 =>
+        // finding overlap with lucene predictions
+
+
     }
   }
 }

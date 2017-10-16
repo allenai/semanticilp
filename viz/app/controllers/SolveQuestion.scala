@@ -104,5 +104,4 @@ class SolveQuestion @Inject() extends Controller {
     Ok(views.html.main("", question, options, snippet, StaticContent.getContentWithPrefilled(index),
       Json.toJson(ResultJson.emptyEntityRelation).toString))
   }
-
 }

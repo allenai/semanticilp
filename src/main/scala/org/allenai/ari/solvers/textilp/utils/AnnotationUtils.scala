@@ -115,7 +115,7 @@ class AnnotationUtils() {
 
   lazy val pipelineExternalAnnotatorsServerClient = {
     val x = new ServerClientAnnotator()
-    x.setUrl("http://bronte.cs.illinois.edu", "5800")
+    x.setUrl("http://bronte.cs.illinois.edu", "8009")
     x.setViewsAll(Array("SRL_VERB_PATH_LSTM", "STANFORD_COREF"))
     x.useCaching("externalAnnotations2.cache")
     x
@@ -451,7 +451,7 @@ class AnnotationUtils() {
 
   lazy val globalAnnotationCache = new TextAnnotationMapDBHandler("allTheCacheTogether.db")
 
-  def annotateWithEverythng(input1: String, withFillInBlank: Boolean = false): TextAnnotation = {
+  def annotateWithEverythng(input1: String, withFillInBlank: Boolean = false): TextAnnotation = synchronized {
     val input = SolverUtils.clearRedundantCharacters(input1)
     println("input: " + input)
     val ta = pipelineService.createBasicTextAnnotation("", "", input)

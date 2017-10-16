@@ -298,6 +298,8 @@ object SolverUtils {
   lazy val regentsTest = loadQuestions("Regents-Gr04-NDMC-Test.tsv")
   lazy val eigthGradeTrain = loadQuestions("Regents-Gr08-Train.tsv")
   lazy val eigthGradeTest = loadQuestions("Regents-Gr08-Test.tsv")
+  lazy val eigthGradeTrainPublic = loadQuestions("Public-Gr08-Train.tsv")
+  lazy val eigthGradeTestPublic = loadQuestions("Public-Gr08-Test.tsv")
   lazy val regentsPerturbed = loadQuestions("regents-train-perturbed.tsv")
   lazy val small = loadQuestions("small.tsv")
 
