@@ -1,6 +1,5 @@
 package org.allenai.ari.solvers.bioProccess
 
-import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation
 import org.allenai.ari.solvers.textilp.utils.{ AnnotationUtils, Constants }
 import org.allenai.ari.solvers.textilp.{ Answer, Paragraph, Question }

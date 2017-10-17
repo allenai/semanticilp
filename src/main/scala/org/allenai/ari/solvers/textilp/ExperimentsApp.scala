@@ -3,17 +3,17 @@ package org.allenai.ari.solvers.textilp
 import edu.illinois.cs.cogcomp.McTest.MCTestBaseline
 import edu.illinois.cs.cogcomp.core.utilities.configuration.ResourceManager
 import org.allenai.ari.solvers.bioProccess.ProcessBankReader
-import org.allenai.ari.solvers.textilp.solvers.{ CauseRule, WhatDoesItDoRule, _ }
+import org.allenai.ari.solvers.textilp.solvers.{CauseRule, WhatDoesItDoRule, _}
 import org.allenai.ari.solvers.textilp.alignment.AlignmentFunction
 import org.allenai.ari.solvers.textilp.utils._
 import org.rogach.scallop._
 import ProcessBankReader._
-import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{ Constituent, TextAnnotation }
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, TextAnnotation}
 import edu.illinois.cs.cogcomp.core.io.IOUtils
 import edu.illinois.cs.cogcomp.edison.annotators.ClauseViewGenerator
 import edu.illinois.cs.cogcomp.pipeline.server.ServerClientAnnotator
 import org.simmetrics.metrics.StringMetrics
-import org.allenai.ari.controller.questionparser.{ FillInTheBlankGenerator, QuestionParse }
+import org.allenai.ari.controller.questionparser.{FillInTheBlankGenerator, QuestionParse}
 import org.apache.commons.io.FilenameUtils
 import org.simmetrics.StringMetric
 import weka.classifiers.Evaluation
@@ -27,7 +27,7 @@ import java.net.URL
 import java.util
 
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
-import play.api.libs.json.{ JsArray, JsObject, Json }
+import play.api.libs.json.{JsArray, JsObject, Json}
 
 import scala.util.Random
 import scala.io.Source
@@ -46,7 +46,7 @@ object ExperimentsApp {
   }
 
   def evaluateTextSolverOnRegents(dataset: Seq[(String, Seq[String], String)], textSolver: TextSolver,
-    knowledgeLength: Int = 8, printMistakes: Boolean = false, splitToSentences: Boolean = false) = {
+                                  knowledgeLength: Int = 8, printMistakes: Boolean = false, splitToSentences: Boolean = false) = {
     val resultFile = new PrintWriter(new File(s"output/results-$textSolver-length${dataset.length}.txt"))
     val types = Seq(WhatDoesItDoRule, CauseRule, SRLV1Rule, VerbSRLandPrepSRL, SRLV1ILP, VerbSRLandCoref, SimpleMatching)
     import java.io._
@@ -145,7 +145,7 @@ object ExperimentsApp {
   }
 
   def evaluateTextSolverOnRegentsPerReasoningMethod(dataset: Seq[(String, Seq[String], String)], textSolver: TextSolver,
-    knowledgeLength: Int = 8, printMistakes: Boolean = false) = {
+                                                    knowledgeLength: Int = 8, printMistakes: Boolean = false) = {
     import java.io._
     val resultFile = new PrintWriter(new File(s"output/results-per-solver-length${dataset.length}.txt"))
     resultFile.write(s"Type \t SRL \t Score \t Precision \t Recall \t Total Answered \t Out of \t Total Time \n")
@@ -287,8 +287,10 @@ object ExperimentsApp {
   def evaluateTextSolverOnProcessBankWithDifferentReasonings(list: List[Paragraph], textILPSolver: TextILPSolver) = {
     import java.io._
     //val types = Seq( /*WhatDoesItDoRule, CauseRule, */ SRLV1Rule /*, VerbSRLandPrepSRL,SRLV1ILP, VerbSRLandCoref, SimpleMatching*/ )
-    val types = Seq(SimpleMatching /*SimpleMatching, WhatDoesItDoRule, CauseRule, SRLV1Rule, VerbSRLandPrepSRL, */ /*SRLV1ILP, VerbSRLandCoref,
-           SRLV2Rule, SRLV3Rule*/ /*VerbSRLandCommaSRL*/ )
+    val types = Seq(SimpleMatching /*SimpleMatching, WhatDoesItDoRule, CauseRule, SRLV1Rule, VerbSRLandPrepSRL, */
+      /*SRLV1ILP, VerbSRLandCoref,
+                SRLV2Rule, SRLV3Rule*/
+      /*VerbSRLandCommaSRL*/)
     val srlViewsAll = Seq(ViewNames.SRL_VERB, TextILPSolver.curatorSRLViewName, TextILPSolver.pathLSTMViewName)
     val qAndpPairs = list.flatMap { p => p.questions.map(q => (q, p)) }
     val resultFile = new PrintWriter(new File(s"output/results-per-solver-length${qAndpPairs.length}-processBank.txt"))
@@ -355,6 +357,7 @@ object ExperimentsApp {
     val parser = new ArgumentParser(args)
     parser.experimentType() match {
       case 1 =>
+        // evaluate other solvers on regents
         evaluateTextSolverOnRegents(SolverUtils.regentsTrain, luceneSolver)
         evaluateTextSolverOnRegents(SolverUtils.publicTrain, luceneSolver)
         evaluateTextSolverOnRegents(SolverUtils.publicTest, luceneSolver)
@@ -373,26 +376,26 @@ object ExperimentsApp {
         evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver, splitToSentences = false)
         println("==== regents test  ")
 
-      // evaluateTextSolverOnRegents(SolverUtils.regentsPerturbed, textILPSolver)
-      // println("==== regents perturbed  ")
-      // evaluateTextSolverOnRegents(SolverUtils.publicTrain, textILPSolver)
-      // println("==== public train ")
-      // evaluateTextSolverOnRegents(SolverUtils.publicDev, textILPSolver)
-      // println("==== public dev ")
-      // evaluateTextSolverOnRegents(SolverUtils.publicTest, textILPSolver)
-      // println("==== public test ")
-      // evaluateTextSolverOnRegents(SolverUtils.omnibusTrain, textILPSolver)
-      // println("==== omnibus train ")
-      // evaluateTextSolverOnRegents(SolverUtils.omnibusTest, textILPSolver)
-      // println("==== omnibus test ")
-      // evaluateTextSolverOnRegents(SolverUtils.regentsPerturbed, luceneSolver)
-      // println("==== regents perturbed  ")
-      // evaluateTextSolverOnRegents(SolverUtils.omnibusTest, luceneSolver)
-      // println("==== omnibus test  ")
-      // evaluateTextSolverOnRegents(SolverUtils.regentsTest, luceneSolver)
-      // println("==== regents test  ")
-      // evaluateTextSolverOnRegents(SolverUtils.publicTest, luceneSolver)
-      // println("==== public test  ")
+        // evaluateTextSolverOnRegents(SolverUtils.regentsPerturbed, textILPSolver)
+        // println("==== regents perturbed  ")
+        // evaluateTextSolverOnRegents(SolverUtils.publicTrain, textILPSolver)
+        // println("==== public train ")
+        // evaluateTextSolverOnRegents(SolverUtils.publicDev, textILPSolver)
+        // println("==== public dev ")
+        // evaluateTextSolverOnRegents(SolverUtils.publicTest, textILPSolver)
+        // println("==== public test ")
+        // evaluateTextSolverOnRegents(SolverUtils.omnibusTrain, textILPSolver)
+        // println("==== omnibus train ")
+        // evaluateTextSolverOnRegents(SolverUtils.omnibusTest, textILPSolver)
+        // println("==== omnibus test ")
+        // evaluateTextSolverOnRegents(SolverUtils.regentsPerturbed, luceneSolver)
+        // println("==== regents perturbed  ")
+        // evaluateTextSolverOnRegents(SolverUtils.omnibusTest, luceneSolver)
+        // println("==== omnibus test  ")
+        // evaluateTextSolverOnRegents(SolverUtils.regentsTest, luceneSolver)
+        // println("==== regents test  ")
+        // evaluateTextSolverOnRegents(SolverUtils.publicTest, luceneSolver)
+        // println("==== public test  ")
       case 3 =>
         // get dataset statistics
         val allParagraphs = processReader.testInstances ++ processReader.trainingInstances
