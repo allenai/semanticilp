@@ -1,25 +1,20 @@
 package org.allenai.ari.solvers.bioProccess
 
-import java.io.File
-
-import edu.illinois.cs.cogcomp.annotation.AnnotatorService
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
-import org.allenai.ari.solvers.squad.CandidateGeneration
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.TextAnnotation
 import org.allenai.ari.solvers.textilp.utils.{ AnnotationUtils, Constants }
 import org.allenai.ari.solvers.textilp.{ Answer, Paragraph, Question }
 
 import scala.xml.XML
 
+import java.io.File
+
 class ProcessBankFileReader(file: File, annotate: Boolean, annotationUtils: AnnotationUtils) {
   import ProcessBankReader._
-  val instances = {
+  val instances: Paragraph = {
     val xml = XML.loadFile(file)
-    println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
     val text = normalizeText((xml \\ "text").head.text)
-    println("id: " + file.getName)
-    println("text: " + text)
     val questions = (xml \\ "question").map { q =>
-      println("----------")
       val qid = (q \ "qid").text.trim
       val question = (q \ "q").text.replace("\n", "").trim
       val a0 = (q \ "a0").text.replace("\n", "").trim
@@ -28,27 +23,10 @@ class ProcessBankFileReader(file: File, annotate: Boolean, annotationUtils: Anno
       val a0TA = if (annotate) Some(annotationUtils.pipelineService.createBasicTextAnnotation("", "", a0)) else None
       val a1TA = if (annotate) Some(annotationUtils.pipelineService.createBasicTextAnnotation("", "", a1)) else None
       val answers = Seq(Answer(a0, -1, a0TA), Answer(a1, -1, a1TA))
-      val questionAnnotation = if (annotate) {
-        val ta = annotationUtils.annotate(question)
-        CandidateGeneration.questionTypeClassification.addView(ta)
-        //assert(ta.getAvailableViews.contains(ViewNames.QUANTITIES))
-        assert(ta.getAvailableViews.contains(ViewNames.LEMMA))
-        assert(ta.getAvailableViews.contains(CandidateGeneration.questionTypeClassification.finalViewName))
-        Some(ta)
-      } else {
-        None
-      }
-      println("question: " + question)
-      println("answers: " + answers)
+      val questionAnnotation: Option[TextAnnotation] = None
       Question(question, qid, answers, questionAnnotation, Some(correct))
     }
-    val contextAnnotation = if (annotate) {
-      val ta = annotationUtils.annotate(text)
-      //assert(ta.getAvailableViews.contains(ViewNames.QUANTITIES))
-      Some(ta)
-    } else {
-      None
-    }
+    val contextAnnotation: Option[TextAnnotation] = None
     Paragraph(text, questions, contextAnnotation, "p" + file.getName)
   }
 }
@@ -61,37 +39,18 @@ class ProcessBankReader(annotate: Boolean, annotationUtils: AnnotationUtils) {
     List[File]()
   }
   private val paragraphs = files.filter(_.getName != ".DS_Store").map { f =>
-    // .DS_Store
-    println(f)
     val processQuestions = new ProcessBankFileReader(f, annotate, annotationUtils)
     processQuestions.instances
   }
 
-  Constants.vivekTestParagraphs
-
   val (testInstances, trainingInstances) = paragraphs.partition { p => Constants.vivekTestParagraphs.contains(p.id) }
-
-  //  trainingInstances.foreach { p =>
-  //    p.questions.foreach { q =>
-  //      assert(Constants.vivekTrainQuestions.contains(q.questionText), s"Question ${q} in Par-id: ${p.id}, was supposed to be in Train")
-  //    }
-  //  }
-  //
-  //  testInstances.foreach { p =>
-  //    p.questions.foreach { q =>
-  //      assert(Constants.vivekTestQuestions.contains(q.questionText), s"Question ${q} in Par-id: ${p.id}, was supposed to be in Train")
-  //    }
-  //  }
-
-  //  val trainingInstances = paragraphs.take(150)
-  //  val testInstances = paragraphs.slice(150, 200)
 }
 
 object ProcessBankReader {
   val temporalKeywords = Set(" order", " first", " last", " ordering", " time", " final", "simultaneously")
   val trueAns = Set("true", "True", "Trure")
   val falseAns = Set("false", "False")
-  val trueOrFalse = trueAns ++ falseAns
+  val trueOrFalse: Set[String] = trueAns ++ falseAns
   val causeTriggers = Set(
     "what initiates",
     "what allows ", // example: What allows microtubules to continue to overlap even though they are pushed apart?

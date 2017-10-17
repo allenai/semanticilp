@@ -8,7 +8,6 @@ import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
 import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, PredicateArgumentView, TextAnnotation}
 import github.sahand.{SahandClient, SimilarityNames}
 import org.allenai.ari.controller.questionparser.{FillInTheBlankGenerator, QuestionParse}
-import org.allenai.ari.solvers.squad.CandidateGeneration
 import org.simmetrics.StringMetric
 import org.simmetrics.metrics.StringMetrics
 
@@ -37,6 +36,19 @@ case object VerbSRLandCoref extends ReasoningType
 case object VerbSRLandPrepSRL extends ReasoningType
 case object CauseRule extends ReasoningType
 case object WhatDoesItDoRule extends ReasoningType
+
+trait TextILPModel{}
+object TextILPModel {
+
+  // ensemble of annotators; this achieves good results across the two datasets
+  case object Ensemble extends TextILPModel
+
+  // stacked version; acheives good (and fast) results on science exams
+  case object StackedForScience extends TextILPModel
+
+  // stacked version; acehieves good (and fast) results on process-bank data
+  case object StackedForProcesses extends TextILPModel
+}
 
 object TextILPSolver {
   val pathLSTMViewName = "SRL_VERB_PATH_LSTM"
@@ -82,76 +94,32 @@ object TextILPSolver {
 
   lazy val keywordTokenizer = KeywordTokenizer.Default
 
-  lazy val meteroScorer = {
-    val config = new MeteorConfiguration()
-    config.setParaFileURL(new URL("file:/Users/daniel/ideaProjects/TextILP/src/main/resources/data/paraphrase-en.gz"))
-    config.setWordFileURL(new URL("file:/Users/daniel/ideaProjects/meteor/src/main/resources/function/"))
-    new MeteorScorer(config)
-  }
-
   // fill-in-blank generator
   lazy val fitbGenerator = FillInTheBlankGenerator.mostRecent
 
   def getMaxScore(qCons: Seq[Constituent], pCons: Seq[Constituent]): Double = {
-    val scoreList = qCons.flatMap { qC =>
+    qCons.flatMap { qC =>
       pCons.map { pC =>
-        val score2 = offlineAligner.scoreCellCell(pC.getSurfaceForm, qC.getSurfaceForm)
-        ///println(s"pC: $pC / qC: $qC / score: $score2")
-        score2
+        offlineAligner.scoreCellCell(pC.getSurfaceForm, qC.getSurfaceForm)
       }
-    }
-    //println("maxScore: " + maxScore)
-    //println("-----------------------")
-    scoreList.max
-    //    scoreList.sum / scoreList.length
+    }.max
   }
 
   def getAvgScore(qCons: Seq[Constituent], pCons: Seq[Constituent]): Double = {
     val scoreList = qCons.flatMap { qC =>
       pCons.map { pC =>
-        val score2 = offlineAligner.scoreCellCell(pC.getSurfaceForm, qC.getSurfaceForm)
-        ///println(s"pC: $pC / qC: $qC / score: $score2")
-        score2
+        offlineAligner.scoreCellCell(pC.getSurfaceForm, qC.getSurfaceForm)
       }
     }
-    //println("maxScore: " + maxScore)
-    //println("-----------------------")
     scoreList.sum / scoreList.length
   }
 
   lazy val offlineAligner = new AlignmentFunction("Entailment", 0.2,
     TextILPSolver.keywordTokenizer, useRedisCache = false, useContextInRedisCache = false)
 
-
   lazy val sahandClient = new SahandClient("http://smeagol.cs.illinois.edu:8081/")
 
   val toBeVerbs = Set("am", "is", "are", "was", "were", "being", "been", "be", "were", "be")
-
-  val w = Map(
-    "CauseRule-SRL_VERB_PATH_LSTM" -> -0.0597,
-    "SimpleMatching-SRL_VERB_PATH_LSTM" -> 0.786,
-    "SRLV1ILP-SRL_VERB" -> 0.1429,
-    "SRLV1ILP-SRL_VERB_CURATOR" -> -0.3243,
-    "SRLV1ILP-SRL_VERB_PATH_LSTM" -> -0.3608,
-    "SRLV1Rule-SRL_VERB" -> -0.3526,
-    "SRLV1Rule-SRL_VERB_CURATOR" -> -0.0705,
-    "SRLV1Rule-SRL_VERB_PATH_LSTM" -> 0.4313,
-    "SRLV2Rule-SRL_VERB" -> 0.3081,
-    "SRLV3Rule-SRL_VERB" -> 0.1799,
-    "SRLV3Rule-SRL_VERB_CURATOR" -> 0.0844,
-    "SRLV3Rule-SRL_VERB_PATH_LSTM" -> 0.2259,
-    "VerbSRLandCommaSRL-SRL_VERB" -> 0.401,
-    "VerbSRLandCommaSRL-SRL_VERB_CURATOR" -> 0.2555,
-    "VerbSRLandCommaSRL-SRL_VERB_PATH_LSTM" -> 0.1549,
-    "VerbSRLandCoref-SRL_VERB" -> -0.5351,
-    "VerbSRLandCoref-SRL_VERB_CURATOR" -> -0.124,
-    "VerbSRLandCoref-SRL_VERB_PATH_LSTM" -> 0.3771,
-    "VerbSRLandPrepSRL-SRL_VERB" -> -0.0538,
-    "VerbSRLandPrepSRL-SRL_VERB_CURATOR" -> 0.1708,
-    "VerbSRLandPrepSRL-SRL_VERB_PATH_LSTM" -> -0.0414,
-    "WhatDoesItDoRule-SRL_VERB_PATH_LSTM" -> 0.1258,
-    "Intercept" -> -0.371
-  )
 
   import weka.core.SerializationHelper
 
@@ -243,7 +211,6 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     else {
       SRLSolverV1(q, p, TextILPSolver.pathLSTMViewName)
     }
-    //SRLSolverV1(q, p, TextILPSolver.pathLSTMViewName)
   }
 
   def SRLSolverV2WithAllViews(q: Question, p: Paragraph): (Seq[Int], EntityRelationResult) = {
@@ -298,15 +265,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     lazy val resultSRLV3_curator = SRLSolverV3(q, p, aligner, TextILPSolver.curatorSRLViewName) -> "resultSRLV3_curator"
     lazy val resultSRLV3_pipeline = SRLSolverV3(q, p, aligner, ViewNames.SRL_VERB) -> "resultSRLV3_pipeline"
 
-//    lazy val resultSRLV2 = SRLSolverV2WithAllViews(q, p) -> "resultSRLV2"
-//    lazy val resultSRLV3 = SRLSolverV3WithAllViews(q, p, aligner) -> "resultSRLV3"
-    lazy val resultMeteor = MeteorSolver(q, p, aligner) -> "resultMeteor"
     lazy val resultWhatDoesItdo = WhatDoesItDoSolver(q, p) -> "resultWhatDoesItdo"
-    // SimilarityMetricSolver(q, p)
     lazy val resultCause = CauseResultRules(q, p) -> "resultCause"
-    //lazy val pSummary = SolverUtils.ParagraphSummarization.getSubparagraph(p, q)
-    //    val ilpSolver = new IllinoisInference(new OJalgoHook)
-    //    val ilpSolver = new IllinoisInference(new GurobiHook)
     lazy val resultVerbSRLPlusCommaSRL_pipelneSRL = {
       val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
       solveTopAnswer(q, p, ilpSolver, aligner, Set(VerbSRLandCommaSRL), useSummary = true, ViewNames.SRL_VERB)
@@ -360,11 +320,6 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       solveTopAnswer(q, p, ilpSolver, aligner, Set(SRLV1ILP), useSummary = false, TextILPSolver.pathLSTMViewName)
     } -> "srlV1ILP_path_lstm"
 
-    lazy val everything_jointly = {
-      val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
-      solveTopAnswer(q, p, ilpSolver, aligner, Set(SimpleMatching, SRLV1ILP/*, VerbSRLandCommaSRL,
-        VerbSRLandCoref, VerbSRLandPrepSRL*/), useSummary = false, TextILPSolver.pathLSTMViewName)
-    } -> "srlV1ILP_path_lstm"
 
     /*resultCause #:: resultWhatDoesItdo #:: resultVerbSRLPlusCoref_curatorSRL #:: resultVerbSRLPlusCoref_pathLSTM #::
         resultSRLV1_pipeline #:: resultVerbSRLPlusCoref_pipelineSRL #:: resultVerbSRLPlusPrepSRL_pipeline_srl #::
@@ -450,7 +405,6 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
 
   def solveWithReasoningType(question: String, options: Seq[String], snippet: String, reasoningType: ReasoningType, srlViewName: String = TextILPSolver.pathLSTMViewName): (Seq[Int], EntityRelationResult) = {
     val (q: Question, p: Paragraph) = preprocessQuestionData(question, options, snippet)
-
     reasoningType match {
       case SRLV1Rule => SRLSolverV1(q, p, srlViewName)
       case SRLV2Rule => SRLSolverV2(q, p, srlViewName)
@@ -461,42 +415,6 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
         val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
         solveTopAnswer(q, p, ilpSolver, aligner, Set(x), useSummary = true, srlViewName)
     }
-  }
-
-  def solveWithLinearCombination(question: String, options: Seq[String], snippet: String): (Seq[Int], EntityRelationResult) = {
-    val (q: Question, p: Paragraph) = preprocessQuestionData(question, options, snippet)
-    val types = Seq(SimpleMatching, WhatDoesItDoRule, CauseRule, SRLV1Rule, VerbSRLandPrepSRL, SRLV1ILP, VerbSRLandCoref,
-      SRLV2Rule, SRLV3Rule, VerbSRLandCommaSRL)
-    val srlViewsAll = Seq(ViewNames.SRL_VERB, TextILPSolver.curatorSRLViewName, TextILPSolver.pathLSTMViewName)
-    val scoreVectors = types.flatMap { t =>
-      val start = System.currentTimeMillis()
-      SolverUtils.printMemoryDetails()
-      val srlViewTypes = if (t == CauseRule || t == WhatDoesItDoRule || t == SimpleMatching) Seq(TextILPSolver.pathLSTMViewName) else srlViewsAll
-      srlViewTypes.map { srlViewName =>
-        val weight = TextILPSolver.w.getOrElse(s"$t-$srlViewName", 0.0)
-        val (selected, _) = t match {
-          case SRLV1Rule => SRLSolverV1(q, p, srlViewName)
-          case SRLV2Rule => SRLSolverV2(q, p, srlViewName)
-          case SRLV3Rule => SRLSolverV3(q, p, aligner, srlViewName)
-          case WhatDoesItDoRule => WhatDoesItDoSolver(q, p)
-          case CauseRule => CauseResultRules(q, p)
-          case x =>
-            val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
-            solveTopAnswer(q, p, ilpSolver, aligner, Set(x), useSummary = true, srlViewName)
-        }
-        options.indices.map{idx =>
-          if(selected.contains(idx)) {
-            weight / selected.length
-          }
-          else {
-            0.0
-          }
-        }
-      }
-    }
-    val scorePerIdx = scoreVectors.reduceRight[Seq[Double]]{case (a, b) => a.zip(b).map{ case (x, y) => x + y } }
-    val selected = scorePerIdx.zipWithIndex.maxBy(_._1)._2
-    (Seq(selected), EntityRelationResult())
   }
 
   def solveWithHighestScore(question: String, options: Seq[String], snippet: String): (Seq[Int], EntityRelationResult) = {
@@ -537,17 +455,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     println("pre-processsing . . .  ")
     val answers = options.map { o =>
       val ansTA = try {
-        if (useRemoteAnnotation) {
-          //          annotationUtils.annotateViewLwithRemoteServer(ViewNames.SHALLOW_PARSE, ansTA)
-          //          annotationUtils.annotateViewLwithRemoteServer(ViewNames.DEPENDENCY_STANFORD, ansTA)
           val ta = annotationUtils.pipelineServerClient.annotate(o)
           Some(ta)
-        } else {
-          val ta = annotationUtils.pipelineService.createBasicTextAnnotation("", "", o)
-          annotationUtils.pipelineService.addView(ta, ViewNames.SHALLOW_PARSE)
-          annotationUtils.pipelineService.addView(ta, ViewNames.DEPENDENCY_STANFORD)
-          Some(ta)
-        }
       } catch {
         case e: Exception =>
           e.printStackTrace()
@@ -558,24 +467,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     println("Annotating question: ")
 
     val qTA = if (question.trim.nonEmpty) {
-      if (useRemoteAnnotation) {
-        //annotationUtils.annotateViewLwithRemoteServer(ViewNames.SHALLOW_PARSE, qTA)
-        //        annotationUtils.annotateViewLwithRemoteServer(qTA)
-//        val clientTa = annotationUtils.pipelineServerClient.annotate(question)
-//        println(" --> external: ")
-//        annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
-//        println(" --> curator: ")
-//        annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
-//        clientTa.addView(annotationUtils.fillInBlankAnnotator)
-//        Some(clientTa)
-        val out = annotationUtils.annotateWithEverythng(question, withFillInBlank = true)
-//        println("out.getAvailableViews.asScala: " + out.getAvailableViews.asScala)
-        Some(out)
-      } else {
-        val ta = annotationUtils.pipelineService.createBasicTextAnnotation("", "", question)
-        annotationUtils.pipelineService.addView(ta, ViewNames.SHALLOW_PARSE)
-        Some(ta)
-      }
+      Some(annotationUtils.annotateWithEverythng(question, withFillInBlank = true))
     }
     else {
       println("Question string is empty . . . ")
@@ -583,30 +475,10 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       println("snippet: " + snippet)
       None
     }
-//    println("qTA.get: " + qTA.get.getAvailableViews.asScala)
     val q = Question(question, "", answers, qTA)
-    //println("Annotating paragraph: " + snippet)
-
     val pTA = if (snippet.trim.nonEmpty) {
       try {
-        if (useRemoteAnnotation) {
-          //          annotationUtils.annotateViewLwithRemoteServer(ViewNames.SHALLOW_PARSE, pTA)
-          //          annotationUtils.annotateViewLwithRemoteServer(ViewNames.DEPENDENCY_STANFORD, pTA)
-          //annotationUtils.annotateViewLwithRemoteServer(pTA)
-//          val clientTa = annotationUtils.pipelineServerClient.annotate(snippet)
-//          println(" --> external: ")
-//          annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
-//          println(" --> curator: ")
-//          annotationUtils.annotateWithCuratorAndSaveUnderName(clientTa.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, clientTa)
-//          Some(clientTa)
-          Some(annotationUtils.annotateWithEverythng(snippet, withFillInBlank = false))
-        } else {
-          val ta = annotationUtils.pipelineService.createBasicTextAnnotation("", "", snippet)
-          // AnnotationUtils.annotate(snippet, withQuantifier = false)
-          annotationUtils.pipelineService.addView(ta, ViewNames.SHALLOW_PARSE)
-          annotationUtils.pipelineService.addView(ta, ViewNames.DEPENDENCY_STANFORD)
-          Some(ta)
-        }
+        Some(annotationUtils.annotateWithEverythng(snippet, withFillInBlank = false))
       }
       catch {
         case e: Exception =>
@@ -621,8 +493,6 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       None
     }
     val p = Paragraph(snippet, Seq(q), pTA)
-//    println("p.context: " + p.context)
-//    println("pTA.get.text: " + pTA.get.text)
     (q, p)
   }
 
@@ -716,17 +586,6 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
         else {
           Seq.empty
         }
-      // Daniel: Commented our because it didn't seem to help
-      /*else {
-          // if not hard constraint, do soft weighting
-          indexScorePairs.foreach { case (idx, score) =>
-            require(score * params.exactMatchSoftWeight >= 0, "exactMatchSoftWeighting should be positive")
-            val x = ilpSolver.createBinaryVar("exactMatchSoftWeightingAns" + idx, score * params.exactMatchSoftWeight)
-            // if answer option is zero, x should be zero; note that the soft weight is positive
-            ilpSolver.addConsBasicLinear(s"directAnswerSoftWeight-$idx",
-              Seq(x, activeAnswerOptions(idx)._2), Seq(1.0, -1.0), None, Some(0.0))
-          }
-        }*/
       case None => Seq.empty
     }
     selected -> EntityRelationResult()
@@ -767,48 +626,6 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     answered -> EntityRelationResult(log = "solved by CauseResultRules", statistics = Stats(selected = true))
   }
 
-  def MeteorSolver(q: Question, p: Paragraph, alignmentFunction: AlignmentFunction): (Seq[Int], EntityRelationResult) = {
-    def compareSimilairityInWndowBySentence(p: Paragraph, questionString: String): Double = {
-      val paragraphTokensPerSentence = p.contextTAOpt.get.getTokens.zipWithIndex.map { case (tok, tokId) =>
-        val sentId = p.contextTAOpt.get.getSentenceId(tokId)
-        (tok, sentId)
-      }.groupBy(_._2)
-      //println("paragraphTokensPerSentence: ")
-      //println(paragraphTokensPerSentence)
-      paragraphTokensPerSentence.map { case (sentId, toks) =>
-        val paragraphWindow = toks.map(_._1).mkString(" ")
-        val stats = TextILPSolver.meteroScorer.getMeteorStats(paragraphWindow, questionString)
-        stats.score
-      }.max
-    }
-
-    // exact match with Meteor
-    val qparse = QuestionParse.constructFromString(q.questionText)
-    // TODO: do it only once per question
-    val fitbQuestionStrOpt = TextILPSolver.fitbGenerator.generateFITB(qparse).map(_.text)
-    val selectedAnswers = fitbQuestionStrOpt match {
-      case Some(x) =>
-        val indexScorePairs = q.answers.indices.map { idx =>
-          val str = x.replace("BLANK_", q.answers(idx).answerText).dropRight(1).toLowerCase
-          idx -> compareSimilairityInWndowBySentence(p, str)
-        }
-        val sortedScores = indexScorePairs.sortBy(-_._2).take(2)
-        val maxS = sortedScores(0)._2
-        val secondMaxS = sortedScores(1)._2
-        val maxIdx = sortedScores(0)._1
-        if (maxS >= params.meteorExactMatchMinScoreValue && maxS - secondMaxS >= params.meteorExactMatchMinScoreDiff) {
-          // maxIdx should be the answer
-          Seq(maxIdx)
-        }
-        else {
-          Seq.empty
-        }
-      case None => Seq.empty
-    }
-
-    selectedAnswers.distinct -> EntityRelationResult()
-  }
-
   /**
     * select a frame from the paragraph such that:
     *    Its A1/A0 argument has enough similarity with one of the terms in the questions
@@ -819,13 +636,9 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       val qCons = q.qTAOpt.get.getView(ViewNames.SHALLOW_PARSE).getConstituents.asScala.map(_.getSurfaceForm)
       val pSRLView = p.contextTAOpt.get.getView(srlViewName)
       val pSRLCons = pSRLView.getConstituents.asScala
-      //      println("pSRLCons: " + pSRLCons.mkString("\n"))
-      //      println("--------")
       val consGroupepd = pSRLCons.filter(c => c.getLabel != "Predicate" /*&& (c.getLabel == "A0" || c.getLabel == "A1")*/).flatMap { c =>
         c.getIncomingRelations.asScala.map(r => (c.getSurfaceForm, getPredicateFullLabel(r.getSource)))
       }.groupBy(_._2)
-
-      //      println("consGroupepd: " + consGroupepd.mkString("\n"))
 
       val bothAnswersCovered = q.answers.zipWithIndex.forall { case (ans, idx) =>
         pSRLCons.exists { c => alignmentFunction.scoreCellQChoice(ans.answerText, c.getSurfaceForm) > 0.25 }
@@ -833,26 +646,14 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
 
       val framesThatAlignWithQuestion = consGroupepd.filter { case (pred, list) =>
         val cons = list.unzip._1
-        //        println("---------------")
-        //        println("Predicate: " + pred)
-        //        println("Cons: " + cons)
         qCons.zip(cons).foreach { case (qC, pC) =>
-          //          println(s"\t\t\talignmentFunction.scoreCellQCons(${qC}, $pC): " + alignmentFunction.scoreCellQCons(qC, pC))
         }
         qCons.zip(cons).exists { case (qC, pC) => alignmentFunction.scoreCellQCons(qC, pC) > 0.15 }
       }
 
       val scorePerAns = q.answers.zipWithIndex.map { case (ans, idx) =>
-        //        println("========================================")
-        //        println("Answer option: " + ans)
         (framesThatAlignWithQuestion.flatMap { case (pred, list) =>
           val cons = list.unzip._1
-          //          println("---------------")
-          //          println("Predicate: " + pred)
-          //          println("Cons: " + cons)
-          cons.foreach{c =>
-            //            println(s"\t\t\talignmentFunction.scoreCellQChoice(${ans.answerText}, $c): " + alignmentFunction.scoreCellQChoice(ans.answerText, c))
-          }
           cons.map(c => alignmentFunction.scoreCellQChoice(ans.answerText, c))
         } ++ Seq(-1.0)).max
       }
@@ -863,31 +664,24 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       Seq.empty
     }
 
-    //    println("Selected: " + uniqueSelected)
     uniqueSelected -> EntityRelationResult(log = s"Solved by SRLV3 / View: $srlViewName  / selected: $uniqueSelected", statistics = Stats(selected = true))
   }
 
   def SRLSolverV2(q: Question, p: Paragraph, srlViewName: String): (Seq[Int], EntityRelationResult) = {
-    //    println("q: " + q.questionText)
     assert (q.qTAOpt.get.hasView(annotationUtils.fillInBlankAnnotator.getViewName),
       "q.questionText: " + q.questionText +  " / the current view: " + q.qTAOpt.get.getAvailableViews.asScala)
     val fillInBlank = q.qTAOpt.get.getView(annotationUtils.fillInBlankAnnotator.getViewName).getConstituents.get(0).getLabel
-    //    println("fillInBlank: " + fillInBlank)
     val fillInBlankTA = if (fillInBlank == "") {
       q.qTAOpt.get
     } else {
-      //      println("fillInBlank: " + fillInBlank)
       annotationUtils.pipelineServerClient.annotate(fillInBlank)
     }
     val results = q.answers.map { ans =>
-      //      println("/////////////////////////")
       require(ans.aTAOpt.get.hasView(ViewNames.SHALLOW_PARSE), s"Answer TA does not contain shallow parse view. fillInBlank: $fillInBlank - Views are: ${ans.aTAOpt.get.getAvailableViews}")
       require(fillInBlankTA.hasView(ViewNames.SHALLOW_PARSE), s"fillInBlankTA does not contain shallow parse view. Views are: ${fillInBlankTA.getAvailableViews}")
       val questionAndAnsOption = annotationUtils.blankQuestionAnswerOptionNormalizer(ans.aTAOpt.get, fillInBlankTA, annotationUtils)
-      //      println("questionAndAnsOption: " + questionAndAnsOption)
       val questionAndAnsOptionTA = annotationUtils.pipelineServerClient.annotate(questionAndAnsOption)
       if (questionAndAnsOptionTA.hasView(srlViewName) && p.contextTAOpt.get.hasView(srlViewName)) {
-        //        println("--------------")
         if (matchPredicatesAndArguments(questionAndAnsOptionTA, p.contextTAOpt.get, ans, keytermsWithWHOverlap = false,
           doOverlapWithQuestion = true, fillInBlank, srlViewName)) 1.0 else 0.0
       }
@@ -895,13 +689,11 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
         0.0
       }
     }
-    //    println("============")
     if (verbose) println("results: " + results)
     val selectedAnswers = if (results.sum == 1) {
       // i.e. only one of the answer options has overlap
       results.zipWithIndex.flatMap { case (v, idx) =>
         if (v == 1) {
-          //          println(s"SRL alignment: Choosing $idx as an answer. ")
           Seq(idx)
         }
         else {
@@ -917,12 +709,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
   }
 
   def SRLSolverV1(q: Question, p: Paragraph, srlViewName: String): (Seq[Int], EntityRelationResult) = {
-    //    println("p view names: " + p.contextTAOpt.get.getAvailableViews)
-    //    println("q view names: " + q.qTAOpt.get.getAvailableViews)
     val selectedAnswers = if (q.qTAOpt.get.hasView(srlViewName) && p.contextTAOpt.get.hasView(srlViewName)) {
       val results = q.answers.map { ans =>
-        //        println("----------------")
-        //        println("Ans: " + ans)
         if (matchPredicatesAndArguments(q.qTAOpt.get, p.contextTAOpt.get, ans, keytermsWithWHOverlap = true,
           doOverlapWithQuestion = false, q.questionText, srlViewName)) 1.0 else 0.0
       }
@@ -931,7 +719,6 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
         // i.e. only one of the answer options has overlap
         results.zipWithIndex.flatMap { case (v, idx) =>
           if (v == 1) {
-            //println(s"SRL alignment: Setting the answer $idx to be active")
             Seq(idx)
           }
           else {
@@ -968,91 +755,51 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     val qSRLView = qTA.getView(srlViewName)
     val pSRLView = pTA.getView(srlViewName)
     val qSRLCons = qSRLView.getConstituents.asScala
-    ///println("srlViewName: " + srlViewName)
-    //qSRLCons.foreach{ t =>
-    //  println(" --> t: " + t + "\t t.getIncomingRelations.size(): " + t.getIncomingRelations.size())
-    //}
     val pSRLCons = pSRLView.getConstituents.asScala
 
     val keytermCons = if(keytermsWithWHOverlap) {
       // does question-srl contain any question term?
-      qSRLCons.filter(c => CandidateGeneration.questionTerms.contains(c.getSurfaceForm.toLowerCase) && c.getIncomingRelations.size() > 0)
+      qSRLCons.filter(c => SolverUtils.questionTerms.contains(c.getSurfaceForm.toLowerCase) && c.getIncomingRelations.size() > 0)
     }
     else {
       // align with answer words
       if(qTA.text.contains(ans.answerText.trim)) {
         val idxBegin = qTA.text.indexOf(ans.answerText)
         val idxEnd = idxBegin + ans.answerText.length - 1
-        //        println("idxBegin: " + idxBegin)
-        //        println("idxEnd: " + idxEnd)
         val out = qSRLCons.filter{ c =>
           (c.getEndCharOffset <= idxEnd && c.getEndCharOffset >= idxBegin) ||
             (c.getStartCharOffset <= idxEnd && c.getStartCharOffset >= idxBegin) ||
             (c.getEndCharOffset >= idxEnd && c.getStartCharOffset <= idxBegin)
         }.filter(c => c.getLabel != "Predicate" && (c.getLabel == "A1" || c.getLabel == "A1") && c.getIncomingRelations.size() > 0)
-        //       .filter{ c => // its predicate should not be included in the answer itself
-        //            !ans.answerText.toLowerCase.contains(c.getIncomingRelations.get(0).getSource.getSurfaceForm.toLowerCase)
-        //          }
         if(out.isEmpty) {
           // println("qSRLCons: " + qSRLCons)
         }
         out
       }
       else {
-        // println(" >>>>>>>> Does not contain it. ")
-        // println("qTA.text: " + qTA.text)
-        // println("ans.answerText.trim: " + ans.answerText.trim)
         Seq.empty
       }
     }
 
     val questionWithoutKeyTermsTokens = originalQuestion.split(" ").toSet.diff(SolverUtils.stopwords)
 
-    //    println("questionWithoutKeyTermsTokens: " + questionWithoutKeyTermsTokens)
-
-    if (verbose) {
-      println(">>>>>> q: " + qTA)
-      println(">>>>>> ans.answerText: " + ans.answerText)
-      println(">>>>>> keytermCons: " + keytermCons)
-    }
     keytermCons.exists{ cons =>
-      if (verbose) println("question: " + qTA.text)
       val qArgLabel = cons.getLabel
-      if (verbose) println(">>>>>>> qArgLabel: " + qArgLabel)
-      //println("cons: " + cons + " // view -> " + cons.getView.getViewName + "    //  span: " + cons.getSpan)
-      //println(cons.getTextAnnotation.text)
       val qSource = cons.getIncomingRelations.get(0).getSource
-      //      println("qSource: " + qSource)
-      if (verbose) println(">>>>>>>> " + qSource)
 
       val qSourceLabel = getPredicateFullLabel(qSource)
-      if (verbose) println(">>>>>>>> " + qSourceLabel)
       val pParagraph = pSRLCons.filter(c => getPredicateFullLabel(c) == qSourceLabel)
-      //      println("pParagraph: " + pParagraph)
       val pArgCons = pParagraph.flatMap { pred =>
-        //        println("\t\tpred:  " + pred)
         val overlapWithQuestion = questionWithoutKeyTermsTokens.intersect(getTokensInFrame(pred).toSet)
-        //        println("\t\t\tgetTokensInFrame(pred): " + getTokensInFrame(pred))
-        //        println("\t\t\toverlapWithQuestion: " + overlapWithQuestion)
-        //        println("\t\t\tdoOverlapWithQuestion: " + doOverlapWithQuestion)
         val answerOptionContainsThePredicate = ans.answerText.contains(qSource.getSurfaceForm.trim)
-        //        println("answerOptionContainsThePredicate: " + answerOptionContainsThePredicate)
-        //        println("qSource.getSurfaceForm: " + qSource.getSurfaceForm)
-        //        println("ans.answerText: " + ans.answerText)
         val containsOneOfQuestionTerms = if(answerOptionContainsThePredicate) overlapWithQuestion.nonEmpty else true
-        //        if(containsOneOfQuestionTerms) {
-        //          println("overlapWithQuestion: " + overlapWithQuestion)
-        //        }
-        //        println("containsOneOfQuestionTerms: " + containsOneOfQuestionTerms)
         if(containsOneOfQuestionTerms) {
-          //          println("pred.getOutgoingRelations.asScala.map(_.getTarget): " + pred.getOutgoingRelations.asScala.map(c => (c.getTarget.getSurfaceForm, c.getTarget.getLabel)))
           pred.getOutgoingRelations.asScala.map(_.getTarget).filter(_.getLabel == qArgLabel)
         }
         else {
           Seq.empty
         }
       }
-      if (verbose) println("pArgCons: " + pArgCons)
 
       // check if any of the any of t he selected constituents overlap with one of the answers
       def getClosestIndex(qCons: Seq[Constituent], pCons: Seq[Constituent]): Int = {
@@ -1072,8 +819,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
 
   def getPredicateFullLabel(pred: Constituent): String = pred.getLabel + pred.getAttribute("SenseNumber") + pred.getAttribute("predicate")
 
-
-    def createILPModel[V <: IlpVar](
+  def createILPModel[V <: IlpVar](
     q: Question,
     p: Paragraph,
     ilpSolver: IlpSolver[V, _],
@@ -1082,13 +828,6 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     useSummary: Boolean,
     srlViewName: String
   ): (mutable.Buffer[(Constituent, Constituent, V)], mutable.Buffer[(Constituent, Int, Int, V)], mutable.Buffer[(Constituent, Constituent, V)], Seq[(Int, V)], Boolean, Seq[Seq[String]]) = {
-    //val p = if(reasoningTypes.contains(SimpleMatching)) SolverUtils.ParagraphSummarization.getSubparagraph(p1, q, Some(annotationUtils)) else p1
-    //val p = SolverUtils.ParagraphSummarization.getSubparagraph(p1, q, Some(annotationUtils))
-
-    //val p = p1 //if(useSummary) SolverUtils.ParagraphSummarization.getSubparagraph(p1, q, Some(annotationUtils)) else p1
-
-    //val p = SolverUtils.ParagraphSummarization.getSubparagraph(p1, q, Some(annotationUtils))
-
     if (verbose) println("starting to create the model  . . . ")
     val isTrueFalseQuestion = q.isTrueFalse
 
@@ -2021,7 +1760,6 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     }
 
     if(reasoningTypes.contains(VerbSRLandCommaSRL)) {
-
       val commaSRLPredicateabels = Set("Attribute", "Complementary", "Interrupter", "Introductory", "List", "Quotation", "Substitute", "Locative")
 
       val qVerbConstituents = if (qTA.hasView(srlViewName)) qTA.getView(srlViewName).getConstituents.asScala else Seq.empty
@@ -3048,31 +2786,6 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       paragraphAnswerAlignments.filter { case (_, ansTmp, _, _) => ansTmp == ansIdx }.map(_._4)
     }
 
-    if (verbose) {
-      activeAnswerOptions.foreach {
-        case (ansIdx, x) =>
-          println("============================ \nAnsIdx: " + ansIdx)
-          val connectedVariables = getVariablesConnectedToOption(ansIdx).toList
-          println(s" ## Variables connect to ansIndex ")
-          println(connectedVariables.map { x => ilpSolver.getSolVal(x).toString }.toSet)
-      }
-    }
-
-    //    // extracting the solution
-    //    val questionAlignments = qTokens.map { c => c -> TermAlignment(c.getSurfaceForm) }.toMap
-    //    val choiceAlignments = q.answers.map { c => c -> TermAlignment(c.answerText) }.toMap
-    //    val paragraphAlignments = pTokens.map { c => c -> TermAlignment(c.getSurfaceForm) }.toMap
-
-    //    var iter = 0
-    //    questionParagraphAlignments.foreach {
-    //      case (c1, c2, x) =>
-    //        if (ilpSolver.getSolVal(x) > 1.0 - epsilon) {
-    //          questionAlignments(c1).alignmentIds.+=(iter)
-    //          paragraphAlignments(c2).alignmentIds.+=(iter)
-    //          iter = iter + 1
-    //        }
-    //    }
-
     def stringifyVariableSequence(seq: Seq[(Int, V)]): String = {
       seq.map { case (id, x) => "id: " + id + " : " + ilpSolver.getSolVal(x) }.mkString(" / ")
     }
@@ -3242,12 +2955,6 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
 
       if (verbose) println("returning the answer  . . . ")
 
-      //    val alignmentResult = AlignmentResults(
-      //      questionAlignments.values.toList,
-      //      choiceAlignments.values.toList,
-      //      paragraphAlignments.values.toList
-      //    )
-
       val solvedAnswerLog = "activeAnswerOptions: " + stringifyVariableSequence(activeAnswerOptions) +
         //"  activeQuestionConstituents: " + stringifyVariableSequence3(activeQuestionConstituents) +
         "  questionParagraphAlignments: " + stringifyVariableSequence2(questionParagraphAlignments) +
@@ -3282,7 +2989,6 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     val (q: Question, p: Paragraph) = preprocessQuestionData(question, options, snippet)
     val annotationEnd = System.currentTimeMillis()
 
-//    println("view names in the questions: right before reasoning : " + q.qTAOpt.get.getAvailableViews.asScala)
     reasoningType match {
       case SRLV1Rule => Seq(SRLSolverV1(q, p, srlVu))
       case SRLV2Rule => Seq(SRLSolverV2(q, p, srlVu))
@@ -3290,7 +2996,6 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       case WhatDoesItDoRule => Seq(WhatDoesItDoSolver(q, p))
       case CauseRule => Seq(CauseResultRules(q, p))
       case x =>
-//        println("annnotation time: " + (annotationEnd - annotationStart)/1000.0)
         val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
 
         val modelCreationStart = System.currentTimeMillis()
@@ -3332,7 +3037,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
           }
 
           val newSolution = if (ilpSolver.getStatus == IlpStatusOptimal) {
-            /*if (verbose) */println("Primal score: " + ilpSolver.getPrimalbound)
+            println("Primal score: " + ilpSolver.getPrimalbound)
             val trueIdx = q.trueIndex
             val falseIdx = q.falseIndex
             val selectedIndex = getSelectedIndices(ilpSolver, activeAnswerOptions, isTrueFalseQuestion, trueIdx, falseIdx)
@@ -3340,7 +3045,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
             selectedIndex -> EntityRelationResult(snippet, List.empty, List.empty,
               statistics = statistics.copy(selected = if(toExclude.isEmpty) true else false))
           } else {
-            /*if (verbose) */println("Not optimal . . . ")
+            println("Not optimal . . . ")
             if (verbose) println("Status is not optimal. Status: " + ilpSolver.getStatus)
             // if the program is not solver, say IDK
             Seq.empty -> EntityRelationResult("INFEASIBLE", List.empty, List.empty, statistics = statistics)
@@ -3356,9 +3061,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
           } else {
             solutionsSoFar :+ newSolution
           }
-
         }
-
         solveExcludingAnswerOptions(Set.empty, Seq.empty)
     }
   }
@@ -3383,8 +3086,6 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       val ins = new DenseInstance(featureVector.length)
       ins.replaceMissingValues(featureVector.toArray)
       dataUnlabeled.add(ins)
-//      println("TextILPSolver.wekaClassifier.classifyInstance(dataUnlabeled.instance(i)): " + TextILPSolver.wekaClassifier.classifyInstance(dataUnlabeled.instance(i)))
-      println("TextILPSolver.wekaClassifier.distributionForInstance(dataUnlabeled.instance(i))(0): " + TextILPSolver.wekaClassifier.distributionForInstance(dataUnlabeled.instance(i)).toSeq)
       TextILPSolver.wekaClassifier.distributionForInstance(dataUnlabeled.instance(i))(0)
     }
     confidenceValuesPerAnsOption.zipWithIndex.maxBy(_._1)._2
@@ -3427,7 +3128,6 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
           }
         }
       }
-      //featureVector :+ (if (idx == correctIdx) 1.0 else 0.0)
     }
   }
 }

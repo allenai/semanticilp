@@ -1,12 +1,12 @@
 package org.allenai.ari.solvers.textilp.utils
 
 import java.io.File
-import java.net.{InetSocketAddress, URLDecoder, URLEncoder}
+import java.net.{ InetSocketAddress, URLDecoder, URLEncoder }
 import java.util
 
 import edu.illinois.cs.cogcomp.McTest.MCTestBaseline
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
-import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{Constituent, TextAnnotation}
+import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{ Constituent, TextAnnotation }
 import org.allenai.ari.solvers.textilp.alignment.KeywordTokenizer
 import org.allenai.ari.solvers.textilp.solvers.TextIlpParams
 import org.allenai.ari.solvers.textilp._
@@ -25,10 +25,12 @@ import redis.clients.jedis.Protocol
 import scala.collection.JavaConverters._
 import spray.json.DefaultJsonProtocol._
 
-import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.concurrent.{ Await, ExecutionContext, Future }
 import scala.io.Source
 
 object SolverUtils {
+
+  val questionTerms = Set("which", "what", "where", "who", "whom", "how", "when", "why")
 
   val smartStopwordList = {
     val lines = Source.fromFile(new File("other/smart_stopwords_2-v1.txt")).getLines().toList.map(_.trim)
@@ -108,7 +110,6 @@ object SolverUtils {
   def evaluateASingleQuestion(q: String, solver: String): Seq[(String, Double)] = {
     val charset = "UTF-8"
     val query = Constants.queryLink + URLEncoder.encode(q, charset) + "&solvers=" + solver
-    //    println("query: " + query)
     val html = Source.fromURL(query)
     val jsonString = html.mkString
     val json = Json.parse(jsonString)
@@ -173,7 +174,6 @@ object SolverUtils {
         val strNoDot = if (strTrimmed.tail == ".") strTrimmed.dropRight(1) else strTrimmed
         val noLonePercentage = strNoDot.replaceAll(" % ", "")
         val noPercentageInTheBegining = if (noLonePercentage.slice(0, 2) == "% ") noLonePercentage.drop(2) else noLonePercentage
-        //println("noPercentageInTheBegining: " + noPercentageInTheBegining)
         val noURlChars = try {
           URLDecoder.decode(noPercentageInTheBegining, charset)
         } catch {
@@ -217,37 +217,8 @@ object SolverUtils {
     selectedOutput.map { _._1 }.toSet
   }
 
-  lazy val elasticWebRedisCache = if (Constants.useRedisCachingForElasticSearch) {
-    JsonQueryCache[String]("elastic:", Constants.redisServer, Constants.redisPort, timeoutMillis = Constants.timeout)
-  } else {
-    // use the dummy client, which always returns None for any query (and not using any Redis)
-    DummyRedisClient
-  }
-
   def extractParagraphGivenQuestionAndFocusWord3(question: String, focus: String, searchHitSize: Int): Seq[(String, Double)] = {
-    val cacheKey = "elasticWebParagraph:" + question + "//focus:" + focus + "//topK:" + searchHitSize + "withSmartStopwords"
-    val cacheResult = if (Constants.useRedisCachingForElasticSearch) {
-      elasticWebRedisCache.get(cacheKey)
-    } else {
-      None
-    }
-    if (cacheResult.isEmpty) {
-      val results = extract(question, focus, searchHitSize)
-      val cacheValue = JsArray(results.map { case (key, value) => JsArray(Seq(JsString(key), JsNumber(value))) })
-      if (Constants.useRedisCachingForAnnotation) {
-        elasticWebRedisCache.put(cacheKey, cacheValue.toString())
-      }
-      results
-    } else {
-      val jsonString = cacheResult.get
-      val json = Json.parse(jsonString)
-      json.as[JsArray].value.map { resultTuple =>
-        val tupleValues = resultTuple.as[JsArray]
-        val key = tupleValues.head.as[JsString].value
-        val score = tupleValues(1).as[JsNumber].value
-        key -> score.toDouble
-      }
-    }
+    extract(question, focus, searchHitSize)
   }
 
   def extract(question: String, focus: String, searchHitSize: Int): Seq[(String, Double)] = {
@@ -264,23 +235,11 @@ object SolverUtils {
       .execute()
       .actionGet()
     // Filter hits that don't overlap with both question and focus words.
-    //    println("hitWordsSet: " + questionWords)
-    //    println("focusWords: " + focusWords)
     val hits = response.getHits.getHits.filter { x =>
       val hitWordsSet = keywordTokenizer.stemmedKeywordTokenize(x.sourceAsString).toSet
-      //      println("hitWordsSet: " + hitWordsSet)
       (hitWordsSet.intersect(questionWords.toSet).nonEmpty && hitWordsSet.intersect(focusWords.toSet).nonEmpty)
     }
-    //    println("hits: " + hits.length)
 
-    //    val response = esClient.prepareSearch(Constants.elasticBeingUsed.indexName.keys.toSeq: _*)
-    //      // NOTE: DFS_QUERY_THEN_FETCH guarantees that multi-index queries return accurate scoring
-    //      // results, do not modify
-    //      .setSearchType(SearchType.DFS_QUERY_THEN_FETCH)
-    //      .setQuery(QueryBuilders.matchQuery("text", searchStr))
-    //      .setFrom(0).setSize(searchHitSize).setExplain(true)
-    //      .execute()
-    //      .actionGet()
     // Filter hits that don't overlap with both question and focus words.
     def getLuceneHitFields(hit: SearchHit): Map[String, AnyRef] = {
       hit.sourceAsMap().asScala.toMap
@@ -304,18 +263,16 @@ object SolverUtils {
   lazy val small = loadQuestions("small.tsv")
 
   def convertAi2DatasetIntoStandardFormat(input: Seq[(String, Seq[String], String)], annotationUtils: AnnotationUtils): Seq[Paragraph] = {
-    input.zipWithIndex.map { case ((question, answerOptions, correctAns), idx) =>
-      val knowledgeSnippet = {
-        val rawSentences = SolverUtils.extractPatagraphGivenQuestionAndFocusSet3(question, answerOptions, 8).mkString(". ")
-        annotationUtils.dropRedundantSentences(rawSentences)
-      }.trim.replaceAll("  ", "")
-      val answers = answerOptions.map(a => Answer(a, 0, None))
-//      println("correctAns: " + correctAns)
-//      println("answerOptions: " + answerOptions)
-//      println("answerOptions.zipWithIndex.find(_ == correctAns): " + answerOptions.zipWithIndex.find(_ == correctAns))
-      val correctAnsIdx = correctAns.head - 'A' //answerOptions.zipWithIndex.find(_ == correctAns).get._2
-      val q = Question(question, s"q${idx}", answers, None, Some(correctAnsIdx))
-      Paragraph(knowledgeSnippet, Seq(q), None, s"p${idx}")
+    input.zipWithIndex.map {
+      case ((question, answerOptions, correctAns), idx) =>
+        val knowledgeSnippet = {
+          val rawSentences = SolverUtils.extractPatagraphGivenQuestionAndFocusSet3(question, answerOptions, 8).mkString(". ")
+          annotationUtils.dropRedundantSentences(rawSentences)
+        }.trim.replaceAll("  ", "")
+        val answers = answerOptions.map(a => Answer(a, 0, None))
+        val correctAnsIdx = correctAns.head - 'A'
+        val q = Question(question, s"q${idx}", answers, None, Some(correctAnsIdx))
+        Paragraph(knowledgeSnippet, Seq(q), None, s"p${idx}")
     }.filter(_.context.trim.length > 5)
   }
 
@@ -333,7 +290,6 @@ object SolverUtils {
   }
 
   def assignCredit(predict: Seq[Int], gold: Int, maxOpts: Int): Double = {
-    //println("predict: " + predict + " / gold: " + gold)
     require(!(predict.contains(-1) && predict.length > 1))
     if (predict.contains(-1) || predict.isEmpty) { // no answer; give partial credits
       1 / maxOpts.toDouble
@@ -342,17 +298,6 @@ object SolverUtils {
     } else {
       0.0
     }
-  }
-
-  import sys.process._
-  def assignCreditSquad(predict: String, golds: Seq[String]): (Double, Double, Double) = {
-    // val command = s"python other/evaluateAnswers.py '$predict' ${golds.mkString("'", "' '", "'")} "
-    val command = Seq("python", "other/evaluateAnswers.py", s"'$predict'") ++ golds.map(str => s"'$str'")
-    val output = command.!!
-    val outputSplit = output.split("\t")
-    val exactMatch = outputSplit(0).toDouble
-    val f1 = outputSplit(1).toDouble
-    (exactMatch, f1, 1.0)
   }
 
   val articles = "\\b(a|an|the)\\b".r
@@ -373,19 +318,14 @@ object SolverUtils {
       val qN = normalizeString(g)
       val pNormalized = pN.split("\\s")
       val gNormalized = qN.split("\\s")
-      //      println("pNormalized: " + pNormalized.toSeq)
-      //      println("gNormalized: " + gNormalized.toSeq)
       val pWordFreqMap = pNormalized.groupBy(a => a).map { case (k, v) => k -> v.length }
       val gWordFreqMap = gNormalized.groupBy(a => a).map { case (k, v) => k -> v.length }
       val numSame = pNormalized.toSet.intersect(gNormalized.toSet).toList.map(i => scala.math.min(pWordFreqMap(i), gWordFreqMap(i))).sum
-      //      println("numSame: " + numSame)
       if (numSame == 0) {
         (0.0, 0.0, 0.0)
       } else {
         val Pre = numSame.toDouble / pNormalized.length
         val Rec = numSame.toDouble / gNormalized.length
-        //        println("Pre: " + Pre)
-        //        println("Rec: " + Rec)
         val f1 = 2 * Pre * Rec / (Pre + Rec)
         (f1, Pre, Rec)
       }
@@ -418,18 +358,15 @@ object SolverUtils {
   }
 
   // sentence similarity stuff
-  //        val documentList = trainReader.instances.flatMap{_.paragraphs.map{_.context}}
-  //        val tfIdf = new TfIdf(documentList)
   MCTestBaseline.readStopWords()
   val stopwords = MCTestBaseline.stopWords.asScala.toSet
   assert(stopwords.size > 20)
   def getSimilarity(seq1: Seq[Constituent], seq2: Seq[Constituent], document: String): Double = {
-    //          MCTestBaseline.ScoreAnswers(normalize(seq1).toArray, normalize(seq2).mkString(" "), Array(""), MCTestBaseline.stopWords).head
     val set2Normalized = normalize(seq2)
     val set1Normalized = normalize(seq1)
-    //          normalize(seq1).intersect(set2Normalized).size.toDouble / set1Normalized.size
+    // normalize(seq1).intersect(set2Normalized).size.toDouble / set1Normalized.size
     normalize(seq1).intersect(normalize(seq2)).size
-    //          normalize(seq1).intersect(normalize(seq2)).map(w => tfIdf.score(w, document)).sum
+    // normalize(seq1).intersect(normalize(seq2)).map(w => tfIdf.score(w, document)).sum
   }
 
   def normalize(seq: Seq[Constituent]) = seq.map(_.getLabel.trim).toSet.diff(stopwords)
@@ -437,7 +374,6 @@ object SolverUtils {
   def getSentenceScores(p: Paragraph, q: Question): Seq[(Int, Double)] = {
     val questionLemmaCons = q.qTAOpt.get.getView(ViewNames.LEMMA).getConstituents.asScala.toList
     val lemmaCons = p.contextTAOpt.get.getView(ViewNames.LEMMA).getConstituents.asScala.toList
-    //          println("goldAnswerSenId:  " + goldAnswerSenId)
     lemmaCons.groupBy(_.getSentenceId).map {
       case (id, consList) =>
         // calculate similarity between the constituents and the question
@@ -467,7 +403,6 @@ object SolverUtils {
   def staticCacheLucene(question: String, focus: String, searchHitSize: Int): Seq[(String, Double)] = {
     val stringKey = "elasticWebParagraph:" + question + "-focus:" + focus + "-topK:" + searchHitSize + Constants.elasticBeingUsed.indexName.keySet
     val cacheKey = (util.Arrays.toString(DigestUtils.sha1(stringKey)) + ".txt").replaceAll("\\s", "")
-    //println("CacheKey: " + cacheKey)
     val f = new File(staticCache + cacheKey)
 
     def callLuceneServer: Seq[(String, Double)] = {
@@ -498,7 +433,6 @@ object SolverUtils {
       }
       val b = if (a.isEmpty) {
         println("Because the document is empty, we're calling the server . . . ")
-        //callLuceneServer
         luceneResults
       } else {
         a
@@ -591,22 +525,8 @@ object SolverUtils {
       keyTerms.count(sentence.getSurfaceForm.toLowerCase.contains).toDouble
     }
 
-    /*    def getSubparagraph(paragraphTA: TextAnnotation, questionTA: TextAnnotation, annotationUtilsOpt: Option[AnnotationUtils] = None): Paragraph = {
-      println("-->> creating summary <<--")
-      val subParagraph = getSubparagraphString(paragraphTA, questionTA)
-      val taOpt = annotationUtilsOpt.map { annotationUtils =>
-        val clientTa = annotationUtils.pipelineServerClient.annotate(subParagraph)
-        annotationUtils.pipelineExternalAnnotatorsServerClient.addView(clientTa)
-        clientTa
-      }
-      ///println("summary: " + subParagraph)
-      Paragraph(subParagraph, p.questions, taOpt)
-    }*/
-
     def getSubparagraphString(paragraphTA: TextAnnotation, questionTA: TextAnnotation): String = {
-      println("-->> creating summary <<--")
       val sentences = paragraphTA.getView(ViewNames.SENTENCE).getConstituents.asScala
-      //println("sentences: " + sentences)
       val sortedSentences = sentences.map(s => s -> scoreTheSentence(questionTA, s)).zipWithIndex.sortBy(-_._1._2)
       val maxScore = sortedSentences.head._1._2
       val selectedIdx = sortedSentences.filter(_._1._2 == maxScore).map(_._2)

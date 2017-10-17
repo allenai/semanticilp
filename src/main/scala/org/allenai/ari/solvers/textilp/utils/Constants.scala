@@ -3,6 +3,7 @@ package org.allenai.ari.solvers.textilp.utils
 import java.io.File
 import java.net.URLEncoder
 
+import org.allenai.ari.solvers.textilp.solvers.TextILPModel
 import redis.clients.jedis.Protocol
 
 import scala.io.Source
@@ -10,21 +11,11 @@ import scala.io.Source
 case class Elastic(clusterName: String, hostIp: String, hostPort: Int, indexName: Map[String, String])
 
 object Constants {
-  val squadTrainingDataFile = new File("other/questionSets/squad-train-v1.1.json")
-  val squadDevDataFile = new File("other/questionSets/squad-dev-v1.1.json")
+  // this is the variable that decides which model to use
+  val textILPModel: TextILPModel = TextILPModel.Ensemble
+
+  // this is the link solvers send calls when evaluating against AI2 contempo
   val queryLink = "http://aristo-docker-swarm.dev.allenai.org:8080/ask?text=" // "http://aristo-dev.dev.ai2:8080/ask?text="
-
-  def pipelineServer(text: String, views: String) =
-    s"http://austen.cs.illinois.edu:8080/annotate?text=${URLEncoder.encode(text, "UTF-8")}&views=${URLEncoder.encode(views, "UTF-8")}"
-
-  val useRedisCachingForAnnotation = true
-  val useRedisCachingForElasticSearch = false
-
-  val redisServer = "tableilp-light.dev.ai2" // "localhost" //"tableilp16c1.dev.ai2"
-  val redisPort = Protocol.DEFAULT_PORT
-  val timeout = 20000
-
-  val pipelineAnnotationCache = ""
 
   // for elastic search
   val remoteElastic = Elastic(
@@ -57,6 +48,7 @@ object Constants {
     Map("tables-to-sentences2-2017-06-20" -> "Barrons 4th Grade Study Guide")
   )
 
+  // this is the variable which decides which instance of elasticsearch to use
   val elasticBeingUsed = remoteElastic
 
   // vivek's questions
