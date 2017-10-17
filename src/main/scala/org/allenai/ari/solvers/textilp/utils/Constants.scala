@@ -12,7 +12,25 @@ case class Elastic(clusterName: String, hostIp: String, hostPort: Int, indexName
 
 object Constants {
   // this is the variable that decides which model to use
-  val textILPModel: TextILPModel = TextILPModel.Ensemble
+  val textILPModel: TextILPModel = TextILPModel.EnsembleFull
+
+  // annotator servers
+  val sahandPort = "8081"
+  val sahandServer = "http://smeagol.cs.illinois.edu"
+
+  val cogcompAnnotatorPort = "5800"
+  val cogcompAnnotatorServer = "http://austen.cs.illinois.edu"
+
+  val externalAnnotatorsPort = "8009"
+  val externalAnnotatorsServer = "http://bronte.cs.illinois.edu"
+
+  // whether to extract curator or not
+  var useCurator = textILPModel match {
+    case TextILPModel.EnsembleFull => true
+    case TextILPModel.EnsembleMinimal => false
+    case TextILPModel.StackedForProcesses => false
+    case TextILPModel.StackedForScience => false
+  }
 
   // this is the link solvers send calls when evaluating against AI2 contempo
   val queryLink = "http://aristo-docker-swarm.dev.allenai.org:8080/ask?text=" // "http://aristo-dev.dev.ai2:8080/ask?text="

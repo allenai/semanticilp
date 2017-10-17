@@ -9,19 +9,6 @@ case class Paragraph(context: String, questions: Seq[Question], contextTAOpt: Op
 case class Question(questionText: String, questionId: String, answers: Seq[Answer], qTAOpt: Option[TextAnnotation], correctIdxOpt: Option[Int] = None)
 case class Answer(answerText: String, answerStart: Int, aTAOpt: Option[TextAnnotation] = None)
 
-/** The alignment of a basic textual alignment unit (a term) in the ILP solution.
-  * //  * @param term A basic alignment unit (a word, a chunk, a string associated with a cell, etc)
-  * //  * @param alignmentIds A sequence of alignment IDs that connect this term with other terms
-  * //
-  */
-//case class TermAlignment(term: String, alignmentIds: ArrayBuffer[Int] = ArrayBuffer.empty)
-//
-//case class AlignmentResults(
-//   questionAlignments: List[TermAlignment] = List.empty,
-//   choiceAlignments: List[TermAlignment] = List.empty,
-//   paragraphAlignments: List[TermAlignment] = List.empty
-//)
-
 case class Entity(entityName: String, surface: String, boundaries: Seq[(Int, Int)])
 case class Relation(relationName: String, entity1: String, entity2: String, weight: Double)
 case class Stats(numberOfBinaryVars: Double = 0.0, numberOfContinuousVars: Double = 0.0,
@@ -62,21 +49,6 @@ case class EntityRelationResult(
 )
 
 object ResultJson {
-  //  val staticAlignmentResult = AlignmentResults(
-  //    List(
-  //      TermAlignment("In"), TermAlignment("New York State", ArrayBuffer(0)), TermAlignment("the longest period"),
-  //      TermAlignment("of"), TermAlignment("daylight"), TermAlignment("occurs"), TermAlignment("during"),
-  //      TermAlignment("which"), TermAlignment("month"), TermAlignment("?")
-  //    ),
-  //    List(TermAlignment("June", ArrayBuffer(3)), TermAlignment("March"), TermAlignment("December"), TermAlignment("September")),
-  //    List(
-  //      TermAlignment("New York", ArrayBuffer(0)), TermAlignment("is"), TermAlignment("located", ArrayBuffer(2)), TermAlignment("in"),
-  //      TermAlignment("the United States", ArrayBuffer(1)), TermAlignment("of"), TermAlignment("America"), TermAlignment("."),
-  //      TermAlignment("The"), TermAlignment("USA", ArrayBuffer(1)), TermAlignment("is"), TermAlignment("located", ArrayBuffer(2)), TermAlignment("in"),
-  //      TermAlignment("the northern hemisphere", ArrayBuffer(3)), TermAlignment(".")
-  //    )
-  //  )
-
   val staticEntityRelationResults = EntityRelationResult(
     "Question: In New York State, the longest period of daylight occurs during which month? |Options: (A) June  (B) March  (C) December  (D) September " +
       "|Paragraph: New York is located in United States. USA is located in northern hemisphere. The summer solstice happens during summer, in northern hemisphere.",
@@ -131,21 +103,6 @@ object ResultJson {
       "log" -> er.log
     )
   }
-
-  //  implicit val termWrites = new Writes[TermAlignment] {
-  //    def writes(term: TermAlignment) = Json.obj(
-  //      "term" -> term.term,
-  //      "alignmentIds" -> term.alignmentIds
-  //    )
-  //  }
-  //
-  //  implicit val results = new Writes[AlignmentResults] {
-  //    def writes(term: AlignmentResults) = Json.obj(
-  //      "questionAlignments" -> term.questionAlignments,
-  //      "choiceAlignments" -> term.choiceAlignments,
-  //      "paragraphAlignments" -> term.paragraphAlignments
-  //    )
-  //  }
 }
 
 /** Writing the results in the format that squad (hence BiDaF expcts)

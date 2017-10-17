@@ -11,6 +11,7 @@ import edu.illinois.cs.cogcomp.curator.{ CuratorConfigurator, CuratorFactory }
 import edu.illinois.cs.cogcomp.pipeline.common.{ PipelineConfigurator, Stanford331Configurator }
 import edu.illinois.cs.cogcomp.pipeline.common.PipelineConfigurator._
 import edu.illinois.cs.cogcomp.pipeline.main.PipelineFactory
+import edu.illinois.cs.cogcomp.pipeline.server.ServerClientAnnotator
 import org.allenai.ari.solvers.textilp.solvers.TextILPSolver
 import org.allenai.ari.solvers.textilp.{ Paragraph, Question, TopicGroup }
 
@@ -29,6 +30,7 @@ class AnnotationUtils() {
 
   lazy val fillInBlankAnnotator = new FillInBlankAnnotator
 
+  // this is not used (or shouldn't be)
   lazy val pipelineService = {
     println("Starting to build the pipeline service . . . ")
     val settings = new Properties()
@@ -44,6 +46,7 @@ class AnnotationUtils() {
     service
   }
 
+  // used in experiments, but not in public release
   lazy val curatorService = {
     val settings = new Properties()
     settings.setProperty(CuratorConfigurator.DISABLE_CACHE.key, Configurator.FALSE)
@@ -52,11 +55,9 @@ class AnnotationUtils() {
     CuratorFactory.buildCuratorClient(config)
   }
 
-  import edu.illinois.cs.cogcomp.pipeline.server.ServerClientAnnotator
-
   lazy val pipelineServerClient = {
     val x = new ServerClientAnnotator()
-    x.setUrl("http://austen.cs.illinois.edu", "5800")
+    x.setUrl(Constants.cogcompAnnotatorServer, Constants.cogcompAnnotatorPort)
     x.setViewsAll(viewsToAdd.toArray)
     x.useCaching("remotePipelineCachingTextilp6.cache")
     x
@@ -64,32 +65,18 @@ class AnnotationUtils() {
 
   lazy val pipelineServerClientWithBasicViews = {
     val x = new ServerClientAnnotator()
-    x.setUrl("http://austen.cs.illinois.edu", "5800")
+    x.setUrl(Constants.cogcompAnnotatorServer, Constants.cogcompAnnotatorPort)
     x.setViewsAll(Seq(ViewNames.SHALLOW_PARSE).toArray)
     x.useCaching("remotePipelineCachingTextilp-basicViews.cache")
     x
   }
 
-  lazy val clausieServerClient = {
-    val x = new ServerClientAnnotator()
-    x.setUrl("http://austen.cs.illinois.edu", "5988")
-    x.setViewsAll(Array(TextILPSolver.clausIeViewName))
-    x.useCaching("clausie2.cache")
-    x
-  }
-
   lazy val pipelineExternalAnnotatorsServerClient = {
     val x = new ServerClientAnnotator()
-    x.setUrl("http://bronte.cs.illinois.edu", "8009")
+    x.setUrl(Constants.externalAnnotatorsServer, Constants.externalAnnotatorsPort)
     x.setViewsAll(Array("SRL_VERB_PATH_LSTM", "STANFORD_COREF"))
     x.useCaching("externalAnnotations2.cache")
     x
-  }
-
-  def annotateWithCuratorCorefAndCache(string: String): TextAnnotation = {
-    val textAnnotation = curatorService.createBasicTextAnnotation("", "", string)
-    curatorService.addView(textAnnotation, ViewNames.COREF)
-    textAnnotation
   }
 
   def annotateWithCuratorAndSaveUnderName(string: String, newViewName: String, oldViewName: String, ta: TextAnnotation): TextAnnotation = {
@@ -157,9 +144,9 @@ class AnnotationUtils() {
       replaceAll("\\.\\.\\.\\.", ".").replaceAll("\\.\\.\\.", ".").replaceAll("\\.\\.", ".")
   }
 
-  def annotateWithEverythng(input1: String, withFillInBlank: Boolean = false): TextAnnotation = synchronized {
+  def annotateWithEverything(input1: String, withFillInBlank: Boolean = false): TextAnnotation = synchronized {
     val input = SolverUtils.clearRedundantCharacters(input1)
-    println("input: " + input)
+    println("Annotating input: " + input)
     val ta = pipelineService.createBasicTextAnnotation("", "", input)
     if (globalAnnotationCache.contains(ta)) {
       val ta2 = globalAnnotationCache.getTextAnnotation(ta)
@@ -174,7 +161,7 @@ class AnnotationUtils() {
       println(" --> external: ")
       pipelineExternalAnnotatorsServerClient.addView(ta1)
       println(" --> curator: ")
-      annotateWithCuratorAndSaveUnderName(ta1.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, ta1)
+      if (Constants.useCurator) annotateWithCuratorAndSaveUnderName(ta1.text, TextILPSolver.curatorSRLViewName, ViewNames.SRL_VERB, ta1)
       println(" --> adding fill in the blanks ")
       if (withFillInBlank) ta1.addView(fillInBlankAnnotator)
       globalAnnotationCache.addTextAnnotation("", ta1)

@@ -28,7 +28,16 @@ Download the package and run the annotator servers, on two different ports `PORT
 ./external/scripts/runExternalAnnotatorsWebserver.sh --port PORT_NUMBER2  
 ```
 
-Then you have to set the ports in SemanticILP. Open `Constants.scala` and set the ports.   
+Also the system requires [Sahand annotator server](https://github.com/danyaljj/sahand/releases/tag/1.2.5). 
+This project makes distributed representations available over network. Run it, after downloading it: 
+ 
+```
+> sbt 
+> project server SAHAND_PORT
+> run
+```
+
+Then you have to set the ports in SemanticILP. Open [`Constants.scala`](src/main/scala/org/allenai/ari/solvers/textilp/utils/Constants.scala) and set the ports.   
 
 ### Running SemanticILP 
 
@@ -39,7 +48,7 @@ Here are the different models you can use:
 - Best elementary-school science 
 - Best process bank 
 
-To set the model, take a look at [Constants](Constants.scala). 
+To set the model, take a look at `Constants.scala`. 
 
 
 In order to initialize the solver, you have the following options: 
@@ -50,10 +59,25 @@ In order to initialize the solver, you have the following options:
 Next subsections clarify each of the above items: 
 
 #### Run the solver programmatically 
-To run the solver, clone this project and run create a insance of the solve: 
+To run the solver, clone this project and run create a instance of the solve: 
 
 ```scala 
+import org.allenai.ari.solvers.textilp.utils.AnnotationUtils
+import org.allenai.ari.solvers.textilp.solvers.TextILPSolver
+import org.allenai.ari.solvers.textilp.utils.SolverUtils
 
+val annotationUtils = new AnnotationUtils()
+val textILPSolver = new TextILPSolver(annotationUtils, verbose = false, SolverUtils.params)
+  
+val question = "A decomposer is an organism that"
+val options = Seq("hunts and eats animals", "migrates for the winter",
+                           "breaks down dead plants and animals", "uses water and sunlight to make food")
+val paragraph = "organisms that obtain energy by eating dead plant or animal matter. " +
+                            "DECOMPOSER An organism that breaks down cells of dead plants and animals into simpler substances." +
+                            "The plants use sunlight, carbon dioxide, water, and minerals to make food that sustains themselves and other organisms in the forest."                             
+val (selected, statistics) = textILPSolver.solve(question, options, paragraph)
+println(selected)
+println(statistics)
 ```
 
 You can also install it locally (`publish-local`) and use it as a maven/sbt/... dependency in your program.   

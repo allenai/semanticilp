@@ -16,7 +16,7 @@ import org.allenai.ari.solvers.bioProccess.ProcessBankReader._
 import org.allenai.ari.solvers.textilp.{EntityRelationResult, _}
 import org.allenai.ari.solvers.textilp.alignment.{AlignmentFunction, KeywordTokenizer}
 import org.allenai.ari.solvers.textilp.ilpsolver.{IlpVar, _}
-import org.allenai.ari.solvers.textilp.utils.{AnnotationUtils, SolverUtils}
+import org.allenai.ari.solvers.textilp.utils.{AnnotationUtils, Constants, SolverUtils}
 import weka.classifiers.Classifier
 import weka.core.converters.ArffLoader
 import weka.core.{DenseInstance, Instance, Instances, SparseInstance}
@@ -39,9 +39,11 @@ case object WhatDoesItDoRule extends ReasoningType
 
 trait TextILPModel{}
 object TextILPModel {
+  // ensemble of annotators; this achieves good results across the two datasets; used in AAAI paper
+  case object EnsembleFull extends TextILPModel
 
   // ensemble of annotators; this achieves good results across the two datasets
-  case object Ensemble extends TextILPModel
+  case object EnsembleMinimal extends TextILPModel
 
   // stacked version; acheives good (and fast) results on science exams
   case object StackedForScience extends TextILPModel
@@ -117,7 +119,7 @@ object TextILPSolver {
   lazy val offlineAligner = new AlignmentFunction("Entailment", 0.2,
     TextILPSolver.keywordTokenizer, useRedisCache = false, useContextInRedisCache = false)
 
-  lazy val sahandClient = new SahandClient("http://smeagol.cs.illinois.edu:8081/")
+  lazy val sahandClient = new SahandClient(s"${Constants.sahandServer}:${Constants.sahandPort}/")
 
   val toBeVerbs = Set("am", "is", "are", "was", "were", "being", "been", "be", "were", "be")
 
@@ -320,6 +322,35 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       solveTopAnswer(q, p, ilpSolver, aligner, Set(SRLV1ILP), useSummary = false, TextILPSolver.pathLSTMViewName)
     } -> "srlV1ILP_path_lstm"
 
+//    val resultOpt = Seq(resultWhatDoesItdo, resultCause, resultSRLV1, resultVerbSRLPlusPrepSRL, srlV1ILP,
+//      resultVerbSRLPlusCoref, resultILP, resultSRLV2, resultVerbSRLPlusCommaSRL).find{ t =>
+//      println("trying: " + t._2)
+//      t._1._1.nonEmpty
+//    }
+
+    val resultOpt = Constants.textILPModel match {
+      case TextILPModel.StackedForScience =>
+        (resultVerbSRLPlusCoref_curatorSRL #:: srlV1ILP_pipeline_srl #:: resultVerbSRLPlusCoref_pipelineSRL #::
+          srlV1ILP_curator_srl #:: resultVerbSRLPlusCoref_pathLSTM #:: resultVerbSRLPlusPrepSRL_pipeline_srl #:: srlV1ILP_path_lstm #::
+          resultSRLV3_pipeline #:: resultVerbSRLPlusCommaSRL_pipelneSRL #:: resultVerbSRLPlusCommaSRL_curatorSRL #::
+          resultVerbSRLPlusCommaSRL_pipelneSRL #:: Stream.empty).find { t =>
+          println("trying: " + t._2)
+          t._1._1.nonEmpty
+        }
+      case TextILPModel.StackedForProcesses =>
+        (resultVerbSRLPlusCoref_curatorSRL #:: srlV1ILP_pipeline_srl #:: resultVerbSRLPlusCoref_pipelineSRL #::
+          srlV1ILP_curator_srl #:: resultVerbSRLPlusCoref_pathLSTM #:: resultVerbSRLPlusPrepSRL_pipeline_srl #:: srlV1ILP_path_lstm #::
+          resultSRLV3_pipeline #:: resultVerbSRLPlusCommaSRL_pipelneSRL #:: resultVerbSRLPlusCommaSRL_curatorSRL #::
+          resultVerbSRLPlusCommaSRL_pipelneSRL #:: Stream.empty).find { t =>
+          println("trying: " + t._2)
+          t._1._1.nonEmpty
+        }
+      case TextILPModel.EnsembleFull | TextILPModel.EnsembleMinimal =>
+        // note: there is inefficiency here; we preprocess the input once at the beginning of this function, and also inside the linear classifier
+        val result = EntityRelationResult()
+        val selected = Seq(predictWithWekaClassifier(question, options, snippet))
+        Some((selected, result) -> "Ensemble")
+    }
 
     /*resultCause #:: resultWhatDoesItdo #:: resultVerbSRLPlusCoref_curatorSRL #:: resultVerbSRLPlusCoref_pathLSTM #::
         resultSRLV1_pipeline #:: resultVerbSRLPlusCoref_pipelineSRL #:: resultVerbSRLPlusPrepSRL_pipeline_srl #::
@@ -386,15 +417,13 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
 //    }
     //val resultOpt = Some(everything_jointly)
 
-//    val resultOpt = (resultVerbSRLPlusCoref_curatorSRL #:: srlV1ILP_pipeline_srl #:: resultVerbSRLPlusCoref_pipelineSRL #::
-//      srlV1ILP_curator_srl #:: resultVerbSRLPlusCoref_pathLSTM #:: resultVerbSRLPlusPrepSRL_pipeline_srl #:: srlV1ILP_path_lstm #::
-//      resultSRLV3_pipeline #:: resultVerbSRLPlusCommaSRL_pipelneSRL #:: resultVerbSRLPlusCommaSRL_curatorSRL #::
-//      resultVerbSRLPlusCommaSRL_pipelneSRL #:: Stream.empty).find{ t =>
-//      println("trying: " + t._2)
-//      t._1._1.nonEmpty
-//    }
-
-    val resultOpt = Option(resultVerbSRLPlusCoref_pathLSTM)
+    //    val resultOpt = (resultVerbSRLPlusCoref_curatorSRL #:: srlV1ILP_pipeline_srl #:: resultVerbSRLPlusCoref_pipelineSRL #::
+    //      srlV1ILP_curator_srl #:: resultVerbSRLPlusCoref_pathLSTM #:: resultVerbSRLPlusPrepSRL_pipeline_srl #:: srlV1ILP_path_lstm #::
+    //      resultSRLV3_pipeline #:: resultVerbSRLPlusCommaSRL_pipelneSRL #:: resultVerbSRLPlusCommaSRL_curatorSRL #::
+    //      resultVerbSRLPlusCommaSRL_pipelneSRL #:: Stream.empty).find{ t =>
+    //      println("trying: " + t._2)
+    //      t._1._1.nonEmpty
+    //    }
 
     if(resultOpt.isDefined) {
       println(" ----> Selected method: " + resultOpt.get._2)
@@ -467,7 +496,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     println("Annotating question: ")
 
     val qTA = if (question.trim.nonEmpty) {
-      Some(annotationUtils.annotateWithEverythng(question, withFillInBlank = true))
+      Some(annotationUtils.annotateWithEverything(question, withFillInBlank = true))
     }
     else {
       println("Question string is empty . . . ")
@@ -478,7 +507,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     val q = Question(question, "", answers, qTA)
     val pTA = if (snippet.trim.nonEmpty) {
       try {
-        Some(annotationUtils.annotateWithEverythng(snippet, withFillInBlank = false))
+        Some(annotationUtils.annotateWithEverything(snippet, withFillInBlank = false))
       }
       catch {
         case e: Exception =>
@@ -3079,6 +3108,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
   }
 
   def predictWithWekaClassifier(question: String, options: Seq[String], snippet: String): Int = {
+    // note there is inefficienss here. The instance gets pre-processed for each reasoning combination inside "distributionForInstance"
     val fvs = extractFeatureVectorForQuestion(question, options, snippet)
     val dataUnlabeled = new Instances(TextILPSolver.headerEmptyInstances)
     dataUnlabeled.setClassIndex(dataUnlabeled.numAttributes() - 1)

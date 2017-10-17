@@ -43,8 +43,7 @@ class SolveQuestion @Inject() extends Controller {
 
     val optionsPostProcessed = if (options.length < 2) {
       // it's empty; get the candidate options automatically
-      val ta = annotationUtils.annotate(snippet)
-      val generatedCandidates = CandidateGeneration.getCandidateAnswer(ta)
+      val generatedCandidates = Seq.empty
       println("Automatically extracted candidtes: " + generatedCandidates.mkString("//"))
       generatedCandidates.toSeq
     } else {
