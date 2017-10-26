@@ -4,7 +4,7 @@ A structured question answering system on top of free-form text, and borrows ide
 The details of the system is explained in the following paper: 
 
 ```bibtex 
-@article{clark2016my,
+@article{semanticilp2016aaai,
   title={Question Answering as Global Reasoning over Semantic Abstractions},
   author={Khashabi, Daniel and Khot, Tushar and Sabharwal, Ashish and Roth, Dan},
   journal={Conference of Association for the Advancement of Artificial Intelligence},
