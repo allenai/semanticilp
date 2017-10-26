@@ -1,10 +1,6 @@
 import sbt._
 import sbt.Keys._
 
-//import org.allenai.plugins.CoreDependencies._
-//import org.allenai.plugins.CoreRepositories.Resolvers
-//import org.allenai.plugins.StylePlugin
-
 val cogcompNLPVersion = "3.1.25"
 val ccgGroupId = "edu.illinois.cs.cogcomp"
 
@@ -20,7 +16,6 @@ lazy val commonSettings = Seq(
     "LD_LIBRARY_PATH" -> "lib",
     "DYLD_LIBRARY_PATH" -> "lib"
   ),
-  //unmanagedBase := baseDirectory.value / "lib2",
   includeFilter in unmanagedJars := "*.jar" || "*.so" || "*.dylib"
 )
 
@@ -72,14 +67,10 @@ lazy val root = (project in file(".")).
       "net.debasishg" %% "redisclient" % "3.0",
       "com.medallia.word2vec" % "Word2VecJava" % "0.10.3",
       ccgLib("illinois-core-utilities"),
-//      (ccgGroupId % "illinois-core-utilities" % "3.1.27" withSources).exclude("edu.cmu.cs.ark", "ChuLiuEdmonds"),
       ccgLib("illinois-inference"),
       ccgLib("illinois-nlp-pipeline"),
-//      (ccgGroupId % "illinois-nlp-pipeline" % "3.1.27" withSources).exclude("edu.cmu.cs.ark", "ChuLiuEdmonds"),
       ccgLib("illinois-curator"),
-//      (ccgGroupId % "illinois-curator" % "3.1.27" withSources).exclude("edu.cmu.cs.ark", "ChuLiuEdmonds"),
       "edu.cmu.cs.ark" % "ChuLiuEdmonds" % "1.0" force(),
-      //ccgGroupId % "illinois-llm" % "1.1.4",
       ccgGroupId % "saul-examples_2.11" % "0.5.7-SNAPSHOT",
       ccgGroupId % "scip-jni" % "3.1.1",
       "edu.cmu" % "Meteor" % "1.5",
@@ -94,18 +85,14 @@ lazy val root = (project in file(".")).
       "org.scalatest" % "scalatest_2.11" % "2.2.4",
       "org.elasticsearch" % "elasticsearch" % "2.4.1",
       "me.tongfei" % "progressbar" % "0.5.1",
-//      "org.apache.lucene" % "lucene-core" % "6.4.1",
       "org.scalaz" %% "scalaz-core" % "7.2.8",
       "com.github.mpkorstanje" % "simmetrics-core" % "4.1.1",
       "github.sahand" % "sahand-client_2.11" % "1.2.2",
-//      "com.quantifind" %% "wisp" % "0.0.4",
       "io.github.pityka" %% "nspl-awt" % "0.0.7",
       "nz.ac.waikato.cms.weka" % "weka-dev" % "3.7.12",
       "edu.mit" % "jverbnet" % "1.2.0.1"//,
-//      "io.github.pityka" %% "nspl-scalatags-js" % "0.0.7"
     ),
     resolvers ++= Seq(
-//      "Artima Maven Repository" at "http://repo.artima.com/releases"
       Resolver.mavenLocal,
       Resolver.bintrayRepo("allenai", "maven"),
       Resolver.bintrayRepo("allenai", "private"),
@@ -131,10 +118,4 @@ lazy val viz = (project in file("viz")).
       "org.webjars" % "headjs" % "1.0.3"
     ),
     resolvers ++= Seq("scalaz-bintray" at "http://dl.bintray.com/scalaz/releases")//,
-//    projectDependencies := {
-      //Seq((projectID in root).value.exclude("org.slf4j", "slf4j-log4j12"))
-      //Seq((projectID in root).value.exclude("edu.cmu.cs.ark", "ChuLiuEdmonds"))
-//    }//,
-    // resourceDirectories in Compile +=  "/Users/daniel/ideaProjects/TextILP/src/main/resources" //baseDirectory.value / "myresources"
-    //, unmanagedBase := baseDirectory.value / "lib"
   )

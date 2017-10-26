@@ -24,21 +24,34 @@ import weka.core.{DenseInstance, Instance, Instances, SparseInstance}
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
 
-trait ReasoningType{}
+trait ReasoningType {}
+
 case object SimpleMatching extends ReasoningType
+
 case object SimpleMatchingWithCoref extends ReasoningType
+
 case object SRLV1ILP extends ReasoningType
+
 case object SRLV1Rule extends ReasoningType
+
 case object SRLV2Rule extends ReasoningType
+
 case object SRLV3Rule extends ReasoningType
+
 case object VerbSRLandCommaSRL extends ReasoningType
+
 case object VerbSRLandCoref extends ReasoningType
+
 case object VerbSRLandPrepSRL extends ReasoningType
+
 case object CauseRule extends ReasoningType
+
 case object WhatDoesItDoRule extends ReasoningType
 
-trait TextILPModel{}
+trait TextILPModel {}
+
 object TextILPModel {
+
   // ensemble of annotators; this achieves good results across the two datasets; used in AAAI paper
   case object EnsembleFull extends TextILPModel
 
@@ -48,8 +61,29 @@ object TextILPModel {
   // stacked version; acheives good (and fast) results on science exams
   case object StackedForScience extends TextILPModel
 
+  // stacked version; acheives good (and fast) results on science exams; no curator annotations
+  case object StackedForScienceMinimal extends TextILPModel
+
   // stacked version; acehieves good (and fast) results on process-bank data
   case object StackedForProcesses extends TextILPModel
+
+  // stacked version; acehieves good (and fast) results on process-bank data; no curator annotations
+  case object StackedForProcessesMinimal extends TextILPModel
+
+
+  // created for ablation study
+  case object EnsembleNoSimpleMatching extends TextILPModel
+
+  case object EnsembleNoVerbSRL extends TextILPModel
+
+  case object EnsembleNoCoref extends TextILPModel
+
+  case object EnsembleNoCommaSRL extends TextILPModel
+
+  case object EnsembleNoNomSRL extends TextILPModel
+
+  case object EnsembleNoPrepSRL extends TextILPModel
+
 }
 
 object TextILPSolver {
@@ -125,11 +159,31 @@ object TextILPSolver {
 
   import weka.core.SerializationHelper
 
-  lazy val wekaClassifier = SerializationHelper.read("output/logistic.model").asInstanceOf[Classifier]
+  lazy val wekaClassifier = Constants.textILPModel match {
+    case TextILPModel.EnsembleFull => SerializationHelper.read("output/logistic.model").asInstanceOf[Classifier]
+    case TextILPModel.EnsembleMinimal => SerializationHelper.read("output/logistic-nocurator2.model").asInstanceOf[Classifier]
 
-  val headerEmptyInstances = {
+    // created for ablation study
+    case TextILPModel.EnsembleNoSimpleMatching => SerializationHelper.read("output/logistic-nosimplematching.model").asInstanceOf[Classifier]
+    case TextILPModel.EnsembleNoPrepSRL => SerializationHelper.read("output/logistic-noprepsrl.model").asInstanceOf[Classifier]
+    case TextILPModel.EnsembleNoVerbSRL => SerializationHelper.read("output/logistic-noverbsrl.model").asInstanceOf[Classifier]
+    case TextILPModel.EnsembleNoCommaSRL => SerializationHelper.read("output/logistic-nocommasrl.model").asInstanceOf[Classifier]
+    case TextILPModel.EnsembleNoCoref => SerializationHelper.read("output/logistic-nocoref.model").asInstanceOf[Classifier]
+  }
+
+  lazy val headerEmptyInstances = {
     val loader = new ArffLoader()
-    loader.setFile(new File("output/headerFile.arff"))
+    Constants.textILPModel match {
+      case TextILPModel.EnsembleFull => loader.setFile(new File("output/headerFile.arff"))
+      case TextILPModel.EnsembleMinimal => loader.setFile(new File("output/headerFile_nocurator.arff"))
+
+      // created for ablation
+      case TextILPModel.EnsembleNoSimpleMatching => loader.setFile(new File("output/headerFile_nosimplematching.arff"))
+      case TextILPModel.EnsembleNoPrepSRL => loader.setFile(new File("output/headerFile_noprepsrl.arff"))
+      case TextILPModel.EnsembleNoVerbSRL => loader.setFile(new File("output/headerFile_noverbsrl.arff"))
+      case TextILPModel.EnsembleNoCommaSRL => loader.setFile(new File("output/headerFile_nocomma.arff"))
+      case TextILPModel.EnsembleNoCoref => loader.setFile(new File("output/headerFile-nocoref.arff"))
+    }
     loader.getDataSet
   }
 }
@@ -204,7 +258,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
   def SRLSolverV1WithAllViews(q: Question, p: Paragraph): (Seq[Int], EntityRelationResult) = {
     lazy val srlVerbPipeline = SRLSolverV1(q, p, ViewNames.SRL_VERB)
     lazy val srlVerbCurator = SRLSolverV1(q, p, TextILPSolver.curatorSRLViewName)
-    if(srlVerbPipeline._1.nonEmpty) {
+    if (srlVerbPipeline._1.nonEmpty) {
       srlVerbPipeline
     }
     else if (srlVerbCurator._1.nonEmpty) {
@@ -218,7 +272,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
   def SRLSolverV2WithAllViews(q: Question, p: Paragraph): (Seq[Int], EntityRelationResult) = {
     lazy val srlVerbPipeline = SRLSolverV2(q, p, ViewNames.SRL_VERB)
     lazy val srlVerbCurator = SRLSolverV2(q, p, TextILPSolver.curatorSRLViewName)
-    if(srlVerbPipeline._1.nonEmpty) {
+    if (srlVerbPipeline._1.nonEmpty) {
       srlVerbPipeline
     }
     else if (srlVerbCurator._1.nonEmpty) {
@@ -231,7 +285,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
 
   def SRLSolverV3WithAllViews(q: Question, p: Paragraph, alignmentFunction: AlignmentFunction): (Seq[Int], EntityRelationResult) = {
     lazy val srlVerbPipeline = SRLSolverV3(q, p, alignmentFunction, ViewNames.SRL_VERB)
-    lazy val srlVerbCurator = try { // because curator annotation stuff fail sometime
+    lazy val srlVerbCurator = try {
+      // because curator annotation stuff fail sometime
       SRLSolverV3(q, p, alignmentFunction, TextILPSolver.curatorSRLViewName)
     }
     catch {
@@ -239,7 +294,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
         SRLSolverV3(q, p, alignmentFunction, TextILPSolver.pathLSTMViewName)
     }
 
-    if(srlVerbPipeline._1.nonEmpty) {
+    if (srlVerbPipeline._1.nonEmpty) {
       srlVerbPipeline
     }
     else if (srlVerbCurator._1.nonEmpty) {
@@ -322,30 +377,71 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       solveTopAnswer(q, p, ilpSolver, aligner, Set(SRLV1ILP), useSummary = false, TextILPSolver.pathLSTMViewName)
     } -> "srlV1ILP_path_lstm"
 
-//    val resultOpt = Seq(resultWhatDoesItdo, resultCause, resultSRLV1, resultVerbSRLPlusPrepSRL, srlV1ILP,
-//      resultVerbSRLPlusCoref, resultILP, resultSRLV2, resultVerbSRLPlusCommaSRL).find{ t =>
-//      println("trying: " + t._2)
-//      t._1._1.nonEmpty
-//    }
-
     val resultOpt = Constants.textILPModel match {
       case TextILPModel.StackedForScience =>
-        (resultVerbSRLPlusCoref_curatorSRL #:: srlV1ILP_pipeline_srl #:: resultVerbSRLPlusCoref_pipelineSRL #::
-          srlV1ILP_curator_srl #:: resultVerbSRLPlusCoref_pathLSTM #:: resultVerbSRLPlusPrepSRL_pipeline_srl #:: srlV1ILP_path_lstm #::
-          resultSRLV3_pipeline #:: resultVerbSRLPlusCommaSRL_pipelneSRL #:: resultVerbSRLPlusCommaSRL_curatorSRL #::
-          resultVerbSRLPlusCommaSRL_pipelneSRL #:: Stream.empty).find { t =>
+/*
+        (resultVerbSRLPlusCoref_curatorSRL #:: resultVerbSRLPlusCommaSRL_pathLSTM #:: resultSRLV3_curator #::
+          resultVerbSRLPlusCommaSRL_curatorSRL #:: resultVerbSRLPlusCommaSRL_pipelneSRL #:: resultSRLV3_pipeline #::
+          srlV1ILP_curator_srl #:: srlV1ILP_pipeline_srl #:: resultSRLV3_path_lstm #:: resultVerbSRLPlusCoref_pathLSTM #::
+          resultVerbSRLPlusPrepSRL_path_lstm #:: resultVerbSRLPlusPrepSRL_pipeline_srl #:: resultVerbSRLPlusCoref_pipelineSRL #::
+          srlV1ILP_path_lstm #:: resultSRLV1_curator #:: resultSimpleMatching #:: Stream.empty).find { t =>
+          t._1._1.nonEmpty
+        }
+*/
+        // no coref
+//        (resultVerbSRLPlusCommaSRL_pathLSTM #:: resultSRLV3_curator #::
+//          resultVerbSRLPlusCommaSRL_curatorSRL #:: resultVerbSRLPlusCommaSRL_pipelneSRL #:: resultSRLV3_pipeline #::
+//          srlV1ILP_curator_srl #:: srlV1ILP_pipeline_srl #:: resultSRLV3_path_lstm #::
+//          resultVerbSRLPlusPrepSRL_path_lstm #:: resultVerbSRLPlusPrepSRL_pipeline_srl #::
+//          srlV1ILP_path_lstm #:: resultSRLV1_curator #:: resultSimpleMatching #:: Stream.empty).find { t =>
+//          t._1._1.nonEmpty
+//        }
+
+         // no prep
+//        (resultVerbSRLPlusCoref_curatorSRL #:: resultVerbSRLPlusCommaSRL_pathLSTM #:: resultSRLV3_curator #::
+//          resultVerbSRLPlusCommaSRL_curatorSRL #:: resultVerbSRLPlusCommaSRL_pipelneSRL #:: resultSRLV3_pipeline #::
+//          srlV1ILP_curator_srl #:: srlV1ILP_pipeline_srl #:: resultSRLV3_path_lstm #:: resultVerbSRLPlusCoref_pathLSTM #::
+//          resultVerbSRLPlusCoref_pipelineSRL #::
+//          srlV1ILP_path_lstm #:: resultSRLV1_curator #:: resultSimpleMatching #:: Stream.empty).find { t =>
+//          t._1._1.nonEmpty
+//        }
+//
+//        // no simple matching
+        (resultVerbSRLPlusCoref_curatorSRL #:: resultVerbSRLPlusCommaSRL_pathLSTM #:: resultSRLV3_curator #::
+          resultVerbSRLPlusCommaSRL_curatorSRL #:: resultVerbSRLPlusCommaSRL_pipelneSRL #:: resultSRLV3_pipeline #::
+          srlV1ILP_curator_srl #:: srlV1ILP_pipeline_srl #:: resultSRLV3_path_lstm #:: resultVerbSRLPlusCoref_pathLSTM #::
+          resultVerbSRLPlusPrepSRL_path_lstm #:: resultVerbSRLPlusPrepSRL_pipeline_srl #:: resultVerbSRLPlusCoref_pipelineSRL #::
+          srlV1ILP_path_lstm #:: resultSRLV1_curator #:: Stream.empty).find { t =>
+          t._1._1.nonEmpty
+        }
+      case TextILPModel.StackedForScienceMinimal =>
+        // same mode as the previous one, with some curator components dropped
+        (resultVerbSRLPlusCommaSRL_pathLSTM #:: resultVerbSRLPlusCommaSRL_pipelneSRL #:: resultSRLV3_pipeline #::
+          srlV1ILP_pipeline_srl #:: resultSRLV3_path_lstm #:: resultVerbSRLPlusCoref_pathLSTM #::
+          resultVerbSRLPlusPrepSRL_path_lstm #:: resultVerbSRLPlusPrepSRL_pipeline_srl #:: resultVerbSRLPlusCoref_pipelineSRL #::
+          srlV1ILP_path_lstm #:: resultSimpleMatching #:: Stream.empty).find { t =>
           println("trying: " + t._2)
           t._1._1.nonEmpty
         }
       case TextILPModel.StackedForProcesses =>
-        (resultVerbSRLPlusCoref_curatorSRL #:: srlV1ILP_pipeline_srl #:: resultVerbSRLPlusCoref_pipelineSRL #::
-          srlV1ILP_curator_srl #:: resultVerbSRLPlusCoref_pathLSTM #:: resultVerbSRLPlusPrepSRL_pipeline_srl #:: srlV1ILP_path_lstm #::
-          resultSRLV3_pipeline #:: resultVerbSRLPlusCommaSRL_pipelneSRL #:: resultVerbSRLPlusCommaSRL_curatorSRL #::
-          resultVerbSRLPlusCommaSRL_pipelneSRL #:: Stream.empty).find { t =>
+        (resultWhatDoesItdo #:: resultCause #:: resultSRLV3_curator #:: resultSRLV3_path_lstm #::
+          resultSRLV3_path_lstm #:: srlV1ILP_pipeline_srl #:: resultSRLV3_path_lstm #:: resultSRLV3_pipeline #::
+          srlV1ILP_path_lstm #:: resultVerbSRLPlusPrepSRL_path_lstm #::
+          srlV1ILP_curator_srl #:: srlV1ILP_path_lstm #:: resultVerbSRLPlusCoref_pathLSTM #::
+          resultVerbSRLPlusPrepSRL_path_lstm #:: resultVerbSRLPlusCommaSRL_pathLSTM #:: resultSimpleMatching #:: Stream.empty).find { t =>
           println("trying: " + t._2)
           t._1._1.nonEmpty
         }
-      case TextILPModel.EnsembleFull | TextILPModel.EnsembleMinimal =>
+      case TextILPModel.StackedForProcessesMinimal =>
+        (resultWhatDoesItdo #:: resultCause #:: resultSRLV3_path_lstm #::
+          resultSRLV3_path_lstm #:: srlV1ILP_pipeline_srl #:: resultSRLV3_path_lstm #:: resultSRLV3_pipeline #::
+          srlV1ILP_path_lstm #:: resultVerbSRLPlusPrepSRL_path_lstm #::
+          srlV1ILP_path_lstm #:: resultVerbSRLPlusCoref_pathLSTM #::
+          resultVerbSRLPlusPrepSRL_path_lstm #:: resultVerbSRLPlusCommaSRL_pathLSTM #:: resultSimpleMatching #:: Stream.empty).find { t =>
+          println("trying: " + t._2)
+          t._1._1.nonEmpty
+        }
+      case default =>
         // note: there is inefficiency here; we preprocess the input once at the beginning of this function, and also inside the linear classifier
         val result = EntityRelationResult()
         val selected = Seq(predictWithWekaClassifier(question, options, snippet))
@@ -355,32 +451,34 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     /*resultCause #:: resultWhatDoesItdo #:: resultVerbSRLPlusCoref_curatorSRL #:: resultVerbSRLPlusCoref_pathLSTM #::
         resultSRLV1_pipeline #:: resultVerbSRLPlusCoref_pipelineSRL #:: resultVerbSRLPlusPrepSRL_pipeline_srl #::
         srlV1ILP_pipeline_srl #:: resultVerbSRLPlusPrepSRL_path_lstm  #:: srlV1ILP_curator_srl #:: srlV1ILP_path_lstm #::*/
-    /*resultVerbSRLPlusCommaSRL_pipelneSRL #:: resultVerbSRLPlusCommaSRL_pathLSTM #::*/ /*resultVerbSRLPlusCommaSRL_curatorSRL #::*/
-    /*resultSRLV3_pipeline*/ /*#:: resultSimpleMatching*/
+    /*resultVerbSRLPlusCommaSRL_pipelneSRL #:: resultVerbSRLPlusCommaSRL_pathLSTM #::*/
+    /*resultVerbSRLPlusCommaSRL_curatorSRL #::*/
+    /*resultSRLV3_pipeline*/
+    /*#:: resultSimpleMatching*/
 
-//    val resultOpt = Seq(resultWhatDoesItdo, resultCause, resultSRLV1, resultVerbSRLPlusPrepSRL, srlV1ILP,
-//      resultVerbSRLPlusCoref, resultILP, resultSRLV2, resultVerbSRLPlusCommaSRL).find{ t =>
-//      println("trying: " + t._2)
-//      t._1._1.nonEmpty
-//    }
+    //    val resultOpt = Seq(resultWhatDoesItdo, resultCause, resultSRLV1, resultVerbSRLPlusPrepSRL, srlV1ILP,
+    //      resultVerbSRLPlusCoref, resultILP, resultSRLV2, resultVerbSRLPlusCommaSRL).find{ t =>
+    //      println("trying: " + t._2)
+    //      t._1._1.nonEmpty
+    //    }
 
-//    val resultOpt = (
-//      resultWhatDoesItdo #::
-//        resultCause #::
-//        resultVerbSRLPlusCoref_pipelineSRL #::
-//        srlV1ILP_path_lstm #::
-//        resultVerbSRLPlusCoref_pathLSTM #::
-//        srlV1ILP_curator_srl #::
-//        resultSRLV1_pipeline #::
-//        resultVerbSRLPlusPrepSRL_path_lstm #::
-//        resultSimpleMatching #::
-//        resultVerbSRLPlusCoref_curatorSRL #::
-//        srlV1ILP_curator_srl #::
-//        srlV1ILP_pipeline_srl #::
-//        resultVerbSRLPlusPrepSRL_pipeline_srl #:: Stream.empty).find{ t =>
-//      println("trying: " + t._2)
-//      t._1._1.nonEmpty
-//    }
+    //    val resultOpt = (
+    //      resultWhatDoesItdo #::
+    //        resultCause #::
+    //        resultVerbSRLPlusCoref_pipelineSRL #::
+    //        srlV1ILP_path_lstm #::
+    //        resultVerbSRLPlusCoref_pathLSTM #::
+    //        srlV1ILP_curator_srl #::
+    //        resultSRLV1_pipeline #::
+    //        resultVerbSRLPlusPrepSRL_path_lstm #::
+    //        resultSimpleMatching #::
+    //        resultVerbSRLPlusCoref_curatorSRL #::
+    //        srlV1ILP_curator_srl #::
+    //        srlV1ILP_pipeline_srl #::
+    //        resultVerbSRLPlusPrepSRL_pipeline_srl #:: Stream.empty).find{ t =>
+    //      println("trying: " + t._2)
+    //      t._1._1.nonEmpty
+    //    }
 
     /*
     List(
@@ -409,12 +507,12 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
      */
 
 
-//    val resultOpt = (
-//        resultVerbSRLPlusCoref_pipelineSRL #:: srlV1ILP_pipeline_srl #::
-//          resultSimpleMatching #:: resultVerbSRLPlusPrepSRL_pipeline_srl #:: resultVerbSRLPlusCommaSRL_pipelneSRL #:: Stream.empty).find{ t =>
-//      println("trying: " + t._2)
-//      t._1._1.nonEmpty
-//    }
+    //    val resultOpt = (
+    //        resultVerbSRLPlusCoref_pipelineSRL #:: srlV1ILP_pipeline_srl #::
+    //          resultSimpleMatching #:: resultVerbSRLPlusPrepSRL_pipeline_srl #:: resultVerbSRLPlusCommaSRL_pipelneSRL #:: Stream.empty).find{ t =>
+    //      println("trying: " + t._2)
+    //      t._1._1.nonEmpty
+    //    }
     //val resultOpt = Some(everything_jointly)
 
     //    val resultOpt = (resultVerbSRLPlusCoref_curatorSRL #:: srlV1ILP_pipeline_srl #:: resultVerbSRLPlusCoref_pipelineSRL #::
@@ -425,7 +523,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     //      t._1._1.nonEmpty
     //    }
 
-    if(resultOpt.isDefined) {
+    if (resultOpt.isDefined) {
       println(" ----> Selected method: " + resultOpt.get._2)
       resultOpt.get._1
     }
@@ -448,8 +546,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
 
   def solveWithHighestScore(question: String, options: Seq[String], snippet: String): (Seq[Int], EntityRelationResult) = {
     val (q: Question, p: Paragraph) = preprocessQuestionData(question, options, snippet)
-    val types = Seq(SimpleMatching, VerbSRLandPrepSRL, SRLV1ILP, VerbSRLandCoref/*, VerbSRLandCommaSRL*/)
-    val srlViewsAll = Seq(ViewNames.SRL_VERB/*, TextILPSolver.curatorSRLViewName, TextILPSolver.pathLSTMViewName*/)
+    val types = Seq(SimpleMatching, VerbSRLandPrepSRL, SRLV1ILP, VerbSRLandCoref /*, VerbSRLandCommaSRL*/)
+    val srlViewsAll = Seq(ViewNames.SRL_VERB /*, TextILPSolver.curatorSRLViewName, TextILPSolver.pathLSTMViewName*/)
     val scores = types.flatMap { t =>
       val start = System.currentTimeMillis()
       SolverUtils.printMemoryDetails()
@@ -467,7 +565,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
         }
       }
     }
-    if(scores.exists(_._1.nonEmpty)) {
+    if (scores.exists(_._1.nonEmpty)) {
       scores.maxBy(_._2.statistics.objectiveValue)
     }
     else {
@@ -484,8 +582,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     println("pre-processsing . . .  ")
     val answers = options.map { o =>
       val ansTA = try {
-          val ta = annotationUtils.pipelineServerClient.annotate(o)
-          Some(ta)
+        val ta = annotationUtils.pipelineServerClient.annotate(o)
+        Some(ta)
       } catch {
         case e: Exception =>
           e.printStackTrace()
@@ -628,6 +726,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
           TextILPSolver.getAvgScore(qCons, Seq(c))
         }.zipWithIndex.maxBy(_._1)._2
       }
+
       val pCons = p.contextTAOpt.get.getView(ViewNames.SHALLOW_PARSE).asScala.toList
       val qCons = q.qTAOpt.get.getView(ViewNames.SHALLOW_PARSE).asScala.toList
       val qIdx = getClosestIndex(qCons, pCons)
@@ -657,8 +756,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
 
   /**
     * select a frame from the paragraph such that:
-    *    Its A1/A0 argument has enough similarity with one of the terms in the questions
-    *    Its A1/A0 argument has enough similarity with the target answer option.
+    * Its A1/A0 argument has enough similarity with one of the terms in the questions
+    * Its A1/A0 argument has enough similarity with the target answer option.
     */
   def SRLSolverV3(q: Question, p: Paragraph, alignmentFunction: AlignmentFunction, srlViewName: String): (Seq[Int], EntityRelationResult) = {
     val uniqueSelected = if (q.qTAOpt.get.hasView(srlViewName) && p.contextTAOpt.get.hasView(srlViewName)) {
@@ -697,8 +796,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
   }
 
   def SRLSolverV2(q: Question, p: Paragraph, srlViewName: String): (Seq[Int], EntityRelationResult) = {
-    assert (q.qTAOpt.get.hasView(annotationUtils.fillInBlankAnnotator.getViewName),
-      "q.questionText: " + q.questionText +  " / the current view: " + q.qTAOpt.get.getAvailableViews.asScala)
+    assert(q.qTAOpt.get.hasView(annotationUtils.fillInBlankAnnotator.getViewName),
+      "q.questionText: " + q.questionText + " / the current view: " + q.qTAOpt.get.getAvailableViews.asScala)
     val fillInBlank = q.qTAOpt.get.getView(annotationUtils.fillInBlankAnnotator.getViewName).getConstituents.get(0).getLabel
     val fillInBlankTA = if (fillInBlank == "") {
       q.qTAOpt.get
@@ -786,21 +885,21 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     val qSRLCons = qSRLView.getConstituents.asScala
     val pSRLCons = pSRLView.getConstituents.asScala
 
-    val keytermCons = if(keytermsWithWHOverlap) {
+    val keytermCons = if (keytermsWithWHOverlap) {
       // does question-srl contain any question term?
       qSRLCons.filter(c => SolverUtils.questionTerms.contains(c.getSurfaceForm.toLowerCase) && c.getIncomingRelations.size() > 0)
     }
     else {
       // align with answer words
-      if(qTA.text.contains(ans.answerText.trim)) {
+      if (qTA.text.contains(ans.answerText.trim)) {
         val idxBegin = qTA.text.indexOf(ans.answerText)
         val idxEnd = idxBegin + ans.answerText.length - 1
-        val out = qSRLCons.filter{ c =>
+        val out = qSRLCons.filter { c =>
           (c.getEndCharOffset <= idxEnd && c.getEndCharOffset >= idxBegin) ||
             (c.getStartCharOffset <= idxEnd && c.getStartCharOffset >= idxBegin) ||
             (c.getEndCharOffset >= idxEnd && c.getStartCharOffset <= idxBegin)
         }.filter(c => c.getLabel != "Predicate" && (c.getLabel == "A1" || c.getLabel == "A1") && c.getIncomingRelations.size() > 0)
-        if(out.isEmpty) {
+        if (out.isEmpty) {
           // println("qSRLCons: " + qSRLCons)
         }
         out
@@ -812,7 +911,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
 
     val questionWithoutKeyTermsTokens = originalQuestion.split(" ").toSet.diff(SolverUtils.stopwords)
 
-    keytermCons.exists{ cons =>
+    keytermCons.exists { cons =>
       val qArgLabel = cons.getLabel
       val qSource = cons.getIncomingRelations.get(0).getSource
 
@@ -821,8 +920,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       val pArgCons = pParagraph.flatMap { pred =>
         val overlapWithQuestion = questionWithoutKeyTermsTokens.intersect(getTokensInFrame(pred).toSet)
         val answerOptionContainsThePredicate = ans.answerText.contains(qSource.getSurfaceForm.trim)
-        val containsOneOfQuestionTerms = if(answerOptionContainsThePredicate) overlapWithQuestion.nonEmpty else true
-        if(containsOneOfQuestionTerms) {
+        val containsOneOfQuestionTerms = if (answerOptionContainsThePredicate) overlapWithQuestion.nonEmpty else true
+        if (containsOneOfQuestionTerms) {
           pred.getOutgoingRelations.asScala.map(_.getTarget).filter(_.getLabel == qArgLabel)
         }
         else {
@@ -849,14 +948,14 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
   def getPredicateFullLabel(pred: Constituent): String = pred.getLabel + pred.getAttribute("SenseNumber") + pred.getAttribute("predicate")
 
   def createILPModel[V <: IlpVar](
-    q: Question,
-    p: Paragraph,
-    ilpSolver: IlpSolver[V, _],
-    alignmentFunction: AlignmentFunction,
-    reasoningTypes: Set[ReasoningType],
-    useSummary: Boolean,
-    srlViewName: String
-  ): (mutable.Buffer[(Constituent, Constituent, V)], mutable.Buffer[(Constituent, Int, Int, V)], mutable.Buffer[(Constituent, Constituent, V)], Seq[(Int, V)], Boolean, Seq[Seq[String]]) = {
+                                   q: Question,
+                                   p: Paragraph,
+                                   ilpSolver: IlpSolver[V, _],
+                                   alignmentFunction: AlignmentFunction,
+                                   reasoningTypes: Set[ReasoningType],
+                                   useSummary: Boolean,
+                                   srlViewName: String
+                                 ): (mutable.Buffer[(Constituent, Constituent, V)], mutable.Buffer[(Constituent, Int, Int, V)], mutable.Buffer[(Constituent, Constituent, V)], Seq[(Int, V)], Boolean, Seq[Seq[String]]) = {
     if (verbose) println("starting to create the model  . . . ")
     val isTrueFalseQuestion = q.isTrueFalse
 
@@ -920,7 +1019,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
 
     println("reasoningTypes: " + reasoningTypes)
 
-    if(reasoningTypes.contains(SimpleMatching)) {
+    if (reasoningTypes.contains(SimpleMatching)) {
       // create questionToken-paragraphToken alignment edges
       val questionTokenParagraphTokenAlignments = for {
         qCons <- qTokens
@@ -1059,7 +1158,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       def twoAnswerConsAreConnectedViaDependencyParse(ansIdx: Int, tokIdx1: Int, tokIdx2: Int): Boolean = {
         val cons1 = getAnswerOptionCons(ansIdx, tokIdx1)
         val cons2 = getAnswerOptionCons(ansIdx, tokIdx2)
-        if(q.answers(ansIdx).aTAOpt.get.hasView(ViewNames.DEPENDENCY_STANFORD)) {
+        if (q.answers(ansIdx).aTAOpt.get.hasView(ViewNames.DEPENDENCY_STANFORD)) {
           val ansDepView = q.answers(ansIdx).aTAOpt.get.getView(ViewNames.DEPENDENCY_STANFORD)
           val cons1InDep = ansDepView.getConstituentsCovering(cons1).asScala.headOption
           val cons2InDep = ansDepView.getConstituentsCovering(cons2).asScala.headOption
@@ -1283,7 +1382,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       }
     }
 
-    if(reasoningTypes.contains(SimpleMatchingWithCoref)) {
+    if (reasoningTypes.contains(SimpleMatchingWithCoref)) {
       // create questionToken-paragraphToken alignment edges
       val questionTokenParagraphTokenAlignments = for {
         qCons <- qTokens
@@ -1642,11 +1741,11 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     }
 
     // in this reasoning, we match the frames of the question with the frames of the paragraphs directly
-    if(reasoningTypes.contains(SRLV1ILP)) {
+    if (reasoningTypes.contains(SRLV1ILP)) {
       val qVerbConstituents = if (qTA.hasView(srlViewName)) qTA.getView(srlViewName).getConstituents.asScala else Seq.empty
       val pVerbConstituents = if (pTA.hasView(srlViewName)) pTA.getView(srlViewName).getConstituents.asScala else Seq.empty
-      val qVerbPredicates = qVerbConstituents.filter(_.getLabel=="Predicate")
-      val pVerbPredicates = pVerbConstituents.filter(_.getLabel=="Predicate")
+      val qVerbPredicates = qVerbConstituents.filter(_.getLabel == "Predicate")
+      val pVerbPredicates = pVerbConstituents.filter(_.getLabel == "Predicate")
       val qVerbArguments = qVerbConstituents diff qVerbPredicates
       val pVerbArguments = pVerbConstituents diff pVerbPredicates
 
@@ -1654,13 +1753,13 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       val qVerbPredicateToArgumentMap = qVerbConstituents.map(c => c -> c.getOutgoingRelations.asScala.map(_.getTarget)).toMap
 
       // active question verb-srl constituents
-      val activeQuestionVerbSRLConstituents = qVerbConstituents.zipWithIndex.map{ case(c, idx) =>
+      val activeQuestionVerbSRLConstituents = qVerbConstituents.zipWithIndex.map { case (c, idx) =>
         // TODO: tune this weight
         c -> ilpSolver.createBinaryVar(s"activeQuestionVerbCons=$idx", 0.001)
       }.toMap
 
       // active paragraph verb-srl constituents
-      val activeParagraphVerbSRLConstituents = pVerbConstituents.zipWithIndex.map{ case(c, idx) =>
+      val activeParagraphVerbSRLConstituents = pVerbConstituents.zipWithIndex.map { case (c, idx) =>
         // TODO: tune this weight
         c -> ilpSolver.createBinaryVar(s"activeParagraphVerbCons=$idx", 0.001)
       }.toMap
@@ -1722,7 +1821,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       }
 
       // constrain: if any of the question constituents were active, at least one of their edges should be active too
-      qVerbConstituents.foreach{ qVerbC =>
+      qVerbConstituents.foreach { qVerbC =>
         val qVerbCVar = activeQuestionVerbSRLConstituents(qVerbC)
         val connected = getEdgesConnectedToQuestionCons(qVerbC)
         val weights = 1.0 +: connected.map(_ => -1.0)
@@ -1749,7 +1848,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
 
       // constraint: predicate should be inactive, unless it has at least two incoming outgoing relations
       // pred * 2 <= \sum arguments
-      val verbSRLEdges = pVerbPredicates.flatMap{ pred =>
+      val verbSRLEdges = pVerbPredicates.flatMap { pred =>
         val arguments = pVerbPredicateToArgumentMap(pred)
         val predVar = activeParagraphVerbSRLConstituents(pred)
         val argumentVars = arguments.map(activeParagraphVerbSRLConstituents)
@@ -1757,13 +1856,13 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
         //ilpSolver.addConsBasicLinear(s"", predVar +: argumentVars, 2.0 +: weights, None, Some(0.0))
 
         // if predicate is inactive, nothing can be active
-        argumentVars.foreach{ v =>
+        argumentVars.foreach { v =>
           ilpSolver.addConsBasicLinear(s"", Seq(v, predVar), Seq(1.0, -1.0), None, Some(0.0))
         }
         //ilpSolver.addConsBasicLinear(s"", predVar +: argumentVars, 10.0 +: weights, Some(0.0), None)
 
         // get variables for SRL edges
-        arguments.map{ arg =>
+        arguments.map { arg =>
           val argumentVar = activeParagraphVerbSRLConstituents(arg)
           // if both edges are active, visualize an edge
           val x = ilpSolver.createBinaryVar("", 0.01)
@@ -1788,7 +1887,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       paragraphAnswerAlignments ++= argumentAnswerAlignments.toBuffer
     }
 
-    if(reasoningTypes.contains(VerbSRLandCommaSRL)) {
+    if (reasoningTypes.contains(VerbSRLandCommaSRL)) {
       val commaSRLPredicateabels = Set("Attribute", "Complementary", "Interrupter", "Introductory", "List", "Quotation", "Substitute", "Locative")
 
       val qVerbConstituents = if (qTA.hasView(srlViewName)) qTA.getView(srlViewName).getConstituents.asScala else Seq.empty
@@ -1796,8 +1895,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       //val qCommaConstituents = if (qTA.hasView(ViewNames.SRL_COMMA)) qTA.getView(ViewNames.SRL_COMMA).getConstituents.asScala else Seq.empty
       val pCommaConstituents = if (pTA.hasView(ViewNames.SRL_COMMA)) pTA.getView(ViewNames.SRL_COMMA).getConstituents.asScala else Seq.empty
       val pCommaPredicates = pCommaConstituents.filter(c => commaSRLPredicateabels.contains(c.getLabel))
-      val qVerbPredicates = qVerbConstituents.filter(_.getLabel=="Predicate")
-      val pVerbPredicates = pVerbConstituents.filter(_.getLabel=="Predicate")
+      val qVerbPredicates = qVerbConstituents.filter(_.getLabel == "Predicate")
+      val pVerbPredicates = pVerbConstituents.filter(_.getLabel == "Predicate")
       val qVerbArguments = qVerbConstituents diff qVerbPredicates
       val pVerbArguments = pVerbConstituents diff pVerbPredicates
       val pCommaArguments = pCommaConstituents diff pCommaPredicates
@@ -1829,7 +1928,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       }
 
       // active paragraph comma-srl constituents
-      val activeParagrapCommaSRLConstituents = pCommaConstituents.zipWithIndex.map{ case(c, idx) =>
+      val activeParagrapCommaSRLConstituents = pCommaConstituents.zipWithIndex.map { case (c, idx) =>
         // TODO: tune this weight
         c -> ilpSolver.createBinaryVar(s"activeParagraphCommaCons=$idx", 0.01)
       }.toMap
@@ -1847,7 +1946,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       //      addConsistencyMapToFrames(pCommaPredicateToArgumentMap, activeParagrapCommaSRLConstituents, activeParagraphCommaSrlFrames)
 
       // active question verb-srl constituents
-      val activeQuestionVerbSRLConstituents = qVerbConstituents.zipWithIndex.map{ case(c, idx) =>
+      val activeQuestionVerbSRLConstituents = qVerbConstituents.zipWithIndex.map { case (c, idx) =>
         // TODO: tune this weight
         c -> ilpSolver.createBinaryVar(s"activeQuestionVerbCons=$idx", 0.01)
       }.toMap
@@ -1864,7 +1963,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       //      addConsistencyMapToFrames(qVerbPredicateToArgumentMap, activeQuestionVerbSRLConstituents, activeQuestionVerbSrlFrames)
 
       // active paragraph verb-srl constituents
-      val activeParagraphVerbSRLConstituents = pVerbConstituents.zipWithIndex.map{ case(c, idx) =>
+      val activeParagraphVerbSRLConstituents = pVerbConstituents.zipWithIndex.map { case (c, idx) =>
         // TODO: tune this weight
         c -> ilpSolver.createBinaryVar(s"activeParagraphVerbCons=$idx", 0.01)
       }.toMap
@@ -1970,7 +2069,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       def getEdgesConnectedToQuestionCons(c: Constituent): Seq[V] = {
         pVerbQVerbAlignments.filter(_._1 == c).map(_._3) ++ pCommaQVerbAlignments.filter(_._1 == c).map(_._3)
       }
-      activeQuestionVerbSRLConstituents.foreach{ case (c, x) =>
+
+      activeQuestionVerbSRLConstituents.foreach { case (c, x) =>
         val edges = getEdgesConnectedToQuestionCons(c)
         val weights = edges.map(_ => -1.0)
         ilpSolver.addConsBasicLinear(s"", x +: edges, 1.0 +: weights, None, Some(0.0))
@@ -1978,7 +2078,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
 
       // constraint: predicate should be inactive, unless it has at least two incoming outgoing relations
       // pred * 2 <= \sum arguments
-      val verbSRLEdges = pVerbPredicates.flatMap{ pred =>
+      val verbSRLEdges = pVerbPredicates.flatMap { pred =>
         val arguments = pVerbPredicateToArgumentMap(pred)
         val predVar = activeParagraphVerbSRLConstituents(pred)
         val argumentVars = arguments.map(activeParagraphVerbSRLConstituents)
@@ -1990,7 +2090,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
 
 
         // get variables for SRL edgess
-        arguments.map{ arg =>
+        arguments.map { arg =>
           val argumentVar = activeParagraphVerbSRLConstituents(arg)
           // if both edges are active, visualize an edge
           val x = ilpSolver.createBinaryVar("", 0.01)
@@ -2004,7 +2104,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       interParagraphAlignments ++= pCommaPVerbAlignments.toBuffer ++ pCommaArgumentAglinments.toBuffer ++ verbSRLEdges.toBuffer
 
       // constraint: the predicate can be active only if at least one of the its connected arguments are active
-      if(true) {
+      if (true) {
         pVerbPredicates.foreach { predicate =>
           val predicateVar = activeParagraphVerbSRLConstituents(predicate)
           val arguments = pVerbPredicateToArgumentMap(predicate)
@@ -2015,7 +2115,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       }
 
       // PA alignments: alignment between verb-srl argument in paragraph and answer option
-      val ansPVerbAlignments = for{
+      val ansPVerbAlignments = for {
         verbC <- pVerbArguments
         (ansIdx, ansVar) <- activeAnswerOptions
         score = alignmentFunction.scoreCellCell(verbC.getSurfaceForm, q.answers(ansIdx).answerText)
@@ -2053,12 +2153,16 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       paragraphAnswerAlignments ++= ansPVerbAlignments.toBuffer
 
       def getConstituentsConectedToParagraphSRLArg(c: Constituent): Seq[V] = {
-        pCommaPVerbAlignments.filter(_._1 == c).map{_._3} ++ ansPVerbAlignments.filter(_._1 == c).map{_._4}
+        pCommaPVerbAlignments.filter(_._1 == c).map {
+          _._3
+        } ++ ansPVerbAlignments.filter(_._1 == c).map {
+          _._4
+        }
       }
 
       // constraint: no dangling arguments: i.e. any verb-srl argument in the paragram, should be connected to at least
       // one other thing, in addition to its predicate
-      if(true) {
+      if (true) {
         pVerbArguments.zipWithIndex.foreach { case (arg, idx) =>
           val argVar = activeParagraphVerbSRLConstituents(arg)
           val connected = getConstituentsConectedToParagraphSRLArg(arg)
@@ -2079,7 +2183,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
         /*verbSRLEdges1.map(_._3) ++*/ pVerbQVerbAlignments1.map(_._3)
       }
 
-      pVerbPredicates.foreach{ p =>
+      pVerbPredicates.foreach { p =>
         // constraint:
         // for each predicate in the paragraph, it should not be active, unless it has at least one verb connected to it from question
         // 2 * pVar  <= \sum edges
@@ -2090,13 +2194,13 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       }
     }
 
-    if(reasoningTypes.contains(VerbSRLandPrepSRL)) {
+    if (reasoningTypes.contains(VerbSRLandPrepSRL)) {
       val qVerbConstituents = if (qTA.hasView(srlViewName)) qTA.getView(srlViewName).getConstituents.asScala else Seq.empty
       val pVerbConstituents = if (pTA.hasView(srlViewName)) pTA.getView(srlViewName).getConstituents.asScala else Seq.empty
       val pPrepConstituents = if (pTA.hasView(ViewNames.SRL_PREP)) pTA.getView(ViewNames.SRL_PREP).getConstituents.asScala else Seq.empty
       val pPrepPredicates = if (pTA.hasView(ViewNames.SRL_PREP)) pTA.getView(ViewNames.SRL_PREP).asInstanceOf[PredicateArgumentView].getPredicates.asScala else Seq.empty
-      val qVerbPredicates = qVerbConstituents.filter(_.getLabel=="Predicate")
-      val pVerbPredicates = pVerbConstituents.filter(_.getLabel=="Predicate")
+      val qVerbPredicates = qVerbConstituents.filter(_.getLabel == "Predicate")
+      val pVerbPredicates = pVerbConstituents.filter(_.getLabel == "Predicate")
       val qVerbArguments = qVerbConstituents diff qVerbPredicates
       val pVerbArguments = pVerbConstituents diff pVerbPredicates
       val pPrepArguments = pPrepConstituents diff pPrepPredicates
@@ -2106,22 +2210,22 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       val qVerbPredicateToArgumentMap = qVerbPredicates.map(c => c -> c.getOutgoingRelations.asScala.map(_.getTarget)).toMap
 
       // active paragraph prep-srl constituents
-      val activeParagraphPrepSRLConstituents = pPrepConstituents.zipWithIndex.map{ case(c, idx) =>
+      val activeParagraphPrepSRLConstituents = pPrepConstituents.zipWithIndex.map { case (c, idx) =>
         c -> ilpSolver.createBinaryVar(s"", 0.01) //TODO: tune this weight
       }.toMap
 
       // active question verb-srl constituents
-      val activeQuestionVerbSRLConstituents = qVerbConstituents.zipWithIndex.map{ case(c, idx) =>
+      val activeQuestionVerbSRLConstituents = qVerbConstituents.zipWithIndex.map { case (c, idx) =>
         c -> ilpSolver.createBinaryVar(s"activeQuestionVerbCons=$idx", 0.01) //TODO: tune this weight
       }.toMap
 
       // active verb-srl frames in the question
-      val activeQuestionVerbSRLFrames = qVerbPredicates.zipWithIndex.map{ case(c, idx) =>
+      val activeQuestionVerbSRLFrames = qVerbPredicates.zipWithIndex.map { case (c, idx) =>
         c -> ilpSolver.createBinaryVar(s"", 0.05) //TODO: tune this weight
       }.toMap
 
       // active paragraph verb-srl constituents
-      val activeParagraphVerbSRLConstituents = pVerbConstituents.zipWithIndex.map{ case(c, idx) =>
+      val activeParagraphVerbSRLConstituents = pVerbConstituents.zipWithIndex.map { case (c, idx) =>
         c -> ilpSolver.createBinaryVar(s"activeParagraphVerbCons=$idx", 0.01) //TODO: tune this weight
       }.toMap
 
@@ -2146,7 +2250,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       ilpSolver.addConsAtMostK(s"", qVerbArgumentVars, 3.0)
 
       // constraint: use at most 1 verb-srl arguments of each frame
-      qVerbPredicateToArgumentMap.foreach{ case (_, args) =>
+      qVerbPredicateToArgumentMap.foreach { case (_, args) =>
         ilpSolver.addConsAtMostK(s"", args.map(activeQuestionVerbSRLConstituents), 1.0)
       }
 
@@ -2171,16 +2275,17 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       def edgesConnectedToPrepSRLArguments(c: Constituent): Seq[V] = {
         pPrepVerbAlignments.filter(_._2 == c).map(_._3)
       }
-      pPrepArguments.foreach{ c =>
+
+      pPrepArguments.foreach { c =>
         val srlPrepVar = activeParagraphPrepSRLConstituents(c)
         val vars = edgesConnectedToPrepSRLArguments(c)
         val weights = vars.map(_ => -1.0)
         // if all vars are inactive, prep-srl-var should be inactive
-        ilpSolver.addConsBasicLinear(s"",vars :+ srlPrepVar, weights :+ 1.0, None, Some(0.0))
+        ilpSolver.addConsBasicLinear(s"", vars :+ srlPrepVar, weights :+ 1.0, None, Some(0.0))
       }
 
       // constraint: no loop allowed: loop of a verb-srl arg connected to two prep-srl args of the same frame
-      pPrepVerbAlignments.groupBy{ case (verbC, prepC, _) =>
+      pPrepVerbAlignments.groupBy { case (verbC, prepC, _) =>
         (prepC.getIncomingRelations.asScala.head.getSource, verbC)
       }.foreach { case (_, seq) =>
         val (verbCCons, prepCons, vars) = seq.unzip3
@@ -2245,7 +2350,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       }
 
       // each verb-srl argument in the question can have eat most 1 outgoing edges
-      pVerbQVerbAlignments.groupBy(_._1).foreach{ case (_, seq) =>
+      pVerbQVerbAlignments.groupBy(_._1).foreach { case (_, seq) =>
         val edges = seq.unzip3._3
         ilpSolver.addConsAtMostK("", edges, 1)
       }
@@ -2271,7 +2376,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       def getEdgesForQuestionCons(c: Constituent): Seq[V] = {
         pVerbQVerbPredicateAlignments.filter(_._1 == c).map(_._3) ++ pVerbQVerbAlignments.filter(_._1 == c).map(_._3)
       }
-      activeQuestionVerbSRLConstituents.foreach{ case (c, x) =>
+
+      activeQuestionVerbSRLConstituents.foreach { case (c, x) =>
         val edges = getEdgesForQuestionCons(c)
         val weights = edges.map(_ => -1.0)
         ilpSolver.addConsBasicLinear(s"", x +: edges, 1.0 +: weights, None, Some(0.0))
@@ -2279,7 +2385,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
 
       // constraint: predicate should be inactive, unless it has at least two incoming outgoing relations
       // pred * 2 <= \sum arguments
-      val verbSRLEdges = pVerbPredicates.flatMap{ pred =>
+      val verbSRLEdges = pVerbPredicates.flatMap { pred =>
         val arguments = pVerbPredicateToArgumentMap(pred)
         val predVar = activeParagraphVerbSRLConstituents(pred)
         val argumentVars = arguments.map(activeParagraphVerbSRLConstituents)
@@ -2290,7 +2396,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
         //ilpSolver.addConsBasicLinear(s"", predVar +: argumentVars, 10.0 +: weights, Some(0.0), None)
 
         // get variables for SRL edges
-        arguments.map{ arg =>
+        arguments.map { arg =>
           val argumentVar = activeParagraphVerbSRLConstituents(arg)
           // if both edges are active, visualize an edge
           val x = ilpSolver.createBinaryVar("", 0.2)
@@ -2350,8 +2456,9 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
 
       // constraint: all verb-srl arguments in the paragraphs should have at least two connections.
       def getEdgesConnectedToVerbSRLArguments(c: Constituent): Seq[V] = {
-        ansPVerbAlignments.filter(_._1 == c).map(_._4) ++ pVerbQVerbAlignments.filter(_._2 == c).map(_._3) ++  pPrepVerbAlignments.filter(_._1 == c).map(_._3)
+        ansPVerbAlignments.filter(_._1 == c).map(_._4) ++ pVerbQVerbAlignments.filter(_._2 == c).map(_._3) ++ pPrepVerbAlignments.filter(_._1 == c).map(_._3)
       }
+
       pVerbArguments.foreach { arg =>
         val pVerbArgVar = activeParagraphVerbSRLConstituents(arg)
         val vars = getEdgesConnectedToVerbSRLArguments(arg)
@@ -2368,8 +2475,13 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       // constraint: no dangling arguments: i.e. any verb-srl argument in the paragraph, should be connected to at least
       // one other thing, in addition to its predicate
       def getConstituentsConectedToParagraphSRLArg(c: Constituent): Seq[V] = {
-        pPrepVerbAlignments.filter(_._1 == c).map{_._3} ++ ansPVerbAlignments.filter(_._1 == c).map{_._4}
+        pPrepVerbAlignments.filter(_._1 == c).map {
+          _._3
+        } ++ ansPVerbAlignments.filter(_._1 == c).map {
+          _._4
+        }
       }
+
       pVerbArguments.zipWithIndex.foreach { case (arg, idx) =>
         val argVar = activeParagraphVerbSRLConstituents(arg)
         val connected = getConstituentsConectedToParagraphSRLArg(arg)
@@ -2387,6 +2499,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       def getEdgesConnectedToVerbSRLPredicates(c: Constituent): Seq[V] = {
         verbSRLEdges.filter(_._1 == c).map(_._3) ++ pVerbQVerbPredicateAlignments.filter(_._2 == c).map(_._3)
       }
+
       pVerbPredicates.zipWithIndex.foreach { case (arg, idx) =>
         val argVar = activeParagraphVerbSRLConstituents(arg)
         val connected = getEdgesConnectedToVerbSRLPredicates(arg)
@@ -2420,12 +2533,12 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
 
     }
 
-    if(reasoningTypes.contains(VerbSRLandCoref)) {
+    if (reasoningTypes.contains(VerbSRLandCoref)) {
       val qVerbViewOpt = if (qTA.hasView(srlViewName)) Some(qTA.getView(srlViewName)) else None
-      val qVerbConstituents = if(qVerbViewOpt.isDefined) qVerbViewOpt.get.getConstituents.asScala else Seq.empty
+      val qVerbConstituents = if (qVerbViewOpt.isDefined) qVerbViewOpt.get.getConstituents.asScala else Seq.empty
       val pVerbConstituents = if (pTA.hasView(srlViewName)) pTA.getView(srlViewName).getConstituents.asScala else Seq.empty
-      val qVerbPredicates = qVerbConstituents.filter(_.getLabel=="Predicate")
-      val pVerbPredicates = pVerbConstituents.filter(_.getLabel=="Predicate")
+      val qVerbPredicates = qVerbConstituents.filter(_.getLabel == "Predicate")
+      val pVerbPredicates = pVerbConstituents.filter(_.getLabel == "Predicate")
       val qVerbArguments = qVerbConstituents diff qVerbPredicates
       val pVerbArguments = pVerbConstituents diff pVerbPredicates
       val pCorefConstituents = if (pTA.hasView(TextILPSolver.stanfordCorefViewName)) pTA.getView(TextILPSolver.stanfordCorefViewName).getConstituents.asScala else Seq.empty
@@ -2435,29 +2548,29 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       val qVerbPredicateToArgumentMap = qVerbConstituents.map(c => c -> c.getOutgoingRelations.asScala.map(_.getTarget)).toMap
 
       // active paragraph comma-srl constituents
-      val activeParagraphCorefConstituents = pCorefConstituents.zipWithIndex.map{ case(c, idx) =>
+      val activeParagraphCorefConstituents = pCorefConstituents.zipWithIndex.map { case (c, idx) =>
         // TODO: tune this weight
         c -> ilpSolver.createBinaryVar(s"activeParagraphCorefCons=$idx", 0.001)
       }.toMap
 
       // active question verb-srl constituents
-      val activeQuestionVerbSRLConstituents = qVerbConstituents.zipWithIndex.map{ case(c, idx) =>
+      val activeQuestionVerbSRLConstituents = qVerbConstituents.zipWithIndex.map { case (c, idx) =>
         // TODO: tune this weight
         c -> ilpSolver.createBinaryVar(s"activeQuestionVerbCons=$idx", 0.001)
       }.toMap
 
       // active paragraph verb-srl constituents
-      val activeParagraphVerbSRLConstituents = pVerbConstituents.zipWithIndex.map{ case(c, idx) =>
+      val activeParagraphVerbSRLConstituents = pVerbConstituents.zipWithIndex.map { case (c, idx) =>
         // TODO: tune this weight
         c -> ilpSolver.createBinaryVar(s"activeParagraphVerbCons=$idx", 0.001)
       }.toMap
 
-      val activeCorefChains = pCorefConstituentGroups.keySet.map{ key =>
+      val activeCorefChains = pCorefConstituentGroups.keySet.map { key =>
         val x = ilpSolver.createBinaryVar(s"", -0.0001)
         // constraint: if a coref cons is active, then the chain must be active
         val consInChain = pCorefConstituentGroups(key)
         val consVars = consInChain.map(activeParagraphCorefConstituents)
-        consVars.foreach{ cVar =>
+        consVars.foreach { cVar =>
           ilpSolver.addConsBasicLinear(s"", Seq(cVar, x), Seq(1.0, -1.0), None, Some(0.0))
         }
         // constraint: if the coref chain is active, at least one of the constituents that belong to that chain should be active
@@ -2538,7 +2651,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
         corefCons2 = pair(1)
       }
         yield {
-          val x = ilpSolver.createBinaryVar("", 0.02) // TODO: tune this
+          val x = ilpSolver.createBinaryVar("", 0.02)
+          // TODO: tune this
           // constraint: if pairwise variable is active, the two end should be active too.
           val arg1Var = activeParagraphCorefConstituents(corefCons1)
           val arg2Var = activeParagraphCorefConstituents(corefCons2)
@@ -2553,7 +2667,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
           pCorefArgumentAlignments.filter(_._2 == c).map(_._3) ++
           pCorefConsPVerbAlignments.filter(_._2 == c).map(_._3)
       }
-      activeParagraphCorefConstituents.foreach{ case (c, x) =>
+
+      activeParagraphCorefConstituents.foreach { case (c, x) =>
         val edgeVars = getEdgesConnectedToCons(c).toSeq
         ilpSolver.addConsBasicLinear("", x +: edgeVars, 1.0 +: edgeVars.map(_ => -1.0), None, Some(0.0))
       }
@@ -2598,7 +2713,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       def getEdgesConnectedToQuestionCons(c: Constituent): Seq[V] = {
         pVerbQVerbAlignments.filter(_._1 == c).map(_._3) ++ pCorefConsQVerbAlignments.filter(_._1 == c).map(_._3)
       }
-      activeQuestionVerbSRLConstituents.foreach{ case (c, x) =>
+
+      activeQuestionVerbSRLConstituents.foreach { case (c, x) =>
         val edges = getEdgesConnectedToQuestionCons(c)
         val weights = edges.map(_ => -1.0)
         ilpSolver.addConsBasicLinear(s"", x +: edges, 1.0 +: weights, None, Some(0.0))
@@ -2606,7 +2722,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
 
       // constraint: predicate should be inactive, unless it has at least two incoming outgoing relations
       // pred * 2 <= \sum arguments
-      val verbSRLEdges = pVerbPredicates.flatMap{ pred =>
+      val verbSRLEdges = pVerbPredicates.flatMap { pred =>
         val arguments = pVerbPredicateToArgumentMap(pred)
         val predVar = activeParagraphVerbSRLConstituents(pred)
         val argumentVars = arguments.map(activeParagraphVerbSRLConstituents)
@@ -2614,13 +2730,13 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
         //ilpSolver.addConsBasicLinear(s"", predVar +: argumentVars, 2.0 +: weights, None, Some(0.0))
 
         // if predicate is inactive, nothing can be active
-        argumentVars.foreach{ v =>
+        argumentVars.foreach { v =>
           ilpSolver.addConsBasicLinear(s"", Seq(v, predVar), Seq(1.0, -1.0), None, Some(0.0))
         }
         //ilpSolver.addConsBasicLinear(s"", predVar +: argumentVars, 10.0 +: weights, Some(0.0), None)
 
         // get variables for SRL edges
-        arguments.map{ arg =>
+        arguments.map { arg =>
           val argumentVar = activeParagraphVerbSRLConstituents(arg)
           // if both edges are active, visualize an edge
           val x = ilpSolver.createBinaryVar("", 0.01)
@@ -2679,7 +2795,11 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       paragraphAnswerAlignments ++= ansPVerbAlignments.toBuffer
 
       def getConstituentsConectedToParagraphSRLArg(c: Constituent): Seq[V] = {
-        pCorefConsPVerbAlignments.filter(_._1 == c).map{_._3} ++ ansPVerbAlignments.filter(_._1 == c).map{_._4}
+        pCorefConsPVerbAlignments.filter(_._1 == c).map {
+          _._3
+        } ++ ansPVerbAlignments.filter(_._1 == c).map {
+          _._4
+        }
       }
 
       // constraint: no dangling arguments: i.e. any verb-srl argument in the paragram, should be connected to at least
@@ -2719,7 +2839,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       def getConnectedEdgesToPCorefCons(corefC: Constituent): Seq[V] = {
         pCorefConsPVerbAlignments.filter(_._2 == corefC).map(_._3)
       }
-      pCorefConstituents.foreach{ c =>
+
+      pCorefConstituents.foreach { c =>
         val connected = getConnectedEdgesToPCorefCons(c)
         val weights = connected.map(_ => -1.0)
         // it is active, only if something connected to it is also active
@@ -2743,7 +2864,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     }
 
     // constraint: alignment to only one option, i.e. there must be only one single active option
-    if (activeAnswerOptions.nonEmpty /*&& activeConstaints*/) {
+    if (activeAnswerOptions.nonEmpty /*&& activeConstaints*/ ) {
       val activeAnsVars = activeAnswerOptions.map { case (ans, x) => x }
       val activeAnsVarsCoeffs = Seq.fill(activeAnsVars.length)(1.0)
       ilpSolver.addConsBasicLinear("onlyOneActiveOption", activeAnsVars, activeAnsVarsCoeffs, Some(1.0), Some(1.0))
@@ -2762,7 +2883,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       List.empty
     }
     */
-      (questionParagraphAlignments, paragraphAnswerAlignments, interParagraphAlignments, activeAnswerOptions, isTrueFalseQuestion, aTokens)
+    (questionParagraphAlignments, paragraphAnswerAlignments, interParagraphAlignments, activeAnswerOptions, isTrueFalseQuestion, aTokens)
   }
 
   def solveTopAnswer[V <: IlpVar](
@@ -3041,7 +3162,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
         def solveExcludingAnswerOptions(toExclude: Set[Int],
                                         solutionsSoFar: Seq[(Seq[Int], EntityRelationResult)]): Seq[(Seq[Int], EntityRelationResult)] = {
           println(s"Disabling choice: $toExclude")
-          toExclude.foreach{ idx =>
+          toExclude.foreach { idx =>
             ilpSolver.chgVarUb(activeAnswerOptionsMap(idx), 0d)
           }
 
@@ -3072,7 +3193,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
             val selectedIndex = getSelectedIndices(ilpSolver, activeAnswerOptions, isTrueFalseQuestion, trueIdx, falseIdx)
             println("selectedIndex: " + selectedIndex)
             selectedIndex -> EntityRelationResult(snippet, List.empty, List.empty,
-              statistics = statistics.copy(selected = if(toExclude.isEmpty) true else false))
+              statistics = statistics.copy(selected = if (toExclude.isEmpty) true else false))
           } else {
             println("Not optimal . . . ")
             if (verbose) println("Status is not optimal. Status: " + ilpSolver.getStatus)
@@ -3082,7 +3203,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
 
           val newToExclude = toExclude ++ newSolution._1
 
-          if(newToExclude.size < activeAnswerOptions.size && newSolution._1.nonEmpty) {
+          if (newToExclude.size < activeAnswerOptions.size && newSolution._1.nonEmpty) {
             // Reset solution for any future calls to solve
             ilpSolver.resetSolve()
             // continue solving : call the method again with the best choice disabled
@@ -3091,6 +3212,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
             solutionsSoFar :+ newSolution
           }
         }
+
         solveExcludingAnswerOptions(Set.empty, Seq.empty)
     }
   }
@@ -3099,9 +3221,9 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     val fvs = extractFeatureVectorForQuestion(question, options, snippet)
     // convert out feature vector to Weka feature vector
     val dataUnlabeled = new Instances(TextILPSolver.headerEmptyInstances)
-    val confidenceValuesPerAnsOption = fvs.foreach{ featureVector =>
+    val confidenceValuesPerAnsOption = fvs.foreach { featureVector =>
       val ins = new SparseInstance(featureVector.length)
-      featureVector.zipWithIndex.foreach{ case (value, i) => ins.setValue(i, value) }
+      featureVector.zipWithIndex.foreach { case (value, i) => ins.setValue(i, value) }
       dataUnlabeled.add(ins)
     }
     dataUnlabeled
@@ -3112,7 +3234,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     val fvs = extractFeatureVectorForQuestion(question, options, snippet)
     val dataUnlabeled = new Instances(TextILPSolver.headerEmptyInstances)
     dataUnlabeled.setClassIndex(dataUnlabeled.numAttributes() - 1)
-    val confidenceValuesPerAnsOption = fvs.zipWithIndex.map{ case (featureVector, i) =>
+    val confidenceValuesPerAnsOption = fvs.zipWithIndex.map { case (featureVector, i) =>
       val ins = new DenseInstance(featureVector.length)
       ins.replaceMissingValues(featureVector.toArray)
       dataUnlabeled.add(ins)
@@ -3129,8 +3251,27 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
   }
 
   private def extractFeatureVectorForQuestion(question: String, options: Seq[String], snippet: String) = {
-    val types = Seq(SimpleMatching, WhatDoesItDoRule, CauseRule, SRLV1Rule, VerbSRLandPrepSRL, SRLV1ILP, VerbSRLandCoref, SRLV2Rule, SRLV3Rule, VerbSRLandCommaSRL)
-    val srlViewsAll = Seq(ViewNames.SRL_VERB, TextILPSolver.curatorSRLViewName, TextILPSolver.pathLSTMViewName)
+    val types = Constants.textILPModel match {
+      case TextILPModel.EnsembleFull =>
+        Seq(SimpleMatching, WhatDoesItDoRule, CauseRule, SRLV1Rule, VerbSRLandPrepSRL, SRLV1ILP, VerbSRLandCoref, SRLV2Rule, SRLV3Rule, VerbSRLandCommaSRL)
+      case TextILPModel.EnsembleNoCoref =>
+        Seq(SimpleMatching, WhatDoesItDoRule, CauseRule, SRLV1Rule, VerbSRLandPrepSRL, SRLV1ILP, SRLV2Rule, SRLV3Rule, VerbSRLandCommaSRL)
+      case TextILPModel.EnsembleNoPrepSRL =>
+        Seq(SimpleMatching, WhatDoesItDoRule, CauseRule, SRLV1Rule, SRLV1ILP, VerbSRLandCoref, SRLV2Rule, SRLV3Rule, VerbSRLandCommaSRL)
+      case TextILPModel.EnsembleNoCommaSRL =>
+        Seq(SimpleMatching, WhatDoesItDoRule, CauseRule, SRLV1Rule, VerbSRLandPrepSRL, SRLV1ILP, VerbSRLandCoref, SRLV2Rule, SRLV3Rule)
+      case TextILPModel.EnsembleNoSimpleMatching =>
+        Seq(WhatDoesItDoRule, CauseRule, SRLV1Rule, VerbSRLandPrepSRL, SRLV1ILP, VerbSRLandCoref, SRLV2Rule, SRLV3Rule, VerbSRLandCommaSRL)
+      case TextILPModel.EnsembleNoVerbSRL =>
+        Seq(SimpleMatching, WhatDoesItDoRule, CauseRule, VerbSRLandPrepSRL, VerbSRLandCoref, VerbSRLandCommaSRL)
+    }
+    val srlViewsAll = if (Constants.textILPModel == TextILPModel.EnsembleMinimal) {
+      Seq(ViewNames.SRL_VERB, TextILPSolver.pathLSTMViewName)
+    }
+    else {
+      Seq(ViewNames.SRL_VERB, TextILPSolver.curatorSRLViewName, TextILPSolver.pathLSTMViewName)
+    }
+
     val results = types.flatMap { t =>
       val srlViewTypes = if (t == CauseRule || t == WhatDoesItDoRule || t == SimpleMatching) Seq(TextILPSolver.pathLSTMViewName) else srlViewsAll
       srlViewTypes.flatMap { srlVu =>

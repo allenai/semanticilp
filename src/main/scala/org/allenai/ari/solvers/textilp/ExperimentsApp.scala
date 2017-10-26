@@ -19,7 +19,7 @@ import org.simmetrics.StringMetric
 import weka.classifiers.Evaluation
 import weka.classifiers.bayes.NaiveBayesUpdateable
 import weka.classifiers.functions.Logistic
-import weka.core.Instances
+import weka.core.{ DenseInstance, Instance, Instances }
 import weka.core.converters.ArffLoader
 import weka.core.converters.ArffLoader.ArffReader
 import java.io._
@@ -45,13 +45,11 @@ object ExperimentsApp {
     verify()
   }
 
-  def evaluateTextSolverOnRegents(dataset: Seq[(String, Seq[String], String)], textSolver: TextSolver,
-    knowledgeLength: Int = 8, printMistakes: Boolean = false, splitToSentences: Boolean = false) = {
-    val resultFile = new PrintWriter(new File(s"output/results-$textSolver-length${dataset.length}.txt"))
-    val types = Seq(WhatDoesItDoRule, CauseRule, SRLV1Rule, VerbSRLandPrepSRL, SRLV1ILP, VerbSRLandCoref, SimpleMatching)
+  def evaluateTextSolverOnRegents(dataset: Seq[(String, Seq[String], String)], textSolver: TextSolver, knowledgeLength: Int = 8) = {
+    val resultFile = new PrintWriter(new File(s"output/results-$textSolver-2length${dataset.length}-knowledgeLength${knowledgeLength}.txt"))
     import java.io._
     // use false if you don't it to write things on disk
-    val predictionsFileOpt = if (true) {
+    val predictionsFileOpt = if (false) {
       Some(new PrintWriter(new File(s"output-$textSolver-length${dataset.length}.tsv")))
     } else {
       None
@@ -76,23 +74,7 @@ object ExperimentsApp {
         var bestSelected: Seq[Int] = Seq.empty
         val (selected, results) = if (knowledgeSnippet.trim != "") {
           println("solving it . . . ")
-          if (splitToSentences) {
-            val ta = annotationUtils.pipelineServerClient.annotate(knowledgeSnippet)
-            val output = types.find { t =>
-              println("--> method: " + t)
-              val out = ta.getView(ViewNames.SENTENCE).getConstituents.asScala.find { c =>
-                println("     ---> sentence: " + c.getSurfaceForm)
-                val (selected, _) = textSolver.asInstanceOf[TextILPSolver].solveWithReasoningType(question, options, knowledgeSnippet, t)
-                bestSelected = selected
-                println("     ---> selected: " + selected)
-                selected.nonEmpty
-              }
-              out.isDefined
-            }
-            bestSelected -> EntityRelationResult()
-          } else {
-            textSolver.solve(question, options, knowledgeSnippet)
-          }
+          textSolver.solve(question, options, knowledgeSnippet)
         } else {
           Seq.empty -> EntityRelationResult()
         }
@@ -104,7 +86,7 @@ object ExperimentsApp {
         val score = SolverUtils.assignCredit(selected, correct.head - 'A', options.length)
         if (predictionsFileOpt.isDefined) predictionsFileOpt.get.write(question + "\t" + score + "\t" + selected + "\t" +
           results.statistics.numberOfBinaryVars + "\t" + results.statistics.numberOfConstraints + "\t" + results.statistics.objectiveValue + "\n")
-        if (printMistakes && score < 1.0) {
+        if (false && score < 1.0) {
           println("Question: " + question + " / options: " + options + "   / selected: " + selected + " / score: " + score)
         }
         println("Score " + score + "  selected: " + selected)
@@ -136,11 +118,11 @@ object ExperimentsApp {
   def evaluateTextSolverOnRegentsPerReasoningMethod(dataset: Seq[(String, Seq[String], String)], textSolver: TextSolver,
     knowledgeLength: Int = 8, printMistakes: Boolean = false) = {
     import java.io._
-    val f = new File(s"output/results-per-solver-length2${dataset.length}.txt")
+    val f = new File(s"output/results-per-solver-length${dataset.length}-4.txt")
     val resultFile = new FileWriter(f)
     resultFile.write(s"Type \t SRL \t Score \t Precision \t Recall \t Total Answered \t Out of \t Total Time \n")
     resultFile.close()
-    val types = Seq( /*SimpleMatching, SRLV1Rule, */ VerbSRLandPrepSRL, SRLV1ILP, VerbSRLandCoref, SRLV2Rule, SRLV3Rule, VerbSRLandCommaSRL)
+    val types = Seq( /*SimpleMatching , SRLV1Rule, VerbSRLandPrepSRL, SRLV1ILP, VerbSRLandCoref, */ SRLV2Rule, SRLV3Rule, VerbSRLandCommaSRL)
     val srlViewsAll = Seq(ViewNames.SRL_VERB, TextILPSolver.curatorSRLViewName, TextILPSolver.pathLSTMViewName)
     types.foreach { t =>
       val start = System.currentTimeMillis()
@@ -233,7 +215,13 @@ object ExperimentsApp {
         println("Processed " + idx + " out of " + qAndpPairs.size)
         val candidates = q.answers.map(_.answerText)
         val correctIndex = q.correctIdxOpt.get
-        val (selected, explanation) = textSolver.solve(q.questionText, candidates, p.context)
+        val (selected, explanation) = try {
+          textSolver.solve(q.questionText, candidates, p.context)
+        } catch {
+          case e: Exception =>
+            e.printStackTrace
+            Seq.empty -> EntityRelationResult()
+        }
         val correctLabel = q.answers(correctIndex).answerText
         val score = SolverUtils.assignCredit(selected, correctIndex, candidates.length)
         if (outputFileOpt.isDefined) outputFileOpt.get.write(q.questionText + "\t" + score + "\t" + selected + "\n")
@@ -260,7 +248,7 @@ object ExperimentsApp {
     import java.io._
     //val types = Seq( /*WhatDoesItDoRule, CauseRule, */ SRLV1Rule /*, VerbSRLandPrepSRL,SRLV1ILP, VerbSRLandCoref, SimpleMatching*/ )
     val types = Seq(SimpleMatching /*SimpleMatching, WhatDoesItDoRule, CauseRule, SRLV1Rule, VerbSRLandPrepSRL, */ /*SRLV1ILP, VerbSRLandCoref,
-                SRLV2Rule, SRLV3Rule*/ /*VerbSRLandCommaSRL*/ )
+                     SRLV2Rule, SRLV3Rule*/ /*VerbSRLandCommaSRL*/ )
     val srlViewsAll = Seq(ViewNames.SRL_VERB, TextILPSolver.curatorSRLViewName, TextILPSolver.pathLSTMViewName)
     val qAndpPairs = list.flatMap { p => p.questions.map(q => (q, p)) }
     val resultFile = new PrintWriter(new File(s"output/results-per-solver-length${qAndpPairs.length}-processBank.txt"))
@@ -341,16 +329,19 @@ object ExperimentsApp {
         val endTime = System.currentTimeMillis()
         println("total time: " + (endTime - startTime) / 1000.0)
       case 2 =>
-        // evaluateTextSolverOnRegents(SolverUtils.eigthGradeTrain, textILPSolver, splitToSentences = true)
-        // evaluateTextSolverOnRegents(SolverUtils.eigthGradeTest, textILPSolver, splitToSentences = true)
+        // evaluateTextSolverOnRegents(SolverUtils.eighthGradeTrain, textILPSolver)
+        //        println("==== eighthGradeTrain  ")
+        evaluateTextSolverOnRegents(SolverUtils.eighthGradeTest, textILPSolver)
+        println("==== eighthGradeTest ")
 
-        // evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver, splitToSentences = true)
-        // println("==== regents train / sentence split = true  ")
-        // evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver, splitToSentences = true)
-        // println("==== regents test  / sentence split = true  ")
-        evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver, splitToSentences = false)
-        println("==== regents train  ")
-        evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver, splitToSentences = false)
+        // evaluateTextSolverOnRegents(SolverUtils.eighthGradeTrainPublic, textILPSolver)
+        //        println("==== eighthGradeTrainPublic  ")
+        //evaluateTextSolverOnRegents(SolverUtils.eighthGradeTestPublic, textILPSolver)
+        //println("==== eighthGradeTestPublic ")
+
+        // evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver)
+        // println("==== regents train  ")
+        evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver)
         println("==== regents test  ")
 
       // evaluateTextSolverOnRegents(SolverUtils.regentsPerturbed, textILPSolver)
@@ -359,20 +350,12 @@ object ExperimentsApp {
       // println("==== public train ")
       // evaluateTextSolverOnRegents(SolverUtils.publicDev, textILPSolver)
       // println("==== public dev ")
-      // evaluateTextSolverOnRegents(SolverUtils.publicTest, textILPSolver)
-      // println("==== public test ")
+      //evaluateTextSolverOnRegents(SolverUtils.publicTest.zipWithIndex.collect { case (a, i) if i != 130 => a }, textILPSolver)
+      //println("==== public test ")
       // evaluateTextSolverOnRegents(SolverUtils.omnibusTrain, textILPSolver)
       // println("==== omnibus train ")
       // evaluateTextSolverOnRegents(SolverUtils.omnibusTest, textILPSolver)
       // println("==== omnibus test ")
-      // evaluateTextSolverOnRegents(SolverUtils.regentsPerturbed, luceneSolver)
-      // println("==== regents perturbed  ")
-      // evaluateTextSolverOnRegents(SolverUtils.omnibusTest, luceneSolver)
-      // println("==== omnibus test  ")
-      // evaluateTextSolverOnRegents(SolverUtils.regentsTest, luceneSolver)
-      // println("==== regents test  ")
-      // evaluateTextSolverOnRegents(SolverUtils.publicTest, luceneSolver)
-      // println("==== public test  ")
       case 3 =>
         // get dataset statistics
         val allParagraphs = processReader.testInstances ++ processReader.trainingInstances
@@ -403,7 +386,7 @@ object ExperimentsApp {
         //     evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterWhatDoesItDo, textILPSolver)
         //     println("filterWhatDoesItDo: ")
         //
-        evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
+        //evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
         evaluateTextSolverOnProcessBank(processReader.testInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
 
       // println("no-temporals/no true or false: ")
@@ -429,7 +412,7 @@ object ExperimentsApp {
 
       case 6 =>
         evaluateTextSolverOnRegentsPerReasoningMethod(SolverUtils.publicTrain, textILPSolver)
-        evaluateTextSolverOnRegentsPerReasoningMethod(SolverUtils.eigthGradeTrain, textILPSolver)
+      //evaluateTextSolverOnRegentsPerReasoningMethod(SolverUtils.eighthGradeTrainPublic, textILPSolver)
       case 7 =>
         // evaluate other solvers on regents
         evaluateTextSolverOnRegents(SolverUtils.regentsTrain, luceneSolver)
@@ -437,6 +420,13 @@ object ExperimentsApp {
         evaluateTextSolverOnRegents(SolverUtils.publicTest, luceneSolver)
         evaluateTextSolverOnRegents(SolverUtils.publicTrain, salienceSolver)
         evaluateTextSolverOnRegents(SolverUtils.publicTest, salienceSolver)
+
+      case 8 =>
+        // test effect of knowledge length :
+        (26 to 60 by 3).foreach { i =>
+          evaluateTextSolverOnRegents(SolverUtils.regentsTest.slice(0, 50), textILPSolver, knowledgeLength = i)
+        }
+
       case 55 =>
         // write the bioProcess questions on disk, as well as their predictions
         import java.io._
@@ -679,7 +669,7 @@ object ExperimentsApp {
 
         //        cacheOnDiskAi2(SolverUtils.eigthGradeTrainPublic)
         //          println("---> eigthGradeTrainPublic \n --------------")
-        cacheOnDiskAi2(SolverUtils.eigthGradeTestPublic)
+        cacheOnDiskAi2(SolverUtils.eighthGradeTestPublic)
         println("---> eigthGradeTestPublic \n --------------")
 
       //        cacheOnDisk(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals)
@@ -696,8 +686,26 @@ object ExperimentsApp {
         val loader = new ArffLoader()
         loader.setFile(new File("output/featuresCombined.arff"))
         val train = loader.getDataSet
-        //println("structure.numAttributes(): " + train.numAttributes())
         train.setClassIndex(train.numAttributes() - 1)
+        println(train.numAttributes())
+        (0 until train.numAttributes()).foreach { _ =>
+          val out = (0 until train.numAttributes()).collectFirst {
+            //case attrIdx if train.attribute(attrIdx).name().toLowerCase().contains("curator") =>
+            //case attrIdx if train.attribute(attrIdx).name().toLowerCase().contains("simple") =>
+            //case attrIdx if train.attribute(attrIdx).name().toLowerCase().contains("prep") =>
+            case attrIdx if train.attribute(attrIdx).name().toLowerCase().contains("coref") =>
+            //case attrIdx if train.attribute(attrIdx).name().toLowerCase().contains("comma") =>
+            /*case attrIdx if train.attribute(attrIdx).name().contains("SRLV1Rule") ||
+              train.attribute(attrIdx).name().contains("SRLV2Rule") ||
+              train.attribute(attrIdx).name().contains("SRLV3Rule") ||
+              train.attribute(attrIdx).name().contains("SRLV1ILP") =>*/
+              train.deleteAttributeAt(attrIdx)
+              println("train.attribute(attrIdx).name().toLowerCase(): " + train.attribute(attrIdx).name().toLowerCase())
+              println(train.numAttributes())
+          }
+        }
+
+        println("structure.numAttributes(): " + train.numAttributes())
 
         val lg = new Logistic
         lg.buildClassifier(train)
@@ -711,7 +719,7 @@ object ExperimentsApp {
         println("eval.fMeasure(0): " + eval.fMeasure(0))
         println("eval.fMeasure(1): " + eval.fMeasure(1))
 
-        val oos = new ObjectOutputStream(new FileOutputStream("output/logistic.model"))
+        val oos = new ObjectOutputStream(new FileOutputStream("output/logistic-nocoref.model"))
         oos.writeObject(lg)
         oos.flush()
         oos.close()
@@ -732,7 +740,7 @@ object ExperimentsApp {
                 println("solving it . . . ")
                 try {
                   val selected = Seq(textILPSolver.predictWithWekaClassifier(question, options, knowledgeSnippet))
-                  val f = new FileWriter(s"output/predictionPerQuestion-${max}.txt", true)
+                  val f = new FileWriter(s"output/predictionPerQuestion2-${max}.txt", true)
                   f.write(question + "\t" + selected.head + "\t" + correctIndex + "\n")
                   f.close()
                   //                  val features = textILPSolver.extractFeatureVectorForQuestionWithCorrectLabel(question, options, knowledgeSnippet, correct.head - 'A').map(_.mkString(", ")).mkString("\n")
@@ -769,7 +777,7 @@ object ExperimentsApp {
                 println("solving it . . . ")
                 val selected = Seq(textILPSolver.predictWithWekaClassifier(question, options, knowledgeSnippet))
                 val f = new FileWriter(s"output/predictionPerQuestion-ProcessBank-${max}.txt", true)
-                f.write(question + "\t" + selected + "\t" + q.correctIdxOpt.get + "\n")
+                f.write(question + "\t" + selected.head + "\t" + q.correctIdxOpt.get + "\n")
                 f.close()
                 selected
               } else {
@@ -784,28 +792,28 @@ object ExperimentsApp {
 
         //        evaluateAi2(SolverUtils.eigthGradeTrainPublic)
         //        println("---> eigthGradeTrainPublic \n --------------")
-        //        evaluateAi2(SolverUtils.eigthGradeTestPublic.take(40))
-        //        println("---> eigthGradeTestPublic \n --------------")
+        evaluateAi2(SolverUtils.eighthGradeTestPublic)
+        println("---> eigthGradeTestPublic \n --------------")
 
-        //        evaluateAi2(SolverUtils.regentsPerturbed)
-        //        println("---> regentsPerturbed \n --------------")
+      //        evaluateAi2(SolverUtils.regentsPerturbed)
+      //        println("---> regentsPerturbed \n --------------")
 
-        //        evaluateAi2(SolverUtils.regentsTrain)
-        //        println("regents train \n --------------")
-        //        evaluateAi2(SolverUtils.regentsTest.slice(0, 20))
-        //        println("--> regentsTest \n --------------")
-        //        evaluateAi2(SolverUtils.eigthGradeTrain)
-        //        println("--> eigthGradeTrain \n --------------")
-        //        evaluateAi2(SolverUtils.eigthGradeTest)
-        //        println("---> eigthGradeTest \n --------------")
-        //        evluateProcessbankData(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals)
-        //        println("---> processReader train \n --------------")
-        evluateProcessbankData(processReader.testInstances.filterNotTrueFalse.filterNotTemporals.take(25))
-        println("---> processReader test \n --------------")
-        //        evaluateAi2(SolverUtils.publicTrain)
-        //        println("---> publicTrain \n --------------")
-        evaluateAi2(SolverUtils.publicTest.take(40))
-        println("---> publicTest \n --------------")
+      //        evaluateAi2(SolverUtils.regentsTrain)
+      //        println("regents train \n --------------")
+      //        evaluateAi2(SolverUtils.regentsTest.slice(0, 20))
+      //        println("--> regentsTest \n --------------")
+      //        evaluateAi2(SolverUtils.eigthGradeTrain)
+      // println("--> eigthGradeTrain \n --------------")
+      // evaluateAi2(SolverUtils.eigthGradeTest)
+      // println("---> eigthGradeTest \n --------------")
+      // evluateProcessbankData(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals)
+      // println("---> processReader train \n --------------")
+      //evluateProcessbankData(processReader.testInstances.filterNotTrueFalse.filterNotTemporals.take(25))
+      //println("---> processReader test \n --------------")
+      // evaluateAi2(SolverUtils.publicTrain)
+      // println("---> publicTrain \n --------------")
+      // evaluateAi2(SolverUtils.publicTest.take(40))
+      // println("---> publicTest \n --------------")
 
       case 116 =>
         import SquadJsonPattern._
@@ -822,8 +830,8 @@ object ExperimentsApp {
         // read the json predictions of the BiDaF and evaluate
         processAnswers("output/regents-train1-output.json", SolverUtils.convertAi2DatasetIntoStandardFormat(SolverUtils.regentsTrain, annotationUtils))
         processAnswers("output/regents-test4-output.json", SolverUtils.convertAi2DatasetIntoStandardFormat(SolverUtils.regentsTest, annotationUtils))
-        processAnswers("output/regents-8th-train1-output.json", SolverUtils.convertAi2DatasetIntoStandardFormat(SolverUtils.eigthGradeTrain, annotationUtils))
-        processAnswers("output/regents-8th-test1-output.json", SolverUtils.convertAi2DatasetIntoStandardFormat(SolverUtils.eigthGradeTest, annotationUtils))
+        processAnswers("output/regents-8th-train1-output.json", SolverUtils.convertAi2DatasetIntoStandardFormat(SolverUtils.eighthGradeTrain, annotationUtils))
+        processAnswers("output/regents-8th-test1-output.json", SolverUtils.convertAi2DatasetIntoStandardFormat(SolverUtils.eighthGradeTest, annotationUtils))
         processAnswers("output/public-train6-output.json", SolverUtils.convertAi2DatasetIntoStandardFormat(SolverUtils.publicTrain, annotationUtils))
         processAnswers("output/public-test2-output.json", SolverUtils.convertAi2DatasetIntoStandardFormat(SolverUtils.publicTest, annotationUtils))
 

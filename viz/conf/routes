@@ -5,6 +5,7 @@
 # An example controller showing a sample home page
 GET     /                           controllers.SolveQuestion.index
 POST    /solve                      controllers.SolveQuestion.solve
+GET     /solveQuestion              controllers.SolveQuestion.solveWithTextILP(question, options, snippet)
 GET     /getPrefilledQuestion       controllers.SolveQuestion.getPrefilledQuestion(index: Int)
 
 

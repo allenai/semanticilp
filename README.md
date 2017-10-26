@@ -97,13 +97,12 @@ To the run the system over the network, run the following script:
 
 And access it in this URL: 
 ```bash
-http://SOLVER_DOMAIN:SOLVER_PORT/solveWithParagraph?paragraph=...&question=....&candidates=...
+http://SOLVER_DOMAIN:SOLVER_PORT/solveQuestion?question=QUESTION&options=ANSWERS&snippet=SNIPPET
 ```
-where `SOLVER_DOMAIN` is the domain of on which you're running the solver, and `SOLVER_PORT` is the port on which 
-the solver is running. To access the solver, without paragraphs, try this:
-```bash
-http://SOLVER_DOMAIN:SOLVER_PORT/solveWithoutParagraph?question=....&candidates=...
-```
+where `SOLVER_DOMAIN` is the domain of on which you're running the solver, `SOLVER_PORT` is the port on which 
+the solver is running, and `ANSWERS` is the set of candidate answers separated by `//`. 
+To access the solver, without paragraphs, set `SNIPPET` to be empty and it will try to retrieve a paragraph using lucene. 
+
 To stop it, just do Ctrl+D.
 
 Note that you can access the system via a graphical interface too: 

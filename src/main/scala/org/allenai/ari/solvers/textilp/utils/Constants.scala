@@ -12,7 +12,7 @@ case class Elastic(clusterName: String, hostIp: String, hostPort: Int, indexName
 
 object Constants {
   // this is the variable that decides which model to use
-  val textILPModel: TextILPModel = TextILPModel.EnsembleFull
+  val textILPModel: TextILPModel = TextILPModel.StackedForScience
 
   // annotator servers
   val sahandPort = "8081"
@@ -26,10 +26,8 @@ object Constants {
 
   // whether to extract curator or not
   var useCurator = textILPModel match {
-    case TextILPModel.EnsembleFull => true
-    case TextILPModel.EnsembleMinimal => false
-    case TextILPModel.StackedForProcesses => false
-    case TextILPModel.StackedForScience => false
+    case TextILPModel.EnsembleFull | TextILPModel.StackedForProcesses | TextILPModel.StackedForScience | _ => true
+    case TextILPModel.EnsembleMinimal | TextILPModel.StackedForProcessesMinimal | TextILPModel.StackedForScienceMinimal => false
   }
 
   // this is the link solvers send calls when evaluating against AI2 contempo

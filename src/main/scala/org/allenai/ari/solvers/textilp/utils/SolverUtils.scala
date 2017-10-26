@@ -255,10 +255,10 @@ object SolverUtils {
   lazy val publicDev = loadQuestions("Public-Feb2016-Elementary-NDMC-Dev.tsv")
   lazy val regentsTrain = loadQuestions("Regents-Gr04-NDMC-Train.tsv")
   lazy val regentsTest = loadQuestions("Regents-Gr04-NDMC-Test.tsv")
-  lazy val eigthGradeTrain = loadQuestions("Regents-Gr08-Train.tsv")
-  lazy val eigthGradeTest = loadQuestions("Regents-Gr08-Test.tsv")
-  lazy val eigthGradeTrainPublic = loadQuestions("Public-Gr08-Train.tsv")
-  lazy val eigthGradeTestPublic = loadQuestions("Public-Gr08-Test.tsv")
+  lazy val eighthGradeTrain = loadQuestions("Regents-Gr08-Train.tsv")
+  lazy val eighthGradeTest = loadQuestions("Regents-Gr08-Test.tsv")
+  lazy val eighthGradeTrainPublic = loadQuestions("Public-Gr08-Train.tsv")
+  lazy val eighthGradeTestPublic = loadQuestions("Public-Gr08-Test.tsv")
   lazy val regentsPerturbed = loadQuestions("regents-train-perturbed.tsv")
   lazy val small = loadQuestions("small.tsv")
 
@@ -407,15 +407,15 @@ object SolverUtils {
 
     def callLuceneServer: Seq[(String, Double)] = {
       //println("extracting the knowledge from remote server. . . ")
-      /*val results = extract(question, focus, searchHitSize)
+      val results = extract(question, focus, searchHitSize)
       val cacheValue = JsArray(results.map { case (key, value) => JsArray(Seq(JsString(key), JsNumber(value))) })
       import java.io._
       val pw = new PrintWriter(f)
       pw.write(cacheValue.toString())
       pw.close()
       println("result . . . . \n " + results)
-      results*/
-      Seq.empty
+      results
+      //Seq.empty
     }
 
     lazy val luceneResults = callLuceneServer

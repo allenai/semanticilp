@@ -4,7 +4,6 @@ import javax.inject._
 
 import models.StaticContent
 import org.allenai.ari.solvers.bioProccess.ProcessBankReader
-import org.allenai.ari.solvers.squad.CandidateGeneration
 import org.allenai.ari.solvers.textilp.ResultJson
 import org.allenai.ari.solvers.textilp.ResultJson._
 import org.allenai.ari.solvers.textilp.solvers._
@@ -37,14 +36,64 @@ class SolveQuestion @Inject() extends Controller {
     val solverType = (request.body \ "solverType").as[JsString].value
     val question = (request.body \ "question").as[JsString].value
     val options = (request.body \ "options").as[JsString].value
-    val snippet = ProcessBankReader.normalizeText((request.body \ "snippet").as[JsString].value)
+    val snippetUnprocessed = (request.body \ "snippet").as[JsString].value
+    solveQuestionWithParams(solverType, question, options, snippetUnprocessed)
+  }
+
+  def solveWithTextILP(question: String, options: String, snippetUnprocessed: String)  =  Action { implicit request =>
+    val (optionsPostProcessed, snippetPostprocessed) = preprocessQuestion(question, options, snippetUnprocessed)
+    println("Calling te xtilp. . . ")
+    val (_, solverContent) = textilpSolver.solve(question, optionsPostProcessed, snippetPostprocessed)
+    println("textilp solver response ..... ")
+    println(solverContent)
+
+    println("Sending new resultls ")
+    Ok(Json.toJson(solverContent).toString())
+  }
+
+  private def solveQuestionWithParams(solverType: String, question: String, options: String, snippetUnprocessed: String) = {
+    val (optionsPostProcessed: Seq[String], snippetPostprocessed: String) = preprocessQuestion(question, options, snippetUnprocessed)
+
+    println("solver type : " + solverType)
+    val solverContent = if (solverType.toLowerCase.contains("salience")) {
+      println("Calling salience . . . ")
+      val (_, out) = salienceSolver.solve(question, optionsPostProcessed, snippetPostprocessed)
+      println("Salience solver response . . .  ")
+      println(out)
+      out
+    } else if (solverType.toLowerCase.contains("lucene")) {
+      println("Calling lucene . . . ")
+      val (_, out) = luceneSolver.solve(question, optionsPostProcessed, snippetPostprocessed)
+      println("Lucene solver response . . .  ")
+      println(out)
+      out
+    } else if (solverType.toLowerCase.contains("textilp")) {
+      println("Calling te xtilp. . . ")
+      val (_, out) = textilpSolver.solve(question, optionsPostProcessed, snippetPostprocessed)
+      //      val time = java.lang.System.currentTimeMillis()
+      //      TextILPSolver.sahandClient.useCache("sahandClient-" + time.toString)
+      //      annotationUtils.pipelineServerClient.useCaching("pipelineServerClient-" + time.toString)
+      //      annotationUtils.pipelineExternalAnnotatorsServerClient.useCaching("pipelineExternalAnnotatorsServerClient-" + time.toString)
+      //      annotationUtils.fillInBlankAnnotator.useCaching("fillInBlankAnnotator-" + time.toString)
+      println("textilp solver response ..... ")
+      println(out)
+      out
+    } else {
+      throw new Exception("the solver not found :/")
+    }
+    println("Sending new resultls ")
+    Ok(Json.toJson(solverContent).toString())
+  }
+
+  private def preprocessQuestion(question: String, options: String, snippetUnprocessed: String) = {
+    val snippet = ProcessBankReader.normalizeText(snippetUnprocessed)
 
     println("Options: " + options)
 
     val optionsPostProcessed = if (options.length < 2) {
       // it's empty; get the candidate options automatically
       val generatedCandidates = Seq.empty
-      println("Automatically extracted candidtes: " + generatedCandidates.mkString("//"))
+      //println("Automatically extracted candidtes: " + generatedCandidates.mkString("//"))
       generatedCandidates.toSeq
     } else {
       options.split("(\\([A-Z]\\)|\\/\\/)").toSeq.map(_.trim).filter(_.nonEmpty)
@@ -64,36 +113,7 @@ class SolveQuestion @Inject() extends Controller {
       snippet
     }
     println("snippetPostprocessed: " + snippetPostprocessed)
-
-    println("solver type : " + solverType)
-    val solverContent = if (solverType.toLowerCase.contains("salience")) {
-      println("Calling salience . . . ")
-      val (_, out) = salienceSolver.solve(question, optionsPostProcessed, snippetPostprocessed)
-      println("Salience solver response . . .  ")
-      println(out)
-      out
-    } else if (solverType.toLowerCase.contains("lucene")) {
-      println("Calling lucene . . . ")
-      val (_, out) = luceneSolver.solve(question, optionsPostProcessed, snippetPostprocessed)
-      println("Lucene solver response . . .  ")
-      println(out)
-      out
-    } else if (solverType.toLowerCase.contains("textilp")) {
-      println("Calling te xtilp. . . ")
-      val (_, out) = textilpSolver.solve(question, optionsPostProcessed, snippetPostprocessed)
-//      val time = java.lang.System.currentTimeMillis()
-//      TextILPSolver.sahandClient.useCache("sahandClient-" + time.toString)
-//      annotationUtils.pipelineServerClient.useCaching("pipelineServerClient-" + time.toString)
-//      annotationUtils.pipelineExternalAnnotatorsServerClient.useCaching("pipelineExternalAnnotatorsServerClient-" + time.toString)
-//      annotationUtils.fillInBlankAnnotator.useCaching("fillInBlankAnnotator-" + time.toString)
-      println("textilp solver response ..... ")
-      println(out)
-      out
-    } else {
-      throw new Exception("the solver not found :/")
-    }
-    println("Sending new resultls ")
-    Ok(Json.toJson(solverContent).toString())
+    (optionsPostProcessed, snippetPostprocessed)
   }
 
   def getPrefilledQuestion(index: Int) = Action { request =>

@@ -155,7 +155,7 @@
             <div class="page-header">
                 <h1><a href="/">TextILP</a> <small>  Structured Question Answering on top of raw text</small></h1>
             </div>
-            <nav class="navbar navbar-default">
+            <nav class="navbar navbar-default" style="display: none;">
                 <div class="container-fluid">
                         <!-- Brand and toggle get grouped for better mobile display -->
                     <div class="navbar-header">
@@ -191,7 +191,7 @@
             <div class="alert alert-danger" role="alert" id="error-box"></div>
             <div class="alert alert-success" role="alert">
                 <h4>Type a new question below, or select one of the existing ones</h4>
-                <select class="form-control" id="ready-questions" >
+                <select class="form-control" id="ready-questions" style="display: none">
                     <option disabled selected value> -- questions with manually selected text snippet: select one -- </option>
                     @for((question, idx) <- formContent.preFilledQuestions.questions.zipWithIndex) {
                         <option value="@{idx+1}">@question.str</option>
@@ -199,8 +199,6 @@
                 </select>
                 <br>
                 <select class="form-control" id="aristo-select"></select>
-                <br>
-                <select class="form-control" id="squad-select"></select>
                 <br>
                 <select class="form-control" id="processbank-select"></select>
                 <br>
@@ -215,10 +213,10 @@
                     <div class="panel-body">
                         <h5> Where to get candidate answers?  </h5>
                         <form>
-                            <input type="radio" id="candidateAuto" name="candidates"
+                            <input type="radio" id="candidateAuto" name="candidates" disabled
                             @if(formContent.candidateGeneration==CandidatesAutomatic) {checked}> Automatically extract candidate answers <br>
                             <input type="radio" id="candidatesManual" name="candidates"
-                            @if(formContent.candidateGeneration==CandidatesGiven) {checked}> You manually enter the candidates<br>
+                            @if(formContent.candidateGeneration==CandidatesGiven) {checked}> You manually enter the candidates (separated by by "//")<br>
                         </form>
                         <textarea rows="2" id="candidateTextArea" style="width: 100%;">@if(formContent.questionOpt.isDefined) {@formContent.questionOpt.get.questionChoice} else { Separate the candidates with "//" }</textarea>
                     </div>
