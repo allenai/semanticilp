@@ -3,7 +3,7 @@
 import csv
 import hashlib
 
-fourth = False
+fourth = True
 
 if fourth:
     questions_file = "/Users/daniel/ideaProjects/TextILP/other/questionSets/Public-Feb2016-Elementary-NDMC-Test.tsv"
@@ -80,6 +80,8 @@ def main():
     textilp_correct = 0
     lucene_correct = 0
     total = 0
+    f1 = open('/Users/daniel/ideaProjects/TextILP/other/anlaysis/SilpCorrectButLuceneIncorrect.txt', 'w+')
+    f2 = open('/Users/daniel/ideaProjects/TextILP/other/anlaysis/SilpInorrectButLuceneCorrect.txt', 'w+')
     print(lucene_score_per_hash)
     for q, hash in question_to_hash_map.items():
         if hash in lucene_score_per_hash:
@@ -95,15 +97,18 @@ def main():
             if textilp_score and lucene_score:
                 both_correct = both_correct + 1
             elif not textilp_score and lucene_score:
+                f2.write(q + "\n")
                 lucene_correct_only = lucene_correct_only + 1
             elif not lucene_score and textilp_score:
+                f1.write(q + "\n")
                 textilp_correct_only = textilp_correct_only + 1
             else:
                 both_incorrect = both_incorrect + 1
         else:
             print("hash does not exist in the map ")
             print(hash)
-
+    f2.close()
+    f1.close()
     print(both_correct)
     print(lucene_correct_only)
     print(textilp_correct_only)
