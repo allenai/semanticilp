@@ -116,14 +116,14 @@ object ExperimentsApp {
   }
 
   def evaluateTextSolverOnRegentsPerReasoningMethod(dataset: Seq[(String, Seq[String], String)], textSolver: TextSolver,
-    knowledgeLength: Int = 8, printMistakes: Boolean = false) = {
+    knowledgeLength: Int = 8) = {
     import java.io._
-    val f = new File(s"output/results-per-solver-length${dataset.length}-4.txt")
+    val f = new File(s"output/results-per-solver-length${dataset.length}.txt")
     val resultFile = new FileWriter(f)
-    resultFile.write(s"Type \t SRL \t Score \t Precision \t Recall \t Total Answered \t Out of \t Total Time \n")
+    resultFile.write(s"knowledgeLength\tType \t SRL \t Score \t Precision \t Recall \t Total Answered \t Out of \t Total Time \n")
     resultFile.close()
-    val types = Seq( /*SimpleMatching , SRLV1Rule, VerbSRLandPrepSRL, SRLV1ILP, VerbSRLandCoref, */ SRLV2Rule, SRLV3Rule, VerbSRLandCommaSRL)
-    val srlViewsAll = Seq(ViewNames.SRL_VERB, TextILPSolver.curatorSRLViewName, TextILPSolver.pathLSTMViewName)
+    val types = Seq(SimpleMatching/*, SRLV1Rule, VerbSRLandPrepSRL, SRLV1ILP, VerbSRLandCoref, SRLV2Rule, SRLV3Rule, VerbSRLandCommaSRL*/)
+    val srlViewsAll = Seq(/*ViewNames.SRL_VERB, TextILPSolver.curatorSRLViewName, */TextILPSolver.pathLSTMViewName)
     types.foreach { t =>
       val start = System.currentTimeMillis()
       SolverUtils.printMemoryDetails()
@@ -158,10 +158,12 @@ object ExperimentsApp {
             val solveEnd = System.currentTimeMillis()
             val score = SolverUtils.assignCredit(selected, correct.head - 'A', options.length)
             println(results.statistics)
-            if (printMistakes && score < 1.0) {
+            /*
+            if (score < 1.0) {
               println("Question: " + question + " / options: " + options + "   / selected: " + selected + " / score: " + score)
             }
             println("Score " + score + "  selected: " + selected)
+            */
             (score, results.statistics,
               ((knowledgeEnd - knowledgeStart) / 1000.0, (solveEnd - knowledgeEnd) / 1000.0, if (selected.nonEmpty) 1.0 else 0.0))
         }.unzip3
@@ -181,7 +183,7 @@ object ExperimentsApp {
         val avgResults = perQuestionResults.reduceRight[Stats] { case (a: Stats, b: Stats) => a.sumWith(b) }.divideBy(perQuestionResults.length)
         println(avgResults.toString)
         val resultFile = new FileWriter(f, true)
-        resultFile.write(s"${t} \t  ${srlVu} \t ${perQuestionScore.sum / perQuestionScore.size} \t ${nonZeroScores.sum / nonZeroScores.size} \t ${avgCoverage} " +
+        resultFile.write(s"$knowledgeLength \t ${t} \t  ${srlVu} \t ${perQuestionScore.sum / perQuestionScore.size} \t ${nonZeroScores.sum / nonZeroScores.size} \t ${avgCoverage} " +
           s"\t ${nonZeroScores.length} \t ${perQuestionResults.length} \t ${avgSolveTime.sum / avgSolveTime.length} \n")
         resultFile.close()
       }
@@ -423,8 +425,9 @@ object ExperimentsApp {
 
       case 8 =>
         // test effect of knowledge length :
-        (26 to 60 by 3).foreach { i =>
-          evaluateTextSolverOnRegents(SolverUtils.regentsTest.slice(0, 50), textILPSolver, knowledgeLength = i)
+        (1 to 60 by 3).foreach { i =>
+          //evaluateTextSolverOnRegents(SolverUtils.regentsTest.slice(0, 50), textILPSolver, knowledgeLength = i)
+          evaluateTextSolverOnRegentsPerReasoningMethod(SolverUtils.regentsTest.slice(0, 50), textILPSolver, knowledgeLength = i)
         }
 
       case 55 =>

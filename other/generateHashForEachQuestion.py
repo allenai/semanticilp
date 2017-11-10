@@ -122,7 +122,7 @@ def main():
     # Data to plot
     labels = 'Both\nCorrect', 'Lucene\n correct only', 'SemanticILP\ncorrect only', 'None correct'
     sizes = [both_correct, lucene_correct_only, textilp_correct_only, both_incorrect]
-    colors = ['gold', 'yellowgreen', 'lightcoral', 'lightskyblue']
+    colors = ['gold', 'yellowgreen','lightskyblue', 'lightcoral']
     explode = (0.0, 0, 0, 0)  # explode 1st slice
 
     # Plot
