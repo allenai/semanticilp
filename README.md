@@ -1,10 +1,10 @@
 # SemanticILP 
 
-A structured question answering system on top of free-form text, and borrows ideas from [TableILP](ai2-website.s3.amazonaws.com/publications/tableilp_ijcai_2016.pdf) and [TupleILP](https://arxiv.org/abs/1704.05572). 
+A structured question answering system on top of free-form text, and borrows ideas from [TableILP](http://ai2-website.s3.amazonaws.com/publications/tableilp_ijcai_2016.pdf) and [TupleILP](https://arxiv.org/abs/1704.05572). 
 The details of the system is explained in the following paper: 
 
 ```bibtex 
-@article{semanticilp2016aaai,
+@article{semanticilp2018aaai,
   title={Question Answering as Global Reasoning over Semantic Abstractions},
   author={Khashabi, Daniel and Khot, Tushar and Sabharwal, Ashish and Roth, Dan},
   journal={Conference of Association for the Advancement of Artificial Intelligence},
@@ -12,7 +12,7 @@ The details of the system is explained in the following paper:
 }
 ```
 
-## Testing out our system
+## Testing out the system
 Our system relies on a couple of annotators that are not publicly available. As a result you (if outside CogComp) 
 cannot run our *full* system. **However,** we have created a smaller system which works with public annotators. 
 
@@ -49,7 +49,6 @@ Here are the different models you can use:
 - Best process bank 
 
 To set the model, take a look at `Constants.scala`. 
-
 
 In order to initialize the solver, you have the following options: 
 

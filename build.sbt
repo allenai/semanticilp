@@ -9,7 +9,7 @@ lazy val commonSettings = Seq(
   version := "1.5",
   scalaVersion := "2.11.8",
   javaOptions ++= Seq("-Xmx25G", "-XX:MaxMetaspaceSize=5g"),
-   fork := true,
+  fork := true,
   // Make sure SCIP libraries are locatable.
   javaOptions += s"-Djava.library.path=lib",
   envVars ++= Map(
@@ -26,8 +26,8 @@ def nlpstack(component: String) = ("org.allenai.nlpstack" %% s"nlpstack-$compone
   .exclude("org.slf4j", "log4j-over-slf4j")
 
 def textualEntailment(component: String) = ("org.allenai.textual-entailment" %% component % "1.0.6-SNAPSHOT")
-    .exclude("org.slf4j", "log4j-over-slf4j")
-    .exclude("edu.stanford.nlp", "stanford-corenlp")
+  .exclude("org.slf4j", "log4j-over-slf4j")
+  .exclude("edu.stanford.nlp", "stanford-corenlp")
 
 def ccgLib(component: String) = (ccgGroupId % component % cogcompNLPVersion withSources).exclude("edu.cmu.cs.ark", "ChuLiuEdmonds")
 
@@ -43,7 +43,7 @@ lazy val publishSettings = Seq(
   publishTo := Some(
     Resolver.ssh(
       "CogcompSoftwareRepo", "bilbo.cs.illinois.edu",
-      "/mounts/bilbo/disks/0/www/cogcomp/html/m2repo/") as (user, keyFile)
+      "/mounts/bilbo/disks/0/www/cogcomp/html/m2repo/") as(user, keyFile)
   )
 )
 
@@ -54,9 +54,7 @@ lazy val root = (project in file(".")).
   settings(
     name := "text-ilp",
     libraryDependencies ++= Seq(
-      textualEntailment("interface"),
-      textualEntailment("service"),
-      //  allenAiTestkit % "test",
+      "io.spray" % "spray-caching_2.11" % "1.3.3",
       "org.allenai.common" %% "common-core" % "1.4.6",
       "org.allenai.common" %% "common-cache" % "1.4.6",
       "commons-io" % "commons-io" % "2.4",
@@ -71,11 +69,10 @@ lazy val root = (project in file(".")).
       ccgLib("illinois-nlp-pipeline"),
       ccgLib("illinois-curator"),
       "edu.cmu.cs.ark" % "ChuLiuEdmonds" % "1.0" force(),
-      ccgGroupId % "saul-examples_2.11" % "0.5.7-SNAPSHOT",
       ccgGroupId % "scip-jni" % "3.1.1",
       "edu.cmu" % "Meteor" % "1.5",
       "org.slf4j" % "slf4j-log4j12" % "1.7.12",
-      nlpstack("chunk") ,
+      nlpstack("chunk"),
       nlpstack("lemmatize"),
       nlpstack("tokenize"),
       nlpstack("postag"),
@@ -90,7 +87,7 @@ lazy val root = (project in file(".")).
       "github.sahand" % "sahand-client_2.11" % "1.2.2",
       "io.github.pityka" %% "nspl-awt" % "0.0.7",
       "nz.ac.waikato.cms.weka" % "weka-dev" % "3.7.12",
-      "edu.mit" % "jverbnet" % "1.2.0.1"//,
+      "edu.mit" % "jverbnet" % "1.2.0.1" //,
     ),
     resolvers ++= Seq(
       Resolver.mavenLocal,
@@ -107,7 +104,7 @@ lazy val viz = (project in file("viz")).
   enablePlugins(PlayScala).
   disablePlugins(PlayLogback).
   settings(
-    name:= "text-ilp-visualization",
+    name := "text-ilp-visualization",
     libraryDependencies ++= Seq(
       filters,
       "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % Test,
@@ -117,5 +114,5 @@ lazy val viz = (project in file("viz")).
       "org.webjars" % "jquery" % "3.1.1",
       "org.webjars" % "headjs" % "1.0.3"
     ),
-    resolvers ++= Seq("scalaz-bintray" at "http://dl.bintray.com/scalaz/releases")//,
+    resolvers ++= Seq("scalaz-bintray" at "http://dl.bintray.com/scalaz/releases") //,
   )
