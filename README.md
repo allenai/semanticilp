@@ -39,6 +39,11 @@ This project makes distributed representations available over network. Run it, a
 
 Then you have to set the ports in SemanticILP. Open [`Constants.scala`](src/main/scala/org/allenai/ari/solvers/textilp/utils/Constants.scala) and set the ports.   
 
+**Note:** The annotators require good amount of memory: 
+- CogComp-NLP pipeline takes up to 25GB
+- CogComp-NLP external annotators takes up to 35GB
+- Sahand takes less than 10GB
+
 ### Running SemanticILP 
 
 And next you have to run the solver itself. You can run the system under different models. 
