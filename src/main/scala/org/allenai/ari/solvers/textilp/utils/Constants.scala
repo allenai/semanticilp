@@ -12,21 +12,21 @@ case class Elastic(clusterName: String, hostIp: String, hostPort: Int, indexName
 
 object Constants {
   // this is the variable that decides which model to use
-  val textILPModel: TextILPModel = TextILPModel.StackedForScience
+  val textILPModel: TextILPModel = TextILPModel.StackedForScienceMinimal
 
   // annotator servers
   val sahandPort = "8081"
-  val sahandServer = "http://smeagol.cs.illinois.edu"
+  val sahandServer = "http://cogcomp.dev.ai2"
 
   val cogcompAnnotatorPort = "5800"
-  val cogcompAnnotatorServer = "http://austen.cs.illinois.edu"
+  val cogcompAnnotatorServer = "http://cogcomp.dev.ai2" // "http://austen.cs.illinois.edu"
 
   val externalAnnotatorsPort = "8009"
-  val externalAnnotatorsServer = "http://bronte.cs.illinois.edu"
+  val externalAnnotatorsServer = "http://cogcomp.dev.ai2" // "http://bronte.cs.illinois.edu"
 
   // whether to extract curator or not
-  var useCurator = textILPModel match {
-    case TextILPModel.EnsembleFull | TextILPModel.StackedForProcesses | TextILPModel.StackedForScience | _ => true
+  val useCurator = textILPModel match {
+    case TextILPModel.EnsembleFull | TextILPModel.StackedForProcesses | TextILPModel.StackedForScience  => true
     case TextILPModel.EnsembleMinimal | TextILPModel.StackedForProcessesMinimal | TextILPModel.StackedForScienceMinimal => false
   }
 
