@@ -407,15 +407,15 @@ object SolverUtils {
 
     def callLuceneServer: Seq[(String, Double)] = {
       //println("extracting the knowledge from remote server. . . ")
-      /*val results = extract(question, focus, searchHitSize)
+      val results = extract(question, focus, searchHitSize)
       val cacheValue = JsArray(results.map { case (key, value) => JsArray(Seq(JsString(key), JsNumber(value))) })
       import java.io._
       val pw = new PrintWriter(f)
       pw.write(cacheValue.toString())
       pw.close()
       println("result . . . . \n " + results)
-      results*/
-      Seq.empty
+      results
+      //Seq.empty
     }
 
     lazy val luceneResults = callLuceneServer
