@@ -54,6 +54,8 @@ lazy val root = (project in file(".")).
   settings(
     name := "text-ilp",
     libraryDependencies ++= Seq(
+      textualEntailment("interface"),
+      textualEntailment("service"),
       "io.spray" % "spray-caching_2.11" % "1.3.3",
       "org.allenai.common" %% "common-core" % "1.4.6",
       "org.allenai.common" %% "common-cache" % "1.4.6",
@@ -87,7 +89,9 @@ lazy val root = (project in file(".")).
       "github.sahand" % "sahand-client_2.11" % "1.2.2",
       "io.github.pityka" %% "nspl-awt" % "0.0.7",
       "nz.ac.waikato.cms.weka" % "weka-dev" % "3.7.12",
-      "edu.mit" % "jverbnet" % "1.2.0.1" //,
+      "edu.mit" % "jverbnet" % "1.2.0.1",
+      "commons-codec" % "commons-codec" % "1.11"
+      //"com.twitter" % "chill_2.11" % "0.5.1"
     ),
     resolvers ++= Seq(
       Resolver.mavenLocal,
