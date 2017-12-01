@@ -676,8 +676,11 @@ object ExperimentsApp {
 
         //        cacheOnDiskAi2(SolverUtils.eigthGradeTrainPublic)
         //          println("---> eigthGradeTrainPublic \n --------------")
-        cacheOnDiskAi2(SolverUtils.eighthGradeTestPublic)
-        println("---> eigthGradeTestPublic \n --------------")
+        //cacheOnDiskAi2(SolverUtils.eighthGradeTestPublic)
+        //println("---> eigthGradeTestPublic \n --------------")
+
+        cacheOnDiskAi2(SolverUtils.squid04test)
+        println("---> squid04test \n --------------")
 
       //        cacheOnDisk(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals)
       //        cacheOnDiskAi2(SolverUtils.regentsTrain)
