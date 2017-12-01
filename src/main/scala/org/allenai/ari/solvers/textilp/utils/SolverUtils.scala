@@ -260,6 +260,11 @@ object SolverUtils {
   lazy val eighthGradeTrainPublic = loadQuestions("Public-Gr08-Train.tsv")
   lazy val eighthGradeTestPublic = loadQuestions("Public-Gr08-Test.tsv")
   lazy val regentsPerturbed = loadQuestions("regents-train-perturbed.tsv")
+
+  lazy val squid04test = loadQuestions("SquidV1-Gr04-Test.tsv")
+  lazy val squid04dev = loadQuestions("SquidV1-Gr04-dev.tsv")
+  lazy val squid04train = loadQuestions("SquidV1-Gr04-train.tsv")
+
   lazy val small = loadQuestions("small.tsv")
 
   def convertAi2DatasetIntoStandardFormat(input: Seq[(String, Seq[String], String)], annotationUtils: AnnotationUtils): Seq[Paragraph] = {

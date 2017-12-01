@@ -119,11 +119,11 @@ object ExperimentsApp {
     knowledgeLength: Int = 8) = {
     import java.io._
     val f = new File(s"output/results-per-solver-length${dataset.length}.txt")
-    val resultFile = new FileWriter(f)
+    val resultFile = new FileWriter(f, true)
     resultFile.write(s"knowledgeLength\tType \t SRL \t Score \t Precision \t Recall \t Total Answered \t Out of \t Total Time \n")
     resultFile.close()
-    val types = Seq(SimpleMatching/*, SRLV1Rule, VerbSRLandPrepSRL, SRLV1ILP, VerbSRLandCoref, SRLV2Rule, SRLV3Rule, VerbSRLandCommaSRL*/)
-    val srlViewsAll = Seq(/*ViewNames.SRL_VERB, TextILPSolver.curatorSRLViewName, */TextILPSolver.pathLSTMViewName)
+    val types = Seq(VerbSRLandPrepSRL /*, VerbSRLandPrepSRL*//*SimpleMatching, SRLV1Rule, VerbSRLandPrepSRL, SRLV1ILP, VerbSRLandCoref, SRLV2Rule, SRLV3Rule, VerbSRLandCommaSRL*/)
+    val srlViewsAll = Seq(ViewNames.SRL_VERB, /*TextILPSolver.curatorSRLViewName, */TextILPSolver.pathLSTMViewName)
     types.foreach { t =>
       val start = System.currentTimeMillis()
       SolverUtils.printMemoryDetails()
@@ -332,19 +332,19 @@ object ExperimentsApp {
         println("total time: " + (endTime - startTime) / 1000.0)
       case 2 =>
         // evaluateTextSolverOnRegents(SolverUtils.eighthGradeTrain, textILPSolver)
-        //        println("==== eighthGradeTrain  ")
-        evaluateTextSolverOnRegents(SolverUtils.eighthGradeTest, textILPSolver)
-        println("==== eighthGradeTest ")
+        // println("==== eighthGradeTrain  ")
+        //evaluateTextSolverOnRegents(SolverUtils.eighthGradeTest, textILPSolver)
+        //println("==== eighthGradeTest ")
 
         // evaluateTextSolverOnRegents(SolverUtils.eighthGradeTrainPublic, textILPSolver)
-        //        println("==== eighthGradeTrainPublic  ")
+        // println("==== eighthGradeTrainPublic  ")
         //evaluateTextSolverOnRegents(SolverUtils.eighthGradeTestPublic, textILPSolver)
         //println("==== eighthGradeTestPublic ")
 
         // evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver)
         // println("==== regents train  ")
-        evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver)
-        println("==== regents test  ")
+        //evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver)
+        //println("==== regents test  ")
 
       // evaluateTextSolverOnRegents(SolverUtils.regentsPerturbed, textILPSolver)
       // println("==== regents perturbed  ")
@@ -358,6 +358,10 @@ object ExperimentsApp {
       // println("==== omnibus train ")
       // evaluateTextSolverOnRegents(SolverUtils.omnibusTest, textILPSolver)
       // println("==== omnibus test ")
+
+
+      evaluateTextSolverOnRegents(SolverUtils.squid04test, textILPSolver)
+      println("==== public test ")
       case 3 =>
         // get dataset statistics
         val allParagraphs = processReader.testInstances ++ processReader.trainingInstances
