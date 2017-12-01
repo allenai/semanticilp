@@ -575,8 +575,25 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
 
   private def preprocessQuestionData(question: String, options: Seq[String], snippet1: String): (Question, Paragraph) = {
     val snippet = {
-      val questionTA = annotationUtils.pipelineServerClientWithBasicViews.annotate(SolverUtils.clearRedundantCharacters(question))
-      val paragraphTA = annotationUtils.pipelineServerClientWithBasicViews.annotate(SolverUtils.clearRedundantCharacters(snippet1))
+      val cleanQ = SolverUtils.clearRedundantCharacters(question)
+      val questionTA = try {
+        annotationUtils.pipelineServerClientWithBasicViews.annotate()
+      }
+      catch {
+        case e: Exception =>
+          println(cleanQ)
+          throw new Exception
+      }
+
+      val cleanSnippet = SolverUtils.clearRedundantCharacters(snippet1)
+      val paragraphTA = try {
+        annotationUtils.pipelineServerClientWithBasicViews.annotate(cleanSnippet)
+      }
+      catch {
+        case e: Exception =>
+          println(cleanSnippet)
+          throw new Exception
+      }
       SolverUtils.ParagraphSummarization.getSubparagraphString(paragraphTA, questionTA)
     }
     println("pre-processsing . . .  ")
