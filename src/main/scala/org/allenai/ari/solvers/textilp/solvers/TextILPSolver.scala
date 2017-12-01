@@ -577,7 +577,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     val snippet = {
       val cleanQ = SolverUtils.clearRedundantCharacters(question)
       val questionTA = try {
-        annotationUtils.pipelineServerClientWithBasicViews.annotate()
+        annotationUtils.pipelineServerClientWithBasicViews.annotate(cleanQ)
       }
       catch {
         case e: Exception =>
