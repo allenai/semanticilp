@@ -259,6 +259,14 @@ object SolverUtils {
   lazy val eighthGradeTest = loadQuestions("Regents-Gr08-Test.tsv")
   lazy val eighthGradeTrainPublic = loadQuestions("Public-Gr08-Train.tsv")
   lazy val eighthGradeTestPublic = loadQuestions("Public-Gr08-Test.tsv")
+
+  lazy val squidAdditionalDev = loadQuestions("ASQ-Additional-Dev.tsv")
+  lazy val squidAdditionalTrain = loadQuestions("ASQ-Additional-Train.tsv")
+  lazy val squidAdditionalTest = loadQuestions("ASQ-Additional-Test.tsv")
+  lazy val squidChallengeDev = loadQuestions("ASQ-Challenge-Dev.tsv")
+  lazy val squidChallengeTrain = loadQuestions("ASQ-Challenge-Train.tsv")
+  lazy val squidChallengeTest = loadQuestions("ASQ-Challenge-Test.tsv")
+
   lazy val regentsPerturbed = loadQuestions("regents-train-perturbed.tsv")
 
   lazy val squid04test = loadQuestions("SquidV1-Gr04-Test.tsv")

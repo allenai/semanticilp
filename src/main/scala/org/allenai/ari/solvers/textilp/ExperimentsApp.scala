@@ -645,15 +645,21 @@ object ExperimentsApp {
           dataset.zipWithIndex.foreach {
             case ((question, options, correct), idx) =>
               println(s"Processing $idx out of $max")
-              val knowledgeSnippet = {
-                val rawSentences = SolverUtils.extractPatagraphGivenQuestionAndFocusSet3(question, options, 8).mkString(". ")
-                annotationUtils.dropRedundantSentences(rawSentences)
-              }
+              try {
+                val knowledgeSnippet = {
+                  val rawSentences = SolverUtils.extractPatagraphGivenQuestionAndFocusSet3(question, options, 8).mkString(". ")
+                  annotationUtils.dropRedundantSentences(rawSentences)
+                }
 
-              println("knowledge: " + knowledgeSnippet)
-              annotationUtils.annotateWithEverything(question, withFillInBlank = true)
-              if (knowledgeSnippet.trim != "") {
-                annotationUtils.annotateWithEverything(knowledgeSnippet, withFillInBlank = false)
+                println("knowledge: " + knowledgeSnippet)
+                annotationUtils.annotateWithEverything(question, withFillInBlank = true)
+                if (knowledgeSnippet.trim != "") {
+                  annotationUtils.annotateWithEverything(knowledgeSnippet, withFillInBlank = false)
+                }
+              }
+              catch {
+                case e: Exception =>
+                  println("cache failed . . . ")
               }
           }
         }
@@ -679,8 +685,25 @@ object ExperimentsApp {
         //cacheOnDiskAi2(SolverUtils.eighthGradeTestPublic)
         //println("---> eigthGradeTestPublic \n --------------")
 
-        cacheOnDiskAi2(SolverUtils.squid04test)
-        println("---> squid04test \n --------------")
+        //cacheOnDiskAi2(SolverUtils.squid04test)
+        //println("---> squid04test \n --------------")
+
+        cacheOnDiskAi2(SolverUtils.squidAdditionalTest)
+        println("---> squidAdditionalTest \n --------------")
+        cacheOnDiskAi2(SolverUtils.squidChallengeTest)
+        println("---> squidChallengeTest \n --------------")
+
+        cacheOnDiskAi2(SolverUtils.squidAdditionalDev)
+        println("---> squidAdditionalDev \n --------------")
+        cacheOnDiskAi2(SolverUtils.squidChallengeDev)
+        println("---> squidChallengeDev \n --------------")
+
+        cacheOnDiskAi2(SolverUtils.squidAdditionalTrain)
+        println("---> squidAdditionalTrain \n --------------")
+        cacheOnDiskAi2(SolverUtils.squidChallengeTrain)
+        println("---> squidChallengeTrain \n --------------")
+
+
 
       //        cacheOnDisk(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals)
       //        cacheOnDiskAi2(SolverUtils.regentsTrain)
