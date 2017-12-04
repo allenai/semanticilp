@@ -360,8 +360,16 @@ object ExperimentsApp {
       // println("==== omnibus test ")
 
 
-      evaluateTextSolverOnRegents(SolverUtils.squid04test, textILPSolver)
-      println("==== public test ")
+      //evaluateTextSolverOnRegents(SolverUtils.squid04test, textILPSolver)
+      //println("==== squid04test ")
+
+      evaluateTextSolverOnRegents(SolverUtils.squidAdditionalTest, textILPSolver)
+      println("==== squidAdditionalTest ")
+
+      evaluateTextSolverOnRegents(SolverUtils.squidChallengeTest, textILPSolver)
+      println("==== squidChallengeTest ")
+
+
       case 3 =>
         // get dataset statistics
         val allParagraphs = processReader.testInstances ++ processReader.trainingInstances
