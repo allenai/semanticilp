@@ -444,12 +444,12 @@ object ExperimentsApp {
         // println(SolverUtils.squidAdditionalTest.zipWithIndex.filter(_._1._2.length < 2).mkString)
         // println(SolverUtils.squidChallengeTest.zipWithIndex.filter(_._1._2.length < 2).mkString)
 
-        SolverUtils.squidAdditionalTest
-        SolverUtils.squidAdditionalTrain
-        SolverUtils.squidAdditionalDev
-        SolverUtils.squidChallengeTest
-        SolverUtils.squidChallengeTrain
-        SolverUtils.squidChallengeDev
+        println(SolverUtils.squidAdditionalTest.size)
+        //SolverUtils.squidAdditionalTrain
+        //SolverUtils.squidAdditionalDev
+        println(SolverUtils.squidChallengeTest.size)
+        //SolverUtils.squidChallengeTrain
+        //SolverUtils.squidChallengeDev
 
       case 55 =>
         // write the bioProcess questions on disk, as well as their predictions
