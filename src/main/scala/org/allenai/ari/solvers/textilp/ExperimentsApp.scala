@@ -122,8 +122,8 @@ object ExperimentsApp {
     val resultFile = new FileWriter(f, true)
     resultFile.write(s"knowledgeLength\tType \t SRL \t Score \t Precision \t Recall \t Total Answered \t Out of \t Total Time \n")
     resultFile.close()
-    val types = Seq(VerbSRLandPrepSRL /*, VerbSRLandPrepSRL*//*SimpleMatching, SRLV1Rule, VerbSRLandPrepSRL, SRLV1ILP, VerbSRLandCoref, SRLV2Rule, SRLV3Rule, VerbSRLandCommaSRL*/)
-    val srlViewsAll = Seq(ViewNames.SRL_VERB, /*TextILPSolver.curatorSRLViewName, */TextILPSolver.pathLSTMViewName)
+    val types = Seq(VerbSRLandPrepSRL /*, VerbSRLandPrepSRL*/ /*SimpleMatching, SRLV1Rule, VerbSRLandPrepSRL, SRLV1ILP, VerbSRLandCoref, SRLV2Rule, SRLV3Rule, VerbSRLandCommaSRL*/ )
+    val srlViewsAll = Seq(ViewNames.SRL_VERB, /*TextILPSolver.curatorSRLViewName, */ TextILPSolver.pathLSTMViewName)
     types.foreach { t =>
       val start = System.currentTimeMillis()
       SolverUtils.printMemoryDetails()
@@ -346,29 +346,27 @@ object ExperimentsApp {
         //evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver)
         //println("==== regents test  ")
 
-      // evaluateTextSolverOnRegents(SolverUtils.regentsPerturbed, textILPSolver)
-      // println("==== regents perturbed  ")
-      // evaluateTextSolverOnRegents(SolverUtils.publicTrain, textILPSolver)
-      // println("==== public train ")
-      // evaluateTextSolverOnRegents(SolverUtils.publicDev, textILPSolver)
-      // println("==== public dev ")
-      //evaluateTextSolverOnRegents(SolverUtils.publicTest.zipWithIndex.collect { case (a, i) if i != 130 => a }, textILPSolver)
-      //println("==== public test ")
-      // evaluateTextSolverOnRegents(SolverUtils.omnibusTrain, textILPSolver)
-      // println("==== omnibus train ")
-      // evaluateTextSolverOnRegents(SolverUtils.omnibusTest, textILPSolver)
-      // println("==== omnibus test ")
+        // evaluateTextSolverOnRegents(SolverUtils.regentsPerturbed, textILPSolver)
+        // println("==== regents perturbed  ")
+        // evaluateTextSolverOnRegents(SolverUtils.publicTrain, textILPSolver)
+        // println("==== public train ")
+        // evaluateTextSolverOnRegents(SolverUtils.publicDev, textILPSolver)
+        // println("==== public dev ")
+        //evaluateTextSolverOnRegents(SolverUtils.publicTest.zipWithIndex.collect { case (a, i) if i != 130 => a }, textILPSolver)
+        //println("==== public test ")
+        // evaluateTextSolverOnRegents(SolverUtils.omnibusTrain, textILPSolver)
+        // println("==== omnibus train ")
+        // evaluateTextSolverOnRegents(SolverUtils.omnibusTest, textILPSolver)
+        // println("==== omnibus test ")
 
+        //evaluateTextSolverOnRegents(SolverUtils.squid04test, textILPSolver)
+        //println("==== squid04test ")
 
-      //evaluateTextSolverOnRegents(SolverUtils.squid04test, textILPSolver)
-      //println("==== squid04test ")
+        //evaluateTextSolverOnRegents(SolverUtils.squidAdditionalTest, textILPSolver)
+        //println("==== squidAdditionalTest ")
 
-      evaluateTextSolverOnRegents(SolverUtils.squidAdditionalTest, textILPSolver)
-      println("==== squidAdditionalTest ")
-
-      evaluateTextSolverOnRegents(SolverUtils.squidChallengeTest, textILPSolver)
-      println("==== squidChallengeTest ")
-
+        evaluateTextSolverOnRegents(SolverUtils.squidChallengeTest, textILPSolver)
+        println("==== squidChallengeTest ")
 
       case 3 =>
         // get dataset statistics
@@ -441,6 +439,17 @@ object ExperimentsApp {
           //evaluateTextSolverOnRegents(SolverUtils.regentsTest.slice(0, 50), textILPSolver, knowledgeLength = i)
           evaluateTextSolverOnRegentsPerReasoningMethod(SolverUtils.regentsTest.slice(0, 50), textILPSolver, knowledgeLength = i)
         }
+
+      case 9 =>
+        // println(SolverUtils.squidAdditionalTest.zipWithIndex.filter(_._1._2.length < 2).mkString)
+        // println(SolverUtils.squidChallengeTest.zipWithIndex.filter(_._1._2.length < 2).mkString)
+
+        SolverUtils.squidAdditionalTest
+        SolverUtils.squidAdditionalTrain
+        SolverUtils.squidAdditionalDev
+        SolverUtils.squidChallengeTest
+        SolverUtils.squidChallengeTrain
+        SolverUtils.squidChallengeDev
 
       case 55 =>
         // write the bioProcess questions on disk, as well as their predictions
@@ -664,8 +673,7 @@ object ExperimentsApp {
                 if (knowledgeSnippet.trim != "") {
                   annotationUtils.annotateWithEverything(knowledgeSnippet, withFillInBlank = false)
                 }
-              }
-              catch {
+              } catch {
                 case e: Exception =>
                   println("cache failed . . . ")
               }
@@ -711,8 +719,6 @@ object ExperimentsApp {
         cacheOnDiskAi2(SolverUtils.squidChallengeTrain)
         println("---> squidChallengeTrain \n --------------")
 
-
-
       //        cacheOnDisk(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals)
       //        cacheOnDiskAi2(SolverUtils.regentsTrain)
       //        cacheOnDiskAi2(SolverUtils.eigthGradeTrain)
@@ -735,8 +741,8 @@ object ExperimentsApp {
             //case attrIdx if train.attribute(attrIdx).name().toLowerCase().contains("simple") =>
             //case attrIdx if train.attribute(attrIdx).name().toLowerCase().contains("prep") =>
             case attrIdx if train.attribute(attrIdx).name().toLowerCase().contains("coref") =>
-            //case attrIdx if train.attribute(attrIdx).name().toLowerCase().contains("comma") =>
-            /*case attrIdx if train.attribute(attrIdx).name().contains("SRLV1Rule") ||
+              //case attrIdx if train.attribute(attrIdx).name().toLowerCase().contains("comma") =>
+              /*case attrIdx if train.attribute(attrIdx).name().contains("SRLV1Rule") ||
               train.attribute(attrIdx).name().contains("SRLV2Rule") ||
               train.attribute(attrIdx).name().contains("SRLV3Rule") ||
               train.attribute(attrIdx).name().contains("SRLV1ILP") =>*/

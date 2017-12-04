@@ -26,7 +26,7 @@ object Constants {
 
   // whether to extract curator or not
   val useCurator = textILPModel match {
-    case TextILPModel.EnsembleFull | TextILPModel.StackedForProcesses | TextILPModel.StackedForScience  => true
+    case TextILPModel.EnsembleFull | TextILPModel.StackedForProcesses | TextILPModel.StackedForScience => true
     case TextILPModel.EnsembleMinimal | TextILPModel.StackedForProcessesMinimal | TextILPModel.StackedForScienceMinimal => false
   }
 

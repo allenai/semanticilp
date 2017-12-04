@@ -296,6 +296,8 @@ object SolverUtils {
       val question = split(0)
       val answer = split(1)
       val questionSplit = question.split("\\([A-Z]\\)")
+      require(questionSplit.tail.length > 1, s"the question doesn't have enough answers: ${question}")
+      require(answer.matches("[A-Z]"), s"the answer doesn't match the pattern . . . ${answer} of: ${question}")
       (questionSplit.head, questionSplit.tail.toSeq, answer)
     }
     println("done reading the questions . . . ")
