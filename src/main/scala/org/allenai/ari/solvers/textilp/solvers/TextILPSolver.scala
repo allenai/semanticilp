@@ -591,6 +591,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       }
       catch {
         case e: Exception =>
+          println("pipelineServerClientWithBasicViews failed on the following input: ")
           println(cleanSnippet)
           throw new Exception
       }

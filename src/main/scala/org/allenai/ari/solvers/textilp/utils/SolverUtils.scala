@@ -195,7 +195,8 @@ object SolverUtils {
 
   def clearRedundantCharacters(string: String) = string.replaceAll("\u0080", " ").replaceAll("\u0096", " ").
     replaceAll("\u0095", " ").replaceAll("\u0092", " ").replaceAll("\u0093", " ").replaceAll("\u0094", " ").
-    replaceAll("\n", " ").replaceAll("\u0002", "")
+    replaceAll("\n", " ").replaceAll("\u0002", "").replaceAll("\u0091", "").replaceAll("[^\\u0000-\\uFFFF]", "").
+    replaceAll("[^\\p{ASCII}]", "")
 
   def getLuceneHitFields(hit: SearchHit): Map[String, AnyRef] = {
     hit.sourceAsMap().asScala.toMap
