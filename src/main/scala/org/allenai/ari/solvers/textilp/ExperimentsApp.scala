@@ -362,11 +362,11 @@ object ExperimentsApp {
         //evaluateTextSolverOnRegents(SolverUtils.squid04test, textILPSolver)
         //println("==== squid04test ")
 
-        //evaluateTextSolverOnRegents(SolverUtils.squidAdditionalTest, textILPSolver)
-        //println("==== squidAdditionalTest ")
+        evaluateTextSolverOnRegents(SolverUtils.squidAdditionalTest, textILPSolver)
+        println("==== squidAdditionalTest ")
 
-        evaluateTextSolverOnRegents(SolverUtils.squidChallengeTest, textILPSolver)
-        println("==== squidChallengeTest ")
+        //evaluateTextSolverOnRegents(SolverUtils.squidChallengeTest, textILPSolver)
+        //println("==== squidChallengeTest ")
 
       case 3 =>
         // get dataset statistics
