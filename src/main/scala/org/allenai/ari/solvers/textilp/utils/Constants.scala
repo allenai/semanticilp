@@ -16,7 +16,7 @@ object Constants {
 
   // annotator servers
   val sahandPort = "8081"
-  val sahandServer = "http://smeagol.cs.illinois.edu" // "http://cogcomp.dev.ai2"
+  val sahandServer = "http://cogcomp.dev.ai2"
 
   val cogcompAnnotatorPort = "5800"
   val cogcompAnnotatorServer = "http://cogcomp.dev.ai2" // "http://austen.cs.illinois.edu"
