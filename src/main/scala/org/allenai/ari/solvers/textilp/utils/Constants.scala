@@ -12,7 +12,7 @@ case class Elastic(clusterName: String, hostIp: String, hostPort: Int, indexName
 
 object Constants {
   // this is the variable that decides which model to use
-  val textILPModel: TextILPModel = TextILPModel.StackedForScienceMinimal
+  val textILPModel: TextILPModel = TextILPModel.EnsembleMinimal
 
   // annotator servers
   val sahandPort = "8081"

@@ -3270,7 +3270,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
 
   private def extractFeatureVectorForQuestion(question: String, options: Seq[String], snippet: String) = {
     val types = Constants.textILPModel match {
-      case TextILPModel.EnsembleFull =>
+      case TextILPModel.EnsembleFull | TextILPModel.EnsembleMinimal =>
         Seq(SimpleMatching, WhatDoesItDoRule, CauseRule, SRLV1Rule, VerbSRLandPrepSRL, SRLV1ILP, VerbSRLandCoref, SRLV2Rule, SRLV3Rule, VerbSRLandCommaSRL)
       case TextILPModel.EnsembleNoCoref =>
         Seq(SimpleMatching, WhatDoesItDoRule, CauseRule, SRLV1Rule, VerbSRLandPrepSRL, SRLV1ILP, SRLV2Rule, SRLV3Rule, VerbSRLandCommaSRL)
@@ -3282,6 +3282,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
         Seq(WhatDoesItDoRule, CauseRule, SRLV1Rule, VerbSRLandPrepSRL, SRLV1ILP, VerbSRLandCoref, SRLV2Rule, SRLV3Rule, VerbSRLandCommaSRL)
       case TextILPModel.EnsembleNoVerbSRL =>
         Seq(SimpleMatching, WhatDoesItDoRule, CauseRule, VerbSRLandPrepSRL, VerbSRLandCoref, VerbSRLandCommaSRL)
+      case default =>
+        throw new Exception(s"Feature extraction is not defined for your selection ${Constants.textILPModel}")
     }
     val srlViewsAll = if (Constants.textILPModel == TextILPModel.EnsembleMinimal) {
       Seq(ViewNames.SRL_VERB, TextILPSolver.pathLSTMViewName)
