@@ -444,7 +444,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       case default =>
         // note: there is inefficiency here; we preprocess the input once at the beginning of this function, and also inside the linear classifier
         val result = EntityRelationResult()
-        val selected = Seq(predictWithWekaClassifier(question, options, snippet))
+        val selected = Seq(predictMaxScoreWekaClassifier(question, options, snippet))
         Some((selected, result) -> "Ensemble")
     }
 
@@ -573,7 +573,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     }
   }
 
-  private def preprocessQuestionData(question: String, options: Seq[String], snippet1: String): (Question, Paragraph) = {
+  def preprocessQuestionData(question: String, options: Seq[String], snippet1: String): (Question, Paragraph) = {
     val snippet = {
       val cleanQ = SolverUtils.clearRedundantCharacters(question)
       val questionTA = try {
@@ -3247,7 +3247,12 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     dataUnlabeled
   }
 
-  def predictWithWekaClassifier(question: String, options: Seq[String], snippet: String): Int = {
+  def predictMaxScoreWekaClassifier(question: String, options: Seq[String], snippet: String): Int = {
+    val (confidenceValuesPerAnsOption, _) = predictAllCandidatesWithWekaClassifier(question, options, snippet)
+    confidenceValuesPerAnsOption.zipWithIndex.maxBy(_._1)._2
+  }
+
+  def predictAllCandidatesWithWekaClassifier(question: String, options: Seq[String], snippet: String): (Seq[Double], Instances) = {
     // note there is inefficienss here. The instance gets pre-processed for each reasoning combination inside "distributionForInstance"
     val fvs = extractFeatureVectorForQuestion(question, options, snippet)
     val dataUnlabeled = new Instances(TextILPSolver.headerEmptyInstances)
@@ -3258,7 +3263,7 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       dataUnlabeled.add(ins)
       TextILPSolver.wekaClassifier.distributionForInstance(dataUnlabeled.instance(i))(0)
     }
-    confidenceValuesPerAnsOption.zipWithIndex.maxBy(_._1)._2
+    (confidenceValuesPerAnsOption, dataUnlabeled)
   }
 
   def extractFeatureVectorForQuestionWithCorrectLabel(question: String, options: Seq[String], snippet: String, correctIdx: Int): Seq[Seq[Double]] = {

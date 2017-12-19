@@ -6,6 +6,7 @@
 GET     /                           controllers.SolveQuestion.index
 POST    /solve                      controllers.SolveQuestion.solve
 GET     /solveQuestion              controllers.SolveQuestion.solveWithTextILP(question, options, snippet)
+GET     /solveQuestionForAllAnswers controllers.SolveQuestion.solveWithTextILPForAllAnswers(question, options, snippet)
 GET     /getPrefilledQuestion       controllers.SolveQuestion.getPrefilledQuestion(index: Int)
 
 

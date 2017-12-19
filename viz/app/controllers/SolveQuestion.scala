@@ -7,7 +7,7 @@ import org.allenai.ari.solvers.bioProccess.ProcessBankReader
 import org.allenai.ari.solvers.textilp.ResultJson
 import org.allenai.ari.solvers.textilp.ResultJson._
 import org.allenai.ari.solvers.textilp.solvers._
-import org.allenai.ari.solvers.textilp.utils.{AnnotationUtils, SolverUtils}
+import org.allenai.ari.solvers.textilp.utils.{AnnotationUtils, Constants, SolverUtils}
 import play.api.mvc._
 import play.api.libs.json._
 
@@ -40,7 +40,7 @@ class SolveQuestion @Inject() extends Controller {
     solveQuestionWithParams(solverType, question, options, snippetUnprocessed)
   }
 
-  def solveWithTextILP(question: String, options: String, snippetUnprocessed: String)  =  Action { implicit request =>
+  def solveWithTextILP(question: String, options: String, snippetUnprocessed: String) = Action { implicit request =>
     val (optionsPostProcessed, snippetPostprocessed) = preprocessQuestion(question, options, snippetUnprocessed)
     println("Calling te xtilp. . . ")
     val (_, solverContent) = textilpSolver.solve(question, optionsPostProcessed, snippetPostprocessed)
@@ -49,6 +49,65 @@ class SolveQuestion @Inject() extends Controller {
 
     println("Sending new resultls ")
     Ok(Json.toJson(solverContent).toString())
+  }
+
+  def solveWithTextILPForAllAnswers(question: String, options: String, snippetUnprocessed: String) = Action { implicit request =>
+    val (optionsPostProcessed, snippetPostprocessed) = preprocessQuestion(question, options, snippetUnprocessed)
+    println("Calling te xtilp. . . ")
+
+    def solveWithCascade(newOptions: Seq[(String, Int)]):Seq[(Int, Double)] = {
+      val (out, solverContent) = textilpSolver.solve(question, newOptions.map(_._1), snippetPostprocessed)
+      if(out.nonEmpty && newOptions.size > 1) {
+        assert(out.length == 1)
+        val selected = newOptions(out.head)
+        // drop the selected option and solve again
+        val filteredOptions = newOptions.filterNot{_ == selected}
+        (selected._2, solverContent.confidence) +: solveWithCascade(filteredOptions)
+      }
+      else {
+        Seq.empty
+      }
+    }
+
+    val outputjson = Constants.textILPModel match {
+      case TextILPModel.StackedForScience | TextILPModel.StackedForScienceMinimal =>
+        println("Running with cascade models . . . ")
+        val out = solveWithCascade(optionsPostProcessed.zipWithIndex)
+        val json: JsValue = Json.obj(
+          "solvertype" -> "cascade",
+          "selectedAnswerIndices" -> out.unzip._1,
+          "selectedAnswersConfidences" -> out.unzip._2
+        )
+        json.toString()
+      case TextILPModel.EnsembleMinimal | TextILPModel.EnsembleFull =>
+
+        import scala.collection.JavaConverters._
+        println("Running with ensemble models . . . ")
+        val (scores, instances) = textilpSolver.predictAllCandidatesWithWekaClassifier(question, optionsPostProcessed, snippetPostprocessed)
+        import play.api.libs.json.{Json, JsValue}
+
+        val attributes = (0 until instances.numAttributes()).map{ i =>
+          instances.attribute(i).name()
+        }
+
+        val features = (0 until instances.numInstances()).map { i =>
+          val ins = instances.instance(i)
+          ins.toDoubleArray
+        }
+        val json: JsValue = Json.obj(
+          "solvertype" -> "ensemble",
+          "scores" -> scores,
+          "attributes" -> attributes,
+          "features" -> features,
+          "wekaInstances" -> instances.toString
+        )
+        json.toString()
+      case default =>
+        throw new Exception(s"solver type not found: ${Constants.textILPModel}")
+    }
+
+    println("Sending new resultls ")
+    Ok(outputjson)
   }
 
   private def solveQuestionWithParams(solverType: String, question: String, options: String, snippetUnprocessed: String) = {
@@ -103,7 +162,7 @@ class SolveQuestion @Inject() extends Controller {
 
 
     println("snippet: " + snippet)
-    val snippetPostprocessed = if (snippet.length < 5) {
+    val snippetPostprocessed = if (snippet.trim.length < 5) {
       // it's empty; get it with elastic-search
       println("Asking the elastic-search . . . " + question)
       //val snippet = optionsPostProcessed.flatMap(focus => SolverUtils.extractParagraphGivenQuestionAndFocusWord(question, focus, 3)).mkString(" ")
