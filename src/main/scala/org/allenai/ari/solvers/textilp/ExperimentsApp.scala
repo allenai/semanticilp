@@ -1013,7 +1013,12 @@ object ExperimentsApp {
                 val selected = textILPSolver.solve(question, options, knowledgeSnippet)._1
                 //Seq(textILPSolver.predictMaxScoreWekaClassifier(question, options, knowledgeSnippet))
                 val f = new FileWriter(s"output/remedia-snigdha-candidates-${max}.txt", true)
-                f.write(q.questionId + "\t" + selected.head + "\t" + options(selected.head) + "\n")
+                if(selected.nonEmpty) {
+                  f.write(q.questionId + "\t" + selected.head + "\t" + options(selected.head) + "\n")
+                }
+                else {
+                  f.write(q.questionId + "\t - \t - \n")
+                }
                 f.close()
                 selected
               } else {
