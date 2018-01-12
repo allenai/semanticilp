@@ -67,7 +67,7 @@ class AnnotationUtils() {
     val x = new ServerClientAnnotator()
     x.setUrl(Constants.cogcompAnnotatorServer, Constants.cogcompAnnotatorPort)
     x.setViewsAll(Seq(ViewNames.SHALLOW_PARSE).toArray)
-    x.useCaching("remotePipelineCachingTextilp-basicViews.cache")
+    x.useCaching("remotePipelineCachingTextilp-basicViews2.cache")
     x
   }
 

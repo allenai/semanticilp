@@ -45,8 +45,9 @@ Then you have to set the ports in SemanticILP. Open [`Constants.scala`](src/main
 - Sahand takes less than 10GB
 
 ### Missing Dependencies 
-Unfortunately some of our dependencies are not available publicly. We have put these dependencies [here](https://drive.google.com/file/d/1Gbvfv7GRYCec2cW6sjmq0bwFAg_ha0TZ/view?usp=sharing). You have to put these dependencies in our ivy cache folder. 
- In a typical machine this is where there should be located at: `~/.ivy2/local/`.
+Unfortunately some of our dependencies are not available publicly. But there is a hacky way to get around this issue. 
+We have put these dependencies [here](), which you have to put them in our ivy cache folder. 
+In a typical machine this is where there should be located at: `~/.ivy2/cache/`.
 
 ### Running SemanticILP 
 

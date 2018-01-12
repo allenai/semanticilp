@@ -19,7 +19,7 @@ object Constants {
   val sahandServer = "http://cogcomp.dev.ai2"
 
   val cogcompAnnotatorPort = "5800"
-  val cogcompAnnotatorServer = "http://cogcomp.dev.ai2" // "http://austen.cs.illinois.edu"
+  val cogcompAnnotatorServer = "http://cogcomp.dev.ai2" // "http://austen.cs.illinois.edu" // "http://cogcomp.dev.ai2"
 
   val externalAnnotatorsPort = "8009"
   val externalAnnotatorsServer = "http://cogcomp.dev.ai2" // "http://bronte.cs.illinois.edu"
@@ -62,6 +62,11 @@ object Constants {
   val localElastic = Elastic(
     clusterName = "danielk", hostIp = "localhost", hostPort = 9300,
     Map("tables-to-sentences2-2017-06-20" -> "Barrons 4th Grade Study Guide")
+  )
+
+  val multiRCSentencesElastic = Elastic(
+    clusterName = "elasticsearch", hostIp = "localhost", hostPort = 9300,
+    Map("nultircsentences-2017-12-15" -> "nultircsentences-2017-12-15")
   )
 
   // this is the variable which decides which instance of elasticsearch to use

@@ -40,6 +40,18 @@ object ExperimentsApp {
   lazy val luceneSolver = new LuceneSolver()
   lazy val slidingWindowSolver = new SlidingWindowSolver()
 
+
+  // snigdha's questions
+  val remediaSnigdhaCandidates = {
+    val readers = new SimplifiedSquadReader(
+      annotationUtils,
+      new File("/Users/daniel/ideaProjects/TextILP/other/questionSets/ILPSelectorOutput_test_biDaf30_2.0_20.json")
+    )
+    readers.instances.flatMap{ t =>
+      t.paragraphs
+    }
+  }
+
   class ArgumentParser(args: Array[String]) extends ScallopConf(args) {
     val experimentType: ScallopOption[Int] = opt[Int]("type", descr = "Experiment type", required = true)
     verify()
@@ -250,7 +262,7 @@ object ExperimentsApp {
     import java.io._
     //val types = Seq( /*WhatDoesItDoRule, CauseRule, */ SRLV1Rule /*, VerbSRLandPrepSRL,SRLV1ILP, VerbSRLandCoref, SimpleMatching*/ )
     val types = Seq(SimpleMatching /*SimpleMatching, WhatDoesItDoRule, CauseRule, SRLV1Rule, VerbSRLandPrepSRL, */ /*SRLV1ILP, VerbSRLandCoref,
-                     SRLV2Rule, SRLV3Rule*/ /*VerbSRLandCommaSRL*/ )
+                          SRLV2Rule, SRLV3Rule*/ /*VerbSRLandCommaSRL*/ )
     val srlViewsAll = Seq(ViewNames.SRL_VERB, TextILPSolver.curatorSRLViewName, TextILPSolver.pathLSTMViewName)
     val qAndpPairs = list.flatMap { p => p.questions.map(q => (q, p)) }
     val resultFile = new PrintWriter(new File(s"output/results-per-solver-length${qAndpPairs.length}-processBank.txt"))
@@ -448,8 +460,85 @@ object ExperimentsApp {
         //SolverUtils.squidAdditionalTrain
         //SolverUtils.squidAdditionalDev
         println(SolverUtils.squidChallengeTest.size)
-        //SolverUtils.squidChallengeTrain
-        //SolverUtils.squidChallengeDev
+      //SolverUtils.squidChallengeTrain
+      //SolverUtils.squidChallengeDev
+
+      case 10 =>
+        // process multirc questions
+        val ps = Paragraph2.readJson3("/Users/daniel/ideaProjects/hard-qa/files/everything/step3-output/step3_output-combined-uniqueAns-subset=-with-sliding-window2.json")
+
+        val reg = "<b>Sent \\d{1,2}: </b>".r
+
+        def cacheOnDiskAi2(list: Seq[Paragraph2]): Unit = {
+          val max = list.length
+          list.zipWithIndex.foreach {
+            case (p, idx) =>
+              println(s"Processing $idx out of $max")
+              if (idx > 27) {
+                try {
+                  val sentences = reg.split(p.text).drop(1)
+                  val knowledgeSnippet = sentences.map(_.trim().replace("<br>", "")).mkString
+                  println("knowledge: " + knowledgeSnippet)
+                  p.questions.zipWithIndex.foreach {
+                    case (q, qIdx) =>
+                      q.answers.zipWithIndex.foreach {
+                        case (a, aIdx) =>
+                          //textILPSolver.preprocessQuestionData(q.text, Seq(a.text), knowledgeSnippet)
+                          val f = new FileWriter(s"output/textilp-multirc.txt", true)
+                          val out = textILPSolver.solve(q.text, Seq(a.text), knowledgeSnippet)
+                          val score = out._2.confidence
+                          f.write(p.id + "\t" + qIdx + "\t" + aIdx + "\t" + score + "\n")
+                          f.close()
+                      }
+                  }
+                } catch {
+                  case e: Exception =>
+                    println("cache failed . . . ")
+                    e.printStackTrace()
+                }
+              }
+          }
+        }
+
+        cacheOnDiskAi2(ps)
+
+      case 11 =>
+        val ps = Paragraph2.readJson4("/Users/daniel/ideaProjects/hard-qa/files/everything/step3-output/step3_output-combined-uniqueAns-subset=-withhuman2.json")
+
+        val reg = "<b>Sent \\d{1,2}: </b>".r
+
+        def cacheOnDiskAi2(list: Seq[Paragraph2]): Unit = {
+          val max = list.length
+          list.zipWithIndex.foreach {
+            case (p, idx) =>
+              //if(idx > 10) {
+              println(s"Processing $idx out of $max")
+              p.questions.zipWithIndex.foreach {
+                case (q, qIdx) =>
+                  println("----> q")
+                  q.answers.zipWithIndex.foreach {
+                    case (a, aIdx) =>
+                      //Thread.sleep(500)
+                      try {
+                        val results = SolverUtils.staticCacheLucene(q.text, a.text, 100)
+                        val maxScore = if (results.nonEmpty) results.maxBy(_._2)._2 else 0.0
+                        a.scores += ("lucene-world" -> maxScore)
+                      } catch {
+                        case e: Exception =>
+                          e.printStackTrace()
+                          Thread.sleep(2000)
+                      }
+                  }
+              }
+            //}
+          }
+        }
+
+        //        (0 to 30).foreach{ _ =>
+        //          cacheOnDiskAi2(ps)
+        //        }
+        cacheOnDiskAi2(ps)
+        Paragraph2.writeJson4("/Users/daniel/ideaProjects/hard-qa/files/everything/step3-output/step3_output-combined-uniqueAns-subset=-with-lucene-world.json", ps)
 
       case 55 =>
         // write the bioProcess questions on disk, as well as their predictions
@@ -786,7 +875,7 @@ object ExperimentsApp {
               val selected = if (knowledgeSnippet.trim != "") {
                 println("solving it . . . ")
                 try {
-                  val selected = Seq(textILPSolver.predictWithWekaClassifier(question, options, knowledgeSnippet))
+                  val selected = Seq(textILPSolver.predictMaxScoreWekaClassifier(question, options, knowledgeSnippet))
                   val f = new FileWriter(s"output/predictionPerQuestion2-${max}.txt", true)
                   f.write(question + "\t" + selected.head + "\t" + correctIndex + "\n")
                   f.close()
@@ -822,7 +911,7 @@ object ExperimentsApp {
               val options = q.answers.map(_.answerText)
               val selected = if (knowledgeSnippet.trim != "") {
                 println("solving it . . . ")
-                val selected = Seq(textILPSolver.predictWithWekaClassifier(question, options, knowledgeSnippet))
+                val selected = Seq(textILPSolver.predictMaxScoreWekaClassifier(question, options, knowledgeSnippet))
                 val f = new FileWriter(s"output/predictionPerQuestion-ProcessBank-${max}.txt", true)
                 f.write(question + "\t" + selected.head + "\t" + q.correctIdxOpt.get + "\n")
                 f.close()
@@ -909,7 +998,35 @@ object ExperimentsApp {
         }
 
       case 119 =>
-      // finding overlap with lucene predictions
+        // testing semantic ilp on snigdha's questions
+        def evluateProcessbankData(list: Seq[Paragraph]) = {
+          val qAndpPairs = list.flatMap { p => p.questions.map(q => (q, p)) }
+          val max = qAndpPairs.length
+          val scores = qAndpPairs.zipWithIndex.map {
+            case ((q, p), idx) =>
+              println(s"Processing $idx out of $max")
+              val knowledgeSnippet = p.context
+              val question = q.questionText
+              val options = q.answers.map(_.answerText)
+              val selected = if (knowledgeSnippet.trim != "") {
+                println("solving it . . . ")
+                val selected = textILPSolver.solve(question, options, knowledgeSnippet)._1
+                //Seq(textILPSolver.predictMaxScoreWekaClassifier(question, options, knowledgeSnippet))
+                val f = new FileWriter(s"output/remedia-snigdha-candidates-${max}.txt", true)
+                f.write(q.questionId + "\t" + selected.head + "\t" + options(selected.head) + "\n")
+                f.close()
+                selected
+              } else {
+                Seq.empty
+              }
+              SolverUtils.assignCredit(selected, q.correctIdxOpt.get, options.length)
+          }
+          println(" --> Average score: " + {
+            scores.sum / scores.size
+          })
+        }
+
+        evluateProcessbankData(remediaSnigdhaCandidates)
 
     }
   }
