@@ -50,7 +50,6 @@ We have put these dependencies [here](https://drive.google.com/file/d/1eAcBoZOJ3
 In a typical machine this is where there should be located at: `~/.ivy2/cache/`.
 
 ### Running SemanticILP 
-
 And next you have to run the solver itself. You can run the system under different models. 
 Here are the different models you can use: 
 
@@ -90,6 +89,18 @@ println(statistics)
 ```
 
 You can also install it locally (`publish-local`) and use it as a maven/sbt/... dependency in your program.   
+
+
+*Note:* If you see an error like this: 
+```
+Caused by: java.lang.UnsatisfiedLinkError: no jscip-0.1.linux.x86_64.gnu.opt.spx in java.library.path
+```
+this means that the solver does not recognize the ILP binary files (common to linux). In that case, add the path to 
+ your binary files, to your `LD_LIBRARY_PATH` variable. 
+```
+export LD_LIBRARY_PATH=path_to_lib_folder
+```
+
 
 #### Run the solver over a network 
 This is for the case where you want to access the system either: 
