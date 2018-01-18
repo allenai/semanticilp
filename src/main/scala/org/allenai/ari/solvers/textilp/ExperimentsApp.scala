@@ -1051,7 +1051,18 @@ object ExperimentsApp {
           }
         }
 
-        evluateProcessbankData(processReader.testInstances.filterNotTrueFalse.filterNotTemporals)
+        def evaluateTextSolverOnRegents(dataset: Seq[(String, Seq[String], String)]) = {
+          val max = dataset.length
+          dataset.zipWithIndex.map {
+            case ((question, options, correct), idx) =>
+              println(s"Processing $idx out of $max")
+              println("solving it . . . ")
+              SolverUtils.evaluateWithTextILRemote(question, "", options)
+          }
+        }
+
+        //evluateProcessbankData(processReader.testInstances.filterNotTrueFalse.filterNotTemporals)
+        evaluateTextSolverOnRegents(SolverUtils.regentsTest)
     }
   }
 }

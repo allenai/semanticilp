@@ -66,6 +66,11 @@ In order to initialize the solver, you have the following options:
 
 Next subsections clarify each of the above items: 
 
+*Note:* here are the memory requirements: 
+- SemanticILP solver: minimum around 8GB 
+- Annotation Server (CogComp): minimum around 17GB 
+- Annotation Server (CogComp-external): minimum around 15GB 
+
 #### Run the solver programmatically 
 To run the solver, clone this project and run create a instance of the solve: 
 
@@ -98,7 +103,7 @@ Caused by: java.lang.UnsatisfiedLinkError: no jscip-0.1.linux.x86_64.gnu.opt.spx
 this means that the solver does not recognize the ILP binary files (common to linux). In that case, add the path to 
  your binary files, to your `LD_LIBRARY_PATH` variable. 
 ```
-export LD_LIBRARY_PATH=path_to_lib_folder
+export LD_LIBRARY_PATH=path_to_lib_folder/
 ```
 
 
