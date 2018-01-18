@@ -46,7 +46,7 @@ Then you have to set the ports in SemanticILP. Open [`Constants.scala`](src/main
 
 ### Missing Dependencies 
 Unfortunately some of our dependencies are not available publicly. But there is a hacky way to get around this issue. 
-We have put these dependencies [here](), which you have to put them in our ivy cache folder. 
+We have put these dependencies [here](https://drive.google.com/file/d/1eAcBoZOJ3GyB1Y_zcge_dRvILY6rJPFC/view?usp=sharing), which you have to put them in our ivy cache folder. 
 In a typical machine this is where there should be located at: `~/.ivy2/cache/`.
 
 ### Running SemanticILP 
