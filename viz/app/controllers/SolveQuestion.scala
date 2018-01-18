@@ -52,6 +52,10 @@ class SolveQuestion @Inject() extends Controller {
   }
 
   def solveWithTextILPForAllAnswers(question: String, options: String, snippetUnprocessed: String) = Action { implicit request =>
+    println("=> Question: " + question)
+    println("=> options: " + options)
+    println("=> snippetUnprocessed: " + snippetUnprocessed)
+
     val (optionsPostProcessed, snippetPostprocessed) = preprocessQuestion(question, options, snippetUnprocessed)
     println("Calling te xtilp. . . ")
 

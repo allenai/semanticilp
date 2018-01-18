@@ -581,7 +581,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       }
       catch {
         case e: Exception =>
-          println(cleanQ)
+          println((s"\nOriginal questions: ${question} \ncleanQ: ${cleanQ}"))
+          e.printStackTrace()
           throw new Exception
       }
 
@@ -592,7 +593,8 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       catch {
         case e: Exception =>
           println("pipelineServerClientWithBasicViews failed on the following input: ")
-          println(cleanSnippet)
+          println((s"\nsnippet1: ${snippet1} \ncleanSnippet: ${cleanSnippet}"))
+          e.printStackTrace()
           throw new Exception
       }
       SolverUtils.ParagraphSummarization.getSubparagraphString(paragraphTA, questionTA)

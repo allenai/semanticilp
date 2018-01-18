@@ -1024,15 +1024,34 @@ object ExperimentsApp {
               } else {
                 Seq.empty
               }
-              SolverUtils.assignCredit(selected, q.correctIdxOpt.get, options.length)
+              //SolverUtils.assignCredit(selected, q.correctIdxOpt.get, options.length)
           }
-          println(" --> Average score: " + {
-            scores.sum / scores.size
-          })
+//          println(" --> Average score: " + {
+//            scores.sum / scores.size
+//          })
         }
 
         evluateProcessbankData(remediaSnigdhaCandidates)
 
+      case 120 =>
+        // evaluate with the visualizer
+        def evluateProcessbankData(list: Seq[Paragraph]) = {
+          val qAndpPairs = list.flatMap { p => p.questions.map(q => (q, p)) }
+          val max = qAndpPairs.length
+          val scores = qAndpPairs.zipWithIndex.map {
+            case ((q, p), idx) =>
+              println(s"Processing $idx out of $max")
+              val knowledgeSnippet = p.context
+              val question = q.questionText
+              val options = q.answers.map(_.answerText)
+              if (knowledgeSnippet.trim != "") {
+                println("solving it . . . ")
+                SolverUtils.evaluateWithTextILRemote(question, knowledgeSnippet, options)
+              }
+          }
+        }
+
+        evluateProcessbankData(processReader.testInstances.filterNotTrueFalse.filterNotTemporals)
     }
   }
 }

@@ -38,6 +38,8 @@ object SolverUtils {
   }
   lazy val keywordTokenizer = new KeywordTokenizer(smartStopwordList, Map.empty)
 
+  val charset = "UTF-8"
+
   val params = TextIlpParams(
     activeQuestionTermWeight = 0.33,
     alignmentScoreDiscount = 0.0, // not used
@@ -108,7 +110,6 @@ object SolverUtils {
     * The question can have at most 6 options, A to F: "question text (A) option1 (B) option2 .... "
     */
   def evaluateASingleQuestion(q: String, solver: String): Seq[(String, Double)] = {
-    val charset = "UTF-8"
     val query = Constants.queryLink + URLEncoder.encode(q, charset) + "&solvers=" + solver
     val html = Source.fromURL(query)
     val jsonString = html.mkString
@@ -120,6 +121,12 @@ object SolverUtils {
       val focus = (perOptionResponse \ "selection" \ "multipleChoice" \ "focus").as[String]
       focus -> confidence
     }
+  }
+
+  def evaluateWithTextILRemote(q: String, p: String, candidates: Seq[String]) = {
+    val query = s"http://localhost:9000/solveQuestionForAllAnswers?question=${URLEncoder.encode(q, charset)}" +
+      s"?&options=${URLEncoder.encode(candidates.mkString("//"), charset)}&snippet=${URLEncoder.encode(p, charset)}"
+    val html = Source.fromURL(query)
   }
 
   def sortedAnswerToSolverResponse(question: String, options: Seq[String],

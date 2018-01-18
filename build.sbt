@@ -9,7 +9,7 @@ lazy val commonSettings = Seq(
   version := "1.5",
   scalaVersion := "2.11.8",
   javaOptions ++= Seq("-Xmx25G", "-XX:MaxMetaspaceSize=5g"),
-  fork := true,
+  fork := false,
   // Make sure SCIP libraries are locatable.
   javaOptions += s"-Djava.library.path=lib",
   envVars ++= Map(
