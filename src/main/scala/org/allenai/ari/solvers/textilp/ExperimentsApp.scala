@@ -42,10 +42,10 @@ object ExperimentsApp {
 
 
   // snigdha's questions
-  val remediaSnigdhaCandidates = {
+  lazy val remediaSnigdhaCandidates = {
     val readers = new SimplifiedSquadReader(
       annotationUtils,
-      new File("/Users/daniel/ideaProjects/TextILP/other/questionSets/ILPSelectorOutput_test_biDaf30_2.0_20.json")
+      new File("/Users/daniel/ideaProjects/linear-classifier/other/remediaforSemanticILP-jan24.json")
     )
     readers.instances.flatMap{ t =>
       t.paragraphs
@@ -1062,7 +1062,46 @@ object ExperimentsApp {
         }
 
         //evluateProcessbankData(processReader.testInstances.filterNotTrueFalse.filterNotTemporals)
-        evaluateTextSolverOnRegents(SolverUtils.regentsTest)
+        //evaluateTextSolverOnRegents(SolverUtils.regentsTest)
+
+
+      case 121 =>
+        // read phrase pairs and and evaluate entailment scores
+        println("Starting . . . ")
+        val lines = Source.fromFile("/Users/daniel/ideaProjects/linear-classifier/remedia-train-pairs-snigdha2.txt").getLines.toList
+        val w = new FileWriter("/Users/daniel/ideaProjects/linear-classifier/remedia-train-pairs-snigdha-with-scores2.txt")
+        lines.map{ l =>
+          val split = l.split("//")
+          val score1 = TextILPSolver.offlineAligner.scoreCellQChoice(split(0).trim, split(1).trim) + 0.2
+          val score2 = TextILPSolver.offlineAligner.scoreCellQChoice(split(1).trim, split(0).trim) + 0.2
+          w.write(l + s"//$score1 // $score2 \n")
+        }
+        w.close()
+//        val s1 = "propeller"
+//        val s2 = "object"
+//        println(TextILPSolver.offlineAligner.scoreCellQChoice(s1, s2) + 0.2)
+//        println(TextILPSolver.offlineAligner.scoreCellQChoice(s2, s1) + 0.2)
+
+      case 122 =>
+        // extract lucene sentences for questions WITHOUT answers
+
+        def evaluateTextSolverOnRegents(dataset: Seq[(String, Seq[String], String)]) = {
+          val w = new FileWriter("regents-pubilc-4th-grade-with-lucene-using-answers" + dataset.length + ".txt")
+          val max = dataset.length
+          dataset.zipWithIndex.map {
+            case ((question, options, correct), idx) =>
+              println(s"Processing $idx out of $max")
+              val rawSentences = SolverUtils.extractPatagraphGivenQuestionAndFocusSet3(question, options, 12).mkString(". ")
+              w.write(question + "\n")
+              w.write(options.mkString("//") + "\n")
+              w.write(rawSentences + "\n")
+              println(rawSentences)
+          }
+          w.close()
+        }
+        // evaluateTextSolverOnRegents(SolverUtils.publicTrain)
+        evaluateTextSolverOnRegents(SolverUtils.publicTest)
+        evaluateTextSolverOnRegents(SolverUtils.publicDev)
     }
   }
 }
