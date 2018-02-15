@@ -23,7 +23,7 @@ The system is tested with [v3.1.22 of CogCompNLP](https://github.com/CogComp/cog
 Download the package and run the annotator servers, on two different ports `PORT_NUMBER1` and `PORT_NUMBER2`.  
 ```bash 
 # running the main annotators 
-./external/scripts/runWebserver.sh  --port PORT_NUMBER1 
+./pipeline/scripts/runWebserver.sh  --port PORT_NUMBER1 
 # running github external annotators 
 ./external/scripts/runExternalAnnotatorsWebserver.sh --port PORT_NUMBER2  
 ```
@@ -33,8 +33,8 @@ This project makes distributed representations available over network. Run it, a
  
 ```
 > sbt 
-> project server SAHAND_PORT
-> run
+> project server 
+> run SAHAND_PORT
 ```
 
 Then you have to set the ports in SemanticILP. Open [`Constants.scala`](src/main/scala/org/allenai/ari/solvers/textilp/utils/Constants.scala) and set the ports.   
