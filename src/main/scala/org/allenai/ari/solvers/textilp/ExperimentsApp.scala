@@ -1,37 +1,21 @@
 package org.allenai.ari.solvers.textilp
 
-import edu.illinois.cs.cogcomp.McTest.MCTestBaseline
-import edu.illinois.cs.cogcomp.core.utilities.configuration.ResourceManager
-import org.allenai.ari.solvers.bioProccess.ProcessBankReader
-import org.allenai.ari.solvers.textilp.solvers.{ CauseRule, WhatDoesItDoRule, _ }
-import org.allenai.ari.solvers.textilp.alignment.AlignmentFunction
-import org.allenai.ari.solvers.textilp.utils._
-import org.rogach.scallop._
-import ProcessBankReader._
-import edu.illinois.cs.cogcomp.core.datastructures.textannotation.{ Constituent, TextAnnotation }
-import edu.illinois.cs.cogcomp.core.io.IOUtils
-import edu.illinois.cs.cogcomp.edison.annotators.ClauseViewGenerator
-import edu.illinois.cs.cogcomp.pipeline.server.ServerClientAnnotator
-import org.simmetrics.metrics.StringMetrics
-import org.allenai.ari.controller.questionparser.{ FillInTheBlankGenerator, QuestionParse }
-import org.apache.commons.io.FilenameUtils
-import org.simmetrics.StringMetric
-import weka.classifiers.Evaluation
-import weka.classifiers.bayes.NaiveBayesUpdateable
-import weka.classifiers.functions.Logistic
-import weka.core.{ DenseInstance, Instance, Instances }
-import weka.core.converters.ArffLoader
-import weka.core.converters.ArffLoader.ArffReader
 import java.io._
-import java.net.URL
-import java.util
 
 import edu.illinois.cs.cogcomp.core.datastructures.ViewNames
-import play.api.libs.json.{ JsArray, JsObject, Json }
+import edu.illinois.cs.cogcomp.core.io.IOUtils
+import org.allenai.ari.solvers.bioProccess.ProcessBankReader
+import org.allenai.ari.solvers.bioProccess.ProcessBankReader._
+import org.allenai.ari.solvers.textilp.solvers.{CauseRule, WhatDoesItDoRule, _}
+import org.allenai.ari.solvers.textilp.utils._
+import org.rogach.scallop._
+import org.simmetrics.metrics.StringMetrics
+import play.api.libs.json.{JsObject, Json}
+import weka.classifiers.Evaluation
+import weka.classifiers.functions.Logistic
+import weka.core.converters.ArffLoader
 
-import scala.util.Random
 import scala.io.Source
-import scala.collection.JavaConverters._
 
 object ExperimentsApp {
   lazy val annotationUtils = new AnnotationUtils()
@@ -39,18 +23,6 @@ object ExperimentsApp {
   lazy val salienceSolver = new SalienceSolver()
   lazy val luceneSolver = new LuceneSolver()
   lazy val slidingWindowSolver = new SlidingWindowSolver()
-
-
-  // snigdha's questions
-  lazy val remediaSnigdhaCandidates = {
-    val readers = new SimplifiedSquadReader(
-      annotationUtils,
-      new File("/Users/daniel/ideaProjects/linear-classifier/other/remediaforSemanticILP-jan24.json")
-    )
-    readers.instances.flatMap{ t =>
-      t.paragraphs
-    }
-  }
 
   class ArgumentParser(args: Array[String]) extends ScallopConf(args) {
     val experimentType: ScallopOption[Int] = opt[Int]("type", descr = "Experiment type", required = true)
@@ -127,93 +99,6 @@ object ExperimentsApp {
     resultFile.close()
   }
 
-  def evaluateTextSolverOnRegentsPerReasoningMethod(dataset: Seq[(String, Seq[String], String)], textSolver: TextSolver,
-    knowledgeLength: Int = 8) = {
-    import java.io._
-    val f = new File(s"output/results-per-solver-length${dataset.length}.txt")
-    val resultFile = new FileWriter(f, true)
-    resultFile.write(s"knowledgeLength\tType \t SRL \t Score \t Precision \t Recall \t Total Answered \t Out of \t Total Time \n")
-    resultFile.close()
-    val types = Seq(VerbSRLandPrepSRL /*, VerbSRLandPrepSRL*/ /*SimpleMatching, SRLV1Rule, VerbSRLandPrepSRL, SRLV1ILP, VerbSRLandCoref, SRLV2Rule, SRLV3Rule, VerbSRLandCommaSRL*/ )
-    val srlViewsAll = Seq(ViewNames.SRL_VERB, /*TextILPSolver.curatorSRLViewName, */ TextILPSolver.pathLSTMViewName)
-    types.foreach { t =>
-      val start = System.currentTimeMillis()
-      SolverUtils.printMemoryDetails()
-      val srlViewTypes = if (t == CauseRule || t == WhatDoesItDoRule || t == SimpleMatching) Seq(TextILPSolver.pathLSTMViewName) else srlViewsAll
-      srlViewTypes.foreach { srlVu =>
-        // use false if you don't it to write things on disk
-        val max = dataset.length
-        val (perQuestionScore, perQuestionResults, otherTimes) = dataset.zipWithIndex.map {
-          case ((question, options, correct), idx) =>
-            println(s"Processing $idx out of $max")
-            val knowledgeStart = System.currentTimeMillis()
-            val knowledgeSnippet = if (textSolver.isInstanceOf[TextILPSolver]) {
-              val rawSentences = SolverUtils.extractPatagraphGivenQuestionAndFocusSet3(question, options, knowledgeLength).mkString(". ")
-              annotationUtils.dropRedundantSentences(rawSentences)
-            } else {
-              ""
-            }
-
-            println("knowledge: " + knowledgeSnippet)
-            val knowledgeEnd = System.currentTimeMillis()
-
-            val (selected, results) = if (knowledgeSnippet.trim != "") {
-              println("solving it . . . ")
-              textSolver.asInstanceOf[TextILPSolver].solveWithReasoningType(question, options, knowledgeSnippet, t, srlVu)
-            } else {
-              Seq.empty -> EntityRelationResult()
-            }
-            if (knowledgeSnippet.trim.isEmpty && textSolver.isInstanceOf[TextILPSolver]) {
-              println("Error: knowledge not found .  .  .")
-            }
-
-            val solveEnd = System.currentTimeMillis()
-            val score = SolverUtils.assignCredit(selected, correct.head - 'A', options.length)
-            println(results.statistics)
-            /*
-            if (score < 1.0) {
-              println("Question: " + question + " / options: " + options + "   / selected: " + selected + " / score: " + score)
-            }
-            println("Score " + score + "  selected: " + selected)
-            */
-            (score, results.statistics,
-              ((knowledgeEnd - knowledgeStart) / 1000.0, (solveEnd - knowledgeEnd) / 1000.0, if (selected.nonEmpty) 1.0 else 0.0))
-        }.unzip3
-        val (avgKnowledgeTime, avgSolveTime, nonEmptyList) = otherTimes.unzip3
-        val avgCoverage = nonEmptyList.sum / nonEmptyList.length
-        val nonZeroScores = perQuestionScore.zip(nonEmptyList).filter(_._2 > 0.0).map(_._1)
-        println("reasoning type:  " + t)
-        println("Average score: " + perQuestionScore.sum / perQuestionScore.size)
-        println("Avg precision: " + nonZeroScores.sum / nonZeroScores.size)
-        println("avgCoverage: " + avgCoverage)
-        println("Total number of questions: " + perQuestionResults.length)
-        println("Total number of questions: " + nonZeroScores.length)
-        println("Avg solve overall time: " + avgSolveTime.sum / avgSolveTime.length)
-        println("Avg knowledge extraction time: " + avgKnowledgeTime.sum / avgKnowledgeTime.length)
-        val end = System.currentTimeMillis()
-        println("Total time (mins): " + (end - start) / 60000.0)
-        val avgResults = perQuestionResults.reduceRight[Stats] { case (a: Stats, b: Stats) => a.sumWith(b) }.divideBy(perQuestionResults.length)
-        println(avgResults.toString)
-        val resultFile = new FileWriter(f, true)
-        resultFile.write(s"$knowledgeLength \t ${t} \t  ${srlVu} \t ${perQuestionScore.sum / perQuestionScore.size} \t ${nonZeroScores.sum / nonZeroScores.size} \t ${avgCoverage} " +
-          s"\t ${nonZeroScores.length} \t ${perQuestionResults.length} \t ${avgSolveTime.sum / avgSolveTime.length} \n")
-        resultFile.close()
-      }
-    }
-  }
-
-  def cacheTheKnowledgeOnDisk(dataset: Seq[(String, Seq[String], String)]): Unit = {
-    dataset.zipWithIndex.foreach {
-      case ((question, options, correct), idx) =>
-        println(s"done with $idx out of ${dataset.length}. ")
-        options.zipWithIndex.foreach {
-          case (f, opt) =>
-            println("\t\t----> opt: " + opt)
-            SolverUtils.staticCacheLucene(question, f, 200)
-        }
-    }
-  }
-
   def evaluateTextSolverOnProcessBank(list: List[Paragraph], textSolver: TextSolver) = {
     import java.io._
     // use false if you don't it to write things on disk
@@ -258,72 +143,6 @@ object ExperimentsApp {
     resultFile.close()
   }
 
-  def evaluateTextSolverOnProcessBankWithDifferentReasonings(list: List[Paragraph], textILPSolver: TextILPSolver) = {
-    import java.io._
-    //val types = Seq( /*WhatDoesItDoRule, CauseRule, */ SRLV1Rule /*, VerbSRLandPrepSRL,SRLV1ILP, VerbSRLandCoref, SimpleMatching*/ )
-    val types = Seq(SimpleMatching /*SimpleMatching, WhatDoesItDoRule, CauseRule, SRLV1Rule, VerbSRLandPrepSRL, */ /*SRLV1ILP, VerbSRLandCoref,
-                          SRLV2Rule, SRLV3Rule*/ /*VerbSRLandCommaSRL*/ )
-    val srlViewsAll = Seq(ViewNames.SRL_VERB, TextILPSolver.curatorSRLViewName, TextILPSolver.pathLSTMViewName)
-    val qAndpPairs = list.flatMap { p => p.questions.map(q => (q, p)) }
-    val resultFile = new PrintWriter(new File(s"output/results-per-solver-length${qAndpPairs.length}-processBank.txt"))
-    resultFile.write(s"Type \t SRL \t Score \t Precision \t Recall \t Total Answered \t Out of \n")
-    types.foreach { t =>
-      println("==================================================")
-      val srlViewTypes = if (t == CauseRule || t == WhatDoesItDoRule || t == SimpleMatching) Seq(TextILPSolver.pathLSTMViewName) else srlViewsAll
-      // use false if you don't it to write things on disk
-      srlViewTypes.foreach { srlVu =>
-        val outputFileOpt = if (true) {
-          Some(new PrintWriter(new File(s"output/${list.length}-${t.toString}-$srlVu.tsv")))
-        } else {
-          None
-        }
-        val (resultLists, stats, nonEmptyList) = qAndpPairs.zipWithIndex.collect {
-          case ((q, p), idx) =>
-            //println("==================================================")
-            println("Processed " + idx + " out of " + qAndpPairs.size)
-            //println("Paragraph: " + p)
-            val candidates = q.answers.map(_.answerText)
-            val correctIndex = q.correctIdxOpt.get
-            //println("question: " + q.questionText)
-            //println("candidates: " + candidates)
-            //          println("length of allCandidatesMinusCorrectOnes: " + allCandidatesMinusCorrectOnes.size)
-            //          println("candidates.length: " + candidates.length)
-            val (selected, explanation) = textILPSolver.solveWithReasoningType(q.questionText, candidates, p.context, t, srlVu)
-            val correctLabel = q.answers(correctIndex).answerText
-            val score = SolverUtils.assignCredit(selected, correctIndex, candidates.length)
-            //println("correctIndex: " + correctIndex)
-            if (outputFileOpt.isDefined) outputFileOpt.get.write(q.questionText + "\t" + score + "\t" + correctIndex +
-              "\t" + selected + "\t" + explanation.statistics.numberOfBinaryVars + "\t" + explanation.statistics.numberOfConstraints +
-              "\t" + explanation.statistics.objectiveValue + "\n")
-
-            //println("selected: " + selected + " score: " + score + " explanation: " + explanation)
-            //          if (score < 0.5 && selected.nonEmpty) println(" >>>>>>> Selected and Incorrect :" + score + s"  ${q.questionText}")
-            //          if (score < 0.5) println(" >>>>>>> Incorrect :" + score)
-            //          if (score > 0.5) println(" >>>>>>> correct :" + score)
-            //          println(s"Processed $idx out of ${qAndpPairs.length}")
-            (score, explanation.statistics, if (selected.nonEmpty) 1.0 else 0.0) // -> (explanation.confidence -> correctLabel)
-        }.unzip3
-
-        val avgStats = stats.reduceRight[Stats] { case (a: Stats, b: Stats) => a.sumWith(b) }.divideBy(stats.length)
-        val avgCoverage = nonEmptyList.sum / nonEmptyList.length
-        val nonEmptyScores = resultLists.zip(nonEmptyList).filter(_._2 > 0).map(_._1)
-        val avgPrecision = nonEmptyScores.sum / nonEmptyScores.length
-        val avgAristoScore = resultLists.sum / resultLists.length
-        println("------------")
-        println("t: " + t.toString)
-        println("avgAristoScore: " + avgAristoScore)
-        println("avgPrecision: " + avgPrecision)
-        println("avgCoverage: " + avgCoverage)
-        println("total size: " + resultLists.length)
-        println("total answered: " + nonEmptyScores.length)
-        if (outputFileOpt.isDefined) outputFileOpt.get.close
-        resultFile.write(s"${t} \t  ${srlVu} \t $avgAristoScore \t $avgPrecision \t ${avgCoverage} " +
-          s"\t ${nonEmptyScores.length} \t ${resultLists.length} \n")
-      }
-    }
-    resultFile.close()
-  }
-
   def main(args: Array[String]): Unit = {
     lazy val processReader = new ProcessBankReader(false, annotationUtils)
     val parser = new ArgumentParser(args)
@@ -342,7 +161,35 @@ object ExperimentsApp {
         println(statistics)
         val endTime = System.currentTimeMillis()
         println("total time: " + (endTime - startTime) / 1000.0)
+
+
       case 2 =>
+        val question = "Which force causes a marble to sink to the bottom of a glass of water?"
+        val options = Seq("gravity", "friction", "magnetism", "electricity")
+        val knowledgeLength = 8
+        val rawSentences = SolverUtils.extractPatagraphGivenQuestionAndFocusSet3(question, options, knowledgeLength).mkString(". ")
+        println(annotationUtils.dropRedundantSentences(rawSentences))
+
+      case 3 =>
+        // get dataset statistics
+        val allParagraphs = processReader.testInstances ++ processReader.trainingInstances
+        println("paragraphs: " + allParagraphs.length)
+        println("number of questions: " + allParagraphs.flatMap(_.questions).length)
+        println("number of training questions: " + processReader.trainingInstances.flatMap(_.questions).length)
+        println("number of testing questions: " + processReader.testInstances.flatMap(_.questions).length)
+        println("training instances: " + processReader.trainingInstances.length)
+        println("testing instances: " + processReader.testInstances.length)
+        println("non-true-false instances: " + allParagraphs.filterNotTrueFalse.flatMap(_.questions).length)
+        println("non-true-false training instances: " + processReader.trainingInstances.filterNotTrueFalse.flatMap(_.questions).length)
+        println("non-true-false testing instances: " + processReader.testInstances.filterNotTrueFalse.flatMap(_.questions).length)
+        println("training instances about order: " + processReader.trainingInstances.filterTemporals.flatMap(_.questions).length)
+        println("testing instances about order: " + processReader.testInstances.filterTemporals.flatMap(_.questions).length)
+        println("training / filterNotTemporals.filterNotTrueFalse: " + processReader.trainingInstances.filterNotTemporals.filterNotTrueFalse.flatMap(_.questions).length)
+        println("testing / filterNotTemporals.filterNotTrueFalse: " + processReader.testInstances.filterNotTemporals.filterNotTrueFalse.flatMap(_.questions).length)
+
+      case 4 =>
+        // evaluating science exams
+
         // evaluateTextSolverOnRegents(SolverUtils.eighthGradeTrain, textILPSolver)
         // println("==== eighthGradeTrain  ")
         //evaluateTextSolverOnRegents(SolverUtils.eighthGradeTest, textILPSolver)
@@ -355,8 +202,8 @@ object ExperimentsApp {
 
         // evaluateTextSolverOnRegents(SolverUtils.regentsTrain, textILPSolver)
         // println("==== regents train  ")
-        //evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver)
-        //println("==== regents test  ")
+        evaluateTextSolverOnRegents(SolverUtils.regentsTest, textILPSolver)
+        println("==== regents test  ")
 
         // evaluateTextSolverOnRegents(SolverUtils.regentsPerturbed, textILPSolver)
         // println("==== regents perturbed  ")
@@ -377,26 +224,10 @@ object ExperimentsApp {
         //evaluateTextSolverOnRegents(SolverUtils.squidAdditionalTest, textILPSolver)
         //println("==== squidAdditionalTest ")
 
-        evaluateTextSolverOnRegents(SolverUtils.squidChallengeTest, textILPSolver)
-        println("==== squidChallengeTest ")
+        //evaluateTextSolverOnRegents(SolverUtils.squidChallengeTest, textILPSolver)
+        //println("==== squidChallengeTest ")
 
-      case 3 =>
-        // get dataset statistics
-        val allParagraphs = processReader.testInstances ++ processReader.trainingInstances
-        println("paragraphs: " + allParagraphs.length)
-        println("number of questions: " + allParagraphs.flatMap(_.questions).length)
-        println("number of training questions: " + processReader.trainingInstances.flatMap(_.questions).length)
-        println("number of testing questions: " + processReader.testInstances.flatMap(_.questions).length)
-        println("training instances: " + processReader.trainingInstances.length)
-        println("testing instances: " + processReader.testInstances.length)
-        println("non-true-false instances: " + allParagraphs.filterNotTrueFalse.flatMap(_.questions).length)
-        println("non-true-false training instances: " + processReader.trainingInstances.filterNotTrueFalse.flatMap(_.questions).length)
-        println("non-true-false testing instances: " + processReader.testInstances.filterNotTrueFalse.flatMap(_.questions).length)
-        println("training instances about order: " + processReader.trainingInstances.filterTemporals.flatMap(_.questions).length)
-        println("testing instances about order: " + processReader.testInstances.filterTemporals.flatMap(_.questions).length)
-        println("training / filterNotTemporals.filterNotTrueFalse: " + processReader.trainingInstances.filterNotTemporals.filterNotTrueFalse.flatMap(_.questions).length)
-        println("testing / filterNotTemporals.filterNotTrueFalse: " + processReader.testInstances.filterNotTemporals.filterNotTrueFalse.flatMap(_.questions).length)
-      case 4 =>
+      case 5 =>
         // evaluate processBank
         //        evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterTemporals, textILPSolver)
         //        println("filterTemporals: ")
@@ -425,45 +256,8 @@ object ExperimentsApp {
       //        println("-------------------")
       //      }
       // evaluateTextSolverOnProcessBank(processReader, slidingWindowSolver)
-      case 5 =>
-        import ResultJson._
-        // write processBank on disk as json
-        import java.io._
-        val pw = new PrintWriter(new File("processBank-test3-filterNotTemporals.filterNotTrueFalse.json"))
-        val json = Json.toJson(processReader.testInstances.filterNotTemporals.filterNotTrueFalse).toString
-        pw.write(json)
-        pw.close()
 
       case 6 =>
-        evaluateTextSolverOnRegentsPerReasoningMethod(SolverUtils.publicTrain, textILPSolver)
-      //evaluateTextSolverOnRegentsPerReasoningMethod(SolverUtils.eighthGradeTrainPublic, textILPSolver)
-      case 7 =>
-        // evaluate other solvers on regents
-        evaluateTextSolverOnRegents(SolverUtils.regentsTrain, luceneSolver)
-        evaluateTextSolverOnRegents(SolverUtils.publicTrain, luceneSolver)
-        evaluateTextSolverOnRegents(SolverUtils.publicTest, luceneSolver)
-        evaluateTextSolverOnRegents(SolverUtils.publicTrain, salienceSolver)
-        evaluateTextSolverOnRegents(SolverUtils.publicTest, salienceSolver)
-
-      case 8 =>
-        // test effect of knowledge length :
-        (1 to 60 by 3).foreach { i =>
-          //evaluateTextSolverOnRegents(SolverUtils.regentsTest.slice(0, 50), textILPSolver, knowledgeLength = i)
-          evaluateTextSolverOnRegentsPerReasoningMethod(SolverUtils.regentsTest.slice(0, 50), textILPSolver, knowledgeLength = i)
-        }
-
-      case 9 =>
-        // println(SolverUtils.squidAdditionalTest.zipWithIndex.filter(_._1._2.length < 2).mkString)
-        // println(SolverUtils.squidChallengeTest.zipWithIndex.filter(_._1._2.length < 2).mkString)
-
-        println(SolverUtils.squidAdditionalTest.size)
-        //SolverUtils.squidAdditionalTrain
-        //SolverUtils.squidAdditionalDev
-        println(SolverUtils.squidChallengeTest.size)
-      //SolverUtils.squidChallengeTrain
-      //SolverUtils.squidChallengeDev
-
-      case 10 =>
         // process multirc questions
         val ps = Paragraph2.readJson3("/Users/daniel/ideaProjects/hard-qa/files/everything/step3-output/step3_output-combined-uniqueAns-subset=-with-sliding-window2.json")
 
@@ -502,7 +296,7 @@ object ExperimentsApp {
 
         cacheOnDiskAi2(ps)
 
-      case 11 =>
+      case 7 =>
         val ps = Paragraph2.readJson4("/Users/daniel/ideaProjects/hard-qa/files/everything/step3-output/step3_output-combined-uniqueAns-subset=-withhuman2.json")
 
         val reg = "<b>Sent \\d{1,2}: </b>".r
@@ -540,7 +334,7 @@ object ExperimentsApp {
         cacheOnDiskAi2(ps)
         Paragraph2.writeJson4("/Users/daniel/ideaProjects/hard-qa/files/everything/step3-output/step3_output-combined-uniqueAns-subset=-with-lucene-world.json", ps)
 
-      case 55 =>
+      case 8 =>
         // write the bioProcess questions on disk, as well as their predictions
         import java.io._
         val pw = new PrintWriter(new File("processBank-train.tsv"))
@@ -558,7 +352,7 @@ object ExperimentsApp {
             pw.write(s"${q.questionText}\t${candidates.mkString("//")}\t${p.context}\t$correctIndex\n")
         }
         pw.close()
-      case 73 =>
+      case 9 =>
         val str1 = "This is a sentence. It is made of words"
         val str2 = "This sentence is similar. It has almost the same words"
         val metric = StringMetrics.cosineSimilarity()
@@ -579,7 +373,7 @@ object ExperimentsApp {
         println("result: " + metric7.compare(str1, str2))
         println("result: " + metric8.compare(str1, str2))
         println("result: " + metric9.compare(str1, str2))
-      case 80 =>
+      case 10 =>
         // print the questions on which Lucene is correct but TextILP is wrong
         SolverUtils.regentsTrain.map {
           case (question, options, correct) =>
@@ -604,7 +398,7 @@ object ExperimentsApp {
             }
         }
 
-      case 93 =>
+      case 11 =>
         // read the json predictions of the BiDaF and evaluate
         processAnswers("output/processBank-train5-output.json", processReader.trainingInstances.filterNotTemporals.filterNotTrueFalse)
         processAnswers("output/processBank-test5-output.json", processReader.testInstances.filterNotTemporals.filterNotTrueFalse)
@@ -633,7 +427,7 @@ object ExperimentsApp {
           }
           println("average score: " + scores.sum / scores.length + "  - size: " + scores.length)
         }
-      case 95 =>
+      case 12 =>
         // read Vivek's data
         val predictions = Source.fromFile(new File(Constants.vivekPredictonsFile)).getLines().toList.drop(1).map { line =>
           val split = line.split("\t")
@@ -668,14 +462,7 @@ object ExperimentsApp {
         val vivekDocs = predictions.map(_._1).distinct
         println("missing docs: " + (all diff vivekDocs))
 
-      case 102 =>
-        val question = "Which force causes a marble to sink to the bottom of a glass of water?"
-        val options = Seq("gravity", "friction", "magnetism", "electricity")
-        val knowledgeLength = 8
-        val rawSentences = SolverUtils.extractPatagraphGivenQuestionAndFocusSet3(question, options, knowledgeLength).mkString(". ")
-        println(annotationUtils.dropRedundantSentences(rawSentences))
-
-      case 111 =>
+      case 13 =>
         def writeFeaturesOnDisk(dataset: Seq[(String, Seq[String], String)]): Unit = {
           val f = s"output/featureVectors-${dataset.length}.txt"
           IOUtils.rm(f)
@@ -785,28 +572,31 @@ object ExperimentsApp {
           }
         }
 
-        //        cacheOnDiskAi2(SolverUtils.eigthGradeTrainPublic)
-        //          println("---> eigthGradeTrainPublic \n --------------")
+        cacheOnDiskAi2(SolverUtils.regentsTest)
+
+
+        //cacheOnDiskAi2(SolverUtils.eigthGradeTrainPublic)
+        //println("---> eigthGradeTrainPublic \n --------------")
         //cacheOnDiskAi2(SolverUtils.eighthGradeTestPublic)
         //println("---> eigthGradeTestPublic \n --------------")
 
         //cacheOnDiskAi2(SolverUtils.squid04test)
         //println("---> squid04test \n --------------")
 
-        cacheOnDiskAi2(SolverUtils.squidAdditionalTest)
-        println("---> squidAdditionalTest \n --------------")
-        cacheOnDiskAi2(SolverUtils.squidChallengeTest)
-        println("---> squidChallengeTest \n --------------")
-
-        cacheOnDiskAi2(SolverUtils.squidAdditionalDev)
-        println("---> squidAdditionalDev \n --------------")
-        cacheOnDiskAi2(SolverUtils.squidChallengeDev)
-        println("---> squidChallengeDev \n --------------")
-
-        cacheOnDiskAi2(SolverUtils.squidAdditionalTrain)
-        println("---> squidAdditionalTrain \n --------------")
-        cacheOnDiskAi2(SolverUtils.squidChallengeTrain)
-        println("---> squidChallengeTrain \n --------------")
+//        cacheOnDiskAi2(SolverUtils.squidAdditionalTest)
+//        println("---> squidAdditionalTest \n --------------")
+//        cacheOnDiskAi2(SolverUtils.squidChallengeTest)
+//        println("---> squidChallengeTest \n --------------")
+//
+//        cacheOnDiskAi2(SolverUtils.squidAdditionalDev)
+//        println("---> squidAdditionalDev \n --------------")
+//        cacheOnDiskAi2(SolverUtils.squidChallengeDev)
+//        println("---> squidChallengeDev \n --------------")
+//
+//        cacheOnDiskAi2(SolverUtils.squidAdditionalTrain)
+//        println("---> squidAdditionalTrain \n --------------")
+//        cacheOnDiskAi2(SolverUtils.squidChallengeTrain)
+//        println("---> squidChallengeTrain \n --------------")
 
       //        cacheOnDisk(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals)
       //        cacheOnDiskAi2(SolverUtils.regentsTrain)
@@ -911,7 +701,7 @@ object ExperimentsApp {
               val options = q.answers.map(_.answerText)
               val selected = if (knowledgeSnippet.trim != "") {
                 println("solving it . . . ")
-                val selected = Seq(textILPSolver.predictMaxScoreWekaClassifier(question, options, knowledgeSnippet))
+                val (selected, _) = textILPSolver.solve(question, options, knowledgeSnippet)
                 val f = new FileWriter(s"output/predictionPerQuestion-ProcessBank-${max}.txt", true)
                 f.write(question + "\t" + selected.head + "\t" + q.correctIdxOpt.get + "\n")
                 f.close()
@@ -928,16 +718,16 @@ object ExperimentsApp {
 
         //        evaluateAi2(SolverUtils.eigthGradeTrainPublic)
         //        println("---> eigthGradeTrainPublic \n --------------")
-        evaluateAi2(SolverUtils.eighthGradeTestPublic)
-        println("---> eigthGradeTestPublic \n --------------")
+        //evaluateAi2(SolverUtils.eighthGradeTestPublic)
+        //println("---> eigthGradeTestPublic \n --------------")
 
       //        evaluateAi2(SolverUtils.regentsPerturbed)
       //        println("---> regentsPerturbed \n --------------")
 
       //        evaluateAi2(SolverUtils.regentsTrain)
       //        println("regents train \n --------------")
-      //        evaluateAi2(SolverUtils.regentsTest.slice(0, 20))
-      //        println("--> regentsTest \n --------------")
+        evaluateAi2(SolverUtils.regentsTest)
+        println("--> regentsTest \n --------------")
       //        evaluateAi2(SolverUtils.eigthGradeTrain)
       // println("--> eigthGradeTrain \n --------------")
       // evaluateAi2(SolverUtils.eigthGradeTest)
@@ -997,42 +787,6 @@ object ExperimentsApp {
           println(s"File: ${ansFile}  / average score: " + scores.sum / scores.length + "  - size: " + scores.length)
         }
 
-      case 119 =>
-        // testing semantic ilp on snigdha's questions
-        def evluateProcessbankData(list: Seq[Paragraph]) = {
-          val qAndpPairs = list.flatMap { p => p.questions.map(q => (q, p)) }
-          val max = qAndpPairs.length
-          val scores = qAndpPairs.zipWithIndex.map {
-            case ((q, p), idx) =>
-              println(s"Processing $idx out of $max")
-              val knowledgeSnippet = p.context
-              val question = q.questionText
-              val options = q.answers.map(_.answerText)
-              val selected = if (knowledgeSnippet.trim != "") {
-                println("solving it . . . ")
-                val selected = textILPSolver.solve(question, options, knowledgeSnippet)._1
-                //Seq(textILPSolver.predictMaxScoreWekaClassifier(question, options, knowledgeSnippet))
-                val f = new FileWriter(s"output/remedia-snigdha-candidates-${max}.txt", true)
-                if(selected.nonEmpty) {
-                  f.write(q.questionId + "\t" + selected.head + "\t" + options(selected.head) + "\n")
-                }
-                else {
-                  f.write(q.questionId + "\t - \t - \n")
-                }
-                f.close()
-                selected
-              } else {
-                Seq.empty
-              }
-              //SolverUtils.assignCredit(selected, q.correctIdxOpt.get, options.length)
-          }
-//          println(" --> Average score: " + {
-//            scores.sum / scores.size
-//          })
-        }
-
-        evluateProcessbankData(remediaSnigdhaCandidates)
-
       case 120 =>
         // evaluate with the visualizer
         def evluateProcessbankData(list: Seq[Paragraph]) = {
@@ -1065,43 +819,7 @@ object ExperimentsApp {
         //evaluateTextSolverOnRegents(SolverUtils.regentsTest)
 
 
-      case 121 =>
-        // read phrase pairs and and evaluate entailment scores
-        println("Starting . . . ")
-        val lines = Source.fromFile("/Users/daniel/ideaProjects/linear-classifier/remedia-train-pairs-snigdha2.txt").getLines.toList
-        val w = new FileWriter("/Users/daniel/ideaProjects/linear-classifier/remedia-train-pairs-snigdha-with-scores2.txt")
-        lines.map{ l =>
-          val split = l.split("//")
-          val score1 = TextILPSolver.offlineAligner.scoreCellQChoice(split(0).trim, split(1).trim) + 0.2
-          val score2 = TextILPSolver.offlineAligner.scoreCellQChoice(split(1).trim, split(0).trim) + 0.2
-          w.write(l + s"//$score1 // $score2 \n")
-        }
-        w.close()
-//        val s1 = "propeller"
-//        val s2 = "object"
-//        println(TextILPSolver.offlineAligner.scoreCellQChoice(s1, s2) + 0.2)
-//        println(TextILPSolver.offlineAligner.scoreCellQChoice(s2, s1) + 0.2)
 
-      case 122 =>
-        // extract lucene sentences for questions WITHOUT answers
-
-        def evaluateTextSolverOnRegents(dataset: Seq[(String, Seq[String], String)]) = {
-          val w = new FileWriter("regents-pubilc-4th-grade-with-lucene-using-answers" + dataset.length + ".txt")
-          val max = dataset.length
-          dataset.zipWithIndex.map {
-            case ((question, options, correct), idx) =>
-              println(s"Processing $idx out of $max")
-              val rawSentences = SolverUtils.extractPatagraphGivenQuestionAndFocusSet3(question, options, 12).mkString(". ")
-              w.write(question + "\n")
-              w.write(options.mkString("//") + "\n")
-              w.write(rawSentences + "\n")
-              println(rawSentences)
-          }
-          w.close()
-        }
-        // evaluateTextSolverOnRegents(SolverUtils.publicTrain)
-        evaluateTextSolverOnRegents(SolverUtils.publicTest)
-        evaluateTextSolverOnRegents(SolverUtils.publicDev)
     }
   }
 }

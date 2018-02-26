@@ -35,14 +35,14 @@ object Constants {
 
   // for elastic search
   val remoteElastic = Elastic(
-    clusterName = "aristo-es", hostIp = "aristo-es1.dev.ai2", hostPort = 9300,
+    clusterName = "aristo-es", hostIp = "aristo-es.dev.ai2", hostPort = 9300,
     Map(
-      "barrons" -> "Barrons 4th Grade Study Guide",
-      "websentences" -> "Web",
-      "ck12biov44" -> "CK-12 8th Grade Biology Textbook",
-      "waterloo" -> "Waterloo Corpus",
-      "wikipedia" -> "Wikipedia",
-      "simplewikipedia" -> "Simple Wikipedia"
+//      "barrons" -> "Barrons 4th Grade Study Guide",
+      "websentences" -> "Web"//,
+//      "ck12biov44" -> "CK-12 8th Grade Biology Textbook",
+//      "waterloo" -> "Waterloo Corpus",
+//      "wikipedia" -> "Wikipedia",
+//      "simplewikipedia" -> "Simple Wikipedia"
     //    "waterloofiltered1" -> "waterloofiltered1",
     //    "waterloofiltered2" -> "waterloofiltered2",
     //    "quizlet-qna" -> "quizlet-qna",
