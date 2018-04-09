@@ -8,7 +8,7 @@ lazy val commonSettings = Seq(
   organization := ccgGroupId,
   version := "1.5",
   scalaVersion := "2.11.8",
-  javaOptions ++= Seq("-Xmx25G", "-XX:MaxMetaspaceSize=5g"),
+  javaOptions ++= Seq("-Xmx6G"),
   fork := false,
   // Make sure SCIP libraries are locatable.
   javaOptions += s"-Djava.library.path=lib",
