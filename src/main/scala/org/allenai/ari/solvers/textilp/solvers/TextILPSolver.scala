@@ -326,55 +326,81 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
     lazy val resultCause = CauseResultRules(q, p) -> "resultCause"
     lazy val resultVerbSRLPlusCommaSRL_pipelneSRL = {
       val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
-      solveTopAnswer(q, p, ilpSolver, aligner, Set(VerbSRLandCommaSRL), useSummary = true, ViewNames.SRL_VERB)
+      val result = solveTopAnswer(q, p, ilpSolver, aligner, Set(VerbSRLandCommaSRL), useSummary = true, ViewNames.SRL_VERB)
+      ilpSolver.free()
+      result
     } -> "resultVerbSRLPlusCommaSRL_pipeline_srl"
     lazy val resultVerbSRLPlusCommaSRL_curatorSRL = {
       val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
-      solveTopAnswer(q, p, ilpSolver, aligner, Set(VerbSRLandCommaSRL), useSummary = true, TextILPSolver.curatorSRLViewName)
+      val result = solveTopAnswer(q, p, ilpSolver, aligner, Set(VerbSRLandCommaSRL), useSummary = true, TextILPSolver.curatorSRLViewName)
+      ilpSolver.free()
+      result
     } -> "resultVerbSRLPlusCommaSRL_curator_srl"
     lazy val resultVerbSRLPlusCommaSRL_pathLSTM = {
       val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
-      solveTopAnswer(q, p, ilpSolver, aligner, Set(VerbSRLandCommaSRL), useSummary = true, TextILPSolver.pathLSTMViewName)
+      val result = solveTopAnswer(q, p, ilpSolver, aligner, Set(VerbSRLandCommaSRL), useSummary = true, TextILPSolver.pathLSTMViewName)
+      ilpSolver.free()
+      result
     } -> "resultVerbSRLPlusCommaSRL"
     lazy val resultSimpleMatching = {
       val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
-      solveTopAnswer(q, p, ilpSolver, aligner, Set(SimpleMatching), useSummary = true, TextILPSolver.pathLSTMViewName)
+      val result = solveTopAnswer(q, p, ilpSolver, aligner, Set(SimpleMatching), useSummary = true, TextILPSolver.pathLSTMViewName)
+      ilpSolver.free()
+      result
     } -> "resultILP"
     lazy val resultVerbSRLPlusCoref_pipelineSRL = {
       val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
-      solveTopAnswer(q, p, ilpSolver, aligner, Set(VerbSRLandCoref), useSummary = true, ViewNames.SRL_VERB)
+      val result = solveTopAnswer(q, p, ilpSolver, aligner, Set(VerbSRLandCoref), useSummary = true, ViewNames.SRL_VERB)
+      ilpSolver.free()
+      result
     } -> "resultVerbSRLPlusCoref_pipeline_srl"
     lazy val resultVerbSRLPlusCoref_curatorSRL = {
       val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
-      solveTopAnswer(q, p, ilpSolver, aligner, Set(VerbSRLandCoref), useSummary = true, TextILPSolver.curatorSRLViewName)
+      val result = solveTopAnswer(q, p, ilpSolver, aligner, Set(VerbSRLandCoref), useSummary = true, TextILPSolver.curatorSRLViewName)
+      ilpSolver.free()
+      result
     } -> "resultVerbSRLPlusCoref_curator_srl"
     lazy val resultVerbSRLPlusCoref_pathLSTM = {
       val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
-      solveTopAnswer(q, p, ilpSolver, aligner, Set(VerbSRLandCoref), useSummary = true, TextILPSolver.pathLSTMViewName)
+      val result = solveTopAnswer(q, p, ilpSolver, aligner, Set(VerbSRLandCoref), useSummary = true, TextILPSolver.pathLSTMViewName)
+      ilpSolver.free()
+      result
     } -> "resultVerbSRLPlusCoref_path_lstm"
     lazy val resultVerbSRLPlusPrepSRL_pipeline_srl = {
       val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
-      solveTopAnswer(q, p, ilpSolver, aligner, Set(VerbSRLandPrepSRL), useSummary = true, ViewNames.SRL_VERB)
+      val result = solveTopAnswer(q, p, ilpSolver, aligner, Set(VerbSRLandPrepSRL), useSummary = true, ViewNames.SRL_VERB)
+      ilpSolver.free()
+      result
     } -> "resultVerbSRLPlusPrepSRL_pipeline_srl"
     lazy val resultVerbSRLPlusPrepSRL_curator_srl = {
       val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
-      solveTopAnswer(q, p, ilpSolver, aligner, Set(VerbSRLandPrepSRL), useSummary = true, TextILPSolver.curatorSRLViewName)
+      val result = solveTopAnswer(q, p, ilpSolver, aligner, Set(VerbSRLandPrepSRL), useSummary = true, TextILPSolver.curatorSRLViewName)
+      ilpSolver.free()
+      result
     } -> "resultVerbSRLPlusPrepSRL_curator_srl"
     lazy val resultVerbSRLPlusPrepSRL_path_lstm = {
       val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
-      solveTopAnswer(q, p, ilpSolver, aligner, Set(VerbSRLandPrepSRL), useSummary = true, TextILPSolver.pathLSTMViewName)
+      val result = solveTopAnswer(q, p, ilpSolver, aligner, Set(VerbSRLandPrepSRL), useSummary = true, TextILPSolver.pathLSTMViewName)
+      ilpSolver.free()
+      result
     } -> "resultVerbSRLPlusPrepSRL_path_lstm"
     lazy val srlV1ILP_pipeline_srl = {
       val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
-      solveTopAnswer(q, p, ilpSolver, aligner, Set(SRLV1ILP), useSummary = false, ViewNames.SRL_VERB)
+      val result = solveTopAnswer(q, p, ilpSolver, aligner, Set(SRLV1ILP), useSummary = false, ViewNames.SRL_VERB)
+      ilpSolver.free()
+      result
     } -> "srlV1ILP_pipeline_srl"
     lazy val srlV1ILP_curator_srl = {
       val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
-      solveTopAnswer(q, p, ilpSolver, aligner, Set(SRLV1ILP), useSummary = false, TextILPSolver.curatorSRLViewName)
+      val result = solveTopAnswer(q, p, ilpSolver, aligner, Set(SRLV1ILP), useSummary = false, TextILPSolver.curatorSRLViewName)
+      ilpSolver.free()
+      result
     } -> "srlV1ILP_curator_srl"
     lazy val srlV1ILP_path_lstm = {
       val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
-      solveTopAnswer(q, p, ilpSolver, aligner, Set(SRLV1ILP), useSummary = false, TextILPSolver.pathLSTMViewName)
+      val result = solveTopAnswer(q, p, ilpSolver, aligner, Set(SRLV1ILP), useSummary = false, TextILPSolver.pathLSTMViewName)
+      ilpSolver.free()
+      result
     } -> "srlV1ILP_path_lstm"
 
     val resultOpt = Constants.textILPModel match {
@@ -540,7 +566,9 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
       case CauseRule => CauseResultRules(q, p)
       case x =>
         val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
-        solveTopAnswer(q, p, ilpSolver, aligner, Set(x), useSummary = true, srlViewName)
+        val result = solveTopAnswer(q, p, ilpSolver, aligner, Set(x), useSummary = true, srlViewName)
+        ilpSolver.free()
+        result
     }
   }
 
@@ -561,7 +589,9 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
           case CauseRule => CauseResultRules(q, p)
           case x =>
             val ilpSolver = new ScipSolver("textILP", ScipParams.Default)
-            solveTopAnswer(q, p, ilpSolver, aligner, Set(x), useSummary = true, srlViewName)
+            val result = solveTopAnswer(q, p, ilpSolver, aligner, Set(x), useSummary = true, srlViewName)
+            ilpSolver.free()
+            result
         }
       }
     }
@@ -3233,7 +3263,9 @@ class TextILPSolver(annotationUtils: AnnotationUtils,
           }
         }
 
-        solveExcludingAnswerOptions(Set.empty, Seq.empty)
+        val result = solveExcludingAnswerOptions(Set.empty, Seq.empty)
+        ilpSolver.free()
+        result
     }
   }
 
