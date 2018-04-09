@@ -25,7 +25,7 @@ def nlpstack(component: String) = ("org.allenai.nlpstack" %% s"nlpstack-$compone
   .exclude("edu.stanford.nlp", "stanford-corenlp")
   .exclude("org.slf4j", "log4j-over-slf4j")
 
-def textualEntailment(component: String) = ("org.allenai.textual-entailment" %% component % "1.0.6-SNAPSHOT")
+def textualEntailment(component: String) = ("org.allenai.textual-entailment" %% component % "1.0.6")
   .exclude("org.slf4j", "log4j-over-slf4j")
   .exclude("edu.stanford.nlp", "stanford-corenlp")
 
