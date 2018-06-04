@@ -234,6 +234,94 @@ object ExperimentsApp {
         // evaluateTextSolverOnProcessBank(processReader.trainingInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
         evaluateTextSolverOnProcessBank(processReader.testInstances.filterNotTrueFalse.filterNotTemporals, textILPSolver)
 
+         case 6 =>
+        // process multirc questions
+        val ps = Paragraph2.readJson5("/home/danielk/splitv2/dev_83-fixedIds.json") ++
+          Paragraph2.readJson5("/home/danielk/splitv2/test_1_83-fixedIds.json") ++
+          Paragraph2.readJson5("/home/danielk/splitv2/test_2_83-fixedIds.json") ++
+          Paragraph2.readJson5("/home/danielk/splitv2/test_3_83-fixedIds.json") ++
+          Paragraph2.readJson5("/home/danielk/splitv2/test_4_83-fixedIds.json") ++
+          Paragraph2.readJson5("/home/danielk/splitv2/train_456-fixedIds.json")
+
+        val reg = "<b>Sent \\d{1,2}: </b>".r
+
+        def cacheOnDiskAi2(list: Seq[Paragraph2]): Unit = {
+          val max = list.length
+          list.zipWithIndex.foreach {
+            case (p, idx) =>
+              println(s"Processing $idx out of $max")
+              if (idx > 8) {
+                try {
+                  val sentences = reg.split(p.text).drop(1)
+                  val knowledgeSnippet = sentences.map(_.trim().replace("<br>", " ")).mkString
+                  println("knowledge: " + knowledgeSnippet)
+                  p.questions.zipWithIndex.foreach {
+                    case (q, qIdx) =>
+                      q.answers.zipWithIndex.foreach {
+                        case (a, aIdx) =>
+                          try {
+                            textILPSolver.preprocessQuestionData(q.text, Seq(a.text), knowledgeSnippet)
+                            //                            val f = new FileWriter(s"output/textilp-multirc-april16.txt", true)
+                            //                            val out = textILPSolver.predictAllCandidatesWithWekaClassifier(q.text, Seq(a.text), knowledgeSnippet)
+                            //                            val score = out._1
+                            //                            f.write(p.id + "\t" + qIdx + "\t" + aIdx + "\t" + score + "\n")
+                            //                            f.close()
+                          } catch {
+                            case e: Exception =>
+                              println(s"solving question with id ${p.id} - ${qIdx} failed . . . ")
+                              e.printStackTrace()
+                          }
+                      }
+                  }
+                } catch {
+                  case e: Exception =>
+                    println("cache failed . . . ")
+                    e.printStackTrace()
+                }
+              }
+          }
+        }
+
+        cacheOnDiskAi2(ps)
+
+
+      case 7 =>
+        val ps = Paragraph2.readJson5("/Users/daniel/ideaProjects/hard-qa/splitv2/dev_83-fixedIds.json")
+
+        val reg = "<b>Sent \\d{1,2}: </b>".r
+
+        def cacheOnDiskAi2(list: Seq[Paragraph2]): Unit = {
+          val max = list.length
+          list.zipWithIndex.foreach {
+            case (p, idx) =>
+              //if(idx > 10) {
+              println(s"Processing $idx out of $max")
+              p.questions.zipWithIndex.foreach {
+                case (q, qIdx) =>
+                  println("----> q")
+                  q.answers.zipWithIndex.foreach {
+                    case (a, aIdx) =>
+                      //Thread.sleep(500)
+                      try {
+                        val results = SolverUtils.staticCacheLucene(q.text, a.text, 100)
+                        val maxScore = if (results.nonEmpty) results.maxBy(_._2)._2 else 0.0
+                        a.scores += ("lucene-world" -> maxScore)
+                      } catch {
+                        case e: Exception =>
+                          e.printStackTrace()
+                          Thread.sleep(2000)
+                      }
+                  }
+              }
+            //}
+          }
+        }
+
+        cacheOnDiskAi2(ps)
+        Paragraph2.writeJson4("/Users/daniel/ideaProjects/hard-qa/split/dev_83-with-lucene-local.json", ps)
+
+      
+      
     }
   }
 }
