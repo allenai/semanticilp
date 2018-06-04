@@ -170,5 +170,73 @@ object Paragraph2 {
       Paragraph2(text, questions, pId)
     }
   }
+  
+  
+  
+  def readJson5(file: String): Seq[Paragraph2] = {
+    val content = Source.fromFile(file).getLines().toList.mkString
+    val json = Json.parse(content)
+    (json \ "data").as[JsArray].value.map { v =>
+      val pId = (v \ "id").as[String]
+      //      if(pId.contains("used-oanc-output-Algarve-Intro-1.txt")) {
+      //        println(" ===> " + pId)
+      //      }
+      val p = v \ "paragraph"
+      val text = (p \ "text").as[String]
+      val questions = (p \ "questions").as[JsArray].value.map { q =>
+        val idx = (q \ "idx").as[String]
+        val qType = (q \ "multisent").as[Boolean]
+        val text = (q \ "question").as[String]
+        val sentences_used = (q \ "sentences_used").as[JsArray].value.map {
+          _.as[Int]
+        }.toSet
+        val answers = (q \ "answers").as[JsArray].value.map { a =>
+          val text = (a \ "text").as[String]
+          val isAnswer = (a \ "isAnswer").as[Boolean]
+          val scores = (a \ "scores").as[Map[String, Double]]
+          Answer2(text, 0, isAnswer, scala.collection.mutable.Map(scores.toList: _*))
+        }
+        SQuestion(text, answers, idx, sentences_used, qType)
+      }
+      Paragraph2(text, questions, pId)
+    }
+  }
+
+  def writeJson5(file: String, p: Seq[Paragraph2]) = {
+    val json = Json.obj(
+      "data" ->
+        p.zipWithIndex.map {
+          case (pp, pIdx) =>
+            Json.obj(
+              "paragraph" ->
+                Json.obj(
+                  "text" -> pp.text,
+                  "questions" -> pp.questions.zipWithIndex.map {
+                    case (q, qIdx) =>
+                      Json.obj(
+                        "question" -> q.text,
+                        "sentences_used" -> q.sentences,
+                        "answers" ->
+                          q.answers.map { a =>
+                            Json.obj(
+                              "text" -> a.text,
+                              "isAnswer" -> a.isAns,
+                              "scores" -> a.scores
+                            )
+                          },
+                        "idx" -> q.questionId,
+                        "multisent" -> q.mutliSent
+                      )
+                  }
+                ),
+              "id" -> pp.id
+            )
+        }
+    ).toString
+
+    val pw = new PrintWriter(new File(file))
+    pw.write(json)
+    pw.close()
+  }
 
 }
