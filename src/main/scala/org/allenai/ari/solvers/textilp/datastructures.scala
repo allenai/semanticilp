@@ -14,7 +14,7 @@ import scala.collection.JavaConverters._
 
 case class Paragraph2(text: String, questions: Seq[SQuestion], id: String = "")
 
-case class SQuestion(text: String, answers: Seq[Answer2], questionId: String = "", sentences: Set[Int] = Set.empty)
+case class SQuestion(text: String, answers: Seq[Answer2], questionId: String = "", sentences: Set[Int] = Set.empty, mutliSent: Boolean = false)
 
 case class Answer2(text: String, answerStart: Int = 0, isAns: Boolean = false, scores: MutableMap[String, Double] = MutableMap.empty)
 
