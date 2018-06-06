@@ -260,12 +260,12 @@ object ExperimentsApp {
                       q.answers.zipWithIndex.foreach {
                         case (a, aIdx) =>
                           try {
-                            textILPSolver.preprocessQuestionData(q.text, Seq(a.text), knowledgeSnippet)
-                            //                            val f = new FileWriter(s"output/textilp-multirc-april16.txt", true)
-                            //                            val out = textILPSolver.predictAllCandidatesWithWekaClassifier(q.text, Seq(a.text), knowledgeSnippet)
-                            //                            val score = out._1
-                            //                            f.write(p.id + "\t" + qIdx + "\t" + aIdx + "\t" + score + "\n")
-                            //                            f.close()
+//                             textILPSolver.preprocessQuestionData(q.text, Seq(a.text), knowledgeSnippet)
+                             val f = new FileWriter(s"output/textilp-multirc-june6.txt", true)
+                             val out = textILPSolver.predictAllCandidatesWithWekaClassifier(q.text, Seq(a.text), knowledgeSnippet)
+                             val score = out._1
+                             f.write(p.id + "\t" + qIdx + "\t" + aIdx + "\t" + score + "\n")
+                             f.close()
                           } catch {
                             case e: Exception =>
                               println(s"solving question with id ${p.id} - ${qIdx} failed . . . ")
