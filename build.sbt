@@ -8,7 +8,7 @@ lazy val commonSettings = Seq(
   organization := ccgGroupId,
   version := "1.5",
   scalaVersion := "2.11.8",
-  javaOptions ++= Seq("-Xmx25G", "-XX:MaxMetaspaceSize=5g"),
+  javaOptions ++= Seq("-Xmx10G"),
   fork := false,
   // Make sure SCIP libraries are locatable.
   javaOptions += s"-Djava.library.path=lib",
@@ -25,7 +25,7 @@ def nlpstack(component: String) = ("org.allenai.nlpstack" %% s"nlpstack-$compone
   .exclude("edu.stanford.nlp", "stanford-corenlp")
   .exclude("org.slf4j", "log4j-over-slf4j")
 
-def textualEntailment(component: String) = ("org.allenai.textual-entailment" %% component % "1.0.6-SNAPSHOT")
+def textualEntailment(component: String) = ("org.allenai.textual-entailment" %% component % "1.0.6")
   .exclude("org.slf4j", "log4j-over-slf4j")
   .exclude("edu.stanford.nlp", "stanford-corenlp")
 
